@@ -151,10 +151,10 @@ updateStatDisplay();
 
 function queryLock () {
   document.getElementById('question').textContent = 'Fetching questions...';
-  document.getElementById('start').disabled = true;
-  document.getElementById('next').disabled = true;
-  document.getElementById('pause').disabled = true;
-  document.getElementById('buzz').disabled = true;
+  document.getElementById('start').disabled = false;
+  document.getElementById('next').disabled = false;
+  document.getElementById('pause').disabled = false;
+  document.getElementById('buzz').disabled = false;
 }
 
 function queryUnlock () {
