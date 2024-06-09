@@ -1,0 +1,18 @@
+// primarily based on jquery
+
+.ui-slider {
+    background-color: $slider-background;
+    height: 8px;
+    border-radius: 8px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+
+.ui-slider-handle {
+    border-radius: 100%;
+    font-size: 13px;
+    background-color: $primary;
+    border-color: $primary;
+    outline-color: $primary;
+}

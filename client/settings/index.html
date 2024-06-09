@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Certamen Reader</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Adjust QB Reader settings.">
+
+    <link href="/apple-touch-icon.png" rel="apple-touch-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
+    <link type="image/x-icon" href="/favicon.ico" rel="icon">
+
+    <link href="/bootstrap/light.css" rel="stylesheet">
+    <link href="/bootstrap/dark.css" rel="stylesheet" id="custom-css">
+    <script type="module" src="/apply-theme.js"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-light navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
+        <div class="container-fluid">
+            <a class="navbar-brand ms-1 py-0" id="logo" href="/">
+                <span class="logo-prefix">Certamen</span><span class="logo-suffix">Reader</span>
+            </a>
+            <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/singleplayer">Singleplayer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/multiplayer">Multiplayer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/db">Database</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/frequency-list">Frequency List</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/geoword">Geoword</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/api-docs">API</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/settings" aria-current="page">Settings</a>
+                    </li>
+                </ul>
+                <!-- <div class="d-flex">
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/login" id="login-link">Log in</a>
+                        </li>
+                    </ul>
+                </div> -->
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-xl mt-3 mb-5 pb-5">
+        <p class="lead">Adjust site-wide settings here.</p>
+        <div>
+            <p>
+                <a id="toggle-color-theme" href="#">Toggle light/dark mode</a>.
+                (It should default to your system setting.)
+            </p>
+            <p>
+                Alternatively, <a id="reset-color-theme" href="#">click here</a> to clear your selection to allow the website to
+                automatically adjust to your system setting.
+            </p>
+        </div>
+        <div>
+            <label for="font-size">Font size: <span id="font-size-display">16</span>px</label>
+            <input class="form-range" id="font-size" type="range" value="16" min="10" max="30" step="1">
+            <p class="text-muted">This is the font size used to display the questions on the singleplayer and multiplayer pages.</p>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" id="toggle-database-font-size" type="checkbox" role="switch">
+            <label class="form-check-label" for="toggle-database-font-size">Also apply font setting to database page</label>
+        </div>
+        <p class="text-muted"></p>
+        <div class="form-check form-switch">
+            <input class="form-check-input" id="toggle-high-contrast-question-text" type="checkbox" role="switch">
+            <label class="form-check-label" for="toggle-high-contrast-question-text">High contrast text</label>
+        </div>
+        <p class="text-muted">
+            When enabled, increases the contrast of the question text and the background by setting it in Times New
+            Roman font and drawing a box around the questions.
+        </p>
+        <div class="form-check form-switch">
+            <input class="form-check-input" id="toggle-sound-effects" type="checkbox" role="switch">
+            <label class="form-check-label" for="toggle-sound-effects">Play sound effects</label>
+        </div>
+        <p class="text-muted">
+            When enabled, plays sound effects when you buzz in, get a question right, or get a question wrong.
+        </p>
+        <div>
+            <label for="multiplayer-name">Multiplayer username:</label>
+            <input class="form-control" id="multiplayer-name" type="text" name="username">
+        </div>
+    </div>
+
+    <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/script.js"></script>
+    <script type="module" src="/settings/index.js"></script>
+</body>
+
+</html>

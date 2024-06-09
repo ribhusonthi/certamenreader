@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Certamen Reader</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Frequency lists generated on qbreader.">
+
+    <link href="/apple-touch-icon.png" rel="apple-touch-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
+    <link type="image/x-icon" href="/favicon.ico" rel="icon">
+
+    <link href="/bootstrap/light.css" rel="stylesheet">
+    <link href="/bootstrap/dark.css" rel="stylesheet" id="custom-css">
+    <script type="module" src="/apply-theme.js"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-light navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
+        <div class="container-fluid">
+            <a class="navbar-brand ms-1 py-0" id="logo" href="/">
+                <span class="logo-prefix">Certamen</span><span class="logo-suffix">Reader</span>
+            </a>
+            <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/singleplayer">Singleplayer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/multiplayer">Multiplayer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/db">Database</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/frequency-list" aria-current="page">Frequency List</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/geoword">Geoword</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/api-docs">API</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/settings">Settings</a>
+                    </li>
+                </ul>
+                <!-- <div class="d-flex">
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/login" id="login-link">Log in</a>
+                        </li>
+                    </ul>
+                </div> -->
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-xl mt-3 mb-5 pb-5">
+        <p class="lead" id="numbering-info">
+            Choose a link below to view frequency lists for that subcategory:
+        </p>
+        <ul>
+            <li>Literature:</li>
+            <ul>
+                <li><a href="/frequency-list/american-literature">American Literature</a></li>
+                <li><a href="/frequency-list/british-literature">British Literature</a></li>
+                <li><a href="/frequency-list/classical-literature">Classical Literature</a></li>
+                <li><a href="/frequency-list/european-literature">European Literature</a></li>
+                <li><a href="/frequency-list/world-literature">World Literature</a></li>
+                <li><a href="/frequency-list/other-literature">Other Literature</a></li>
+            </ul>
+            <li>History:</li>
+            <ul>
+                <li><a href="/frequency-list/american-history">American History</a></li>
+                <li><a href="/frequency-list/ancient-history">Ancient History</a></li>
+                <li><a href="/frequency-list/european-history">European History</a></li>
+                <li><a href="/frequency-list/world-history">World History</a></li>
+                <li><a href="/frequency-list/other-history">Other History</a></li>
+            </ul>
+            <li>Science:</li>
+            <ul>
+                <li><a href="/frequency-list/biology">Biology</a></li>
+                <li><a href="/frequency-list/chemistry">Chemistry</a></li>
+                <li><a href="/frequency-list/physics">Physics</a></li>
+                <li><a href="/frequency-list/other-science">Other Science</a></li>
+            </ul>
+            <li>Fine Arts:</li>
+            <ul>
+                <li><a href="/frequency-list/visual-fine-arts">Visual Fine Arts</a></li>
+                <li><a href="/frequency-list/auditory-fine-arts">Auditory Fine Arts</a></li>
+                <li><a href="/frequency-list/other-fine-arts">Other Fine Arts</a></li>
+            </ul>
+            <li>RMPSS:</li>
+            <ul>
+                <li><a href="/frequency-list/religion">Religion</a></li>
+                <li><a href="/frequency-list/mythology">Mythology</a></li>
+                <li><a href="/frequency-list/philosophy">Philosophy</a></li>
+                <li><a href="/frequency-list/social-science">Social Science</a></li>
+            </ul>
+            <li>Other:</li>
+            <ul>
+                <li><a href="/frequency-list/geography">Geography</a></li>
+                <li><a href="/frequency-list/current-events">Current Events</a></li>
+                <li><a href="/frequency-list/other-academic">Other Academic</a></li>
+                <li><a href="/frequency-list/trash">Trash (Pop Culture)</a></li>
+            </ul>
+    </div>
+
+    <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/script.js"></script>
+</body>
+
+</html>

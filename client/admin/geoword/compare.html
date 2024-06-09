@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Certamen Reader</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Select a geoword division.">
+
+    <link href="/apple-touch-icon.png" rel="apple-touch-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
+    <link type="image/x-icon" href="/favicon.ico" rel="icon">
+
+    <link href="/bootstrap/light.css" rel="stylesheet">
+    <link id="custom-css" href="/bootstrap/dark.css" rel="stylesheet">
+    <script type="module" src="/apply-theme.js"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-light navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
+        <div class="container-fluid">
+            <a class="navbar-brand ms-1 py-0" id="logo" href="/">
+                <span class="logo-prefix">Certamen</span><span class="logo-suffix">Reader</span>
+            </a>
+            <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/singleplayer">Singleplayer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/multiplayer">Multiplayer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/db">Database</a>
+                    </li>
+                    <!-- <li class="nav-item">
+                        <a class="nav-link" href="/frequency-list">Frequency List</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/geoword">Geoword</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/api-docs">API</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/settings">Settings</a>
+                    </li> -->
+                </ul>
+                <div class="d-flex">
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" id="login-link" href="/user/login">Log in</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-xl mt-3 mb-5 pb-5">
+        <p>
+            <a href="/admin/geoword">Back to admin page</a>
+        </p>
+        <form class="mb-3" id="form">
+            <div class="mb-3">
+                <label class="form-label" for="packet">Choose a packet:</label>
+                <select class="form-select" id="packet"></select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="division">Choose a division:</label>
+                <select class="form-select" id="division"></select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="player-1">Enter player 1's username here:</label>
+                <input class="form-control" id="player-1" type="text" list="player-list-1">
+                <datalist id="player-list-1"></datalist>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="player-2">Enter player 2's username here:</label>
+                <input class="form-control" id="player-2" type="text" list="player-list-2">
+                <datalist id="player-list-2"></datalist>
+            </div>
+            <button class="btn btn-primary" type="submit">Submit</button>
+            <div class="d-block mx-auto mt-3 spinner-border d-none" id="spinner" role="status">
+                <span class="d-none">Loading...</span>
+            </div>
+        </form>
+        <div id="root"></div>
+    </div>
+
+    <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/script.js"></script>
+
+    <script type="module" src="/admin/geoword/compare.js"></script>
+</body>
+
+</html>
