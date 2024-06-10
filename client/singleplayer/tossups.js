@@ -199,7 +199,7 @@ async function advanceQuestion () {
     if (Object.keys(tossups[0]).length > 0) {
       tossupText = tossups[questionNumber - 1].question_sanitized;
       tossupTextSplit = tossupText.split(' ').filter(word => word !== '');
-      document.getElementById('question-number-info').textContent = questionNumber;
+      //document.getElementById('question-number-info').textContent = questionNumber;
     }
   } else {
     queryLock();
@@ -220,7 +220,7 @@ async function advanceQuestion () {
 
     tossupText = tossups[0].question_sanitized;
     tossupTextSplit = tossupText.split(' ').filter(word => word !== '');
-    document.getElementById('question-number-info').textContent = tossups[0].number;
+    //document.getElementById('question-number-info').textContent = tossups[0].number;
     questionNumber = 1;
   }
 
@@ -361,8 +361,8 @@ async function next () {
   document.getElementById('buzz').textContent = 'Buzz';
   document.getElementById('buzz').disabled = false;
   document.getElementById('next').textContent = 'Skip';
-  document.getElementById('packet-number-info').textContent = query.packetNumbers[0];
-  document.getElementById('packet-length-info').textContent = settings.selectBySetName ? tossups.length : '-';
+  // document.getElementById('packet-number-info').textContent = query.packetNumbers[0];
+  // document.getElementById('packet-length-info').textContent = settings.selectBySetName ? tossups.length : '-';
   document.getElementById('pause').textContent = 'Pause';
   document.getElementById('pause').disabled = false;
   document.getElementById('question').textContent = '';
