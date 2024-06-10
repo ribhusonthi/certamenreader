@@ -102,7 +102,7 @@ if (settings.selectBySetName) {
   document.getElementById('difficulty-settings').classList.add('d-none');
   document.getElementById('set-settings').classList.remove('d-none');
   document.getElementById('toggle-select-by-set-name').checked = true;
-  document.getElementById('toggle-powermark-only').disabled = true;
+  // document.getElementById('toggle-powermark-only').disabled = true;
   document.getElementById('toggle-standard-only').disabled = true;
 }
 
@@ -127,13 +127,13 @@ if (query.difficulties) {
   }
 }
 
-if (query.packetNumbers) {
-  document.getElementById('packet-number').value = arrayToRange(query.packetNumbers);
-}
+// if (query.packetNumbers) {
+//   document.getElementById('packet-number').value = arrayToRange(query.packetNumbers);
+// }
 
-if (query.powermarkOnly) {
-  document.getElementById('toggle-powermark-only').checked = true;
-}
+// if (query.powermarkOnly) {
+//   document.getElementById('toggle-powermark-only').checked = true;
+// }
 
 if (query.setName) {
   document.getElementById('set-name').value = query.setName;
@@ -594,26 +594,26 @@ document.getElementById('next').addEventListener('click', function () {
   next();
 });
 
-document.getElementById('packet-number').addEventListener('change', function () {
-  // if field is blank, store blank result in `query`
-  query.packetNumbers = rangeToArray(this.value.trim(), 0);
-  window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
-  query.packetNumbers = rangeToArray(this.value.trim(), maxPacketNumber);
-});
+// document.getElementById('packet-number').addEventListener('change', function () {
+//   // if field is blank, store blank result in `query`
+//   query.packetNumbers = rangeToArray(this.value.trim(), 0);
+//   window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
+//   query.packetNumbers = rangeToArray(this.value.trim(), maxPacketNumber);
+// });
 
 document.getElementById('pause').addEventListener('click', function () {
   this.blur();
   pause();
 });
 
-document.getElementById('question-number').addEventListener('change', function () {
-  questionNumber = document.getElementById('question-number').value;
-  if (questionNumber === '') {
-    questionNumber = '1';
-  }
-  questionNumber = parseInt(questionNumber) - 1;
-  window.localStorage.setItem('questionNumberTossupSave', document.getElementById('question-number').value);
-});
+// document.getElementById('question-number').addEventListener('change', function () {
+//   questionNumber = document.getElementById('question-number').value;
+//   if (questionNumber === '') {
+//     questionNumber = '1';
+//   }
+//   questionNumber = parseInt(questionNumber) - 1;
+//   window.localStorage.setItem('questionNumberTossupSave', document.getElementById('question-number').value);
+// });
 
 document.getElementById('reading-speed').addEventListener('input', function () {
   settings.readingSpeed = this.value;
@@ -641,11 +641,11 @@ document.getElementById('set-name').addEventListener('change', async function ()
 
   maxPacketNumber = await api.getNumPackets(this.value);
 
-  if (this.value === '' || maxPacketNumber === 0) {
-    document.getElementById('packet-number').placeholder = 'Packet Numbers';
-  } else {
-    document.getElementById('packet-number').placeholder = `Packet Numbers (1-${maxPacketNumber})`;
-  }
+  // if (this.value === '' || maxPacketNumber === 0) {
+  //   document.getElementById('packet-number').placeholder = 'Packet Numbers';
+  // } else {
+  //   document.getElementById('packet-number').placeholder = `Packet Numbers (1-${maxPacketNumber})`;
+  // }
 
   window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
 });
@@ -683,17 +683,17 @@ document.getElementById('toggle-correct').addEventListener('click', function () 
   toggleCorrect();
 });
 
-document.getElementById('toggle-powermark-only').addEventListener('click', function () {
-  this.blur();
-  query.powermarkOnly = this.checked;
-  loadRandomTossups(query);
-  window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
-});
+// document.getElementById('toggle-powermark-only').addEventListener('click', function () {
+//   this.blur();
+//   query.powermarkOnly = this.checked;
+//   loadRandomTossups(query);
+//   window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
+// });
 
 document.getElementById('toggle-select-by-set-name').addEventListener('click', function () {
   this.blur();
   settings.selectBySetName = this.checked;
-  document.getElementById('toggle-powermark-only').disabled = this.checked;
+  // document.getElementById('toggle-powermark-only').disabled = this.checked;
   document.getElementById('toggle-standard-only').disabled = this.checked;
 
   if (this.checked) {
