@@ -10,11 +10,16 @@ import geowordRouter from './geoword/index.js';
 import multiplayerRouter from './multiplayer.js';
 import settingsRouter from './settings.js';
 import singleplayerRouter from './singleplayer/index.js';
+import loginRouter from './login.js';
 import userRouter from './user.js';
 import webhookRouter from './api/webhook.js';
 
 import { Router } from 'express';
 const router = Router();
+
+// router.get('/login', (req, res) => {
+//   res.sendFile('index.html', { root: './client' });
+// });
 
 router.get('/', (req, res) => {
   res.sendFile('index.html', { root: './client' });
@@ -95,6 +100,7 @@ router.get('/users', (req, res) => {
  * Routes:
  */
 
+router.use('/login', loginRouter);
 router.use('/about', aboutRouter);
 router.use('/admin', adminRouter);
 router.use('/api', apiRouter);
