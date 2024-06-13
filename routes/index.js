@@ -17,9 +17,9 @@ import webhookRouter from './api/webhook.js';
 import { Router } from 'express';
 const router = Router();
 
-router.get('/login', (req, res) => {
-  res.sendFile('index.html', { root: './client' });
-});
+// router.get('/login', (req, res) => {
+//   res.sendFile('index.html', { root: './client' });
+// });
 
 router.get('/', (req, res) => {
   res.sendFile('index.html', { root: './client' });
