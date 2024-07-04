@@ -29,25 +29,6 @@ export const reservedNames = [
 ];
 
 export const inappropriateNames = [
-  'anal', 'anus', 'arse', 'ass',
-  'ballsack', 'balls', 'bastard', 'bbc',
-  'bitch', 'biatch', 'bloody', 'blow',
-  'bollock', 'bollok', 'boner', 'boob',
-  'bugger', 'bum', 'butt', 'buttplug',
-  'clitoris', 'cock', 'coon', 'crap', 'cum',
-  'cunt', 'damn', 'dick', 'dildo', 'dyke', 'edge',
-  'erect', 'fag', 'feck', 'fellate', 'fellatio',
-  'felching', 'fuck', 'fudgepacker', 'fudge',
-  'packer', 'flange', 'Goddamn', 'God', 'gyat',
-  'hell', 'homo', 'horn', 'jerk', 'jizz',
-  'knobend', 'knob', 'labia', 'lmao',
-  'lmfao', 'muff', 'nigg', 'niqq', 'omg', 'papi',
-  'penis', 'piss', 'poop', 'prick', 'pube',
-  'pussy', 'queer', 'rizz', 'scrotum', 'sex',
-  'sigma', 'shit', 'sh1t', 'slut', 'smegma',
-  'spunk', 'suck', 'tiktok', 'tit', 'toilet', 'tosser',
-  'turd', 'twat', 'vagina', 'wank', 'whore',
-  'wtf'
 ];
 
 const banList = reservedNames.concat(inappropriateNames);
