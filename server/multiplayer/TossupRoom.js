@@ -98,7 +98,7 @@ class TossupRoom {
     this.timerInterval = null;
     this.timeRemaining = 0;
 
-    this.DEAD_TIME_LIMIT = 5; // time to buzz after question is read
+    this.DEAD_TIME_LIMIT = 20; // time to buzz after question is read
     this.ANSWER_TIME_LIMIT = 20; // time to give answer after buzzing
 
     getSetList().then(setList => {
@@ -154,7 +154,7 @@ class TossupRoom {
 
       players: this.players,
 
-      canBuzz: this.settings.rebuzz || !this.buzzes.includes(userId),
+      canBuzz: this.settings.rebuzz || !this.buzzes.includes(userId), 
       buzzedIn: this.buzzedIn,
       questionProgress: this.questionProgress,
 
