@@ -1,16 +1,13 @@
 const SUBCATEGORIES = {
-  Literature: ['American Literature', 'British Literature', 'Classical Literature', 'European Literature', 'World Literature', 'Other Literature'],
-  History: ['American History', 'Ancient History', 'European History', 'World History', 'Other History'],
-  Science: ['Biology', 'Chemistry', 'Physics', 'Other Science'],
-  'Fine Arts': ['Visual Fine Arts', 'Auditory Fine Arts', 'Other Fine Arts'],
-  Religion: ['Religion'],
-  Mythology: ['Mythology'],
-  Philosophy: ['Philosophy'],
-  'Social Science': ['Social Science'],
-  'Current Events': ['Current Events'],
-  Geography: ['Geography'],
-  'Other Academic': ['Other Academic'],
-  Trash: ['Trash']
+  Nationals: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
+  Harvard: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
+  Yale: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
+  Princeton: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
+  Duke: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
+  Premier: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
+  Keartamen: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
+  Massachusetts: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',]
+
 };
 
 const ALTERNATE_SUBCATEGORIES = {
@@ -99,9 +96,9 @@ export default class CategoryManager {
         document.querySelector(`[for="${subcategory}"]`).classList.remove('d-none');
       });
 
-      ALTERNATE_SUBCATEGORIES[category].forEach(subcategory => {
-        document.querySelector(`[for="${subcategory}"]`).classList.remove('d-none');
-      });
+      // ALTERNATE_SUBCATEGORIES[category].forEach(subcategory => {
+      //   document.querySelector(`[for="${subcategory}"]`).classList.remove('d-none');
+      // });
     }
 
     for (const subcategory of this.subcategories) {
@@ -123,12 +120,12 @@ export default class CategoryManager {
     if (this.categories.includes(category)) {
       this.categories = this.categories.filter(a => a !== category);
       this.subcategories = this.subcategories.filter(a => !SUBCATEGORIES[category].includes(a));
-      this.alternateSubcategories = this.alternateSubcategories.filter(a => !ALTERNATE_SUBCATEGORIES[category].includes(a));
+      // this.alternateSubcategories = this.alternateSubcategories.filter(a => !ALTERNATE_SUBCATEGORIES[category].includes(a));
       return false;
     } else {
       this.categories.push(category);
       this.subcategories = this.subcategories.concat(SUBCATEGORIES[category]);
-      this.alternateSubcategories = this.alternateSubcategories.concat(ALTERNATE_SUBCATEGORIES[category]);
+      // this.alternateSubcategories = this.alternateSubcategories.concat(ALTERNATE_SUBCATEGORIES[category]);
       return true;
     }
   }
