@@ -1,4 +1,4 @@
-import { bonuses, tossups } from './collections.js';
+import { bonuses, tossups, questionReports } from './collections.js';
 
 import { ObjectId } from 'mongodb';
 
@@ -10,24 +10,36 @@ import { ObjectId } from 'mongodb';
  * @param {boolean} [verbose=true] - whether to log the result to the console
  * @returns {Promise<boolean>} true if successful, false otherwise.
  */
-async function reportQuestion (_id, reason, description, verbose = true) {
-  await tossups.updateOne({ _id: new ObjectId(_id) }, {
-    $push: {
-      reports: {
-        reason,
-        description
-      }
-    }
+async function reportQuestion(_id, reason, description, verbose = true) {
+  await questionReports.insertOne({
+    questionID: _id,
+    reason: reason,
+    description: description,
+    createdAt: new Date(),
   });
+  await tossups.updateOne(
+    { _id: new ObjectId(_id) },
+    {
+      $push: {
+        reports: {
+          reason,
+          description,
+        },
+      },
+    }
+  );
 
-  await bonuses.updateOne({ _id: new ObjectId(_id) }, {
-    $push: {
-      reports: {
-        reason,
-        description
-      }
+  await bonuses.updateOne(
+    { _id: new ObjectId(_id) },
+    {
+      $push: {
+        reports: {
+          reason,
+          description,
+        },
+      },
     }
-  });
+  );
 
   if (verbose) {
     console.log('Reported question with id ' + _id);

@@ -4,6 +4,7 @@ const sets = qbreader.collection('sets');
 const packets = qbreader.collection('packets');
 const tossups = qbreader.collection('tossups');
 const bonuses = qbreader.collection('bonuses');
+const questionReports = qbreader.collection('questionReports');
 
 const tossupData = accountInfo.collection('tossup-data');
 const bonusData = accountInfo.collection('bonus-data');
@@ -14,5 +15,6 @@ export {
   tossups,
   bonuses,
   tossupData,
-  bonusData
+  bonusData,
+  questionReports,
 };
