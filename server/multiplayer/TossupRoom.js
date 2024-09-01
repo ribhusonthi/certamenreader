@@ -542,40 +542,47 @@ class TossupRoom {
         if (this.isPermanent) {
           break;
         }
+        // this.sendSocketMessage({
+        //   type: 'update-categories',
+        //   categories: message.categories,
+        //   subcategories: message.subcategories,
+        //   alternateSubcategories: message.alternateSubcategories,
+        //   username: this.players[userId].username,
+        // });
 
-        if (
-          [
-            message.categories,
-            message.subcategories,
-            message.alternateSubcategories,
-          ].some((array) => !Array.isArray(array))
-        ) {
-          break;
-        }
+        // if (
+        //   [
+        //     message.categories,
+        //     message.subcategories,
+        //     message.alternateSubcategories,
+        //   ].some((array) => !Array.isArray(array))
+        // ) {
+        //   break;
+        // }
 
-        message.categories = message.categories.filter((category) =>
-          CATEGORIES.includes(category)
-        );
-        message.subcategories = message.subcategories.filter((subcategory) =>
-          SUBCATEGORIES_FLATTENED.includes(subcategory)
-        );
-        message.alternateSubcategories = message.alternateSubcategories.filter(
-          (subcategory) =>
-            ALTERNATE_SUBCATEGORIES_FLATTENED.includes(subcategory)
-        );
+        // message.categories = message.categories.filter((category) =>
+        //   CATEGORIES.includes(category)
+        // );
+        // message.subcategories = message.subcategories.filter((subcategory) =>
+        //   SUBCATEGORIES_FLATTENED.includes(subcategory)
+        // );
+        // message.alternateSubcategories = message.alternateSubcategories.filter(
+        //   (subcategory) =>
+        //     ALTERNATE_SUBCATEGORIES_FLATTENED.includes(subcategory)
+        // );
 
-        if (
-          message.subcategories.some((sub) => {
-            const parent = SUBCATEGORY_TO_CATEGORY[sub];
-            return !message.categories.includes(parent);
-          }) ||
-          message.alternateSubcategories.some((sub) => {
-            const parent = ALTERNATE_SUBCATEGORY_TO_CATEGORY[sub];
-            return !message.categories.includes(parent);
-          })
-        ) {
-          break;
-        }
+        // if (
+        //   message.subcategories.some((sub) => {
+        //     const parent = SUBCATEGORY_TO_CATEGORY[sub];
+        //     return !message.categories.includes(parent);
+        //   }) ||
+        //   message.alternateSubcategories.some((sub) => {
+        //     const parent = ALTERNATE_SUBCATEGORY_TO_CATEGORY[sub];
+        //     return !message.categories.includes(parent);
+        //   })
+        // ) {
+        //   break;
+        // }
 
         this.sendSocketMessage({
           type: 'update-categories',

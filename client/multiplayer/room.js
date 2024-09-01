@@ -69,7 +69,7 @@ const socket = new WebSocket(
 
 socket.onmessage = function (event) {
   const data = JSON.parse(event.data);
-  // console.log(data);
+  console.log(data);
   switch (data.type) {
     case 'error':
       socket.close(3000);
@@ -445,7 +445,8 @@ const socketOnConnectionAcknowledgedQuery = async (message) => {
   //   message.validSubcategories,
   //   message.validAlternateSubcategories
   // );
-  const {categories, subcategories, alternateSubcategories} = categoryManager.export();
+  const { categories, subcategories, alternateSubcategories } =
+    categoryManager.export();
   categoryManager.loadCategoryModal();
 
   updateDifficulties(message.difficulties || []);
@@ -989,10 +990,14 @@ document
       JSON.stringify(categoryManager.export())
     );
     if (changedCategories) {
+      const { categories, alternateSubcategories, subcategories } =
+        categoryManager.export();
       socket.send(
         JSON.stringify({
           type: 'update-categories',
-          ...categoryManager.export(),
+          categories: categories,
+          alternateSubcategories: alternateSubcategories,
+          subcategories: subcategories,
         })
       );
     }
