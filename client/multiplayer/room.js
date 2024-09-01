@@ -5,12 +5,19 @@ import questionStats from '../auth/question-stats.js';
 import api from '../api/index.js';
 import audio from '../audio/index.js';
 import CategoryManager from '../utilities/category-manager.js';
-import { attachDropdownChecklist, getDropdownValues } from '../utilities/dropdown-checklist.js';
-import { arrayToRange, createTossupCard, rangeToArray } from '../utilities/index.js';
+import {
+  attachDropdownChecklist,
+  getDropdownValues,
+} from '../utilities/dropdown-checklist.js';
+import {
+  arrayToRange,
+  createTossupCard,
+  rangeToArray,
+} from '../utilities/index.js';
 import { escapeHTML } from '../utilities/strings.js';
 
 const categoryManager = new CategoryManager();
-let changedCategories = false;
+let changedCategories = true;
 
 let maxPacketNumber = 24;
 
@@ -22,7 +29,9 @@ const players = {};
 const ROOM_NAME = decodeURIComponent(window.location.pathname.substring(13));
 let tossup = {};
 let USER_ID = window.localStorage.getItem('USER_ID') || 'unknown';
-let username = window.localStorage.getItem('multiplayer-username') || await api.getRandomName();
+let username =
+  window.localStorage.getItem('multiplayer-username') ||
+  (await api.getRandomName());
 
 const socket = new WebSocket(
   window.location.href.replace('http', 'ws') +
@@ -30,12 +39,13 @@ const socket = new WebSocket(
     new URLSearchParams({
       roomName: ROOM_NAME,
       userId: USER_ID,
-      username
+      username,
     }).toString()
 );
 
 socket.onmessage = function (event) {
   const data = JSON.parse(event.data);
+  console.log(data);
   switch (data.type) {
     case 'error':
       socket.close(3000);
@@ -95,7 +105,7 @@ socket.onmessage = function (event) {
       break;
     case 'packet-number':
       data.value = arrayToRange(data.value);
-      // eslint-disable-next-line no-fallthrough
+    // eslint-disable-next-line no-fallthrough
     case 'set-name':
       if (data.value.length > 0) {
         logEvent(data.username, `changed the ${data.type} to ${data.value}`);
@@ -166,19 +176,30 @@ socket.onmessage = function (event) {
       break;
 
     case 'toggle-powermark-only':
-      logEvent(data.username, `${data.powermarkOnly ? 'enabled' : 'disabled'} powermark only`);
-      document.getElementById('toggle-powermark-only').checked = data.powermarkOnly;
+      logEvent(
+        data.username,
+        `${data.powermarkOnly ? 'enabled' : 'disabled'} powermark only`
+      );
+      document.getElementById('toggle-powermark-only').checked =
+        data.powermarkOnly;
       break;
 
     case 'toggle-rebuzz':
-      logEvent(data.username, `${data.rebuzz ? 'enabled' : 'disabled'} multiple buzzes (effective next question)`);
+      logEvent(
+        data.username,
+        `${
+          data.rebuzz ? 'enabled' : 'disabled'
+        } multiple buzzes (effective next question)`
+      );
       document.getElementById('toggle-rebuzz').checked = data.rebuzz;
       break;
 
     case 'toggle-skip':
       logEvent(data.username, `${data.skip ? 'enabled' : 'disabled'} skipping`);
       document.getElementById('toggle-skip').checked = data.skip;
-      document.getElementById('skip').disabled = !data.skip || document.getElementById('skip').classList.contains('d-none');
+      document.getElementById('skip').disabled =
+        !data.skip ||
+        document.getElementById('skip').classList.contains('d-none');
       break;
 
     case 'toggle-select-by-set-name':
@@ -191,26 +212,40 @@ socket.onmessage = function (event) {
       } else {
         logEvent(data.username, 'enabled select by difficulty');
         document.getElementById('toggle-select-by-set-name').checked = false;
-        document.getElementById('difficulty-settings').classList.remove('d-none');
+        document
+          .getElementById('difficulty-settings')
+          .classList.remove('d-none');
         document.getElementById('set-settings').classList.add('d-none');
       }
-      document.getElementById('toggle-powermark-only').disabled = data.selectBySetName;
-      document.getElementById('toggle-standard-only').disabled = data.selectBySetName;
+      document.getElementById('toggle-powermark-only').disabled =
+        data.selectBySetName;
+      document.getElementById('toggle-standard-only').disabled =
+        data.selectBySetName;
       break;
 
     case 'toggle-standard-only':
-      logEvent(data.username, `${data.standardOnly ? 'enabled' : 'disabled'} standard format only`);
-      document.getElementById('toggle-standard-only').checked = data.standardOnly;
+      logEvent(
+        data.username,
+        `${data.standardOnly ? 'enabled' : 'disabled'} standard format only`
+      );
+      document.getElementById('toggle-standard-only').checked =
+        data.standardOnly;
       break;
 
     case 'toggle-timer':
-      logEvent(data.username, `${data.timer ? 'enabled' : 'disabled'} the timer`);
+      logEvent(
+        data.username,
+        `${data.timer ? 'enabled' : 'disabled'} the timer`
+      );
       document.getElementById('toggle-timer').checked = data.timer;
       document.getElementById('timer').classList.toggle('d-none');
       break;
 
     case 'toggle-visibility':
-      logEvent(data.username, `made the room ${data.public ? 'public' : 'private'}`);
+      logEvent(
+        data.username,
+        `made the room ${data.public ? 'public' : 'private'}`
+      );
       document.getElementById('toggle-visibility').checked = data.public;
       document.getElementById('chat').disabled = data.public;
       document.getElementById('toggle-lock').disabled = data.public;
@@ -220,7 +255,9 @@ socket.onmessage = function (event) {
 
     case 'update-categories':
       logEvent(data.username, 'updated the categories');
-      categoryManager.import(data.categories, data.subcategories, data.alternateSubcategories);
+      const { alternateSubcategories, categories, subcategories } =
+        categoryManager.export();
+      categoryManager.import(categories, subcategories, alternateSubcategories);
       categoryManager.loadCategoryModal();
       break;
 
@@ -262,8 +299,12 @@ const socketOnBuzz = (message) => {
 };
 
 const socketOnChangeUsername = (message) => {
-  logEvent(message.oldUsername, `changed their username to ${message.newUsername}`);
-  document.getElementById('username-' + message.userId).textContent = message.newUsername;
+  logEvent(
+    message.oldUsername,
+    `changed their username to ${message.newUsername}`
+  );
+  document.getElementById('username-' + message.userId).textContent =
+    message.newUsername;
   players[message.userId].username = message.newUsername;
   sortPlayerListGroup();
 
@@ -275,7 +316,15 @@ const socketOnChangeUsername = (message) => {
 };
 
 const socketOnClearStats = (message) => {
-  for (const field of ['celerity', 'negs', 'points', 'powers', 'tens', 'tuh', 'zeroes']) {
+  for (const field of [
+    'celerity',
+    'negs',
+    'points',
+    'powers',
+    'tens',
+    'tuh',
+    'zeroes',
+  ]) {
     players[message.userId][field] = 0;
   }
 
@@ -297,7 +346,8 @@ const socketOnConnectionAcknowledged = async (message) => {
   }
   document.getElementById('toggle-visibility').checked = message.public;
   document.getElementById('reading-speed').value = message.readingSpeed;
-  document.getElementById('reading-speed-display').textContent = message.readingSpeed;
+  document.getElementById('reading-speed-display').textContent =
+    message.readingSpeed;
 
   if (message.selectBySetName) {
     document.getElementById('toggle-select-by-set-name').checked = true;
@@ -337,11 +387,13 @@ const socketOnConnectionAcknowledged = async (message) => {
     document.getElementById('category-select-button').disabled = true;
     document.getElementById('toggle-visibility').disabled = true;
     document.getElementById('toggle-select-by-set-name').disabled = true;
-    document.getElementById('private-chat-warning').innerHTML = 'This is a permanent room. Some settings have been restricted.';
+    document.getElementById('private-chat-warning').innerHTML =
+      'This is a permanent room. Some settings have been restricted.';
   }
 
-  Object.keys(message.players).forEach(userId => {
-    message.players[userId].celerity = message.players[userId].celerity.correct.average;
+  Object.keys(message.players).forEach((userId) => {
+    message.players[userId].celerity =
+      message.players[userId].celerity.correct.average;
     players[userId] = message.players[userId];
     upsertPlayerItem(players[userId]);
   });
@@ -355,29 +407,46 @@ const socketOnConnectionAcknowledged = async (message) => {
 
 const socketOnConnectionAcknowledgedTossup = (message) => {
   tossup = message.tossup;
-  document.getElementById('set-name-info').textContent = tossup?.set?.name ?? '';
-  document.getElementById('packet-number-info').textContent = tossup?.packet?.number ?? '-';
-  document.getElementById('question-number-info').textContent = tossup?.number ?? '-';
+  document.getElementById('set-name-info').textContent =
+    tossup?.set?.name ?? '';
+  document.getElementById('packet-number-info').textContent =
+    tossup?.packet?.number ?? '-';
+  document.getElementById('question-number-info').textContent =
+    tossup?.number ?? '-';
 };
 
 const socketOnConnectionAcknowledgedQuery = async (message) => {
-  categoryManager.import(message.validCategories, message.validSubcategories, message.validAlternateSubcategories);
+  categoryManager.import(
+    message.validCategories,
+    message.validSubcategories,
+    message.validAlternateSubcategories
+  );
   categoryManager.loadCategoryModal();
 
   updateDifficulties(message.difficulties || []);
   document.getElementById('set-name').value = message.setName || '';
-  document.getElementById('packet-number').value = arrayToRange(message.packetNumbers) || '';
+  document.getElementById('packet-number').value =
+    arrayToRange(message.packetNumbers) || '';
 
-  maxPacketNumber = await api.getNumPackets(document.getElementById('set-name').value);
-  if (document.getElementById('set-name').value !== '' && maxPacketNumber === 0) {
+  maxPacketNumber = await api.getNumPackets(
+    document.getElementById('set-name').value
+  );
+  if (
+    document.getElementById('set-name').value !== '' &&
+    maxPacketNumber === 0
+  ) {
     document.getElementById('set-name').classList.add('is-invalid');
   }
 
-  document.getElementById('toggle-powermark-only').disabled = message.selectBySetName;
-  document.getElementById('toggle-standard-only').disabled = message.selectBySetName;
+  document.getElementById('toggle-powermark-only').disabled =
+    message.selectBySetName;
+  document.getElementById('toggle-standard-only').disabled =
+    message.selectBySetName;
 
-  document.getElementById('toggle-powermark-only').checked = message.powermarkOnly;
-  document.getElementById('toggle-standard-only').checked = message.standardOnly;
+  document.getElementById('toggle-powermark-only').checked =
+    message.powermarkOnly;
+  document.getElementById('toggle-standard-only').checked =
+    message.standardOnly;
 
   $('#slider').slider('values', 0, message.minYear);
   $('#slider').slider('values', 1, message.maxYear);
@@ -394,7 +463,15 @@ const socketOnGiveAnswer = async (message) => {
   document.getElementById('answer-input-group').classList.add('d-none');
   document.getElementById('answer-input').blur();
 
-  const { userId, username, givenAnswer, directive, directedPrompt, score, celerity } = message;
+  const {
+    userId,
+    username,
+    givenAnswer,
+    directive,
+    directedPrompt,
+    score,
+    celerity,
+  } = message;
 
   logGiveAnswer(username, givenAnswer, false, directive);
 
@@ -403,13 +480,18 @@ const socketOnGiveAnswer = async (message) => {
   } else if (directive === 'prompt') {
     logEvent(username, 'was prompted');
   } else {
-    logEvent(username, `${score > 0 ? '' : 'in'}correctly answered for ${score} points`);
+    logEvent(
+      username,
+      `${score > 0 ? '' : 'in'}correctly answered for ${score} points`
+    );
   }
 
   if (directive === 'prompt' && userId === USER_ID) {
     document.getElementById('answer-input-group').classList.remove('d-none');
     document.getElementById('answer-input').focus();
-    document.getElementById('answer-input').placeholder = directedPrompt ? `Prompt: "${directedPrompt}"` : 'Prompt';
+    document.getElementById('answer-input').placeholder = directedPrompt
+      ? `Prompt: "${directedPrompt}"`
+      : 'Prompt';
   } else if (directive !== 'prompt') {
     document.getElementById('answer-input').placeholder = 'Enter answer';
     document.getElementById('next').disabled = false;
@@ -417,13 +499,14 @@ const socketOnGiveAnswer = async (message) => {
 
     if (directive === 'accept') {
       document.getElementById('buzz').disabled = true;
-      Array.from(document.getElementsByClassName('tuh')).forEach(element => {
+      Array.from(document.getElementsByClassName('tuh')).forEach((element) => {
         element.textContent = parseInt(element.innerHTML) + 1;
       });
     }
 
     if (directive === 'reject') {
-      document.getElementById('buzz').disabled = !document.getElementById('toggle-rebuzz').checked && userId === USER_ID;
+      document.getElementById('buzz').disabled =
+        !document.getElementById('toggle-rebuzz').checked && userId === USER_ID;
     }
 
     if (score > 10) {
@@ -442,8 +525,18 @@ const socketOnGiveAnswer = async (message) => {
     sortPlayerListGroup();
   }
 
-  if (directive !== 'prompt' && userId === USER_ID && await account.getUsername()) {
-    questionStats.recordTossup(message.tossup, score > 0, score, message.perQuestionCelerity, true);
+  if (
+    directive !== 'prompt' &&
+    userId === USER_ID &&
+    (await account.getUsername())
+  ) {
+    questionStats.recordTossup(
+      message.tossup,
+      score > 0,
+      score,
+      message.perQuestionCelerity,
+      true
+    );
   }
 
   if (audio.soundEffects && userId === USER_ID) {
@@ -471,16 +564,24 @@ const socketOnJoin = (message) => {
     players[userId] = message.user;
   } else {
     players[message.userId].isOnline = true;
-    document.getElementById('points-' + message.userId).classList.add('bg-success');
-    document.getElementById('points-' + message.userId).classList.remove('bg-secondary');
+    document
+      .getElementById('points-' + message.userId)
+      .classList.add('bg-success');
+    document
+      .getElementById('points-' + message.userId)
+      .classList.remove('bg-secondary');
   }
 };
 
 const socketOnLeave = (message) => {
   logEvent(message.username, 'left the game');
   players[message.userId].isOnline = false;
-  document.getElementById('points-' + message.userId).classList.remove('bg-success');
-  document.getElementById('points-' + message.userId).classList.add('bg-secondary');
+  document
+    .getElementById('points-' + message.userId)
+    .classList.remove('bg-success');
+  document
+    .getElementById('points-' + message.userId)
+    .classList.add('bg-secondary');
 };
 
 const socketOnLostBuzzerRace = (message) => {
@@ -498,15 +599,19 @@ const socketOnNext = (message) => {
   }
 
   tossup.question = document.getElementById('question').innerHTML;
-  tossup.answer = document.getElementById('answer').innerHTML.replace('ANSWER: ', '');
+  tossup.answer = document
+    .getElementById('answer')
+    .innerHTML.replace('ANSWER: ', '');
 
   createTossupCard(tossup);
 
   tossup = message.tossup;
 
   document.getElementById('set-name-info').textContent = tossup?.set.name ?? '';
-  document.getElementById('question-number-info').textContent = tossup?.number ?? '-';
-  document.getElementById('packet-number-info').textContent = tossup?.packet.number ?? '-';
+  document.getElementById('question-number-info').textContent =
+    tossup?.number ?? '-';
+  document.getElementById('packet-number-info').textContent =
+    tossup?.packet.number ?? '-';
 
   document.getElementById('options').classList.add('d-none');
   showSkipButton();
@@ -517,7 +622,7 @@ const socketOnNext = (message) => {
   document.getElementById('pause').textContent = 'Pause';
   document.getElementById('pause').disabled = false;
 
-  updateTimerDisplay(100);
+  updateTimerDisplay(200);
 };
 
 const socketOnNoQuestionsFound = () => {
@@ -545,8 +650,10 @@ const socketOnStart = (message) => {
   tossup = message.tossup;
 
   document.getElementById('set-name-info').textContent = tossup?.set.name ?? '';
-  document.getElementById('question-number-info').textContent = tossup?.number ?? '-';
-  document.getElementById('packet-number-info').textContent = tossup?.packet.number ?? '-';
+  document.getElementById('question-number-info').textContent =
+    tossup?.number ?? '-';
+  document.getElementById('packet-number-info').textContent =
+    tossup?.packet.number ?? '-';
 };
 
 // Ping server every 45 seconds to prevent socket disconnection
@@ -554,7 +661,7 @@ const PING_INTERVAL_ID = setInterval(() => {
   socket.send(JSON.stringify({ type: 'ping' }));
 }, 45000);
 
-function logChat (username, message, isLive = false, userId = null) {
+function logChat(username, message, isLive = false, userId = null) {
   if (!isLive && message === '') {
     document.getElementById('live-chat-' + userId).parentElement.remove();
     return;
@@ -586,7 +693,7 @@ function logChat (username, message, isLive = false, userId = null) {
   document.getElementById('room-history').prepend(li);
 }
 
-function logEvent (username, message) {
+function logEvent(username, message) {
   const span1 = document.createElement('span');
   span1.textContent = username;
 
@@ -604,7 +711,7 @@ function logEvent (username, message) {
   document.getElementById('room-history').prepend(li);
 }
 
-function logGiveAnswer (username, message, isLive = false, directive = null) {
+function logGiveAnswer(username, message, isLive = false, directive = null) {
   const badge = document.createElement('span');
   badge.textContent = 'Buzz';
   switch (directive) {
@@ -661,46 +768,69 @@ function logGiveAnswer (username, message, isLive = false, directive = null) {
     li.appendChild(secondBadge);
   }
 
+  if (directive === 'accept' || directive === 'reject') {
+    // const toggleElement = document.createElement('a');
+    // toggleElement.className = 'mt-1 mt-lg-3 p-0 btn btn-link float-end ';
+    // toggleElement.id = 'toggle-correct';
+    // toggleElement.textContent =
+    //   directive === 'accept' ? 'I was wrong' : 'I was correct';
+    // li.appendChild(document.createTextNode(' '));
+    // li.appendChild(toggleElement);
+  }
+
   if (!isLive) {
     li.id = '';
   }
 }
 
-function showNextButton () {
+function showNextButton() {
   document.getElementById('next').classList.remove('d-none');
   document.getElementById('next').disabled = false;
   document.getElementById('skip').classList.add('d-none');
   document.getElementById('skip').disabled = true;
 }
 
-function showSkipButton () {
+function showSkipButton() {
   document.getElementById('skip').classList.remove('d-none');
-  document.getElementById('skip').disabled = !document.getElementById('toggle-skip').checked;
+  document.getElementById('skip').disabled =
+    !document.getElementById('toggle-skip').checked;
   document.getElementById('next').classList.add('d-none');
   document.getElementById('next').disabled = true;
 }
 
-function sortPlayerListGroup (descending = true) {
+function sortPlayerListGroup(descending = true) {
   const listGroup = document.getElementById('player-list-group');
   const items = Array.from(listGroup.children);
   const offset = 'list-group-'.length;
-  items.sort((a, b) => {
-    const aPoints = parseInt(document.getElementById('points-' + a.id.substring(offset)).innerHTML);
-    const bPoints = parseInt(document.getElementById('points-' + b.id.substring(offset)).innerHTML);
-    // if points are equal, sort alphabetically by username
-    if (aPoints === bPoints) {
-      const aUsername = document.getElementById('username-' + a.id.substring(offset)).innerHTML;
-      const bUsername = document.getElementById('username-' + b.id.substring(offset)).innerHTML;
-      return descending ? aUsername.localeCompare(bUsername) : bUsername.localeCompare(aUsername);
-    }
-    return descending ? bPoints - aPoints : aPoints - bPoints;
-  }).forEach(item => {
-    listGroup.appendChild(item);
-  });
+  items
+    .sort((a, b) => {
+      const aPoints = parseInt(
+        document.getElementById('points-' + a.id.substring(offset)).innerHTML
+      );
+      const bPoints = parseInt(
+        document.getElementById('points-' + b.id.substring(offset)).innerHTML
+      );
+      // if points are equal, sort alphabetically by username
+      if (aPoints === bPoints) {
+        const aUsername = document.getElementById(
+          'username-' + a.id.substring(offset)
+        ).innerHTML;
+        const bUsername = document.getElementById(
+          'username-' + b.id.substring(offset)
+        ).innerHTML;
+        return descending
+          ? aUsername.localeCompare(bUsername)
+          : bUsername.localeCompare(aUsername);
+      }
+      return descending ? bPoints - aPoints : aPoints - bPoints;
+    })
+    .forEach((item) => {
+      listGroup.appendChild(item);
+    });
 }
 
-function updateDifficulties (difficulties) {
-  Array.from(document.getElementById('difficulties').children).forEach(li => {
+function updateDifficulties(difficulties) {
+  Array.from(document.getElementById('difficulties').children).forEach((li) => {
     const input = li.querySelector('input');
 
     if (difficulties.includes(parseInt(input.value))) {
@@ -713,7 +843,7 @@ function updateDifficulties (difficulties) {
   });
 }
 
-function updateTimerDisplay (time) {
+function updateTimerDisplay(time) {
   const seconds = Math.floor(time / 10);
   const tenths = time % 10;
 
@@ -721,20 +851,34 @@ function updateTimerDisplay (time) {
   document.querySelector('.timer .fraction').innerText = '.' + tenths;
 }
 
-function upsertPlayerItem (player) {
-  const { userId, username, powers = 0, tens = 0, negs = 0, tuh = 0, points = 0, celerity = 0, isOnline } = player;
+function upsertPlayerItem(player) {
+  const {
+    userId,
+    username,
+    powers = 0,
+    tens = 0,
+    negs = 0,
+    tuh = 0,
+    points = 0,
+    celerity = 0,
+    isOnline,
+  } = player;
 
   if (document.getElementById('list-group-' + userId)) {
     document.getElementById('list-group-' + userId).remove();
   }
 
   const playerItem = document.createElement('a');
-  playerItem.className = `list-group-item ${userId === USER_ID ? 'user-score' : ''} clickable`;
+  playerItem.className = `list-group-item ${
+    userId === USER_ID ? 'user-score' : ''
+  } clickable`;
   playerItem.id = `list-group-${userId}`;
   playerItem.innerHTML = `
     <div class="d-flex justify-content-between">
         <span id="username-${userId}">${escapeHTML(username)}</span>
-        <span><span id="points-${userId}" class="badge rounded-pill ${isOnline ? 'bg-success' : 'bg-secondary'}">${points}</span></span>
+        <span><span id="points-${userId}" class="badge rounded-pill ${
+    isOnline ? 'bg-success' : 'bg-secondary'
+  }">${points}</span></span>
     </div>
     `;
 
@@ -747,7 +891,9 @@ function upsertPlayerItem (player) {
   playerItem.setAttribute('tabindex', '0');
 
   playerItem.setAttribute('data-bs-title', username);
-  playerItem.setAttribute('data-bs-content', `
+  playerItem.setAttribute(
+    'data-bs-content',
+    `
     <ul class="list-group list-group-flush">
         <li class="list-group-item">
             <span>Powers</span>
@@ -767,10 +913,13 @@ function upsertPlayerItem (player) {
         </li>
         <li class="list-group-item">
             <span>Celerity</span>
-            <span id="celerity-${userId}" class="float-end stats stats-${userId}">${celerity.toFixed(3)}</span>
+            <span id="celerity-${userId}" class="float-end stats stats-${userId}">${celerity.toFixed(
+      3
+    )}</span>
         </li>
     </ul>
-    `);
+    `
+  );
 
   document.getElementById('player-list-group').appendChild(playerItem);
   // bootstrap requires "new" to be called on each popover
@@ -778,20 +927,26 @@ function upsertPlayerItem (player) {
   new bootstrap.Popover(playerItem);
 }
 
-document.getElementById('answer-form').addEventListener('submit', function (event) {
-  event.preventDefault();
-  event.stopPropagation();
+document
+  .getElementById('answer-form')
+  .addEventListener('submit', function (event) {
+    event.preventDefault();
+    event.stopPropagation();
 
-  const answer = document.getElementById('answer-input').value;
+    const answer = document.getElementById('answer-input').value;
 
-  socket.send(JSON.stringify({
-    type: 'give-answer',
-    givenAnswer: answer
-  }));
-});
+    socket.send(
+      JSON.stringify({
+        type: 'give-answer',
+        givenAnswer: answer,
+      })
+    );
+  });
 
 document.getElementById('answer-input').addEventListener('input', function () {
-  socket.send(JSON.stringify({ type: 'give-answer-live-update', message: this.value }));
+  socket.send(
+    JSON.stringify({ type: 'give-answer-live-update', message: this.value })
+  );
 });
 
 document.getElementById('buzz').addEventListener('click', function () {
@@ -801,12 +956,19 @@ document.getElementById('buzz').addEventListener('click', function () {
   socket.send(JSON.stringify({ type: 'give-answer-live-update', message: '' }));
 });
 
-document.getElementById('category-modal').addEventListener('hidden.bs.modal', function () {
-  if (changedCategories) {
-    socket.send(JSON.stringify({ type: 'update-categories', ...categoryManager.export() }));
-  }
-  changedCategories = false;
-});
+document
+  .getElementById('category-modal')
+  .addEventListener('hidden.bs.modal', function () {
+    if (changedCategories) {
+      socket.send(
+        JSON.stringify({
+          type: 'update-categories',
+          ...categoryManager.export(),
+        })
+      );
+    }
+    changedCategories = true;
+  });
 
 document.getElementById('chat').addEventListener('click', function () {
   this.blur();
@@ -815,20 +977,24 @@ document.getElementById('chat').addEventListener('click', function () {
   socket.send(JSON.stringify({ type: 'chat-live-update', message: '' }));
 });
 
-document.getElementById('chat-form').addEventListener('submit', function (event) {
-  event.preventDefault();
-  event.stopPropagation();
+document
+  .getElementById('chat-form')
+  .addEventListener('submit', function (event) {
+    event.preventDefault();
+    event.stopPropagation();
 
-  const message = document.getElementById('chat-input').value;
-  document.getElementById('chat-input').value = '';
-  document.getElementById('chat-input-group').classList.add('d-none');
-  document.getElementById('chat-input').blur();
+    const message = document.getElementById('chat-input').value;
+    document.getElementById('chat-input').value = '';
+    document.getElementById('chat-input-group').classList.add('d-none');
+    document.getElementById('chat-input').blur();
 
-  socket.send(JSON.stringify({ type: 'chat', message }));
-});
+    socket.send(JSON.stringify({ type: 'chat', message }));
+  });
 
 document.getElementById('chat-input').addEventListener('input', function () {
-  socket.send(JSON.stringify({ type: 'chat-live-update', message: this.value }));
+  socket.send(
+    JSON.stringify({ type: 'chat-live-update', message: this.value })
+  );
 });
 
 document.getElementById('clear-stats').addEventListener('click', function () {
@@ -837,10 +1003,12 @@ document.getElementById('clear-stats').addEventListener('click', function () {
 });
 
 document.getElementById('difficulties').addEventListener('change', function () {
-  socket.send(JSON.stringify({
-    type: 'difficulties',
-    value: getDropdownValues('difficulties')
-  }));
+  socket.send(
+    JSON.stringify({
+      type: 'difficulties',
+      value: getDropdownValues('difficulties'),
+    })
+  );
 });
 
 document.getElementById('next').addEventListener('click', function () {
@@ -860,61 +1028,90 @@ document.getElementById('skip').addEventListener('click', function () {
   socket.send(JSON.stringify({ type: 'skip' }));
 });
 
-document.getElementById('packet-number').addEventListener('change', function () {
-  const range = rangeToArray(this.value, maxPacketNumber);
-  if (range.some((num) => num < 1 || num > maxPacketNumber)) { return document.getElementById('packet-number').classList.add('is-invalid'); } else document.getElementById('packet-number').classList.remove('is-invalid');
-  socket.send(JSON.stringify({ type: 'packet-number', value: range }));
-});
+document
+  .getElementById('packet-number')
+  .addEventListener('change', function () {
+    const range = rangeToArray(this.value, maxPacketNumber);
+    if (range.some((num) => num < 1 || num > maxPacketNumber)) {
+      return document
+        .getElementById('packet-number')
+        .classList.add('is-invalid');
+    } else document.getElementById('packet-number').classList.remove('is-invalid');
+    socket.send(JSON.stringify({ type: 'packet-number', value: range }));
+  });
 
 document.getElementById('pause').addEventListener('click', function () {
   this.blur();
   const seconds = parseFloat(document.querySelector('.timer .face').innerText);
-  const tenths = parseFloat(document.querySelector('.timer .fraction').innerText);
+  const tenths = parseFloat(
+    document.querySelector('.timer .fraction').innerText
+  );
   const pausedTime = (seconds + tenths) * 10;
   socket.send(JSON.stringify({ type: 'pause', pausedTime }));
 });
 
-document.getElementById('reading-speed').addEventListener('change', function () {
-  socket.send(JSON.stringify({ type: 'reading-speed', value: this.value }));
-});
+document
+  .getElementById('reading-speed')
+  .addEventListener('change', function () {
+    socket.send(JSON.stringify({ type: 'reading-speed', value: this.value }));
+  });
 
 document.getElementById('reading-speed').addEventListener('input', function () {
   document.getElementById('reading-speed-display').textContent = this.value;
 });
 
-document.getElementById('report-question-submit').addEventListener('click', function () {
-  api.reportQuestion(
-    document.getElementById('report-question-id').value,
-    document.getElementById('report-question-reason').value,
-    document.getElementById('report-question-description').value
-  );
-});
+document
+  .getElementById('report-question-submit')
+  .addEventListener('click', function () {
+    api.reportQuestion(
+      document.getElementById('report-question-id').value,
+      document.getElementById('report-question-reason').value,
+      document.getElementById('report-question-description').value
+    );
+  });
 
-document.getElementById('set-name').addEventListener('change', async function () {
-  if (api.getSetList().includes(this.value) || this.value.length === 0) {
-    this.classList.remove('is-invalid');
-  } else {
-    this.classList.add('is-invalid');
-  }
-  maxPacketNumber = await api.getNumPackets(this.value);
-  if (this.value === '' || maxPacketNumber === 0) {
-    document.getElementById('packet-number').value = '';
-  } else {
-    document.getElementById('packet-number').value = `1-${maxPacketNumber}`;
-  }
+document
+  .getElementById('set-name')
+  .addEventListener('change', async function () {
+    if (api.getSetList().includes(this.value) || this.value.length === 0) {
+      this.classList.remove('is-invalid');
+    } else {
+      this.classList.add('is-invalid');
+    }
+    maxPacketNumber = await api.getNumPackets(this.value);
+    if (this.value === '' || maxPacketNumber === 0) {
+      document.getElementById('packet-number').value = '';
+    } else {
+      document.getElementById('packet-number').value = `1-${maxPacketNumber}`;
+    }
 
-  socket.send(JSON.stringify({ type: 'set-name', value: this.value, packetNumbers: rangeToArray(document.getElementById('packet-number').value) }));
-});
+    socket.send(
+      JSON.stringify({
+        type: 'set-name',
+        value: this.value,
+        packetNumbers: rangeToArray(
+          document.getElementById('packet-number').value
+        ),
+      })
+    );
+  });
 
 document.getElementById('toggle-lock').addEventListener('click', function () {
   this.blur();
   socket.send(JSON.stringify({ type: 'toggle-lock', lock: this.checked }));
 });
 
-document.getElementById('toggle-powermark-only').addEventListener('click', function () {
-  this.blur();
-  socket.send(JSON.stringify({ type: 'toggle-powermark-only', powermarkOnly: this.checked }));
-});
+document
+  .getElementById('toggle-powermark-only')
+  .addEventListener('click', function () {
+    this.blur();
+    socket.send(
+      JSON.stringify({
+        type: 'toggle-powermark-only',
+        powermarkOnly: this.checked,
+      })
+    );
+  });
 
 document.getElementById('toggle-rebuzz').addEventListener('click', function () {
   this.blur();
@@ -926,32 +1123,54 @@ document.getElementById('toggle-skip').addEventListener('click', function () {
   socket.send(JSON.stringify({ type: 'toggle-skip', skip: this.checked }));
 });
 
-document.getElementById('toggle-select-by-set-name').addEventListener('click', function () {
-  this.blur();
-  socket.send(JSON.stringify({
-    type: 'toggle-select-by-set-name',
-    setName: document.getElementById('set-name').value,
-    selectBySetName: this.checked
-  }));
-});
+document
+  .getElementById('toggle-select-by-set-name')
+  .addEventListener('click', function () {
+    this.blur();
+    socket.send(
+      JSON.stringify({
+        type: 'toggle-select-by-set-name',
+        setName: document.getElementById('set-name').value,
+        selectBySetName: this.checked,
+      })
+    );
+  });
 
-document.getElementById('toggle-standard-only').addEventListener('click', function () {
-  this.blur();
-  socket.send(JSON.stringify({ type: 'toggle-standard-only', standardOnly: this.checked }));
-});
+document
+  .getElementById('toggle-standard-only')
+  .addEventListener('click', function () {
+    this.blur();
+    socket.send(
+      JSON.stringify({
+        type: 'toggle-standard-only',
+        standardOnly: this.checked,
+      })
+    );
+  });
 
 document.getElementById('toggle-timer').addEventListener('click', function () {
   this.blur();
   socket.send(JSON.stringify({ type: 'toggle-timer', timer: this.checked }));
 });
 
-document.getElementById('toggle-visibility').addEventListener('click', function () {
-  this.blur();
-  socket.send(JSON.stringify({ type: 'toggle-visibility', public: this.checked }));
-});
+document
+  .getElementById('toggle-visibility')
+  .addEventListener('click', function () {
+    this.blur();
+    socket.send(
+      JSON.stringify({ type: 'toggle-visibility', public: this.checked })
+    );
+  });
 
 document.getElementById('username').addEventListener('change', function () {
-  socket.send(JSON.stringify({ type: 'change-username', userId: USER_ID, oldUsername: username, username: this.value }));
+  socket.send(
+    JSON.stringify({
+      type: 'change-username',
+      userId: USER_ID,
+      oldUsername: username,
+      username: this.value,
+    })
+  );
   username = this.value;
   window.localStorage.setItem('multiplayer-username', username);
 });
@@ -967,7 +1186,7 @@ document.getElementById('year-range-a').onchange = function () {
   socket.send(JSON.stringify({ type: 'year-range', minYear, maxYear }));
 };
 
-document.querySelectorAll('#categories input').forEach(input => {
+document.querySelectorAll('#categories input').forEach((input) => {
   input.addEventListener('click', function () {
     this.blur();
     categoryManager.updateCategory(input.id);
@@ -976,7 +1195,7 @@ document.querySelectorAll('#categories input').forEach(input => {
   });
 });
 
-document.querySelectorAll('#subcategories input').forEach(input => {
+document.querySelectorAll('#subcategories input').forEach((input) => {
   input.addEventListener('click', function () {
     this.blur();
     categoryManager.updateSubcategory(input.id);
@@ -985,7 +1204,7 @@ document.querySelectorAll('#subcategories input').forEach(input => {
   });
 });
 
-document.querySelectorAll('#alternate-subcategories input').forEach(input => {
+document.querySelectorAll('#alternate-subcategories input').forEach((input) => {
   input.addEventListener('click', function () {
     this.blur();
     categoryManager.updateAlternateSubcategory(input.id);
@@ -1003,7 +1222,8 @@ document.addEventListener('keydown', function (event) {
     socket.send(JSON.stringify({ type: 'chat', message: '' }));
   }
 
-  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName))
+    return;
 
   switch (event.key) {
     case ' ':
