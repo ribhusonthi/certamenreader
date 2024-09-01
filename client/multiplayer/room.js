@@ -15,8 +15,32 @@ import {
   rangeToArray,
 } from '../utilities/index.js';
 import { escapeHTML } from '../utilities/strings.js';
+const defaults = {
+  alternateSubcategories: [],
+  categories: [],
+  subcategories: [],
+};
 
-const categoryManager = new CategoryManager();
+let query;
+if (!window.localStorage.getItem('multiplayer-tossup-query')) {
+  query = defaults;
+} else {
+  query = JSON.parse(window.localStorage.getItem('multiplayer-tossup-query'));
+  if (query.version !== defaults.version) {
+    query = defaults;
+    window.localStorage.setItem(
+      'multiplayer-tossup-query',
+      JSON.stringify(query)
+    );
+  }
+}
+
+const categoryManager = new CategoryManager(
+  query.categories,
+  query.subcategories,
+  query.alternateSubcategories
+);
+
 let changedCategories = true;
 
 let maxPacketNumber = 24;
@@ -416,11 +440,12 @@ const socketOnConnectionAcknowledgedTossup = (message) => {
 };
 
 const socketOnConnectionAcknowledgedQuery = async (message) => {
-  categoryManager.import(
-    message.validCategories,
-    message.validSubcategories,
-    message.validAlternateSubcategories
-  );
+  // categoryManager.import(
+  //   message.validCategories,
+  //   message.validSubcategories,
+  //   message.validAlternateSubcategories
+  // );
+  const {categories, subcategories, alternateSubcategories} = categoryManager.export();
   categoryManager.loadCategoryModal();
 
   updateDifficulties(message.difficulties || []);
@@ -959,6 +984,10 @@ document.getElementById('buzz').addEventListener('click', function () {
 document
   .getElementById('category-modal')
   .addEventListener('hidden.bs.modal', function () {
+    window.localStorage.setItem(
+      'multiplayer-tossup-query',
+      JSON.stringify(categoryManager.export())
+    );
     if (changedCategories) {
       socket.send(
         JSON.stringify({
