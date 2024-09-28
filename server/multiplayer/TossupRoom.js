@@ -41,7 +41,7 @@ const QuestionProgressEnum = Object.freeze({
  */
 function scoreTossup({ isCorrect, inPower, endOfQuestion, isPace = false }) {
   const powerValue = isPace ? 20 : 15;
-  const negValue = isPace ? 0 : -5;
+  const negValue = isPace ? 0 : -2000;
   return isCorrect ? (inPower ? powerValue : 10) : endOfQuestion ? 0 : negValue;
 }
 
