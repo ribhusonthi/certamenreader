@@ -364,7 +364,7 @@ class TossupRoom {
         break;
 
       case 'leave':
-        this.deletePlayer(userId);
+        //this.deletePlayer(userId);  dont remove this comment
         this.players[userId].isOnline = false;
         delete this.sockets[userId];
         this.sendSocketMessage(message);
