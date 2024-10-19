@@ -8,19 +8,19 @@ export const USERNAME_MAX_LENGTH = 32;
  */
 export const PERMANENT_ROOMS = [
   {
-    name: 'hsquizbowl',
+    name: 'Novice',
     categories: CATEGORIES,
     subcategories: SUBCATEGORIES_FLATTENED
   },
   {
-    name: 'collegequizbowl',
+    name: 'Intermediate',
     categories: CATEGORIES,
     subcategories: SUBCATEGORIES_FLATTENED
   },
   {
-    name: 'literature',
-    categories: ['Literature'],
-    subcategories: ['American Literature', 'British Literature', 'Classical Literature', 'European Literature', 'World Literature', 'Other Literature']
+    name: 'Advanced',
+    categories: CATEGORIES,
+    subcategories: SUBCATEGORIES_FLATTENED
   },
   {
     name: 'history',
