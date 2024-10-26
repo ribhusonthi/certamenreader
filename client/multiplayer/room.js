@@ -199,14 +199,14 @@ socket.onmessage = function (event) {
       document.getElementById('toggle-lock').checked = data.lock;
       break;
 
-    case 'toggle-powermark-only':
-      logEvent(
-        data.username,
-        `${data.powermarkOnly ? 'enabled' : 'disabled'} powermark only`
-      );
-      document.getElementById('toggle-powermark-only').checked =
-        data.powermarkOnly;
-      break;
+    // case 'toggle-powermark-only':
+    //   logEvent(
+    //     data.username,
+    //     `${data.powermarkOnly ? 'enabled' : 'disabled'} powermark only`
+    //   );
+    //   document.getElementById('toggle-powermark-only').checked =
+    //     data.powermarkOnly;
+    //   break;
 
     case 'toggle-rebuzz':
       logEvent(
@@ -271,7 +271,7 @@ socket.onmessage = function (event) {
         `made the room ${data.public ? 'public' : 'private'}`
       );
       document.getElementById('toggle-visibility').checked = data.public;
-      document.getElementById('chat').disabled = data.public;
+      document.getElementById('chat').enabled = data.public;
       document.getElementById('toggle-lock').disabled = data.public;
       document.getElementById('toggle-timer').disabled = data.public;
       document.getElementById('toggle-timer').checked = true;
@@ -360,7 +360,7 @@ const socketOnConnectionAcknowledged = async (message) => {
   USER_ID = message.userId;
   window.localStorage.setItem('USER_ID', USER_ID);
 
-  document.getElementById('chat').disabled = message.public;
+  document.getElementById('chat').enabled = message.public;
   document.getElementById('toggle-rebuzz').checked = message.rebuzz;
   document.getElementById('toggle-skip').checked = message.skip;
   document.getElementById('toggle-timer').checked = message.timer;
