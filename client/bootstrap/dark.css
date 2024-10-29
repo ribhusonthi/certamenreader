@@ -78,8 +78,8 @@ kbd {
   --bs-border-radius-xl: 1rem;
   --bs-border-radius-2xl: 2rem;
   --bs-border-radius-pill: 50rem;
-  --bs-link-color: #673ab7;
-  --bs-link-hover-color: #522e92;
+  --bs-link-color: #9872da;
+  --bs-link-hover-color: #7a5bae;
   --bs-code-color: #e83e8c;
   --bs-highlight-bg: #fdebd0;
 }
@@ -9323,9 +9323,6 @@ progress {
   .pt-xxl-5 {
     padding-top: 3rem !important;
   }
-  .pt-xxl-6 {
-    padding-top: 6rem !important;
-  }
   .pe-xxl-0 {
     padding-right: 0 !important;
   }
@@ -9499,7 +9496,7 @@ code {
   }
 }
 .logo-prefix {
-  color: #673ab7;
+  color: #9872da;
 }
 
 .logo-suffix {

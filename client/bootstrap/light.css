@@ -68,8 +68,8 @@
   --bs-border-radius-xl: 1rem;
   --bs-border-radius-2xl: 2rem;
   --bs-border-radius-pill: 50rem;
-  --bs-link-color: #673ab7;
-  --bs-link-hover-color: #522e92;
+  --bs-link-color: #FFD700;
+  --bs-link-hover-color: #ccac00;
   --bs-code-color: #d63384;
   --bs-highlight-bg: #fff3cd;
 }
@@ -9486,7 +9486,7 @@ code {
   }
 }
 .logo-prefix {
-  color: #673ab7;
+  color: #FFD700;
 }
 
 .logo-suffix {

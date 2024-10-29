@@ -9,8 +9,7 @@ import { insertTokensIntoHTML } from '../utilities/insert-tokens-into-html.js';
 const paginationShiftLength = window.screen.width > 992 ? 10 : 5;
 const CATEGORY_BUTTONS = [['Nationals', 'primary'], ['Harvard', 'success'], ['Yale', 'danger'], ['Princeton', 'warning'], ['Duke', 'secondary'], ['Premier', 'secondary'], ['Keartamen', 'secondary'], ['Massachusetts', 'secondary']];
 const SUBCATEGORY_BUTTONS = [['Round 1', 'primary'], ['Round 2', 'primary'], ['Round 3', 'primary'], ['Semi-Finals', 'primary'], ['Finals', 'primary']];
-const ALTERNATE_SUBCATEGORY_BUTTONS = [//['Drama', 'primary'], ['Long Fiction', 'primary'], ['Poetry', 'primary'], ['Short Fiction', 'primary'], ['Misc Literature', 'primary'], ['Math', 'danger'], ['Astronomy', 'danger'], ['Computer Science', 'danger'], ['Earth Science', 'danger'], ['Engineering', 'danger'], ['Misc Science', 'danger'], ['Architecture', 'warning'], ['Dance', 'warning'], ['Film', 'warning'], ['Jazz', 'warning'], ['Opera', 'warning'], ['Photography', 'warning'], ['Misc Arts', 'warning'], ['Anthropology', 'secondary'], ['Economics', 'secondary'], ['Linguistics', 'secondary'], ['Psychology', 'secondary'], ['Sociology', 'secondary'], ['Other Social Science', 'secondary']
-  ];
+const ALTERNATE_SUBCATEGORY_BUTTONS = [];
 const categoryManager = new CategoryManager();
 function getMatchIndices(clean, regex) {
   const iterator = clean.matchAll(regex);
@@ -452,11 +451,7 @@ function CategoryModal() {
   }))), /*#__PURE__*/React.createElement("div", {
     className: "col-4",
     id: "alternate-subcategories"
-  }, /*#__PURE__*/React.createElement("h5", {
-    className: "text-center"
-  }, " ", /*#__PURE__*/React.createElement("span", {
-    className: "d-none d-lg-inline"
-  }, "")), ALTERNATE_SUBCATEGORY_BUTTONS.map(element => /*#__PURE__*/React.createElement(AlternateSubcategoryButton, {
+  }, ALTERNATE_SUBCATEGORY_BUTTONS.map(element => /*#__PURE__*/React.createElement(AlternateSubcategoryButton, {
     key: element[0],
     subcategory: element[0],
     color: element[1],
@@ -790,35 +785,13 @@ function QueryForm() {
   }, /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
     type: "checkbox",
     value: "1"
-  }), " Novice")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
-  //   type: "checkbox",
-  //   value: "2"
-  // }), " 2: Easy High School")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
-  //   type: "checkbox",
-  //   value: "3"
-  // }), " 3: Regular High School")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
-  //   type: "checkbox",
-  //   value: "4"
-  // }), " 4: Hard High School")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
-  //   
+  }), " \u25CF Novice")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
     type: "checkbox",
     value: "5"
-  }), "Intermediate")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
-  //   type: "checkbox",
-  //   value: "6"
-  // }), " 6: \u25CF / Easy College")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
-  //   type: "checkbox",
-  //   value: "7"
-  // }), " 7: \u25CF\u25CF / Medium College")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
-  //   type: "checkbox",
-  //   value: "8"
-  // }), " 8: \u25CF\u25CF\u25CF / Regionals College")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
-  //   type: "checkbox",
-  //   value: "9"
-  // }), " 9: \u25CF\u25CF\u25CF\u25CF / Nationals College")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
+  }), " \u25CF\u25CF Intermediate")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
     type: "checkbox",
     value: "10"
-  }), "Advanced"))))), /*#__PURE__*/React.createElement("div", {
+  }), " \u25CF\u25CF\u25CF Advanced"))))), /*#__PURE__*/React.createElement("div", {
     className: "col-6 col-xl-3 mb-2"
   }, /*#__PURE__*/React.createElement("input", {
     type: "number",
@@ -829,24 +802,22 @@ function QueryForm() {
     onChange: event => {
       setMaxReturnLength(event.target.value);
     }
-  // })), /*#__PURE__*/React.createElement("div", {
-  //   className: "input-group col-12 col-xl-6 mb-2"
-  // }, /*#__PURE__*/React.createElement("input", {
-  //   type: "text",
-  //   className: "form-control",
-  //   id: "set-name",
-  //   placeholder: "Set Name",
-  //   list: "set-list"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "input-group col-12 col-xl-6 mb-2"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    className: "form-control",
+    id: "set-name",
+    placeholder: "Set Name",
+    list: "set-list"
   }), /*#__PURE__*/React.createElement("datalist", {
     id: "set-list"
   }), /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn btn-danger",
-  
     id: "category-select-button",
     "data-bs-toggle": "modal",
     "data-bs-target": "#category-modal"
-  
   }, "Tournament"))), /*#__PURE__*/React.createElement("div", {
     className: "row"
   }, /*#__PURE__*/React.createElement("div", {
