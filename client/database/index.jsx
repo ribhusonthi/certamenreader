@@ -11,66 +11,26 @@ import { insertTokensIntoHTML } from '../utilities/insert-tokens-into-html.js';
 const paginationShiftLength = window.screen.width > 992 ? 10 : 5;
 
 const CATEGORY_BUTTONS = [
-  ['Literature', 'primary'],
-  ['History', 'success'],
-  ['Science', 'danger'],
-  ['Fine Arts', 'warning'],
-  ['Religion', 'secondary'],
-  ['Mythology', 'secondary'],
-  ['Philosophy', 'secondary'],
-  ['Social Science', 'secondary'],
-  ['Current Events', 'secondary'],
-  ['Geography', 'secondary'],
-  ['Other Academic', 'secondary'],
-  ['Trash', 'secondary']
+  ['Nationals', 'primary'],
+  ['Harvard', 'success'],
+  ['Yale', 'danger'],
+  ['Princeton', 'warning'],
+  ['Duke', 'secondary'],
+  ['Premier', 'secondary'],
+  ['Keartamen', 'secondary'],
+  ['Massachusetts', 'secondary']
 ];
 
 const SUBCATEGORY_BUTTONS = [
-  ['American Literature', 'primary'],
-  ['British Literature', 'primary'],
-  ['Classical Literature', 'primary'],
-  ['European Literature', 'primary'],
-  ['World Literature', 'primary'],
-  ['Other Literature', 'primary'],
-  ['American History', 'success'],
-  ['Ancient History', 'success'],
-  ['European History', 'success'],
-  ['World History', 'success'],
-  ['Other History', 'success'],
-  ['Biology', 'danger'],
-  ['Chemistry', 'danger'],
-  ['Physics', 'danger'],
-  ['Other Science', 'danger'],
-  ['Visual Fine Arts', 'warning'],
-  ['Auditory Fine Arts', 'warning'],
-  ['Other Fine Arts', 'warning']
+  ['Round 1', 'primary'],
+  ['Round 2', 'primary'],
+  ['Round 3', 'primary'],
+  ['Semi-Finals', 'primary'],
+  ['Finals', 'primary']
 ];
 
 const ALTERNATE_SUBCATEGORY_BUTTONS = [
-  ['Drama', 'primary'],
-  ['Long Fiction', 'primary'],
-  ['Poetry', 'primary'],
-  ['Short Fiction', 'primary'],
-  ['Misc Literature', 'primary'],
-  ['Math', 'danger'],
-  ['Astronomy', 'danger'],
-  ['Computer Science', 'danger'],
-  ['Earth Science', 'danger'],
-  ['Engineering', 'danger'],
-  ['Misc Science', 'danger'],
-  ['Architecture', 'warning'],
-  ['Dance', 'warning'],
-  ['Film', 'warning'],
-  ['Jazz', 'warning'],
-  ['Opera', 'warning'],
-  ['Photography', 'warning'],
-  ['Misc Arts', 'warning'],
-  ['Anthropology', 'secondary'],
-  ['Economics', 'secondary'],
-  ['Linguistics', 'secondary'],
-  ['Psychology', 'secondary'],
-  ['Sociology', 'secondary'],
-  ['Other Social Science', 'secondary']
+  
 ];
 
 const categoryManager = new CategoryManager();
@@ -421,24 +381,24 @@ function CategoryModal () {
       <div className='modal-dialog modal-dialog-scrollable'>
         <div className='modal-content'>
           <div className='modal-header'>
-            <h5 className='modal-title'>Select Categories and Subcategories</h5>
+            <h5 className='modal-title'>Select Tournament and Round</h5>
             <button type='button' className='btn-close' data-bs-dismiss='modal' aria-label='Close' />
           </div>
           <div className='modal-body'>
             <div className='row'>
               <div className='col-4' id='categories'>
-                <h5 className='text-center'>Category</h5>
+                <h5 className='text-center'>Tournament</h5>
                 {CATEGORY_BUTTONS.map((element) => <CategoryButton key={element[0]} category={element[0]} color={element[1]} />)}
               </div>
               <div className='col-4' id='subcategories'>
-                <h5 className='text-center'>Subcategory</h5>
+                <h5 className='text-center'>Round</h5>
                 <div className='text-muted text-center' id='subcategory-info-text'>
-                  You must select categories before you can select subcategories.
+                  You must select Tournament before you can select Round.
                 </div>
                 {SUBCATEGORY_BUTTONS.map((element) => <SubcategoryButton key={element[0]} subcategory={element[0]} color={element[1]} hidden />)}
               </div>
               <div className='col-4' id='alternate-subcategories'>
-                <h5 className='text-center'>Alternate <span className='d-none d-lg-inline'>Subcategory</span></h5>
+                {/* <h5 className='text-center'>Alternate <span className='d-none d-lg-inline'>Subcategory</span></h5> */}
                 {ALTERNATE_SUBCATEGORY_BUTTONS.map((element) => <AlternateSubcategoryButton key={element[0]} subcategory={element[0]} color={element[1]} hidden />)}
               </div>
             </div>
@@ -742,20 +702,20 @@ function QueryForm () {
                 className='btn btn-default text-start w-100' id='dropdownMenu1' data-bs-toggle='dropdown'
                 type='button' aria-expanded='true' aria-haspopup='true'
               >
-                Difficulties
+                Level
               </button>
               <button className='btn btn-default dropdown-toggle dropdown-toggle-split' data-bs-toggle='dropdown' type='button' />
               <ul className='dropdown-menu checkbox-menu allow-focus' id='difficulties' aria-labelledby='dropdownMenu1'>
-                <li><label><input type='checkbox' value='1' /> 1: Middle School</label></li>
-                <li><label><input type='checkbox' value='2' /> 2: Easy High School</label></li>
+                <li><label><input type='checkbox' value='1' /> ● Novice</label></li>
+                {/* <li><label><input type='checkbox' value='2' /> 2: Easy High School</label></li>
                 <li><label><input type='checkbox' value='3' /> 3: Regular High School</label></li>
-                <li><label><input type='checkbox' value='4' /> 4: Hard High School</label></li>
-                <li><label><input type='checkbox' value='5' /> 5: National High School</label></li>
-                <li><label><input type='checkbox' value='6' /> 6: ● / Easy College</label></li>
+                <li><label><input type='checkbox' value='4' /> 4: Hard High School</label></li> */}
+                <li><label><input type='checkbox' value='5' /> ●● Intermediate</label></li>
+                {/* <li><label><input type='checkbox' value='6' /> 6: ● / Easy College</label></li>
                 <li><label><input type='checkbox' value='7' /> 7: ●● / Medium College</label></li>
                 <li><label><input type='checkbox' value='8' /> 8: ●●● / Regionals College</label></li>
-                <li><label><input type='checkbox' value='9' /> 9: ●●●● / Nationals College</label></li>
-                <li><label><input type='checkbox' value='10' /> 10: Open</label></li>
+                <li><label><input type='checkbox' value='9' /> 9: ●●●● / Nationals College</label></li> */}
+                <li><label><input type='checkbox' value='10' /> ●●● Advanced</label></li>
               </ul>
             </div>
           </div>
@@ -765,7 +725,7 @@ function QueryForm () {
           <div className='input-group col-12 col-xl-6 mb-2'>
             <input type='text' className='form-control' id='set-name' placeholder='Set Name' list='set-list' />
             <datalist id='set-list' />
-            <button type='button' className='btn btn-danger' id='category-select-button' data-bs-toggle='modal' data-bs-target='#category-modal'>Categories</button>
+            <button type='button' className='btn btn-danger' id='category-select-button' data-bs-toggle='modal' data-bs-target='#category-modal'>Tournament</button>
           </div>
         </div>
         <div className='row'>
