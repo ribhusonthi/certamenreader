@@ -7,9 +7,10 @@ import { attachDropdownChecklist, getDropdownValues } from '../utilities/dropdow
 import { getBonusPartLabel } from '../utilities/index.js';
 import { insertTokensIntoHTML } from '../utilities/insert-tokens-into-html.js';
 const paginationShiftLength = window.screen.width > 992 ? 10 : 5;
-const CATEGORY_BUTTONS = [['Literature', 'primary'], ['History', 'success'], ['Science', 'danger'], ['Fine Arts', 'warning'], ['Religion', 'secondary'], ['Mythology', 'secondary'], ['Philosophy', 'secondary'], ['Social Science', 'secondary'], ['Current Events', 'secondary'], ['Geography', 'secondary'], ['Other Academic', 'secondary'], ['Trash', 'secondary']];
-const SUBCATEGORY_BUTTONS = [['American Literature', 'primary'], ['British Literature', 'primary'], ['Classical Literature', 'primary'], ['European Literature', 'primary'], ['World Literature', 'primary'], ['Other Literature', 'primary'], ['American History', 'success'], ['Ancient History', 'success'], ['European History', 'success'], ['World History', 'success'], ['Other History', 'success'], ['Biology', 'danger'], ['Chemistry', 'danger'], ['Physics', 'danger'], ['Other Science', 'danger'], ['Visual Fine Arts', 'warning'], ['Auditory Fine Arts', 'warning'], ['Other Fine Arts', 'warning']];
-const ALTERNATE_SUBCATEGORY_BUTTONS = [['Drama', 'primary'], ['Long Fiction', 'primary'], ['Poetry', 'primary'], ['Short Fiction', 'primary'], ['Misc Literature', 'primary'], ['Math', 'danger'], ['Astronomy', 'danger'], ['Computer Science', 'danger'], ['Earth Science', 'danger'], ['Engineering', 'danger'], ['Misc Science', 'danger'], ['Architecture', 'warning'], ['Dance', 'warning'], ['Film', 'warning'], ['Jazz', 'warning'], ['Opera', 'warning'], ['Photography', 'warning'], ['Misc Arts', 'warning'], ['Anthropology', 'secondary'], ['Economics', 'secondary'], ['Linguistics', 'secondary'], ['Psychology', 'secondary'], ['Sociology', 'secondary'], ['Other Social Science', 'secondary']];
+const CATEGORY_BUTTONS = [['Nationals', 'primary'], ['Harvard', 'success'], ['Yale', 'danger'], ['Princeton', 'warning'], ['Duke', 'secondary'], ['Premier', 'secondary'], ['Keartamen', 'secondary'], ['Massachusetts', 'secondary']];
+const SUBCATEGORY_BUTTONS = [['Round 1', 'primary'], ['Round 2', 'primary'], ['Round 3', 'primary'], ['Semi-Finals', 'primary'], ['Finals', 'primary']];
+const ALTERNATE_SUBCATEGORY_BUTTONS = [//['Drama', 'primary'], ['Long Fiction', 'primary'], ['Poetry', 'primary'], ['Short Fiction', 'primary'], ['Misc Literature', 'primary'], ['Math', 'danger'], ['Astronomy', 'danger'], ['Computer Science', 'danger'], ['Earth Science', 'danger'], ['Engineering', 'danger'], ['Misc Science', 'danger'], ['Architecture', 'warning'], ['Dance', 'warning'], ['Film', 'warning'], ['Jazz', 'warning'], ['Opera', 'warning'], ['Photography', 'warning'], ['Misc Arts', 'warning'], ['Anthropology', 'secondary'], ['Economics', 'secondary'], ['Linguistics', 'secondary'], ['Psychology', 'secondary'], ['Sociology', 'secondary'], ['Other Social Science', 'secondary']
+  ];
 const categoryManager = new CategoryManager();
 function getMatchIndices(clean, regex) {
   const iterator = clean.matchAll(regex);
@@ -417,7 +418,7 @@ function CategoryModal() {
     className: "modal-header"
   }, /*#__PURE__*/React.createElement("h5", {
     className: "modal-title"
-  }, "Select Categories and Subcategories"), /*#__PURE__*/React.createElement("button", {
+  }, "Select Tournament and Round"), /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn-close",
     "data-bs-dismiss": "modal",
@@ -431,7 +432,7 @@ function CategoryModal() {
     id: "categories"
   }, /*#__PURE__*/React.createElement("h5", {
     className: "text-center"
-  }, "Category"), CATEGORY_BUTTONS.map(element => /*#__PURE__*/React.createElement(CategoryButton, {
+  }, "Tournament"), CATEGORY_BUTTONS.map(element => /*#__PURE__*/React.createElement(CategoryButton, {
     key: element[0],
     category: element[0],
     color: element[1]
@@ -440,10 +441,10 @@ function CategoryModal() {
     id: "subcategories"
   }, /*#__PURE__*/React.createElement("h5", {
     className: "text-center"
-  }, "Subcategory"), /*#__PURE__*/React.createElement("div", {
+  }, "Round"), /*#__PURE__*/React.createElement("div", {
     className: "text-muted text-center",
     id: "subcategory-info-text"
-  }, "You must select categories before you can select subcategories."), SUBCATEGORY_BUTTONS.map(element => /*#__PURE__*/React.createElement(SubcategoryButton, {
+  }, "You must select Tournament before you can select Round."), SUBCATEGORY_BUTTONS.map(element => /*#__PURE__*/React.createElement(SubcategoryButton, {
     key: element[0],
     subcategory: element[0],
     color: element[1],
@@ -453,9 +454,9 @@ function CategoryModal() {
     id: "alternate-subcategories"
   }, /*#__PURE__*/React.createElement("h5", {
     className: "text-center"
-  }, "Alternate ", /*#__PURE__*/React.createElement("span", {
+  }, " ", /*#__PURE__*/React.createElement("span", {
     className: "d-none d-lg-inline"
-  }, "Subcategory")), ALTERNATE_SUBCATEGORY_BUTTONS.map(element => /*#__PURE__*/React.createElement(AlternateSubcategoryButton, {
+  }, "")), ALTERNATE_SUBCATEGORY_BUTTONS.map(element => /*#__PURE__*/React.createElement(AlternateSubcategoryButton, {
     key: element[0],
     subcategory: element[0],
     color: element[1],
@@ -778,7 +779,7 @@ function QueryForm() {
     type: "button",
     "aria-expanded": "true",
     "aria-haspopup": "true"
-  }, "Difficulties"), /*#__PURE__*/React.createElement("button", {
+  }, "Level"), /*#__PURE__*/React.createElement("button", {
     className: "btn btn-default dropdown-toggle dropdown-toggle-split",
     "data-bs-toggle": "dropdown",
     type: "button"
@@ -789,34 +790,35 @@ function QueryForm() {
   }, /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
     type: "checkbox",
     value: "1"
-  }), " 1: Middle School")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
-    type: "checkbox",
-    value: "2"
-  }), " 2: Easy High School")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
-    type: "checkbox",
-    value: "3"
-  }), " 3: Regular High School")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
-    type: "checkbox",
-    value: "4"
-  }), " 4: Hard High School")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
+  }), " Novice")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
+  //   type: "checkbox",
+  //   value: "2"
+  // }), " 2: Easy High School")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
+  //   type: "checkbox",
+  //   value: "3"
+  // }), " 3: Regular High School")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
+  //   type: "checkbox",
+  //   value: "4"
+  // }), " 4: Hard High School")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
+  //   
     type: "checkbox",
     value: "5"
-  }), " 5: National High School")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
-    type: "checkbox",
-    value: "6"
-  }), " 6: \u25CF / Easy College")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
-    type: "checkbox",
-    value: "7"
-  }), " 7: \u25CF\u25CF / Medium College")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
-    type: "checkbox",
-    value: "8"
-  }), " 8: \u25CF\u25CF\u25CF / Regionals College")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
-    type: "checkbox",
-    value: "9"
-  }), " 9: \u25CF\u25CF\u25CF\u25CF / Nationals College")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
+  }), "Intermediate")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
+  //   type: "checkbox",
+  //   value: "6"
+  // }), " 6: \u25CF / Easy College")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
+  //   type: "checkbox",
+  //   value: "7"
+  // }), " 7: \u25CF\u25CF / Medium College")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
+  //   type: "checkbox",
+  //   value: "8"
+  // }), " 8: \u25CF\u25CF\u25CF / Regionals College")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
+  //   type: "checkbox",
+  //   value: "9"
+  // }), " 9: \u25CF\u25CF\u25CF\u25CF / Nationals College")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
     type: "checkbox",
     value: "10"
-  }), " 10: Open"))))), /*#__PURE__*/React.createElement("div", {
+  }), "Advanced"))))), /*#__PURE__*/React.createElement("div", {
     className: "col-6 col-xl-3 mb-2"
   }, /*#__PURE__*/React.createElement("input", {
     type: "number",
@@ -843,7 +845,7 @@ function QueryForm() {
     id: "category-select-button",
     "data-bs-toggle": "modal",
     "data-bs-target": "#category-modal"
-  }, "Categories"))), /*#__PURE__*/React.createElement("div", {
+  }, "Tournament"))), /*#__PURE__*/React.createElement("div", {
     className: "row"
   }, /*#__PURE__*/React.createElement("div", {
     className: "col-6 col-md-3 mb-2"
