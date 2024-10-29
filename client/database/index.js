@@ -829,22 +829,24 @@ function QueryForm() {
     onChange: event => {
       setMaxReturnLength(event.target.value);
     }
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "input-group col-12 col-xl-6 mb-2"
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "text",
-    className: "form-control",
-    id: "set-name",
-    placeholder: "Set Name",
-    list: "set-list"
+  // })), /*#__PURE__*/React.createElement("div", {
+  //   className: "input-group col-12 col-xl-6 mb-2"
+  // }, /*#__PURE__*/React.createElement("input", {
+  //   type: "text",
+  //   className: "form-control",
+  //   id: "set-name",
+  //   placeholder: "Set Name",
+  //   list: "set-list"
   }), /*#__PURE__*/React.createElement("datalist", {
     id: "set-list"
   }), /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn btn-danger",
+  
     id: "category-select-button",
     "data-bs-toggle": "modal",
     "data-bs-target": "#category-modal"
+  
   }, "Tournament"))), /*#__PURE__*/React.createElement("div", {
     className: "row"
   }, /*#__PURE__*/React.createElement("div", {
