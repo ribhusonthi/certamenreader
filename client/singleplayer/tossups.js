@@ -51,13 +51,13 @@ const defaults = {
   categories: [],
   difficulties: [],
   minYear: 2010,
-  maxYear: 2024,
+  maxYear: 2025,
   packetNumbers: [],
   powermarkOnly: false,
   setName: '',
   standardOnly: false,
   subcategories: [],
-  version: '01-06-2024'
+  version: '01-06-2025'
 };
 
 let query;

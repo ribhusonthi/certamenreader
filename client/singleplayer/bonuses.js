@@ -34,12 +34,12 @@ const defaults = {
   categories: [],
   difficulties: [],
   minYear: 2010,
-  maxYear: 2024,
+  maxYear: 2025,
   packetNumbers: [],
   setName: '',
   subcategories: [],
   threePartBonuses: true,
-  version: '01-06-2024'
+  version: '01-06-2025'
 };
 
 // Room settings
