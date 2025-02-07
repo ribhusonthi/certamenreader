@@ -29,6 +29,7 @@ export const reservedNames = [
 ];
 
 export const inappropriateNames = [
+  'gyatt','cenat','monkus','mcpickle','sigma','fuck','bitch'
 ];
 
 const banList = reservedNames.concat(inappropriateNames);
