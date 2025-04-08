@@ -1,12 +1,12 @@
 const SUBCATEGORIES = {
-  Nationals: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
-  Harvard: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
-  Yale: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
-  Princeton: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
-  Duke: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
-  Premier: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
-  Keartamen: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
-  Massachusetts: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',]
+  Mythology: [],
+  // Harvard: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
+  // Yale: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
+  // Princeton: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
+  // Duke: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
+  // Premier: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
+  // Keartamen: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
+  // Massachusetts: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',]
 
 };
 
