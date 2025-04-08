@@ -419,7 +419,7 @@ function CategoryModal() {
     className: "modal-header"
   }, /*#__PURE__*/React.createElement("h5", {
     className: "modal-title"
-  }, "Select Tournament and Round"), /*#__PURE__*/React.createElement("button", {
+  }, "Select Category"), /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn-close",
     "data-bs-dismiss": "modal",
@@ -433,7 +433,7 @@ function CategoryModal() {
     id: "categories"
   }, /*#__PURE__*/React.createElement("h5", {
     className: "text-center"
-  }, "Tournament"), CATEGORY_BUTTONS.map(element => /*#__PURE__*/React.createElement(CategoryButton, {
+  }, "Category"), CATEGORY_BUTTONS.map(element => /*#__PURE__*/React.createElement(CategoryButton, {
     key: element[0],
     category: element[0],
     color: element[1]
@@ -445,7 +445,7 @@ function CategoryModal() {
   }, "Round"), /*#__PURE__*/React.createElement("div", {
     className: "text-muted text-center",
     id: "subcategory-info-text"
-  }, "You must select Tournament before you can select Round."), SUBCATEGORY_BUTTONS.map(element => /*#__PURE__*/React.createElement(SubcategoryButton, {
+  }, "You must select Category before you can select a Subcategory."), SUBCATEGORY_BUTTONS.map(element => /*#__PURE__*/React.createElement(SubcategoryButton, {
     key: element[0],
     subcategory: element[0],
     color: element[1],
@@ -820,7 +820,7 @@ function QueryForm() {
     id: "category-select-button",
     "data-bs-toggle": "modal",
     "data-bs-target": "#category-modal"
-  }, "Tournament"))), /*#__PURE__*/React.createElement("div", {
+  }, "Category"))), /*#__PURE__*/React.createElement("div", {
     className: "row"
   }, /*#__PURE__*/React.createElement("div", {
     className: "col-6 col-md-3 mb-2"

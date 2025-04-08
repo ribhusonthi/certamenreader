@@ -11,23 +11,9 @@ import { insertTokensIntoHTML } from '../utilities/insert-tokens-into-html.js';
 const paginationShiftLength = window.screen.width > 992 ? 10 : 5;
 
 const CATEGORY_BUTTONS = [
-  ['Nationals', 'primary'],
-  ['Harvard', 'success'],
-  ['Yale', 'danger'],
-  ['Princeton', 'warning'],
-  ['Duke', 'secondary'],
-  ['Premier', 'secondary'],
-  ['Keartamen', 'secondary'],
-  ['Massachusetts', 'secondary']
-];
+  ['Mythology', 'primary']];
 
-const SUBCATEGORY_BUTTONS = [
-  ['Round 1', 'primary'],
-  ['Round 2', 'primary'],
-  ['Round 3', 'primary'],
-  ['Semi-Finals', 'primary'],
-  ['Finals', 'primary']
-];
+const SUBCATEGORY_BUTTONS = [];
 
 const ALTERNATE_SUBCATEGORY_BUTTONS = [
   
@@ -381,19 +367,19 @@ function CategoryModal () {
       <div className='modal-dialog modal-dialog-scrollable'>
         <div className='modal-content'>
           <div className='modal-header'>
-            <h5 className='modal-title'>Select Tournament and Round</h5>
+            <h5 className='modal-title'>Select Category</h5>
             <button type='button' className='btn-close' data-bs-dismiss='modal' aria-label='Close' />
           </div>
           <div className='modal-body'>
             <div className='row'>
               <div className='col-4' id='categories'>
-                <h5 className='text-center'>Tournament</h5>
+                <h5 className='text-center'>Category</h5>
                 {CATEGORY_BUTTONS.map((element) => <CategoryButton key={element[0]} category={element[0]} color={element[1]} />)}
               </div>
               <div className='col-4' id='subcategories'>
                 <h5 className='text-center'>Round</h5>
                 <div className='text-muted text-center' id='subcategory-info-text'>
-                  You must select Tournament before you can select Round.
+                  You must select Category before you can select a Subcategory.
                 </div>
                 {SUBCATEGORY_BUTTONS.map((element) => <SubcategoryButton key={element[0]} subcategory={element[0]} color={element[1]} hidden />)}
               </div>
@@ -725,7 +711,7 @@ function QueryForm () {
           <div className='input-group col-12 col-xl-6 mb-2'>
             <input type='text' className='form-control' id='set-name' placeholder='Set Name' list='set-list' />
             <datalist id='set-list' />
-            <button type='button' className='btn btn-danger' id='category-select-button' data-bs-toggle='modal' data-bs-target='#category-modal'>Tournament</button>
+            <button type='button' className='btn btn-danger' id='category-select-button' data-bs-toggle='modal' data-bs-target='#category-modal'>Category</button>
           </div>
         </div>
         <div className='row'>
