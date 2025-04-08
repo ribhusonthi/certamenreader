@@ -7,8 +7,10 @@ import { attachDropdownChecklist, getDropdownValues } from '../utilities/dropdow
 import { getBonusPartLabel } from '../utilities/index.js';
 import { insertTokensIntoHTML } from '../utilities/insert-tokens-into-html.js';
 const paginationShiftLength = window.screen.width > 992 ? 10 : 5;
-const CATEGORY_BUTTONS = [['Nationals', 'primary'], ['Harvard', 'success'], ['Yale', 'danger'], ['Princeton', 'warning'], ['Duke', 'secondary'], ['Premier', 'secondary'], ['Keartamen', 'secondary'], ['Massachusetts', 'secondary']];
-const SUBCATEGORY_BUTTONS = [['Round 1', 'primary'], ['Round 2', 'primary'], ['Round 3', 'primary'], ['Semi-Finals', 'primary'], ['Finals', 'primary']];
+const CATEGORY_BUTTONS = [['Mythology', 'primary']];
+//, ['Harvard', 'success'], ['Yale', 'danger'], ['Princeton', 'warning'], ['Duke', 'secondary'], ['Premier', 'secondary'], ['Keartamen', 'secondary'], ['Massachusetts', 'secondary']
+const SUBCATEGORY_BUTTONS = [];
+//['Round 1', 'primary'], ['Round 2', 'primary'], ['Round 3', 'primary'], ['Semi-Finals', 'primary'], ['Finals', 'primary']
 const ALTERNATE_SUBCATEGORY_BUTTONS = [];
 const categoryManager = new CategoryManager();
 function getMatchIndices(clean, regex) {
