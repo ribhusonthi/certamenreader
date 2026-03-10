@@ -287,7 +287,11 @@ socket.onmessage = function (event) {
 
     case 'update-question':
       if (data.word !== '(*)') {
-        document.getElementById('question').innerHTML += data.word + ' ';
+        const questionEl = document.getElementById('question');
+        const wordSpan = document.createElement('span');
+        wordSpan.className = 'word-token';
+        wordSpan.textContent = data.word + ' ';
+        questionEl.appendChild(wordSpan);
       }
       break;
 
@@ -641,7 +645,7 @@ const socketOnNext = (message) => {
 
   document.getElementById('options').classList.add('d-none');
   showSkipButton();
-  document.getElementById('question').textContent = '';
+  document.getElementById('question').innerHTML = '';
   document.getElementById('answer').textContent = '';
   document.getElementById('buzz').textContent = 'Buzz';
   document.getElementById('buzz').disabled = false;
@@ -662,7 +666,7 @@ const socketOnPause = (message) => {
 const socketOnStart = (message) => {
   logEvent(message.username, 'started the game');
 
-  document.getElementById('question').textContent = '';
+  document.getElementById('question').innerHTML = '';
   document.getElementById('answer').textContent = '';
   document.getElementById('buzz').textContent = 'Buzz';
   document.getElementById('buzz').disabled = false;
@@ -960,6 +964,11 @@ document
     event.stopPropagation();
 
     const answer = document.getElementById('answer-input').value;
+
+    // Reject whitespace-only answers
+    if (!answer.trim()) {
+      return;
+    }
 
     socket.send(
       JSON.stringify({

@@ -64,30 +64,33 @@
         </div>
     </nav>
 
-    <div class="container mt-3 mb-4">
-        <div class="row">
-            <div class="col-12">
-                <p class="lead">Play Certamen real-time against other players.</p>
-                <p>You can invite friends to join you by sharing the URL to your room.</p>
-                <p class="mb-0 pb-2">Create/Join a Room:</p>
-                <form id="form">
-                    <div class="input-group justify-content-center pb-2">
+    <div class="container mt-4 mb-5">
+        <h2 class="mb-4 text-center">Multiplayer</h2>
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-10 col-lg-8">
+                <div class="card shadow-sm p-4 mb-4">
+                    <p class="lead">Play Certamen real-time against other players.</p>
+                    <p>You can invite friends to join you by sharing the URL to your room.</p>
+                    <hr>
+                    <p class="mb-2 fw-bold">Create or Join a Room:</p>
+                    <form id="form">
+                        <div class="input-group input-group-lg justify-content-center pb-3">
                         <input class="form-control" id="new-room-name" type="text">
-                        <button class="btn btn-success" type="submit">Go</button>
+                        <button class="btn btn-primary px-4" type="submit">Go</button>
                     </div>
-                    <div class="form-check">
-                        <input class="form-check-input" id="private-room-checkbox" type="checkbox">
+                    <div class="form-check form-switch fs-5">
+                        <input class="form-check-input" id="private-room-checkbox" type="checkbox" role="switch">
                         <label class="form-check-label" for="private-room-checkbox">
                             Make room private
                         </label>
                     </div>
-                </form>
-                <hr>
-                <!--<p>Try one of these rooms:</p>
-                <ul class="list-group mb-3" id="permanent-room-list">
-                </ul> -->
-                <p>Check out a public room:</p>
-                <ul class="list-group mb-5" id="room-list"></ul>
+                    </form>
+                </div>
+
+                <div class="card shadow-sm p-4 mb-5">
+                    <h5 class="mb-3">Check out a public room:</h5>
+                    <div class="d-grid gap-2" id="room-list"></div>
+                </div>
             </div>
         </div>
     </div>

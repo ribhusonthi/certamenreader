@@ -196,46 +196,51 @@
                 </div>
             </div>
             <div class="col-12 col-lg-9">
-                <div class="buttons position-sticky top-0 pt-2">
-                    <button class="mb-2 btn btn-primary" id="next" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
-                        title="Shortcut: n or s key">Next</button>
-                    <button class="mb-2 btn btn-primary d-none" id="skip" data-bs-placement="top" data-bs-toggle="tooltip"
-                        type="button" title="Shortcut: n or s key" disabled>Skip</button>
-                    <button class="mb-2 btn btn-primary" id="pause" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
-                        title="Shortcut: p key" disabled>Pause</button>
-                    <button class="mb-2 btn btn-info" id="chat" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
-                        title="Shortcut: enter key">Chat</button>
-                    <button class="mb-2 btn btn-danger d-lg-none" id="toggle-options" type="button">Options</button>
-                    <button class="mb-2 btn btn-primary float-end" id="buzz" data-bs-placement="top" data-bs-toggle="tooltip"
-                        type="button" title="Shortcut: spacebar" disabled>Buzz</button>
-                    <form id="answer-form">
-                        <!-- User enters answer here -->
-                        <div class="input-group d-none my-2" id="answer-input-group">
-                            <input class="form-control" id="answer-input" type="text" placeholder="Enter answer" maxlength="256">
-                            <button class="btn btn-success" id="answer-submit" type="submit">Submit</button>
-                        </div>
-                    </form>
-                    <form id="chat-form">
-                        <div class="input-group d-none my-2" id="chat-input-group">
-                            <input class="form-control" id="chat-input" type="text" placeholder="Chat" maxlength="256">
-                            <button class="btn btn-success" id="chat-submit" type="submit">Submit</button>
-                        </div>
-                    </form>
-                </div>
-                <div class="float-row">
-                    <span class="float-end ps-5 me-lg-2" id="question-metadata">
-                        <b id="question-info">
-                            <span id="set-name-info"></span>
-                            Packet <span id="packet-number-info">-</span>
-                            Question <span id="question-number-info">-</span>
-                        </b>
-                    </span>
-                </div>
-                <div class="mt-2" id="question"></div>
-                <p class="my-1 my-lg-3" id="answer"></p>
-                <ul class="room-history list-unstyled" id="room-history"></ul>
+                <div class="reader-card">
+                    <div class="reader-controls d-flex flex-wrap gap-2 position-sticky top-0 pt-2 pb-2">
+                        <button class="btn btn-success" id="next" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
+                            title="Shortcut: n or s key">Next</button>
+                        <button class="btn btn-success d-none" id="skip" data-bs-placement="top" data-bs-toggle="tooltip"
+                            type="button" title="Shortcut: n or s key" disabled>Skip</button>
+                        <button class="btn btn-outline-warning d-lg-none" id="toggle-options" type="button">Options</button>
+                        <button class="btn btn-outline-info" id="chat" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
+                            title="Shortcut: enter key">Chat</button>
+                    </div>
+                    <div class="float-row mt-2">
+                        <span class="float-end ps-5 me-lg-2" id="question-metadata">
+                            <b id="question-info">
+                                <span id="set-name-info"></span>
+                                Packet <span id="packet-number-info">-</span>
+                                Question <span id="question-number-info">-</span>
+                            </b>
+                        </span>
+                    </div>
+                    <div class="mt-2" id="question"></div>
+                    <p class="my-1 my-lg-3" id="answer"></p>
+                    <ul class="room-history list-unstyled" id="room-history"></ul>
+                </div><!-- /.reader-card -->
             </div>
         </div>
+    </div>
+
+    <!-- Fixed buzz bar pinned to bottom -->
+    <div class="buzz-bar-fixed" id="buzz-bar">
+        <button class="btn btn-outline-secondary" id="pause" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
+            title="Shortcut: p key" disabled>Pause</button>
+        <button id="buzz" class="btn btn-buzz" data-bs-placement="top" data-bs-toggle="tooltip"
+            type="button" title="Shortcut: spacebar" disabled>Buzz</button>
+        <form id="answer-form">
+            <div class="input-group d-none" id="answer-input-group">
+                <input class="form-control buzz-answer-input" id="answer-input" type="text" placeholder="Enter answer" maxlength="256">
+                <button class="btn btn-success" id="answer-submit" type="submit">Submit</button>
+            </div>
+        </form>
+        <form id="chat-form">
+            <div class="input-group d-none" id="chat-input-group">
+                <input class="form-control buzz-answer-input" id="chat-input" type="text" placeholder="Chat" maxlength="256">
+                <button class="btn btn-outline-info" id="chat-submit" type="submit">Send</button>
+            </div>
+        </form>
     </div>
 
     <div class="modal modal-lg" id="category-modal" tabindex="-1">

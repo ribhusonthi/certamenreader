@@ -8,9 +8,7 @@ import { getBonusPartLabel } from '../utilities/index.js';
 import { insertTokensIntoHTML } from '../utilities/insert-tokens-into-html.js';
 const paginationShiftLength = window.screen.width > 992 ? 10 : 5;
 const CATEGORY_BUTTONS = [['Mythology', 'primary']];
-//, ['Harvard', 'success'], ['Yale', 'danger'], ['Princeton', 'warning'], ['Duke', 'secondary'], ['Premier', 'secondary'], ['Keartamen', 'secondary'], ['Massachusetts', 'secondary']
 const SUBCATEGORY_BUTTONS = [];
-//['Round 1', 'primary'], ['Round 2', 'primary'], ['Round 3', 'primary'], ['Semi-Finals', 'primary'], ['Finals', 'primary']
 const ALTERNATE_SUBCATEGORY_BUTTONS = [];
 const categoryManager = new CategoryManager();
 function getMatchIndices(clean, regex) {
@@ -481,6 +479,7 @@ function QueryForm() {
   const [hideAnswerlines, setHideAnswerlines] = React.useState(false);
   const [showCardFooters, setShowCardFooters] = React.useState(true);
   const [currentlySearching, setCurrentlySearching] = React.useState(false);
+  const [hasSearched, setHasSearched] = React.useState(false);
   let [tossupPaginationNumber, setTossupPaginationNumber] = React.useState(1);
   let [bonusPaginationNumber, setBonusPaginationNumber] = React.useState(1);
   const [tossupPaginationLength, setTossupPaginationLength] = React.useState(1);
@@ -656,6 +655,7 @@ function QueryForm() {
       document.querySelectorAll('b.collapsed[data-bs-toggle="collapse"]').forEach(element => element.classList.remove('collapsed'));
       document.querySelectorAll('div.card-container.collapse:not(.show)').forEach(element => element.classList.add('show'));
       setCurrentlySearching(false);
+      setHasSearched(true);
     });
   }
   const tossupCards = [];
@@ -739,12 +739,12 @@ function QueryForm() {
     document.getElementById('set-list').innerHTML = api.getSetList().map(setName => `<option>${setName}</option>`).join('');
   }, []);
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(CategoryModal, null), /*#__PURE__*/React.createElement("form", {
-    className: "mt-3",
+    className: "mt-4 mb-5",
     onSubmit: event => {
       handleSubmit(event);
     }
   }, /*#__PURE__*/React.createElement("div", {
-    className: "input-group mb-2"
+    className: "input-group input-group-lg mb-3 shadow"
   }, /*#__PURE__*/React.createElement("input", {
     type: "text",
     className: "form-control",
@@ -756,15 +756,15 @@ function QueryForm() {
     }
   }), /*#__PURE__*/React.createElement("button", {
     type: "submit",
-    className: "btn btn-info"
+    className: "btn btn-info btn-lg px-4"
   }, "Search"), /*#__PURE__*/React.createElement("button", {
     id: "randomize",
-    className: "btn btn-success",
+    className: "btn btn-success btn-lg px-4",
     onClick: event => {
       handleSubmit(event, true);
     }
   }, "Random")), /*#__PURE__*/React.createElement("div", {
-    className: "row"
+    className: "row opacity-75"
   }, /*#__PURE__*/React.createElement("div", {
     className: "col-6 col-xl-3 mb-2"
   }, /*#__PURE__*/React.createElement("div", {
@@ -989,7 +989,7 @@ function QueryForm() {
     role: "status"
   }, /*#__PURE__*/React.createElement("span", {
     className: "d-none"
-  }, "Loading...")), /*#__PURE__*/React.createElement("div", {
+  }, "Loading...")), hasSearched && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "row text-center mt-2 mt-sm-0"
   }, /*#__PURE__*/React.createElement("h3", {
     id: "tossups"
@@ -1139,7 +1139,7 @@ function QueryForm() {
     "aria-hidden": "true"
   }, "\xBB"))))), /*#__PURE__*/React.createElement("div", {
     className: "mb-5"
-  }));
+  })));
 }
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render( /*#__PURE__*/React.createElement(QueryForm, null));

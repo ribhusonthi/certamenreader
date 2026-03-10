@@ -419,6 +419,7 @@ function QueryForm () {
   const [showCardFooters, setShowCardFooters] = React.useState(true);
 
   const [currentlySearching, setCurrentlySearching] = React.useState(false);
+  const [hasSearched, setHasSearched] = React.useState(false);
 
   let [tossupPaginationNumber, setTossupPaginationNumber] = React.useState(1);
   let [bonusPaginationNumber, setBonusPaginationNumber] = React.useState(1);
@@ -596,6 +597,7 @@ function QueryForm () {
         document.querySelectorAll('b.collapsed[data-bs-toggle="collapse"]').forEach(element => element.classList.remove('collapsed'));
         document.querySelectorAll('div.card-container.collapse:not(.show)').forEach(element => element.classList.add('show'));
         setCurrentlySearching(false);
+        setHasSearched(true);
       });
   }
 
@@ -675,13 +677,13 @@ function QueryForm () {
   return (
     <div>
       <CategoryModal />
-      <form className='mt-3' onSubmit={event => { handleSubmit(event); }}>
-        <div className='input-group mb-2'>
+      <form className='mt-4 mb-5' onSubmit={event => { handleSubmit(event); }}>
+        <div className='input-group input-group-lg mb-3 shadow'>
           <input type='text' className='form-control' id='query' placeholder='Query' value={queryString} onChange={event => { setQueryString(event.target.value); }} />
-          <button type='submit' className='btn btn-info'>Search</button>
-          <button id='randomize' className='btn btn-success' onClick={event => { handleSubmit(event, true); }}>Random</button>
+          <button type='submit' className='btn btn-info btn-lg px-4'>Search</button>
+          <button id='randomize' className='btn btn-success btn-lg px-4' onClick={event => { handleSubmit(event, true); }}>Random</button>
         </div>
-        <div className='row'>
+        <div className='row opacity-75'>
           <div className='col-6 col-xl-3 mb-2'>
             <div className='dropdown-checklist btn-group w-100'>
               <button
@@ -774,9 +776,12 @@ function QueryForm () {
       </form>
 
       {currentlySearching && <div className='d-block mx-auto mt-3 spinner-border' role='status'><span className='d-none'>Loading...</span></div>}
-      <div className='row text-center mt-2 mt-sm-0'>
-        <h3 id='tossups'>Tossups</h3>
-      </div>
+      
+      {hasSearched && (
+        <div>
+          <div className='row text-center mt-2 mt-sm-0'>
+            <h3 id='tossups'>Tossups</h3>
+          </div>
       {
                 tossupCount > 0
                   ? <div className='float-row mb-3'>
@@ -892,6 +897,8 @@ function QueryForm () {
                   </nav>
             }
       <div className='mb-5' />
+        </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 @charset "UTF-8";
 /* ##### */
 /* redefine theme colors for dark theme */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap");
 @import url(https://cdn.jsdelivr.net/npm/firacode@6.2.0/distr/fira_code.css);
 kbd {
   background-color: #6c757d !important;
@@ -9589,6 +9590,181 @@ a.list-group-item:hover {
 .checkbox-menu li.active label:hover,
 .checkbox-menu li.active label:focus {
   background-color: #b8b8ff;
+}
+
+/* --- osu! aesthetic UI overrides --- */
+.btn, .nav-link, .dropdown-item, .card, .form-control, .form-check-input, .list-group-item {
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.btn {
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:hover:not(:disabled), .btn-custom:hover:not(:disabled) {
+  box-shadow: 0 6px 15px rgba(152, 114, 218, 0.4);
+}
+
+.btn-success:hover:not(:disabled) {
+  box-shadow: 0 6px 15px rgba(0, 188, 140, 0.4);
+}
+
+.btn-danger:hover:not(:disabled) {
+  box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4);
+}
+
+.btn-warning:hover:not(:disabled) {
+  box-shadow: 0 6px 15px rgba(253, 126, 20, 0.4);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.navbar {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.bg-custom {
+  background-color: rgba(152, 114, 218, 0.85) !important;
+}
+
+.navbar-nav .nav-link {
+  position: relative;
+  font-weight: 500;
+}
+
+.navbar-nav .nav-link::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 3px;
+  bottom: 2px;
+  left: 50%;
+  background-color: #fff;
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+
+.navbar-nav .nav-link:hover::after,
+.navbar-nav .nav-link.active::after {
+  width: 70%;
+}
+
+.form-control:focus {
+  box-shadow: 0 0 0 0.25rem rgba(152, 114, 218, 0.3) !important;
+  border-color: #9872da !important;
+}
+
+.form-check-input:checked {
+  background-color: #9872da !important;
+  border-color: #9872da !important;
+}
+
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.25rem rgba(152, 114, 218, 0.3) !important;
+}
+
+/* --- End osu! aesthetic --- */
+h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6, .navbar-brand {
+  font-family: "Outfit", sans-serif !important;
+}
+
+/* --- Reader room styles --- */
+@keyframes wordFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.word-token {
+  display: inline;
+  animation: wordFadeIn 0.18s ease-out both;
+}
+
+#question {
+  font-size: 1.2rem;
+  line-height: 1.9;
+  letter-spacing: 0.01em;
+}
+
+.reader-card {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.buzz-bar-fixed {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 1.25rem 2rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+#buzz.btn-buzz {
+  border-radius: 50rem;
+  padding: 0.75rem 3rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  background: linear-gradient(135deg, #7c3AED, #9f67fa);
+  border: none;
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.45);
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  min-width: 160px;
+}
+
+#buzz.btn-buzz:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(124, 58, 237, 0.6);
+}
+
+#buzz.btn-buzz:disabled {
+  opacity: 0.4;
+  box-shadow: none;
+}
+
+.buzz-answer-input {
+  max-width: 400px;
+  border-radius: 50rem !important;
+  padding: 0.6rem 1.2rem !important;
+  font-size: 1rem;
+}
+
+/* --- End reader room styles --- */
+.bg-custom {
+  box-shadow: 0 4px 25px rgba(152, 114, 218, 0.4);
+}
+
+a:not(.btn):not(.nav-link):not(.dropdown-item) {
+  text-shadow: 0 0 8px rgba(152, 114, 218, 0.4);
+  transition: text-shadow 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+a:not(.btn):not(.nav-link):not(.dropdown-item):hover {
+  text-shadow: 0 0 15px rgba(152, 114, 218, 0.7);
 }
 
 /*# sourceMappingURL=dark.css.map */
