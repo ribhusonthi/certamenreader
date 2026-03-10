@@ -648,7 +648,7 @@ class TossupRoom {
       });
     } else {
       console.log('Query: ', this.query);
-      getRandomTossups(this.query).then((tossups) => {
+      getRandomTossups({ ...this.query, number: 20 }).then((tossups) => {
         this.randomQuestionCache = tossups;
       });
     }
@@ -673,7 +673,7 @@ class TossupRoom {
     } else {
       if (this.randomQuestionCache.length === 0) {
         console.log('Query: ', this.query);
-        this.randomQuestionCache = await getRandomTossups(this.query);
+        this.randomQuestionCache = await getRandomTossups({ ...this.query, number: 20 });
         if (this.randomQuestionCache.length === 0) {
           this.tossup = {};
           this.sendSocketMessage({
@@ -830,7 +830,6 @@ class TossupRoom {
       !this.settings.skip
     )
       return;
-    if (type === 'skip' && this.wordIndex < 5) return; // prevents spam-skipping bots
 
     clearTimeout(this.timeoutID);
 
