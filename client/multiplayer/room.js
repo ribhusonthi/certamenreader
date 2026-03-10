@@ -288,10 +288,15 @@ socket.onmessage = function (event) {
     case 'update-question':
       if (data.word !== '(*)') {
         const questionEl = document.getElementById('question');
-        const wordSpan = document.createElement('span');
-        wordSpan.className = 'word-token';
-        wordSpan.textContent = data.word + ' ';
-        questionEl.appendChild(wordSpan);
+        const chars = (data.word + ' ').split('');
+        chars.forEach((ch, i) => {
+          setTimeout(() => {
+            const letterSpan = document.createElement('span');
+            letterSpan.className = 'letter-token';
+            letterSpan.textContent = ch;
+            questionEl.appendChild(letterSpan);
+          }, i * 18);
+        });
       }
       break;
 

@@ -25,6 +25,8 @@ let timeoutID = -1;
 let tossups = [{}];
 let tossupText = '';
 let tossupTextSplit = [];
+let letterQueue = []; // queue of individual characters to render
+let currentWordIndex = 0;
 
 const previous = {
   isCorrect: true,
@@ -396,25 +398,47 @@ function pause () {
 function readQuestion (expectedReadTime) {
   if (!currentlyBuzzing && tossupTextSplit.length > 0) {
     const word = tossupTextSplit.shift();
-    if (word !== '(*)') {
-      const questionEl = document.getElementById('question');
-      const span = document.createElement('span');
-      span.className = 'word-token';
-      span.textContent = word + ' ';
-      questionEl.appendChild(span);
+    if (word === '(*)') {
+      // skip power marker, no delay
+      timeoutID = window.setTimeout(() => {
+        readQuestion(expectedReadTime);
+      }, 0);
+      return;
     }
 
-    // calculate time needed before reading next word
-    let time = Math.log(word.length) + 1;
-    if ((word.endsWith('.') && word.charCodeAt(word.length - 2) > 96 && word.charCodeAt(word.length - 2) < 123) ||
-            word.slice(-2) === '.\u201d' || word.slice(-2) === '!\u201d' || word.slice(-2) === '?\u201d') { time += 2; } else if (word.endsWith(',') || word.slice(-2) === ',\u201d') { time += 0.75; } else if (word === '(*)') { time = 0; }
+    // Build the letter queue for this word + trailing space
+    const chars = (word + ' ').split('');
+    const questionEl = document.getElementById('question');
 
-    time = time * 0.9 * (125 - settings.readingSpeed);
-    const delay = time - Date.now() + expectedReadTime;
+    let charIndex = 0;
+    function renderNextLetter () {
+      if (currentlyBuzzing || charIndex >= chars.length) {
+        if (!currentlyBuzzing) {
+          // Done with this word, schedule next word
+          let time = Math.log(word.length) + 1;
+          if ((word.endsWith('.') && word.charCodeAt(word.length - 2) > 96 && word.charCodeAt(word.length - 2) < 123) ||
+                  word.slice(-2) === '.\u201d' || word.slice(-2) === '!\u201d' || word.slice(-2) === '?\u201d') { time += 2; } else if (word.endsWith(',') || word.slice(-2) === ',\u201d') { time += 0.75; }
+          time = time * 0.9 * (125 - settings.readingSpeed);
+          const delay = time - Date.now() + expectedReadTime;
+          timeoutID = window.setTimeout(() => {
+            readQuestion(time + expectedReadTime);
+          }, Math.max(0, delay));
+        }
+        return;
+      }
 
-    timeoutID = window.setTimeout(() => {
-      readQuestion(time + expectedReadTime);
-    }, delay);
+      const span = document.createElement('span');
+      span.className = 'letter-token';
+      span.textContent = chars[charIndex];
+      questionEl.appendChild(span);
+      charIndex++;
+
+      // Delay per character based on reading speed
+      const charDelay = Math.max(8, (125 - settings.readingSpeed) * 0.35);
+      timeoutID = window.setTimeout(renderNextLetter, charDelay);
+    }
+
+    renderNextLetter();
   } else {
     document.getElementById('pause').disabled = true;
   }
