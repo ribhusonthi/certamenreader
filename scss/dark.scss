@@ -29,3 +29,17 @@ kbd {
 
 // 6. Optionally include any other parts as needed
 @import "./custom.scss";
+
+// Dark mode glowing enhancements
+.bg-custom {
+    box-shadow: 0 4px 25px rgba($custom, 0.4);
+}
+
+a:not(.btn):not(.nav-link):not(.dropdown-item) {
+    text-shadow: 0 0 8px rgba($link-color, 0.4);
+    transition: text-shadow 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    
+    &:hover {
+        text-shadow: 0 0 15px rgba($link-color, 0.7);
+    }
+}

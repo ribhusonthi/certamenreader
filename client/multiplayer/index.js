@@ -41,17 +41,23 @@ fetch('/api/multiplayer/room-list')
 
       const a = document.createElement('a');
       a.href = `/multiplayer/${encodeURIComponent(roomName)}`;
-      a.textContent = roomName;
+      a.className = 'btn btn-outline-primary btn-lg text-start d-flex justify-content-between align-items-center mb-2';
+      
+      const titleSpan = document.createElement('span');
+      titleSpan.className = 'fw-bold';
+      titleSpan.textContent = roomName;
+      
+      const infoSpan = document.createElement('span');
+      infoSpan.className = 'badge bg-primary rounded-pill fs-6';
+      infoSpan.textContent = `${playerCount} player${playerCount === 1 ? '' : 's'} - ${onlineCount} online`;
 
-      const li = document.createElement('li');
-      li.appendChild(a);
-      li.appendChild(document.createTextNode(` - ${playerCount} player${playerCount === 1 ? '' : 's'} - ${onlineCount} online`));
-      li.classList.add('list-group-item');
+      a.appendChild(titleSpan);
+      a.appendChild(infoSpan);
 
       if (isPermanent) {
-        document.getElementById('permanent-room-list').appendChild(li);
+        // Handle permanent if uncommented
       } else {
-        document.getElementById('room-list').appendChild(li);
+        document.getElementById('room-list').appendChild(a);
       }
     });
   });

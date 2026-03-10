@@ -150,7 +150,7 @@ if (query.setName) {
 updateStatDisplay();
 
 function queryLock () {
-  document.getElementById('question').textContent = 'Fetching questions...';
+  document.getElementById('question').innerHTML = 'Fetching questions...';
   document.getElementById('start').disabled = false;
   document.getElementById('next').disabled = false;
   document.getElementById('pause').disabled = false;
@@ -158,7 +158,7 @@ function queryLock () {
 }
 
 function queryUnlock () {
-  document.getElementById('question').textContent = '';
+  document.getElementById('question').innerHTML = '';
   document.getElementById('start').disabled = false;
   document.getElementById('next').disabled = false;
   document.getElementById('pause').disabled = false;
@@ -238,13 +238,15 @@ function buzz () {
   currentlyBuzzing = true;
   if (audio.soundEffects) audio.buzz.play();
 
-  buzzpointIndex = document.getElementById('question').textContent.length;
+  buzzpointIndex = document.getElementById('question').innerText.length;
   if (!tossupTextSplit.includes('(*)') && tossupText.includes('(*)')) {
     buzzpointIndex += 3;
   }
 
   // Include buzzpoint
-  document.getElementById('question').textContent += '(#) ';
+  const buzSpan = document.createElement('span');
+  buzSpan.textContent = '(#) ';
+  document.getElementById('question').appendChild(buzSpan);
 
   document.getElementById('buzz').textContent = 'Reveal';
   document.getElementById('next').disabled = true;
@@ -348,7 +350,7 @@ async function next () {
   }
 
   document.getElementById('answer').textContent = '';
-  document.getElementById('question').textContent = '';
+  document.getElementById('question').innerHTML = '';
   document.getElementById('toggle-correct').textContent = 'I was wrong';
   document.getElementById('toggle-correct').classList.add('d-none');
 
@@ -365,7 +367,7 @@ async function next () {
   // document.getElementById('packet-length-info').textContent = settings.selectBySetName ? tossups.length : '-';
   document.getElementById('pause').textContent = 'Pause';
   document.getElementById('pause').disabled = false;
-  document.getElementById('question').textContent = '';
+  document.getElementById('question').innerHTML = '';
   document.getElementById('set-name-info').textContent = query.setName;
 
   paused = false;
@@ -395,7 +397,11 @@ function readQuestion (expectedReadTime) {
   if (!currentlyBuzzing && tossupTextSplit.length > 0) {
     const word = tossupTextSplit.shift();
     if (word !== '(*)') {
-      document.getElementById('question').textContent += word + ' ';
+      const questionEl = document.getElementById('question');
+      const span = document.createElement('span');
+      span.className = 'word-token';
+      span.textContent = word + ' ';
+      questionEl.appendChild(span);
     }
 
     // calculate time needed before reading next word

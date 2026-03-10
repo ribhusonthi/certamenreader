@@ -128,9 +128,9 @@
                     <label for="reading-speed">Reading speed: <span id="reading-speed-display">50</span><br></label>
                     <input class="form-range" id="reading-speed" type="range" min="0" max="100" step="5">
                     <div class="text-center mb-2">
-                        <button class="btn btn-danger" id="category-select-button" data-bs-target="#category-modal"
+                        <button class="btn btn-outline-danger" id="category-select-button" data-bs-target="#category-modal"
                             data-bs-toggle="modal" type="button">Category</button>
-                        <button class="btn btn-warning" id="clear-stats" type="button">Clear Stats</button>
+                        <button class="btn btn-outline-secondary" id="clear-stats" type="button">Clear Stats</button>
                     </div>
                     <!-- <div class="form-check form-switch">
                         <input class="form-check-input" id="toggle-powermark-only" type="checkbox" role="switch">
@@ -170,41 +170,47 @@
                 </div>
             </div>
             <div class="col-12 col-lg-9">
-                <div class="buttons position-sticky top-0 pt-2">
-                    <button class="mb-2 btn btn-success" id="start" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
-                        title="Shortcut: s key">Start</button>
-                    <button class="mb-2 btn btn-primary" id="next" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
-                        title="Shortcut: n key" disabled>Next</button>
-                    <button class="mb-2 btn btn-primary" id="pause" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
-                        title="Shortcut: p key" disabled>Pause</button>
-                    <button class="mb-2 btn btn-danger d-lg-none" id="toggle-options" type="button" disabled>Options</button>
-                    <button class="mb-2 btn btn-primary float-end" id="buzz" data-bs-placement="top" data-bs-toggle="tooltip"
-                        type="button" title="Shortcut: spacebar" disabled>Buzz</button>
-                    <form id="answer-form">
-                        <!-- User enters answer here -->
-                        <div class="input-group d-none my-2" id="answer-input-group">
-                            <input class="form-control" id="answer-input" type="text" placeholder="Enter answer">
-                            <button class="btn btn-success" id="answer-submit" type="submit">Submit</button>
-                        </div>
-                    </form>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <span id="statline">0/0/0 with 0 tossups seen (0 pts, celerity: 0)</span>
-                    <span class="ps-5 me-lg-2" id="question-metadata">
-                        <b id="question-info">
-                            <span id="set-name-info"></span>
-                            <!-- Packet <span id="packet-number-info">-</span>
-                            Question <span id="question-number-info">-</span>
-                            of <span id="packet-length-info">-</span> -->
-                        </b>
-                    </span>
-                </div>
-                <div class="mt-2" id="question"></div>
-                <a class="mt-1 mt-lg-3 p-0 btn btn-link float-end d-none" id="toggle-correct">I was wrong</a>
-                <p class="mt-1 mt-lg-3" id="answer"></p>
-                <ul class="room-history list-unstyled" id="room-history"></ul>
+                <div class="reader-card">
+                    <div class="reader-controls d-flex flex-wrap gap-2 position-sticky top-0 pt-2 pb-2">
+                        <button class="btn btn-success" id="start" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
+                            title="Shortcut: s key">Start</button>
+                        <button class="btn btn-outline-primary" id="next" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
+                            title="Shortcut: n key" disabled>Next</button>
+                        <button class="btn btn-outline-warning d-lg-none" id="toggle-options" type="button" disabled>Options</button>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2">
+                        <span id="statline">0/0/0 with 0 tossups seen (0 pts, celerity: 0)</span>
+                        <span class="ps-5 me-lg-2" id="question-metadata">
+                            <b id="question-info">
+                                <span id="set-name-info"></span>
+                                <!-- Packet <span id="packet-number-info">-</span>
+                                Question <span id="question-number-info">-</span>
+                                of <span id="packet-length-info">-</span> -->
+                            </b>
+                        </span>
+                    </div>
+                    <div class="mt-2" id="question"></div>
+                    <a class="mt-1 mt-lg-3 p-0 btn btn-link float-end d-none" id="toggle-correct">I was wrong</a>
+                    <p class="mt-1 mt-lg-3" id="answer"></p>
+                    <ul class="room-history list-unstyled" id="room-history"></ul>
+                    </div>
+                </div><!-- /.reader-card -->
             </div>
         </div>
+    </div>
+
+    <!-- Fixed buzz bar pinned to bottom -->
+    <div class="buzz-bar-fixed" id="buzz-bar">
+        <button class="btn btn-outline-secondary" id="pause" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
+            title="Shortcut: p key" disabled>Pause</button>
+        <button id="buzz" class="btn btn-buzz" data-bs-placement="top" data-bs-toggle="tooltip"
+            type="button" title="Shortcut: spacebar" disabled>Buzz</button>
+        <form id="answer-form">
+            <div class="input-group d-none" id="answer-input-group">
+                <input class="form-control buzz-answer-input" id="answer-input" type="text" placeholder="Enter answer">
+                <button class="btn btn-success" id="answer-submit" type="submit">Submit</button>
+            </div>
+        </form>
     </div>
 
     <div class="modal modal-lg" id="category-modal" tabindex="-1">
