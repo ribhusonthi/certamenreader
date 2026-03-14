@@ -370,7 +370,7 @@ function updateStatsForCurrentBonus () {
 document.querySelectorAll('#categories input').forEach(input => {
   input.addEventListener('click', function () {
     this.blur();
-    categoryManager.updateCategory(input.id);
+    categoryManager.updateCategory(input.dataset.category);
     categoryManager.loadCategoryModal();
     ({ categories: query.categories, subcategories: query.subcategories, alternateSubcategories: query.alternateSubcategories } = categoryManager.export());
     window.localStorage.setItem('singleplayer-bonus-query', JSON.stringify(query));

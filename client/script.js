@@ -36,9 +36,33 @@ for (const tooltipTriggerEl of tooltipTriggerList) {
   new bootstrap.Tooltip(tooltipTriggerEl);
 }
 
-// account.getUsername().then(username => {
-//   if (username) {
-//     document.getElementById('login-link').textContent = username;
-//     document.getElementById('login-link').href = '/user/my-profile';
-//   }
-// });
+account.getUsername().then(username => {
+  const loginLink = document.getElementById('login-link');
+  if (loginLink && username) {
+    loginLink.textContent = username;
+    loginLink.href = '/user/my-profile';
+
+    // Inject Stars and Stats into the navbar
+    const navList = document.querySelector('#navbarSupportedContent > ul.navbar-nav.me-auto');
+    if (navList) {
+      const statsLi = document.createElement('li');
+      statsLi.className = 'nav-item';
+      const statsA = document.createElement('a');
+      statsA.className = 'nav-link';
+      statsA.href = '/user/stats/tossups';
+      statsA.textContent = 'Stats';
+      statsLi.appendChild(statsA);
+
+      const starsLi = document.createElement('li');
+      starsLi.className = 'nav-item';
+      const starsA = document.createElement('a');
+      starsA.className = 'nav-link';
+      starsA.href = '/user/stars/tossups';
+      starsA.textContent = 'Stars';
+      starsLi.appendChild(starsA);
+
+      navList.appendChild(statsLi);
+      navList.appendChild(starsLi);
+    }
+  }
+});

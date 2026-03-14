@@ -1237,7 +1237,7 @@ document.getElementById('year-range-a').onchange = function () {
 document.querySelectorAll('#categories input').forEach((input) => {
   input.addEventListener('click', function () {
     this.blur();
-    categoryManager.updateCategory(input.id);
+    categoryManager.updateCategory(input.dataset.category);
     categoryManager.loadCategoryModal();
     changedCategories = true;
   });
