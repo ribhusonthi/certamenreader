@@ -1,29 +1,10 @@
 const SUBCATEGORIES = {
   Mythology: [],
-  // Harvard: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
-  // Yale: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
-  // Princeton: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
-  // Duke: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
-  // Premier: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
-  // Keartamen: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',],
-  // Massachusetts: ['Round 1', 'Round 2', 'Round 3', 'Semi-Finals', 'Finals',]
-
+  'Roman History': [],
+  'Latin Literature': [],
+  Language: []
 };
 
-const ALTERNATE_SUBCATEGORIES = {
-  Literature: ['Drama', 'Long Fiction', 'Poetry', 'Short Fiction', 'Misc Literature'],
-  History: [],
-  Science: ['Math', 'Astronomy', 'Computer Science', 'Earth Science', 'Engineering', 'Misc Science'],
-  'Fine Arts': ['Architecture', 'Dance', 'Film', 'Jazz', 'Opera', 'Photography', 'Misc Arts'],
-  Religion: [],
-  Mythology: [],
-  Philosophy: [],
-  'Social Science': ['Anthropology', 'Economics', 'Linguistics', 'Psychology', 'Sociology', 'Other Social Science'],
-  'Current Events': [],
-  Geography: [],
-  'Other Academic': [],
-  Trash: []
-};
 
 export default class CategoryManager {
   /**
@@ -91,14 +72,11 @@ export default class CategoryManager {
     }
 
     for (const category of this.categories) {
-      document.getElementById(category).checked = true;
-      SUBCATEGORIES[category].forEach(subcategory => {
-        document.querySelector(`[for="${subcategory}"]`).classList.remove('d-none');
+      const input = document.querySelector(`#categories [data-category="${category}"]`);
+      if (input) input.checked = true;
+      SUBCATEGORIES[category]?.forEach(subcategory => {
+        document.querySelector(`[for="${subcategory}"]`)?.classList.remove('d-none');
       });
-
-      // ALTERNATE_SUBCATEGORIES[category].forEach(subcategory => {
-      //   document.querySelector(`[for="${subcategory}"]`).classList.remove('d-none');
-      // });
     }
 
     for (const subcategory of this.subcategories) {

@@ -12,6 +12,7 @@ import { insertTokensIntoHTML } from '../utilities/insert-tokens-into-html.js';
 // Status variables
 let buzzpointIndex = -1;
 let currentlyBuzzing = false;
+let started = false;
 let maxPacketNumber = 24;
 let paused = false;
 let questionNumber = 0; // WARNING: 1-indexed
@@ -153,7 +154,6 @@ updateStatDisplay();
 
 function queryLock () {
   document.getElementById('question').innerHTML = 'Fetching questions...';
-  document.getElementById('start').disabled = false;
   document.getElementById('next').disabled = false;
   document.getElementById('pause').disabled = false;
   document.getElementById('buzz').disabled = false;
@@ -161,7 +161,6 @@ function queryLock () {
 
 function queryUnlock () {
   document.getElementById('question').innerHTML = '';
-  document.getElementById('start').disabled = false;
   document.getElementById('next').disabled = false;
   document.getElementById('pause').disabled = false;
   document.getElementById('buzz').disabled = false;
@@ -252,7 +251,6 @@ function buzz () {
 
   document.getElementById('buzz').textContent = 'Reveal';
   document.getElementById('next').disabled = true;
-  document.getElementById('start').disabled = true;
   document.getElementById('pause').disabled = true;
 }
 
@@ -271,10 +269,40 @@ function clearStats () {
   window.sessionStorage.removeItem('tossup-stats');
 }
 
+function stripHtml (html) {
+  return html.replace(/<[^>]*>/g, '');
+}
+
+function stringSimilarity (a, b) {
+  const normalize = s => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const s1 = normalize(a);
+  const s2 = normalize(b);
+  if (s1 === s2) return 1;
+  if (!s1 || !s2) return 0;
+  const m = s1.length; const n = s2.length;
+  let prev = Array.from({ length: n + 1 }, (_, i) => i);
+  for (let i = 1; i <= m; i++) {
+    const curr = [i];
+    for (let j = 1; j <= n; j++) {
+      curr[j] = s1[i - 1] === s2[j - 1] ? prev[j - 1] : 1 + Math.min(prev[j], curr[j - 1], prev[j - 1]);
+    }
+    prev = curr;
+  }
+  return 1 - prev[n] / Math.max(m, n);
+}
+
 async function giveAnswer (givenAnswer) {
   currentlyBuzzing = false;
 
-  const { directive, directedPrompt } = await api.checkAnswer(tossups[questionNumber - 1].answer, givenAnswer);
+  let { directive, directedPrompt } = await api.checkAnswer(tossups[questionNumber - 1].answer, givenAnswer);
+
+  // Fuzzy fallback: if rejected but ~90% similar to the main answer, accept
+  if (directive === 'reject' && givenAnswer.trim()) {
+    const mainAnswer = stripHtml(tossups[questionNumber - 1].answer).split(/[\[(]/)[0].trim();
+    if (stringSimilarity(mainAnswer, givenAnswer) >= 0.9) {
+      directive = 'accept';
+    }
+  }
 
   switch (directive) {
     case 'accept': {
@@ -297,7 +325,6 @@ async function giveAnswer (givenAnswer) {
         document.getElementById('buzz').textContent = 'Buzz';
         document.getElementById('next').disabled = false;
         document.getElementById('pause').disabled = false;
-        document.getElementById('start').disabled = false;
         readQuestion(Date.now());
       } else {
         revealQuestion();
@@ -433,8 +460,7 @@ function readQuestion (expectedReadTime) {
       questionEl.appendChild(span);
       charIndex++;
 
-      // Delay per character based on reading speed
-      const charDelay = Math.max(8, (125 - settings.readingSpeed) * 0.35);
+      const charDelay = 18;
       timeoutID = window.setTimeout(renderNextLetter, charDelay);
     }
 
@@ -452,7 +478,6 @@ function revealQuestion () {
   document.getElementById('buzz').textContent = 'Buzz';
   document.getElementById('next').disabled = false;
   document.getElementById('next').textContent = 'Next';
-  document.getElementById('start').disabled = false;
 
   document.getElementById('toggle-correct').classList.remove('d-none');
   document.getElementById('toggle-correct').textContent = previous.isCorrect ? 'I was wrong' : 'I was right';
@@ -540,7 +565,7 @@ function updateStatDisplay () {
 document.querySelectorAll('#categories input').forEach(input => {
   input.addEventListener('click', function () {
     this.blur();
-    categoryManager.updateCategory(input.id);
+    categoryManager.updateCategory(input.dataset.category);
     categoryManager.loadCategoryModal();
     ({ categories: query.categories, subcategories: query.subcategories, alternateSubcategories: query.alternateSubcategories } = categoryManager.export());
     window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
@@ -618,8 +643,30 @@ document.getElementById('difficulties').addEventListener('change', function () {
   window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
 });
 
-document.getElementById('next').addEventListener('click', function () {
+document.getElementById('next').addEventListener('click', async function () {
   this.blur();
+  if (!started) {
+    if (query.setName.length === 0 && settings.selectBySetName) {
+      window.alert('Please enter a set name.');
+      return;
+    }
+    if (query.packetNumbers.length === 0 && settings.selectBySetName) {
+      query.packetNumbers = rangeToArray(document.getElementById('packet-number').value.trim(), maxPacketNumber);
+    }
+    document.getElementById('options').classList.add('d-none');
+    document.getElementById('toggle-options').disabled = false;
+    if (settings.selectBySetName) {
+      queryLock();
+      try {
+        tossups = await api.getPacketTossups(query.setName, query.packetNumbers[0]);
+      } finally {
+        queryUnlock();
+      }
+    }
+    started = true;
+    next();
+    return;
+  }
   createTossupCard(tossups[questionNumber - 1]);
   next();
 });
@@ -680,33 +727,6 @@ document.getElementById('set-name').addEventListener('change', async function ()
   window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
 });
 
-document.getElementById('start').addEventListener('click', async function () {
-  this.blur();
-  if (query.setName.length === 0 && settings.selectBySetName) {
-    window.alert('Please enter a set name.');
-    return false;
-  }
-
-  if (query.packetNumbers.length === 0 && settings.selectBySetName) {
-    query.packetNumbers = rangeToArray(document.getElementById('packet-number').value.trim(), maxPacketNumber);
-  }
-
-  document.getElementById('next').disabled = false;
-  document.getElementById('next').textContent = 'Skip';
-  document.getElementById('options').classList.add('d-none');
-  document.getElementById('toggle-options').disabled = false;
-
-  if (settings.selectBySetName) {
-    queryLock();
-    try {
-      tossups = await api.getPacketTossups(query.setName, query.packetNumbers[0]);
-    } finally {
-      queryUnlock();
-    }
-  }
-
-  next();
-});
 
 document.getElementById('toggle-correct').addEventListener('click', function () {
   this.blur();
@@ -809,7 +829,7 @@ document.addEventListener('keydown', (event) => {
       document.getElementById('pause').click();
       break;
     case 's':
-      document.getElementById('start').click();
+      document.getElementById('next').click();
       break;
   }
 });

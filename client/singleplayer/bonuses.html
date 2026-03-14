@@ -59,13 +59,13 @@
                         <a class="nav-link" href="/settings">Settings</a>
                     </li> -->
                 </ul>
-                <!-- <div class="d-flex">
+                <div class="d-flex">
                     <ul class="navbar-nav mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link" href="/user/login" id="login-link">Log in</a>
                         </li>
                     </ul>
-                </div> -->
+                </div>
             </div>
         </div>
     </nav>
@@ -213,8 +213,17 @@
                     <div class="row">
                         <div class="col-4" id="categories">
                             <h5 class="text-center">Category</h5>
-                            <input class="btn-check" id="Literature" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-primary w-100 rounded-0 my-1" for="Literature">Literature<br></label>
+                            <input class="btn-check" id="Mythology" data-category="Mythology" type="checkbox" autocomplete="off">
+                            <label class="btn btn-outline-primary w-100 rounded-0 my-1" for="Mythology">Mythology<br></label>
+
+                            <input class="btn-check" id="roman-history" data-category="Roman History" type="checkbox" autocomplete="off">
+                            <label class="btn btn-outline-success w-100 rounded-0 my-1" for="roman-history">Roman History<br></label>
+
+                            <input class="btn-check" id="latin-literature" data-category="Latin Literature" type="checkbox" autocomplete="off">
+                            <label class="btn btn-outline-warning w-100 rounded-0 my-1" for="latin-literature">Latin Literature<br></label>
+
+                            <input class="btn-check" id="language" data-category="Language" type="checkbox" autocomplete="off">
+                            <label class="btn btn-outline-danger w-100 rounded-0 my-1" for="language">Language<br></label>
 
                             <input class="btn-check" id="History" type="checkbox" autocomplete="off">
                             <label class="btn btn-outline-success w-100 rounded-0 my-1" for="History">History<br></label>

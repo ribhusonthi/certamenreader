@@ -17,10 +17,10 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-light navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
+    <nav class="navbar navbar-dark navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
         <div class="container-fluid">
             <a class="navbar-brand ms-1 py-0" id="logo" href="/">
-                <span class="logo-prefix">Certamen</span><span class="logo-suffix">Reader</span>
+                <img src="/logocropped.png" alt="" width="200">
             </a>
             <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,28 +38,19 @@
                         <a class="nav-link" href="/db">Database</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/frequency-list">Frequency List</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/geoword">Geoword</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/api-docs">API</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="/about">About</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/settings">Settings</a>
                     </li>
                 </ul>
-                <!-- <div class="d-flex">
+                <div class="d-flex">
                     <ul class="navbar-nav mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link" href="/user/login" id="login-link">Log in</a>
                         </li>
                     </ul>
-                </div> -->
+                </div>
             </div>
         </div>
     </nav>
@@ -74,16 +65,6 @@
         <p>
             Email verified: <b><span id="email-verified"></span></b>
         </p>
-        <p class="d-none" id="email-verification-span">
-            Check your inbox for a verification email.
-            If you did not receive one, click this link to send a new verification email:
-            <a href="#" id="email-verification-link">Verify my email</a>.
-            <br>
-            <i>Without a verified email, your stats will not be tracked.</i>
-        </p>
-        <div class="alert alert-success d-none" id="email-verification-confirmation">
-            Email verification sent!
-        </div>
         <p>
             <a class="btn btn-primary" href="/user/edit-profile">Edit profile</a>
             <a class="btn btn-primary" href="/user/edit-password">Edit password</a>

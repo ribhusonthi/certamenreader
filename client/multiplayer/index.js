@@ -1,6 +1,23 @@
 import api from '../api/index.js';
+import account from '../accounts.js';
 
 const ROOM_NAME_MAX_LENGTH = 32;
+
+// Check if user is logged in before showing multiplayer
+const username = await account.getUsername();
+if (!username) {
+  document.querySelector('.card.shadow-sm.p-4.mb-4').innerHTML = `
+    <h4 class="mb-3 text-warning fw-bold">Sign In Required</h4>
+    <p class="lead">You need to be signed in to play multiplayer.</p>
+    <div class="d-flex gap-3">
+      <a href="/user/login" class="btn btn-primary btn-lg px-4">Log In</a>
+      <a href="/user/signup" class="btn btn-outline-light btn-lg px-4">Sign Up</a>
+    </div>
+  `;
+  // Hide the room list card
+  const roomListCard = document.querySelector('.card.shadow-sm.p-4.mb-5');
+  if (roomListCard) roomListCard.style.display = 'none';
+} else {
 
 document.getElementById('form').addEventListener('submit', (event) => {
   event.preventDefault();
@@ -63,3 +80,5 @@ fetch('/api/multiplayer/room-list')
   });
 
 document.getElementById('new-room-name').placeholder = await api.getRandomName();
+
+} // end of logged-in block

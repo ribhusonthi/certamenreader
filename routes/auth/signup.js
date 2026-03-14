@@ -33,7 +33,8 @@ router.post('/', async (req, res) => {
   const password = saltAndHashPassword(req.body.password);
   const email = req.body.email;
   await createUser(username, password, email);
-  sendVerificationEmail(username);
+  // Email verification disabled
+  // sendVerificationEmail(username);
   console.log(`/api/auth: SIGNUP: User ${username} successfully signed up.`);
   res.status(200).send(JSON.stringify({ expires }));
 });
