@@ -20,6 +20,10 @@ let randomBonuses = [];
 
 let bonuses = [{}];
 
+// Bonus timer state
+let bonusTimerInterval = null;
+let bonusTimerSeconds = 0;
+
 const stats = window.sessionStorage.getItem('bonus-stats')
   ? JSON.parse(window.sessionStorage.getItem('bonus-stats'))
   : {
@@ -59,10 +63,15 @@ const categoryManager = new CategoryManager(query.categories, query.subcategorie
 const settings = window.localStorage.getItem('singleplayer-bonus-settings')
   ? JSON.parse(window.localStorage.getItem('singleplayer-bonus-settings'))
   : {
+      bonusTimer: true,
       selectBySetName: false,
       showHistory: true,
       typeToAnswer: true
     };
+
+if (settings.bonusTimer === undefined) {
+  settings.bonusTimer = true;
+}
 
 if (window.localStorage.getItem('questionNumberBonusSave')) {
   document.getElementById('question-number').value = window.localStorage.getItem('questionNumberBonusSave');
@@ -85,6 +94,10 @@ if (!settings.showHistory) {
 
 if (!settings.typeToAnswer) {
   document.getElementById('type-to-answer').checked = false;
+}
+
+if (!settings.bonusTimer) {
+  document.getElementById('toggle-bonus-timer').checked = false;
 }
 
 if (query.difficulties) {
@@ -201,6 +214,49 @@ function clearStats () {
   window.sessionStorage.removeItem('bonus-stats');
 }
 
+function startBonusTimer () {
+  if (!settings.bonusTimer) return;
+  stopBonusTimer();
+  bonusTimerSeconds = 15;
+
+  const timerEl = document.getElementById('bonus-timer-count');
+  const timerContainer = document.getElementById('bonus-timer-container');
+  timerEl.textContent = bonusTimerSeconds;
+  timerContainer.classList.remove('d-none', 'timer-green', 'timer-yellow', 'timer-red');
+  timerContainer.classList.add('timer-green');
+
+  bonusTimerInterval = setInterval(() => {
+    bonusTimerSeconds--;
+    timerEl.textContent = bonusTimerSeconds;
+    timerContainer.classList.remove('timer-green', 'timer-yellow', 'timer-red');
+    if (bonusTimerSeconds > 8) {
+      timerContainer.classList.add('timer-green');
+    } else if (bonusTimerSeconds > 3) {
+      timerContainer.classList.add('timer-yellow');
+    } else {
+      timerContainer.classList.add('timer-red');
+    }
+
+    if (bonusTimerSeconds <= 0) {
+      stopBonusTimer();
+      if (settings.typeToAnswer) {
+        document.getElementById('answer-input-group').classList.add('d-none');
+        document.getElementById('answer-input').value = '';
+        document.getElementById('reveal').disabled = false;
+      }
+      revealBonusPart();
+    }
+  }, 1000);
+}
+
+function stopBonusTimer () {
+  if (bonusTimerInterval !== null) {
+    clearInterval(bonusTimerInterval);
+    bonusTimerInterval = null;
+  }
+  document.getElementById('bonus-timer-container').classList.add('d-none');
+}
+
 function createBonusPart (bonusPartNumber, bonusText, value = 10) {
   const input = document.createElement('input');
   input.id = `checkbox-${bonusPartNumber + 1}`;
@@ -228,6 +284,7 @@ function createBonusPart (bonusPartNumber, bonusText, value = 10) {
   row.appendChild(bonusPart);
 
   document.getElementById('question').appendChild(row);
+  startBonusTimer();
 }
 
 function createLeadin (leadinText) {
@@ -302,6 +359,7 @@ async function loadRandomBonuses ({ alternateSubcategories, categories, difficul
  * @param {boolean} revealedAllParts - Whether all parts of the bonus have been revealed. if true, then question stats are uploaded to the server.
  */
 async function next (revealedAllParts) {
+  stopBonusTimer();
   if (revealedAllParts && await account.getUsername()) {
     const pointsPerPart = getPointsPerPart(bonuses[questionNumber - 1]);
     questionStats.recordBonus(bonuses[questionNumber - 1], pointsPerPart);
@@ -321,15 +379,25 @@ async function next (revealedAllParts) {
   document.getElementById('packet-number-info').textContent = query.packetNumbers[0];
   document.getElementById('packet-length-info').textContent = settings.selectBySetName ? bonuses.length : '-';
 
+  const currentBonus = bonuses[questionNumber - 1];
+  const catBadge = document.getElementById('question-category');
+  if (currentBonus.category) {
+    catBadge.textContent = currentBonus.subcategory ? `${currentBonus.category} · ${currentBonus.subcategory}` : currentBonus.category;
+    catBadge.className = `question-cat-badge cat-${currentBonus.category.toLowerCase().replace(/\s+/g, '-')}`;
+  } else {
+    catBadge.className = 'question-cat-badge d-none';
+  }
+
   currentBonusPart = 0;
-  createLeadin(bonuses[questionNumber - 1].leadin);
-  createBonusPart(currentBonusPart, bonuses[questionNumber - 1].parts[currentBonusPart], bonuses[questionNumber - 1].values?.at(currentBonusPart));
+  createLeadin(currentBonus.leadin);
+  createBonusPart(currentBonusPart, currentBonus.parts[currentBonusPart], currentBonus.values?.at(currentBonusPart));
 }
 
 /**
  * Called when the users wants to reveal the next bonus part.
  */
 function revealBonusPart () {
+  stopBonusTimer();
   if (currentBonusPart >= bonuses[questionNumber - 1].parts.length) {
     return;
   }
@@ -560,6 +628,13 @@ document.getElementById('toggle-standard-only').addEventListener('click', functi
   query.standardOnly = this.checked;
   loadRandomBonuses(query);
   window.localStorage.setItem('singleplayer-bonus-query', JSON.stringify(query));
+});
+
+document.getElementById('toggle-bonus-timer').addEventListener('click', function () {
+  this.blur();
+  settings.bonusTimer = this.checked;
+  if (!this.checked) stopBonusTimer();
+  window.localStorage.setItem('singleplayer-bonus-settings', JSON.stringify(settings));
 });
 
 document.getElementById('toggle-three-part-bonuses').addEventListener('click', function () {
