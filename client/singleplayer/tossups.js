@@ -29,6 +29,10 @@ let tossupTextSplit = [];
 let letterQueue = []; // queue of individual characters to render
 let currentWordIndex = 0;
 
+let tossupTimerInterval = null;
+let tossupTimerTenths = 0;
+let tossupTimerPhase = 'reading'; // 'reading' or 'answer'
+
 const previous = {
   isCorrect: true,
   inPower: false,
@@ -79,12 +83,22 @@ const categoryManager = new CategoryManager(query.categories, query.subcategorie
 const settings = window.localStorage.getItem('singleplayer-tossup-settings')
   ? JSON.parse(window.localStorage.getItem('singleplayer-tossup-settings'))
   : {
+      njclMode: true,
+      tossupTimer: false,
       readingSpeed: 50,
       rebuzz: false,
       selectBySetName: false,
       showHistory: true,
       typeToAnswer: true
     };
+
+if (settings.njclMode === undefined) {
+  settings.njclMode = true;
+}
+
+if (settings.tossupTimer === undefined) {
+  settings.tossupTimer = false;
+}
 
 if (window.localStorage.getItem('questionNumberTossupSave')) {
   questionNumber = parseInt(window.localStorage.getItem('questionNumberTossupSave'));
@@ -112,6 +126,10 @@ if (settings.selectBySetName) {
 if (!settings.showHistory) {
   document.getElementById('toggle-show-history').checked = false;
   document.getElementById('room-history').classList.add('d-none');
+}
+
+if (settings.tossupTimer) {
+  document.getElementById('toggle-tossup-timer').checked = true;
 }
 
 if (!settings.typeToAnswer) {
@@ -151,6 +169,104 @@ if (query.setName) {
 }
 
 updateStatDisplay();
+
+function updateTossupTimerDisplay (time) {
+  const seconds = Math.floor(time / 10);
+  const tenths = time % 10;
+  document.querySelector('#tossup-timer .face').innerText = seconds;
+  document.querySelector('#tossup-timer .fraction').innerText = '.' + tenths;
+}
+
+function stopTossupTimer () {
+  clearInterval(tossupTimerInterval);
+  tossupTimerInterval = null;
+  document.getElementById('tossup-timer').classList.add('d-none');
+}
+
+function pauseTossupTimer () {
+  clearInterval(tossupTimerInterval);
+  tossupTimerInterval = null;
+  // leave display visible, just frozen
+}
+
+function runTossupTimerInterval () {
+  if (!settings.tossupTimer) return;
+  const timerEl = document.getElementById('tossup-timer');
+  timerEl.classList.remove('d-none');
+  updateTossupTimerDisplay(tossupTimerTenths);
+  const max = tossupTimerPhase === 'answer' ? 50 : 200;
+  timerEl.classList.remove('timer-green', 'timer-yellow', 'timer-red');
+  if (tossupTimerTenths > max * 0.5) timerEl.classList.add('timer-green');
+  else if (tossupTimerTenths > max * 0.2) timerEl.classList.add('timer-yellow');
+  else timerEl.classList.add('timer-red');
+
+  tossupTimerInterval = setInterval(() => {
+    tossupTimerTenths--;
+    updateTossupTimerDisplay(tossupTimerTenths);
+    const max = tossupTimerPhase === 'answer' ? 50 : 200;
+    timerEl.classList.remove('timer-green', 'timer-yellow', 'timer-red');
+    if (tossupTimerTenths > max * 0.5) timerEl.classList.add('timer-green');
+    else if (tossupTimerTenths > max * 0.2) timerEl.classList.add('timer-yellow');
+    else timerEl.classList.add('timer-red');
+
+    if (tossupTimerTenths <= 0) {
+      clearInterval(tossupTimerInterval);
+      tossupTimerInterval = null;
+      timerEl.classList.add('d-none');
+      if (tossupTimerPhase === 'answer' && settings.typeToAnswer) {
+        document.getElementById('answer-input').value = '';
+        document.getElementById('answer-input-group').classList.add('d-none');
+      }
+      clearTimeout(timeoutID);
+      currentlyBuzzing = false;
+      tossupTextSplit = [];
+      updateScore(false);
+      revealQuestion();
+    }
+  }, 100);
+}
+
+function startReadingTimer () {
+  if (!settings.tossupTimer) return;
+  clearInterval(tossupTimerInterval);
+  tossupTimerInterval = null;
+  tossupTimerPhase = 'reading';
+  tossupTimerTenths = 200;
+  runTossupTimerInterval();
+}
+
+function startAnswerTimer () {
+  if (!settings.tossupTimer) return;
+  clearInterval(tossupTimerInterval);
+  tossupTimerInterval = null;
+  tossupTimerPhase = 'answer';
+  tossupTimerTenths = 50;
+  runTossupTimerInterval();
+}
+
+function logBuzzResult (givenAnswer, directive) {
+  const buzzBadge = document.createElement('span');
+  buzzBadge.textContent = 'Buzz';
+  buzzBadge.className = directive === 'accept'
+    ? 'badge text-dark bg-success'
+    : 'badge text-light bg-danger';
+
+  const resultBadge = document.createElement('span');
+  resultBadge.className = buzzBadge.className;
+  resultBadge.textContent = directive === 'accept' ? 'Correct' : 'Incorrect';
+
+  const answerSpan = document.createElement('span');
+  answerSpan.textContent = givenAnswer;
+
+  const li = document.createElement('li');
+  li.appendChild(buzzBadge);
+  li.appendChild(document.createTextNode(' '));
+  li.appendChild(answerSpan);
+  li.appendChild(document.createTextNode(' '));
+  li.appendChild(resultBadge);
+
+  document.getElementById('room-history').prepend(li);
+}
 
 function queryLock () {
   document.getElementById('question').innerHTML = 'Fetching questions...';
@@ -292,6 +408,7 @@ function stringSimilarity (a, b) {
 }
 
 async function giveAnswer (givenAnswer) {
+  stopTossupTimer();
   currentlyBuzzing = false;
 
   let { directive, directedPrompt } = await api.checkAnswer(tossups[questionNumber - 1].answer, givenAnswer);
@@ -314,17 +431,20 @@ async function giveAnswer (givenAnswer) {
           audio.correct.play();
         }
       }
+      logBuzzResult(givenAnswer, 'accept');
       revealQuestion();
       break;
     }
     case 'reject':
       updateScore(false);
       if (audio.soundEffects) audio.incorrect.play();
+      logBuzzResult(givenAnswer, 'reject');
       if (settings.rebuzz) {
         document.getElementById('buzz').disabled = false;
         document.getElementById('buzz').textContent = 'Buzz';
         document.getElementById('next').disabled = false;
         document.getElementById('pause').disabled = false;
+        startReadingTimer();
         readQuestion(Date.now());
       } else {
         revealQuestion();
@@ -370,6 +490,7 @@ async function getRandomTossup ({ alternateSubcategories, categories, difficulti
 
 async function next () {
   // Stop reading the current question:
+  stopTossupTimer();
   clearTimeout(timeoutID);
   currentlyBuzzing = false;
 
@@ -399,7 +520,19 @@ async function next () {
   document.getElementById('question').innerHTML = '';
   document.getElementById('set-name-info').textContent = query.setName;
 
+  const currentTossup = tossups[questionNumber - 1];
+  const catBadge = document.getElementById('question-category');
+  if (currentTossup && currentTossup.category) {
+    catBadge.textContent = currentTossup.subcategory
+      ? `${currentTossup.category} · ${currentTossup.subcategory}`
+      : currentTossup.category;
+    catBadge.className = `question-cat-badge cat-${currentTossup.category.toLowerCase().replace(/\s+/g, '-')}`;
+  } else {
+    catBadge.className = 'question-cat-badge d-none';
+  }
+
   paused = false;
+  startReadingTimer();
   readQuestion(Date.now());
 }
 
@@ -410,11 +543,15 @@ function pause () {
   if (paused) {
     document.getElementById('buzz').removeAttribute('disabled');
     document.getElementById('pause').textContent = 'Pause';
+    if (settings.tossupTimer && tossupTimerTenths > 0) {
+      runTossupTimerInterval();
+    }
     readQuestion(Date.now());
   } else {
     document.getElementById('buzz').setAttribute('disabled', 'disabled');
     document.getElementById('pause').textContent = 'Resume';
     clearTimeout(timeoutID);
+    pauseTossupTimer();
   }
   paused = !paused;
 }
@@ -512,9 +649,9 @@ function toggleCorrect () {
 
 function updateScore (isCorrect) {
   const endOfQuestion = (tossupTextSplit.length === 0);
-  const inPower = tossupTextSplit.includes('(*)') && tossupText.includes('(*)');
-  const powerValue = isPace(query.setName) ? 20 : 15;
-  const negValue = isPace(query.setName) ? 0 : -5;
+  const inPower = !settings.njclMode && tossupTextSplit.includes('(*)') && tossupText.includes('(*)');
+  const powerValue = settings.njclMode ? 10 : (isPace(query.setName) ? 20 : 15);
+  const negValue = settings.njclMode ? 0 : (isPace(query.setName) ? 0 : -5);
   const points = isCorrect ? (inPower ? powerValue : 10) : (endOfQuestion ? 0 : negValue);
 
   const characterCount = tossupTextSplit.join(' ').length;
@@ -555,8 +692,13 @@ function updateStatDisplay () {
   let celerity = numCorrectTossups === 0 ? 0 : parseFloat(totalCorrectCelerity) / numCorrectTossups;
   celerity = Math.round(1000 * celerity) / 1000;
   const includePlural = (numTossups === 1) ? '' : 's';
-  document.getElementById('statline').innerHTML =
-        `${powers}/${tens}/${negs} with ${numTossups} tossup${includePlural} seen (${points} pts, celerity: ${celerity})`;
+  if (settings.njclMode) {
+    document.getElementById('statline').innerHTML =
+      `${numCorrectTossups}/${dead} with ${numTossups} tossup${includePlural} seen (${points} pts, celerity: ${celerity})`;
+  } else {
+    document.getElementById('statline').innerHTML =
+      `${powers}/${tens}/${negs} with ${numTossups} tossup${includePlural} seen (${points} pts, celerity: ${celerity})`;
+  }
 
   // disable clear stats button if no stats
   document.getElementById('clear-stats').disabled = (numTossups === 0);
@@ -609,9 +751,9 @@ document.getElementById('answer-form').addEventListener('submit', function (even
 document.getElementById('buzz').addEventListener('click', function () {
   this.blur();
 
-  // reveal answer on second click
-  // when NOT using type to answer
+  // reveal answer on second click when NOT using type to answer
   if (currentlyBuzzing) {
+    stopTossupTimer();
     currentlyBuzzing = false;
     updateScore(true);
     revealQuestion();
@@ -619,6 +761,7 @@ document.getElementById('buzz').addEventListener('click', function () {
   }
 
   buzz();
+  startAnswerTimer();
 
   if (settings.typeToAnswer) {
     document.getElementById('answer-input-group').classList.remove('d-none');
@@ -787,6 +930,20 @@ document.getElementById('type-to-answer').addEventListener('click', function () 
 document.getElementById('toggle-rebuzz').addEventListener('click', function () {
   this.blur();
   settings.rebuzz = this.checked;
+  window.localStorage.setItem('singleplayer-tossup-settings', JSON.stringify(settings));
+});
+
+document.getElementById('toggle-njcl-mode').addEventListener('click', function () {
+  this.blur();
+  settings.njclMode = this.checked;
+  updateStatDisplay();
+  window.localStorage.setItem('singleplayer-tossup-settings', JSON.stringify(settings));
+});
+
+document.getElementById('toggle-tossup-timer').addEventListener('click', function () {
+  this.blur();
+  settings.tossupTimer = this.checked;
+  if (!this.checked) stopTossupTimer();
   window.localStorage.setItem('singleplayer-tossup-settings', JSON.stringify(settings));
 });
 
