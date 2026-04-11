@@ -7,7 +7,7 @@ const router = Router();
 function getPageSecurely (htmlFile) {
   return async (req, res) => {
     if (!req.session || !checkToken(req.session.username, req.session.token)) {
-      res.redirect('/user/login?' + encodeURIComponent(req.originalUrl));
+      res.redirect('/user/login?redirect=' + encodeURIComponent(req.originalUrl));
       return;
     }
 

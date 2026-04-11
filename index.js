@@ -60,7 +60,7 @@ app.use((req, res, next) => {
     return next();
   }
 
-  res.redirect('/user/login?' + encodeURIComponent(req.originalUrl));
+  res.redirect('/user/login?redirect=' + encodeURIComponent(req.originalUrl));
 });
 
 wss.on('connection', handleWssConnection);
