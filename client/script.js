@@ -2,25 +2,6 @@ import account from './accounts.js';
 
 // Javascript code common to *all* pages of the site.
 
-// Never use trailing slash, except for the root directory
-// if (window.location.pathname.endsWith('/') && window.location.pathname.length > 1) {
-//   window.location.pathname = window.location.pathname.substring(0, window.location.pathname.length - 1);
-// }
-
-// // Always use www
-// if (['qbreader.herokuapp.com', 'qbreader-production.herokuapp.com', 'qbreader.org'].includes(window.location.hostname)) {
-//   window.location.hostname = 'www.qbreader.org';
-// }
-
-// if (['qbreader-test.herokuapp.com', 'qbreader-test.herokuapp.com'].includes(window.location.hostname)) {
-//   window.location.hostname = 'test.qbreader.org';
-// }
-
-// // Use https if not on localhost
-// if (window.location.hostname !== 'localhost' && window.location.protocol !== 'https:') {
-//   window.location.protocol = 'https:';
-// }
-
 function isTouchDevice () {
   if ('ontouchstart' in window) return true;
 
@@ -39,10 +20,19 @@ for (const tooltipTriggerEl of tooltipTriggerList) {
 account.getUsername().then(username => {
   const loginLink = document.getElementById('login-link');
   if (loginLink && username) {
-    loginLink.textContent = username;
-    loginLink.href = '/user/my-profile';
+    // Fetch profile to get the display name
+    fetch('/auth/get-profile')
+      .then(response => response.json())
+      .then(data => {
+        loginLink.textContent = data.user.name || username;
+        loginLink.href = '/user/my-profile';
+      })
+      .catch(() => {
+        loginLink.textContent = username;
+        loginLink.href = '/user/my-profile';
+      });
 
-    // Inject Stars and Stats into the navbar
+    // Inject Stats and Stars into the navbar
     const navList = document.querySelector('#navbarSupportedContent > ul.navbar-nav.me-auto');
     if (navList) {
       const statsLi = document.createElement('li');

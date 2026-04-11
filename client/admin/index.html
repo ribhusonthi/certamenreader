@@ -2,10 +2,10 @@
 <html lang="en">
 
 <head>
-    <title>Certamen Reader</title>
+    <title>Admin Console - Certamen Reader</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Backups for qbreader.">
+    <meta name="description" content="Admin console for Certamen Reader.">
 
     <link href="/apple-touch-icon.png" rel="apple-touch-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
@@ -17,10 +17,10 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-light navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
+    <nav class="navbar navbar-dark navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
         <div class="container-fluid">
             <a class="navbar-brand ms-1 py-0" id="logo" href="/">
-                <span class="logo-prefix">Certamen</span><span class="logo-suffix">Reader</span>
+                <img src="/logocropped.png" alt="" width="200">
             </a>
             <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,50 +37,69 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/db">Database</a>
                     </li>
-                    <li class="nav-item"></li>
+                    <li class="nav-item">
                         <a class="nav-link" href="/about">About</a>
                     </li>
-                    <!-- <li class="nav-item">
-                        <a class="nav-link" href="/frequency-list">Frequency List</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/geoword">Geoword</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/api-docs">API</a>
-                    </li>
-                    
                     <li class="nav-item">
                         <a class="nav-link" href="/settings">Settings</a>
-                    </li> -->
+                    </li>
                 </ul>
-                <!-- <div class="d-flex">
+                <div class="d-flex">
                     <ul class="navbar-nav mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link" href="/user/login" id="login-link">Log in</a>
                         </li>
                     </ul>
-                </div> -->
+                </div>
             </div>
         </div>
     </nav>
 
     <div class="container-xl mt-3 mb-5 pb-5">
-        <p class="lead">
-            Welcome to the admin portal of QB Reader, <span id="welcome-username"></span>!
-        </p>
-        <p>
-            Here's a list of useful links:
-        </p>
-        <ul>
-            <li><a href="/admin/category-reports">Fix question categories</a></li>
-            <li><a href="/admin/geoword">Geoword</a></li>
-        </ul>
+        <h2>Admin Console</h2>
+        <p class="text-muted">Manage users and view statistics.</p>
+
+        <div class="mb-3">
+            <input type="text" class="form-control" id="search-users" placeholder="Search users by name or email...">
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover" id="users-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Joined</th>
+                        <th>Admin</th>
+                        <th>Stats</th>
+                    </tr>
+                </thead>
+                <tbody id="users-tbody">
+                    <tr>
+                        <td colspan="5" class="text-center">Loading users...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Stats Modal -->
+        <div class="modal fade" id="stats-modal" tabindex="-1" aria-labelledby="stats-modal-label" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="stats-modal-label">User Stats</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="stats-modal-body">
+                        <p class="text-center">Loading stats...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
     <script type="module" src="/script.js"></script>
-
     <script type="module" src="/admin/index.js"></script>
 </body>
 

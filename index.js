@@ -6,6 +6,11 @@ import indexRouter from './routes/index.js';
 import webhookRouter from './routes/api/webhook.js';
 import handleWssConnection from './server/multiplayer/handle-wss-connection.js';
 
+// Initialize passport and Google OAuth strategy
+import './server/authentication.js';
+import { checkToken } from './server/authentication.js';
+import passport from 'passport';
+
 import cookieSession from 'cookie-session';
 import express from 'express';
 import { createServer } from 'http';
@@ -29,8 +34,34 @@ app.use(cookieSession({
   maxAge: COOKIE_MAX_AGE
 }));
 
+app.use(passport.initialize());
+
 app.use(ipFilterMiddleware);
 app.use(ipFilterError);
+
+// Lock the entire site behind authentication.
+// Exempt: login page, Google OAuth routes, and static assets.
+function isAuthExempt(path) {
+  return (
+    path === '/user/login' ||
+    path.startsWith('/auth/') ||
+    path === '/login' ||
+    path === '/login/' ||
+    /\.(js|jsx|css|map|png|ico|svg|woff2?|ttf|eot)$/.test(path)
+  );
+}
+
+app.use((req, res, next) => {
+  if (isAuthExempt(req.path)) {
+    return next();
+  }
+
+  if (req.session && checkToken(req.session.username, req.session.token)) {
+    return next();
+  }
+
+  res.redirect('/user/login?' + encodeURIComponent(req.originalUrl));
+});
 
 wss.on('connection', handleWssConnection);
 

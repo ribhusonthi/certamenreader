@@ -57,18 +57,14 @@
 
     <div class="container-xl mt-3 mb-5 pb-5">
         <h1>
-            <p>Welcome, <span id="username"></span>!</p>
+            <p>Welcome, <span id="display-name"></span>!</p>
         </h1>
         <p>
             Email: <b><span id="email"></span></b>
         </p>
         <p>
-            Email verified: <b><span id="email-verified"></span></b>
-        </p>
-        <p>
-            <a class="btn btn-primary" href="/user/edit-profile">Edit profile</a>
-            <a class="btn btn-primary" href="/user/edit-password">Edit password</a>
             <button class="btn btn-primary" id="logout" type="button">Logout</button>
+            <a class="btn btn-outline-secondary ms-2 d-none" id="admin-link" href="/admin">Admin Console</a>
         </p>
         <p>
             Here are links to your <a href="/user/stats/tossups">tossup stats</a> and <a href="/user/stats/bonuses">bonus stats</a>.
