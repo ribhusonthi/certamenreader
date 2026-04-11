@@ -83,9 +83,8 @@
         if (params.get('error') === 'unauthorized') {
             document.getElementById('error-msg').classList.remove('d-none');
         }
-        // Pass the redirect destination through the OAuth flow via the `redirect` query param
-        const redirect = params.get('redirect') || window.location.search.slice(1);
-        if (redirect && params.get('error') !== 'unauthorized') {
+        const redirect = params.get('redirect');
+        if (redirect) {
             const btn = document.getElementById('google-login-btn');
             btn.href = '/auth/google?redirect=' + encodeURIComponent(redirect);
         }

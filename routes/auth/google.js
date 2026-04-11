@@ -7,11 +7,10 @@ import { Router } from 'express';
 const router = Router();
 
 router.get('/', (req, res, next) => {
-  const state = req.query.redirect ? encodeURIComponent(req.query.redirect) : undefined;
   passport.authenticate('google', {
     scope: ['profile', 'email'],
     session: false,
-    state
+    state: req.query.redirect || undefined
   })(req, res, next);
 });
 
@@ -41,8 +40,10 @@ router.get('/callback', passport.authenticate('google', {
 
   console.log(`/api/auth: GOOGLE LOGIN: User ${username} (${user.name}) successfully logged in.`);
 
-  // Redirect back to the page the user originally tried to visit, if any
-  const redirectTo = req.query.state ? decodeURIComponent(req.query.state) : '/user/my-profile';
+  // Redirect back to the page the user originally tried to visit, if any.
+  // Only allow relative paths to prevent open redirect attacks.
+  const state = req.query.state;
+  const redirectTo = (state && state.startsWith('/')) ? state : '/user/my-profile';
   res.redirect(redirectTo);
 });
 
