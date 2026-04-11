@@ -19,7 +19,7 @@ async function updateUser (username, values) {
     values.verifiedEmail = false;
   }
 
-  for (const field of ['username', 'password', 'email', 'verifiedEmail']) {
+  for (const field of ['username', 'email', 'name', 'verifiedEmail']) {
     if (Object.prototype.hasOwnProperty.call(values, field)) {
       user[field] = values[field];
     }

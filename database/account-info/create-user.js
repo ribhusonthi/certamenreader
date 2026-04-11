@@ -1,18 +1,21 @@
 import { users } from './collections.js';
 
 /**
- * Creates a new user in the database.
- * @param {string} username - The username of the new user.
- * @param {string} password - The password of the new user.
- * @param {string} email - The email of the new user.
+ * Creates a new user in the database via Google OAuth.
+ * @param {string} googleId - The Google account ID.
+ * @param {string} email - The user's email.
+ * @param {string} name - The user's display name.
  * @returns {Promise<Object>} The inserted user object.
  */
-async function createUser (username, password, email) {
+async function createUser (googleId, email, name) {
   return await users.insertOne({
-    username,
-    password,
+    googleId,
+    username: email,
     email,
-    verifiedEmail: false
+    name,
+    verifiedEmail: true,
+    admin: false,
+    createdAt: new Date()
   });
 }
 

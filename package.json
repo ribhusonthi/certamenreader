@@ -28,6 +28,8 @@
         "mongodb": "^4.17.2",
         "nodemailer": "^6.9.13",
         "number-to-words": "^1.2.4",
+        "passport": "^0.7.0",
+        "passport-google-oauth20": "^2.0.0",
         "qb-answer-checker": "^1.0.4",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
