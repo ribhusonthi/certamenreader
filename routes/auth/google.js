@@ -43,7 +43,8 @@ router.get('/callback', passport.authenticate('google', {
   // Redirect back to the page the user originally tried to visit, if any.
   // Only allow relative paths to prevent open redirect attacks.
   const state = req.query.state;
-  const redirectTo = (state && state.startsWith('/')) ? state : '/user/my-profile';
+  const base = (state && state.startsWith('/')) ? state : '/user/my-profile';
+  const redirectTo = base + (base.includes('?') ? '&' : '?') + '_loggedIn=1';
   res.redirect(redirectTo);
 });
 
