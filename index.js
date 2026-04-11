@@ -43,6 +43,7 @@ app.use(ipFilterError);
 // Exempt: login page, Google OAuth routes, and static assets.
 function isAuthExempt(path) {
   return (
+    path === '/' ||
     path === '/user/login' ||
     path.startsWith('/auth/') ||
     path === '/login' ||
