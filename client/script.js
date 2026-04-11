@@ -17,6 +17,14 @@ for (const tooltipTriggerEl of tooltipTriggerList) {
   new bootstrap.Tooltip(tooltipTriggerEl);
 }
 
+// After a fresh Google login, clear the cached auth state so getUsername() re-fetches
+if (new URLSearchParams(window.location.search).get('_loggedIn')) {
+  window.sessionStorage.removeItem('account-username');
+  const url = new URL(window.location.href);
+  url.searchParams.delete('_loggedIn');
+  window.history.replaceState({}, '', url);
+}
+
 account.getUsername().then(username => {
   const loginLink = document.getElementById('login-link');
   if (loginLink && username) {
