@@ -6,7 +6,7 @@ const DEFAULT_MAX_YEAR = 2025;
 
 const DIFFICULTIES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-const CATEGORIES = ['Literature', 'History', 'Science', 'Fine Arts', 'Religion', 'Mythology', 'Philosophy', 'Social Science', 'Current Events', 'Geography', 'Other Academic', 'Trash'];
+const CATEGORIES = ['Language', 'Literature', 'Culture', 'History', 'Mythology'];
 const SUBCATEGORY_TO_CATEGORY = {
   'American Literature': 'Literature',
   'British Literature': 'Literature',
