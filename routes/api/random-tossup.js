@@ -31,6 +31,7 @@ router.get('/', async (req, res) => {
   req.query.maxYear = isNaN(req.query.maxYear) ? undefined : parseInt(req.query.maxYear);
   req.query.number = isNaN(req.query.number) ? undefined : parseInt(req.query.number);
 
+  req.query.setName = req.query.setName || undefined;
   req.query.powermarkOnly = (req.query.powermarkOnly === 'true');
   req.query.standardOnly = (req.query.standardOnly === 'true');
 
