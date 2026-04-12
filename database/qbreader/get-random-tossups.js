@@ -21,8 +21,8 @@ import * as types from '../../types.js';
  */
 async function getRandomTossups ({
   difficulties = DIFFICULTIES,
-  categories = CATEGORIES,
-  subcategories = SUBCATEGORIES_FLATTENED,
+  categories,
+  subcategories,
   alternateSubcategories = [],
   number = 1,
   minYear = DEFAULT_MIN_YEAR,
