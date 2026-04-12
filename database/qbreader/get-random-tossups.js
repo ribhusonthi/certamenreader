@@ -24,6 +24,7 @@ async function getRandomTossups ({
   categories,
   subcategories,
   alternateSubcategories = [],
+  setName,
   number = 1,
   minYear = DEFAULT_MIN_YEAR,
   maxYear = DEFAULT_MAX_YEAR,
@@ -54,6 +55,10 @@ async function getRandomTossups ({
 
   if (powermarkOnly) {
     aggregation[0].$match.question = { $regex: '\\(\\*\\)' };
+  }
+
+  if (setName) {
+    aggregation[0].$match['set.name'] = setName;
   }
 
   if (standardOnly) {
