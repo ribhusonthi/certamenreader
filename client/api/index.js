@@ -33,6 +33,20 @@ export default class api {
   }
 
   /**
+     * @param {String} setName
+     * @returns {Promise<{name: string, number: number}[]>} The list of packets in the set.
+     */
+  static async getPacketList (setName) {
+    if (setName === undefined || setName === '') {
+      return [];
+    }
+
+    return await fetch('/api/packet-list?' + new URLSearchParams({ setName }))
+      .then(response => response.json())
+      .then(data => data.packets);
+  }
+
+  /**
      * @param {string} setName - The name of the set (e.g. "2021 ACF Fall").
      * @param {string | number} packetNumber - The packet number of the set.
      * @return {Promise<JSON[]>} An array containing the bonuses.

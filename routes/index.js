@@ -11,6 +11,7 @@ import multiplayerRouter from './multiplayer.js';
 import settingsRouter from './settings.js';
 import singleplayerRouter from './singleplayer/index.js';
 import loginRouter from './login.js';
+import uploadRouter from './upload.js';
 import userRouter from './user.js';
 import webhookRouter from './api/webhook.js';
 
@@ -113,6 +114,7 @@ router.use('/geoword', geowordRouter);
 router.use('/multiplayer', multiplayerRouter);
 router.use('/settings', settingsRouter);
 router.use('/singleplayer', singleplayerRouter);
+router.use('/upload', uploadRouter);
 router.use('/user', userRouter);
 router.use('/webhook', webhookRouter);
 

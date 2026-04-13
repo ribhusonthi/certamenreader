@@ -1,5 +1,7 @@
 import isAdmin from '../../database/account-info/is-admin.js';
 import { checkToken } from '../../server/authentication.js';
+import { qbreader } from '../../database/databases.js';
+import { tossups as tossupsCollection, sets as setsCollection, packets as packetsCollection } from '../../database/qbreader/collections.js';
 
 import geowordRouter from './geoword.js';
 import usersRouter from './users.js';
@@ -7,6 +9,7 @@ import usersRouter from './users.js';
 import { Router } from 'express';
 
 const router = Router();
+const uploads = qbreader.collection('uploads');
 
 router.use(async (req, res, next) => {
   const { username, token } = req.session;
@@ -33,6 +36,39 @@ router.get('/category-reports', (_req, res) => {
 
 router.use('/geoword', geowordRouter);
 router.use('/api/users', usersRouter);
+
+// Get all uploads
+router.get('/api/uploads', async (_req, res) => {
+  const allUploads = await uploads.find({}).sort({ uploadedAt: -1 }).toArray();
+  res.json({ uploads: allUploads });
+});
+
+// Delete an uploaded set and its questions
+router.delete('/api/uploads/:uploadId', async (req, res) => {
+  const { uploadId } = req.params;
+  const { ObjectId } = await import('mongodb');
+
+  const uploadDoc = await uploads.findOne({ _id: new ObjectId(uploadId) });
+  if (!uploadDoc) {
+    return res.sendStatus(404);
+  }
+
+  // Delete all tossups for this set
+  await tossupsCollection.deleteMany({ 'set.name': uploadDoc.setName });
+
+  // Delete all packets for this set
+  await packetsCollection.deleteMany({ 'set.name': uploadDoc.setName });
+
+  // Delete the set
+  try {
+    await setsCollection.deleteOne({ _id: new ObjectId(uploadDoc.setId) });
+  } catch { /* set may already be gone */ }
+
+  // Delete the upload record
+  await uploads.deleteOne({ _id: new ObjectId(uploadId) });
+
+  res.sendStatus(200);
+});
 
 router.get('/', (req, res) => {
   res.sendFile('index.html', { root: './client/admin' });
