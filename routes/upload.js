@@ -5,12 +5,9 @@ import { tossups as tossupsCollection, sets as setsCollection, packets as packet
 import { users } from '../database/account-info/collections.js';
 
 import { Router } from 'express';
-import { createRequire } from 'module';
 import multer from 'multer';
 import mammoth from 'mammoth';
-
-const require = createRequire(import.meta.url);
-const { PDFParse } = require('pdf-parse');
+import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 
 const router = Router();
 const uploads = qbreader.collection('uploads');
@@ -62,10 +59,14 @@ async function extractText (buffer, originalname) {
 
   if (ext === 'pdf') {
     const uint8 = new Uint8Array(buffer);
-    const parser = new PDFParse(uint8);
-    await parser.load();
-    const result = await parser.getText();
-    return result.pages.map(p => p.text).join('\n');
+    const doc = await getDocument({ data: uint8 }).promise;
+    const pages = [];
+    for (let i = 1; i <= doc.numPages; i++) {
+      const page = await doc.getPage(i);
+      const content = await page.getTextContent();
+      pages.push(content.items.map(item => item.str).join(' '));
+    }
+    return pages.join('\n');
   }
 
   if (ext === 'docx') {
