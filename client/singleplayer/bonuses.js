@@ -12,6 +12,7 @@ import { attachDropdownChecklist, getDropdownValues } from '../utilities/dropdow
 let currentBonusPart = -1;
 let maxPacketNumber = 24;
 let questionNumber = 0; // WARNING: 1-indexed
+let useSetMode = false;
 /**
  * An array of random questions.
  * We get 20 random questions at a time so we don't have to make an HTTP request between every question.
@@ -198,7 +199,7 @@ function queryUnlock () {
 }
 
 async function advanceQuestion () {
-  if (query.setName.length > 0) {
+  if (useSetMode) {
     do { // Get the next question
       questionNumber++;
 
@@ -622,12 +623,13 @@ document.getElementById('set-name').addEventListener('change', async function ()
 
 document.getElementById('start').addEventListener('click', async function () {
   this.blur();
-  if (query.setName.length > 0 && !api.getSetList().includes(query.setName)) {
+  useSetMode = query.setName.length > 0;
+  if (useSetMode && !api.getSetList().includes(query.setName)) {
     window.alert('Set name not found.');
     return false;
   }
 
-  if (query.packetNumbers.length === 0 && query.setName.length > 0) {
+  if (query.packetNumbers.length === 0 && useSetMode) {
     // If no packets selected, select all
     query.packetNumbers = Array.from({ length: maxPacketNumber }, (_, i) => i + 1);
   }
@@ -637,7 +639,7 @@ document.getElementById('start').addEventListener('click', async function () {
   document.getElementById('options').classList.add('d-none');
   document.getElementById('toggle-options').disabled = false;
 
-  if (query.setName.length > 0) {
+  if (useSetMode) {
     queryLock();
     try {
       bonuses = await api.getPacketBonuses(query.setName, query.packetNumbers[0]);

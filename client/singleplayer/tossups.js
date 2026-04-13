@@ -13,6 +13,7 @@ import { insertTokensIntoHTML } from '../utilities/insert-tokens-into-html.js';
 let buzzpointIndex = -1;
 let currentlyBuzzing = false;
 let started = false;
+let useSetMode = false;
 let maxPacketNumber = 24;
 let paused = false;
 let questionNumber = 0; // WARNING: 1-indexed
@@ -339,7 +340,7 @@ function queryUnlock () {
  * @returns {Promise<boolean>} Whether or not there is a next question
  */
 async function advanceQuestion () {
-  if (query.setName.length > 0) {
+  if (useSetMode) {
     // Get the next question if the current one is in the wrong category and subcategory
     do {
       questionNumber++;
@@ -842,17 +843,18 @@ document.getElementById('difficulties').addEventListener('change', function () {
 document.getElementById('next').addEventListener('click', async function () {
   this.blur();
   if (!started) {
-    if (query.setName.length > 0 && !api.getSetList().includes(query.setName)) {
+    useSetMode = query.setName.length > 0;
+    if (useSetMode && !api.getSetList().includes(query.setName)) {
       window.alert('Set name not found.');
       return;
     }
-    if (query.packetNumbers.length === 0 && query.setName.length > 0) {
+    if (query.packetNumbers.length === 0 && useSetMode) {
       // If no packets selected, select all
       query.packetNumbers = Array.from({ length: maxPacketNumber }, (_, i) => i + 1);
     }
     document.getElementById('options').classList.add('d-none');
     document.getElementById('toggle-options').disabled = false;
-    if (query.setName.length > 0) {
+    if (useSetMode) {
       queryLock();
       try {
         tossups = await api.getPacketTossups(query.setName, query.packetNumbers[0]);
