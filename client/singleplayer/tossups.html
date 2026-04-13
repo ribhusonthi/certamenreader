@@ -95,10 +95,10 @@
                 <div class="timer d-none p-1 text-center" id="tossup-timer">
                     <span class="face">20</span><span class="fraction">.0</span>
                 </div>
-                <div class="d-none" id="set-settings">
-                    <input class="form-control" id="set-name" type="text" placeholder="Set Name" list="set-list">
+                <div class="mb-2" id="set-settings">
+                    <input class="form-control" id="set-name" type="text" placeholder="Set Name (optional)" list="set-list">
                     <datalist id="set-list"></datalist>
-                    <div class="my-1" id="packet-picker-container">
+                    <div class="my-1 d-none" id="packet-picker-container">
                         <label class="form-label small text-muted mb-1">Packets:</label>
                         <div class="d-flex flex-wrap gap-1" id="packet-picker">
                             <span class="text-muted small">Select a set first</span>
@@ -158,10 +158,6 @@
                     <div class="form-check form-switch">
                         <input class="form-check-input" id="toggle-standard-only" type="checkbox" role="switch">
                         <label class="form-check-label" for="toggle-standard-only">Standard formats only</label>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="toggle-select-by-set-name" type="checkbox" role="switch">
-                        <label class="form-check-label" for="toggle-select-by-set-name">Select by set name</label>
                     </div>
                     <div class="form-check form-switch">
                         <input class="form-check-input" id="toggle-show-history" type="checkbox" role="switch" checked>

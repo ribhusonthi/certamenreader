@@ -473,25 +473,6 @@ class TossupRoom {
         });
         break;
 
-      case 'toggle-select-by-set-name':
-        if (
-          this.isPermanent ||
-          this.setList ||
-          !this.setList.includes(message.setName)
-        ) {
-          break;
-        }
-
-        this.sendSocketMessage({
-          type: 'toggle-select-by-set-name',
-          selectBySetName: message.selectBySetName,
-          setName: this.query.setName,
-          username: this.players[userId].username,
-        });
-        this.settings.selectBySetName = message.selectBySetName;
-        this.adjustQuery(['setName'], [message.setName]);
-        break;
-
       case 'toggle-skip':
         this.settings.skip = message.skip;
         this.sendSocketMessage({
@@ -641,7 +622,7 @@ class TossupRoom {
       }
     }
 
-    if (this.settings.selectBySetName) {
+    if (this.query.setName && this.query.setName.length > 0) {
       this.questionNumber = 0;
       getSet(this.query).then((set) => {
         this.setCache = set;
@@ -657,7 +638,7 @@ class TossupRoom {
   async advanceQuestion() {
     this.queryingQuestion = true;
 
-    if (this.settings.selectBySetName) {
+    if (this.query.setName && this.query.setName.length > 0) {
       if (this.setCache.length === 0) {
         this.sendSocketMessage({
           type: 'end-of-set',
@@ -812,6 +793,7 @@ class TossupRoom {
       // the below fields are used to record buzzpoint data
       tossup: this.tossup,
       perQuestionCelerity: celerity,
+      buzzpointIndex: this.buzzpointIndices[this.buzzpointIndices.length - 1],
     });
   }
 

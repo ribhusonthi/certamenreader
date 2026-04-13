@@ -115,13 +115,7 @@ if (settings.rebuzz) {
   document.getElementById('toggle-rebuzz').checked = true;
 }
 
-if (settings.selectBySetName) {
-  document.getElementById('difficulty-settings').classList.add('d-none');
-  document.getElementById('set-settings').classList.remove('d-none');
-  document.getElementById('toggle-select-by-set-name').checked = true;
-  // document.getElementById('toggle-powermark-only').disabled = true;
-  document.getElementById('toggle-standard-only').disabled = true;
-}
+// selectBySetName is now auto-detected from whether set-name is filled
 
 if (!settings.showHistory) {
   document.getElementById('toggle-show-history').checked = false;
@@ -158,6 +152,7 @@ if (query.difficulties) {
 
 if (query.setName) {
   document.getElementById('set-name').value = query.setName;
+  document.getElementById('packet-picker-container').classList.remove('d-none');
   api.getNumPackets(query.setName).then(numPackets => {
     maxPacketNumber = numPackets;
     if (maxPacketNumber === 0) {
@@ -344,7 +339,7 @@ function queryUnlock () {
  * @returns {Promise<boolean>} Whether or not there is a next question
  */
 async function advanceQuestion () {
-  if (settings.selectBySetName) {
+  if (query.setName.length > 0) {
     // Get the next question if the current one is in the wrong category and subcategory
     do {
       questionNumber++;
@@ -554,7 +549,7 @@ async function next () {
 
   if (await account.getUsername() && document.getElementById('answer').innerHTML) {
     const pointValue = previous.isCorrect ? (previous.inPower ? previous.powerValue : 10) : (previous.endOfQuestion ? 0 : previous.negValue);
-    questionStats.recordTossup(tossups[questionNumber - 1], previous.isCorrect, pointValue, previous.celerity, false);
+    questionStats.recordTossup(tossups[questionNumber - 1], previous.isCorrect, pointValue, previous.celerity, false, previous.isCorrect ? buzzpointIndex : undefined);
   }
 
   document.getElementById('answer').textContent = '';
@@ -572,7 +567,7 @@ async function next () {
   document.getElementById('buzz').disabled = false;
   document.getElementById('next').textContent = 'Skip';
   // document.getElementById('packet-number-info').textContent = query.packetNumbers[0];
-  // document.getElementById('packet-length-info').textContent = settings.selectBySetName ? tossups.length : '-';
+  // document.getElementById('packet-length-info').textContent = query.setName.length > 0 ? tossups.length : '-';
   document.getElementById('pause').textContent = 'Pause';
   document.getElementById('pause').disabled = false;
   document.getElementById('question').innerHTML = '';
@@ -847,17 +842,17 @@ document.getElementById('difficulties').addEventListener('change', function () {
 document.getElementById('next').addEventListener('click', async function () {
   this.blur();
   if (!started) {
-    if (query.setName.length === 0 && settings.selectBySetName) {
-      window.alert('Please enter a set name.');
+    if (query.setName.length > 0 && !api.getSetList().includes(query.setName)) {
+      window.alert('Set name not found.');
       return;
     }
-    if (query.packetNumbers.length === 0 && settings.selectBySetName) {
+    if (query.packetNumbers.length === 0 && query.setName.length > 0) {
       // If no packets selected, select all
       query.packetNumbers = Array.from({ length: maxPacketNumber }, (_, i) => i + 1);
     }
     document.getElementById('options').classList.add('d-none');
     document.getElementById('toggle-options').disabled = false;
-    if (settings.selectBySetName) {
+    if (query.setName.length > 0) {
       queryLock();
       try {
         tossups = await api.getPacketTossups(query.setName, query.packetNumbers[0]);
@@ -918,6 +913,13 @@ document.getElementById('set-name').addEventListener('change', async function ()
     this.classList.add('is-invalid');
   }
 
+  // Show/hide packet picker based on whether a set name is entered
+  if (this.value.trim()) {
+    document.getElementById('packet-picker-container').classList.remove('d-none');
+  } else {
+    document.getElementById('packet-picker-container').classList.add('d-none');
+  }
+
   maxPacketNumber = await api.getNumPackets(this.value);
 
   // Reset packet selection and load picker
@@ -939,23 +941,6 @@ document.getElementById('toggle-correct').addEventListener('click', function () 
 //   loadRandomTossups(query);
 //   window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
 // });
-
-document.getElementById('toggle-select-by-set-name').addEventListener('click', function () {
-  this.blur();
-  settings.selectBySetName = this.checked;
-  // document.getElementById('toggle-powermark-only').disabled = this.checked;
-  document.getElementById('toggle-standard-only').disabled = this.checked;
-
-  if (this.checked) {
-    document.getElementById('difficulty-settings').classList.add('d-none');
-    document.getElementById('set-settings').classList.remove('d-none');
-  } else {
-    document.getElementById('difficulty-settings').classList.remove('d-none');
-    document.getElementById('set-settings').classList.add('d-none');
-  }
-
-  window.localStorage.setItem('singleplayer-tossup-settings', JSON.stringify(settings));
-});
 
 document.getElementById('toggle-show-history').addEventListener('click', function () {
   this.blur();

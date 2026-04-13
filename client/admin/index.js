@@ -86,16 +86,29 @@ async function handleAdminToggle (event) {
   }
 }
 
+let currentStatsUsername = '';
+let buzzpointsLoaded = false;
+
 async function handleViewStats (event) {
   const btn = event.target;
   const username = btn.dataset.username;
   const displayName = btn.dataset.displayName;
 
+  currentStatsUsername = username;
+  buzzpointsLoaded = false;
+
   const modalLabel = document.getElementById('stats-modal-label');
   const modalBody = document.getElementById('stats-modal-body');
+  const buzzpointsBody = document.getElementById('buzzpoints-body');
 
   modalLabel.textContent = `Stats for ${displayName}`;
   modalBody.innerHTML = '<p class="text-center">Loading stats...</p>';
+  buzzpointsBody.innerHTML = '<p class="text-center text-muted">Switch to this tab to load buzzpoint data.</p>';
+
+  // Reset to overview tab
+  const overviewTab = document.getElementById('stats-overview-tab');
+  const bsTab = new bootstrap.Tab(overviewTab);
+  bsTab.show();
 
   const modal = new bootstrap.Modal(document.getElementById('stats-modal'));
   modal.show();
@@ -312,4 +325,72 @@ document.getElementById('uploads-tab').addEventListener('shown.bs.tab', () => {
 // Search filter for uploads
 document.getElementById('search-uploads').addEventListener('input', (e) => {
   renderUploads(filterUploads(e.target.value));
+});
+
+// ── Buzzpoints Tab ──────────────────────────────────────────────────────────────
+
+function highlightBuzzpoint (questionText, buzzpointIndex) {
+  if (typeof buzzpointIndex !== 'number' || buzzpointIndex < 0) return escapeHtml(questionText);
+  const before = questionText.substring(0, buzzpointIndex);
+  const after = questionText.substring(buzzpointIndex);
+  return escapeHtml(before) + '<span class="text-highlight fw-bold">(#)</span>' + escapeHtml(after);
+}
+
+function renderBuzzpoints (buzzpoints) {
+  const body = document.getElementById('buzzpoints-body');
+  if (!buzzpoints || buzzpoints.length === 0) {
+    body.innerHTML = '<p class="text-center text-muted">No buzzpoint data recorded yet.</p>';
+    return;
+  }
+
+  let html = `<p class="text-muted mb-2">${buzzpoints.length} correct buzz${buzzpoints.length !== 1 ? 'es' : ''} recorded. <span class="text-highlight fw-bold">(#)</span> marks the buzz position.</p>`;
+  html += '<div class="list-group">';
+
+  for (const bp of buzzpoints) {
+    const cat = bp.category || 'Unknown';
+    const subcat = bp.subcategory ? ` / ${bp.subcategory}` : '';
+    const setName = bp.setName || '';
+    const date = bp.recordedAt ? new Date(bp.recordedAt).toLocaleDateString() : '';
+    const mode = bp.multiplayer ? 'MP' : 'SP';
+    const points = bp.pointValue || 10;
+    const pctThrough = bp.questionText ? Math.round((bp.buzzpointIndex / bp.questionText.length) * 100) : '?';
+
+    html += `<div class="list-group-item">
+      <div class="d-flex justify-content-between align-items-start mb-1">
+        <div>
+          <span class="question-cat-badge cat-${cat.toLowerCase().replace(/[^a-z]/g, '-')}">${escapeHtml(cat)}${escapeHtml(subcat)}</span>
+          <span class="badge bg-secondary ms-1">${points > 10 ? 'P' : points}pts</span>
+          <span class="badge bg-info ms-1">${mode}</span>
+          <span class="badge bg-outline-secondary ms-1" style="font-weight:normal">${pctThrough}% through</span>
+        </div>
+        <small class="text-muted">${escapeHtml(setName)}${date ? ' - ' + date : ''}</small>
+      </div>
+      <div class="mb-1" style="font-size:0.9rem;line-height:1.6">${highlightBuzzpoint(bp.questionText || '', bp.buzzpointIndex)}</div>
+      <div><strong>Answer:</strong> ${bp.answerText || 'N/A'}</div>
+    </div>`;
+  }
+
+  html += '</div>';
+  body.innerHTML = html;
+}
+
+async function loadBuzzpoints () {
+  if (buzzpointsLoaded || !currentStatsUsername) return;
+  buzzpointsLoaded = true;
+
+  const body = document.getElementById('buzzpoints-body');
+  body.innerHTML = '<p class="text-center">Loading buzzpoints...</p>';
+
+  try {
+    const response = await fetch(`/admin/api/users/${encodeURIComponent(currentStatsUsername)}/buzzpoints`);
+    if (!response.ok) throw new Error('Failed');
+    const { buzzpoints } = await response.json();
+    renderBuzzpoints(buzzpoints);
+  } catch {
+    body.innerHTML = '<p class="text-center text-danger">Failed to load buzzpoint data.</p>';
+  }
+}
+
+document.getElementById('stats-buzzpoints-tab').addEventListener('shown.bs.tab', () => {
+  loadBuzzpoints();
 });

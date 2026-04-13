@@ -284,27 +284,6 @@ socket.onmessage = function (event) {
         document.getElementById('skip').classList.contains('d-none');
       break;
 
-    case 'toggle-select-by-set-name':
-      if (data.selectBySetName) {
-        logEvent(data.username, 'enabled select by set name');
-        document.getElementById('toggle-select-by-set-name').checked = true;
-        document.getElementById('difficulty-settings').classList.add('d-none');
-        document.getElementById('set-settings').classList.remove('d-none');
-        document.getElementById('set-name').textContent = data.setName;
-      } else {
-        logEvent(data.username, 'enabled select by difficulty');
-        document.getElementById('toggle-select-by-set-name').checked = false;
-        document
-          .getElementById('difficulty-settings')
-          .classList.remove('d-none');
-        document.getElementById('set-settings').classList.add('d-none');
-      }
-      document.getElementById('toggle-powermark-only').disabled =
-        data.selectBySetName;
-      document.getElementById('toggle-standard-only').disabled =
-        data.selectBySetName;
-      break;
-
     case 'toggle-standard-only':
       logEvent(
         data.username,
@@ -440,14 +419,10 @@ const socketOnConnectionAcknowledged = async (message) => {
   document.getElementById('reading-speed-display').textContent =
     message.readingSpeed;
 
-  if (message.selectBySetName) {
-    document.getElementById('toggle-select-by-set-name').checked = true;
-    document.getElementById('difficulty-settings').classList.add('d-none');
-    document.getElementById('set-settings').classList.remove('d-none');
-  } else {
-    document.getElementById('toggle-select-by-set-name').checked = false;
-    document.getElementById('difficulty-settings').classList.remove('d-none');
-    document.getElementById('set-settings').classList.add('d-none');
+  // Show packet picker if a set name is present
+  if (message.setName && message.setName.length > 0) {
+    document.getElementById('set-name').value = message.setName;
+    document.getElementById('packet-picker-container').classList.remove('d-none');
   }
 
   switch (message.questionProgress) {
@@ -477,7 +452,6 @@ const socketOnConnectionAcknowledged = async (message) => {
   if (message.isPermanent) {
     document.getElementById('category-select-button').disabled = true;
     document.getElementById('toggle-visibility').disabled = true;
-    document.getElementById('toggle-select-by-set-name').disabled = true;
     document.getElementById('private-chat-warning').innerHTML =
       'This is a permanent room. Some settings have been restricted.';
   }
@@ -538,11 +512,6 @@ const socketOnConnectionAcknowledgedQuery = async (message) => {
       socket.send(JSON.stringify({ type: 'packet-number', value: selectedNums }));
     });
   }
-
-  document.getElementById('toggle-powermark-only').disabled =
-    message.selectBySetName;
-  document.getElementById('toggle-standard-only').disabled =
-    message.selectBySetName;
 
   document.getElementById('toggle-powermark-only').checked =
     message.powermarkOnly;
@@ -636,7 +605,8 @@ const socketOnGiveAnswer = async (message) => {
       score > 0,
       score,
       message.perQuestionCelerity,
-      true
+      true,
+      score > 0 ? message.buzzpointIndex : undefined
     );
   }
 
@@ -1192,6 +1162,14 @@ document
     } else {
       this.classList.add('is-invalid');
     }
+
+    // Show/hide packet picker based on whether a set name is entered
+    if (this.value.trim()) {
+      document.getElementById('packet-picker-container').classList.remove('d-none');
+    } else {
+      document.getElementById('packet-picker-container').classList.add('d-none');
+    }
+
     maxPacketNumber = await api.getNumPackets(this.value);
 
     // Default: select all packets
@@ -1241,18 +1219,6 @@ document.getElementById('toggle-skip').addEventListener('click', function () {
   socket.send(JSON.stringify({ type: 'toggle-skip', skip: this.checked }));
 });
 
-document
-  .getElementById('toggle-select-by-set-name')
-  .addEventListener('click', function () {
-    this.blur();
-    socket.send(
-      JSON.stringify({
-        type: 'toggle-select-by-set-name',
-        setName: document.getElementById('set-name').value,
-        selectBySetName: this.checked,
-      })
-    );
-  });
 
 document
   .getElementById('toggle-standard-only')
