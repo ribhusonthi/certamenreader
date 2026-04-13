@@ -41,6 +41,9 @@
                         <a class="nav-link" href="/about">About</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="/upload">Upload</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="/settings">Settings</a>
                     </li>
                 </ul>
@@ -57,29 +60,77 @@
 
     <div class="container-xl mt-3 mb-5 pb-5">
         <h2>Admin Console</h2>
-        <p class="text-muted">Manage users and view statistics.</p>
+        <p class="text-muted">Manage users, uploads, and view statistics.</p>
 
-        <div class="mb-3">
-            <input type="text" class="form-control" id="search-users" placeholder="Search users by name or email...">
-        </div>
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-3" id="admin-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users-panel"
+                    type="button" role="tab" aria-controls="users-panel" aria-selected="true">Users</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="uploads-tab" data-bs-toggle="tab" data-bs-target="#uploads-panel"
+                    type="button" role="tab" aria-controls="uploads-panel" aria-selected="false">Uploads</button>
+            </li>
+        </ul>
 
-        <div class="table-responsive">
-            <table class="table table-striped table-hover" id="users-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Joined</th>
-                        <th>Admin</th>
-                        <th>Stats</th>
-                    </tr>
-                </thead>
-                <tbody id="users-tbody">
-                    <tr>
-                        <td colspan="5" class="text-center">Loading users...</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="tab-content">
+            <!-- Users Tab -->
+            <div class="tab-pane fade show active" id="users-panel" role="tabpanel" aria-labelledby="users-tab">
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="search-users"
+                        placeholder="Search users by name or email...">
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="users-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Joined</th>
+                                <th>Admin</th>
+                                <th>Stats</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody">
+                            <tr>
+                                <td colspan="5" class="text-center">Loading users...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Uploads Tab -->
+            <div class="tab-pane fade" id="uploads-panel" role="tabpanel" aria-labelledby="uploads-tab">
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="search-uploads"
+                        placeholder="Search uploads by set name or uploader...">
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="uploads-table">
+                        <thead>
+                            <tr>
+                                <th>Set Name</th>
+                                <th>Uploaded By</th>
+                                <th>File</th>
+                                <th>Questions</th>
+                                <th>Difficulty</th>
+                                <th>Year</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="uploads-tbody">
+                            <tr>
+                                <td colspan="8" class="text-center">Loading uploads...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <!-- Stats Modal -->

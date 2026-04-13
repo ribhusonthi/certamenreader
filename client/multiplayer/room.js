@@ -45,6 +45,64 @@ let changedCategories = true;
 
 let maxPacketNumber = 24;
 
+async function loadPacketPicker (setName, selectedNumbers, onChangeCallback) {
+  const picker = document.getElementById('packet-picker');
+  if (!picker) return;
+  if (!setName) {
+    picker.innerHTML = '<span class="text-muted small">Select a set first</span>';
+    return;
+  }
+
+  picker.innerHTML = '<span class="text-muted small">Loading...</span>';
+  let packets = await api.getPacketList(setName);
+
+  if (packets.length === 0) {
+    const numPackets = await api.getNumPackets(setName);
+    if (numPackets === 0) {
+      picker.innerHTML = '<span class="text-muted small">No packets found</span>';
+      return;
+    }
+    for (let i = 1; i <= numPackets; i++) {
+      packets.push({ name: `Packet ${i}`, number: i });
+    }
+  }
+
+  picker.innerHTML = '';
+  const selectAll = document.createElement('button');
+  selectAll.type = 'button';
+  selectAll.className = 'btn btn-outline-secondary btn-sm';
+  selectAll.textContent = 'All';
+  selectAll.addEventListener('click', () => {
+    const allNums = packets.map(p => p.number);
+    picker.querySelectorAll('.packet-btn').forEach(btn => btn.classList.add('active'));
+    if (onChangeCallback) onChangeCallback(allNums);
+  });
+  picker.appendChild(selectAll);
+
+  for (const pkt of packets) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-outline-primary btn-sm packet-btn';
+    btn.dataset.packetNumber = pkt.number;
+    const label = pkt.name.length > 20 ? pkt.name.replace('Preliminary ', 'Prelim ').replace('Round ', 'R') : pkt.name;
+    btn.textContent = label;
+    btn.title = pkt.name;
+
+    if (selectedNumbers && selectedNumbers.includes(pkt.number)) {
+      btn.classList.add('active');
+    }
+
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('active');
+      const activeButtons = picker.querySelectorAll('.packet-btn.active');
+      const selectedNums = Array.from(activeButtons).map(b => parseInt(b.dataset.packetNumber));
+      if (onChangeCallback) onChangeCallback(selectedNums);
+    });
+
+    picker.appendChild(btn);
+  }
+}
+
 /**
  * userId to player object
  */
@@ -471,6 +529,14 @@ const socketOnConnectionAcknowledgedQuery = async (message) => {
     maxPacketNumber === 0
   ) {
     document.getElementById('set-name').classList.add('is-invalid');
+  }
+
+  // Load packet picker if a set is selected
+  if (message.setName) {
+    await loadPacketPicker(message.setName, message.packetNumbers || [], (selectedNums) => {
+      document.getElementById('packet-number').value = arrayToRange(selectedNums);
+      socket.send(JSON.stringify({ type: 'packet-number', value: selectedNums }));
+    });
   }
 
   document.getElementById('toggle-powermark-only').disabled =
@@ -1127,21 +1193,25 @@ document
       this.classList.add('is-invalid');
     }
     maxPacketNumber = await api.getNumPackets(this.value);
-    if (this.value === '' || maxPacketNumber === 0) {
-      document.getElementById('packet-number').value = '';
-    } else {
-      document.getElementById('packet-number').value = `1-${maxPacketNumber}`;
-    }
+
+    // Default: select all packets
+    const allPackets = Array.from({ length: maxPacketNumber }, (_, i) => i + 1);
+    document.getElementById('packet-number').value = maxPacketNumber > 0 ? `1-${maxPacketNumber}` : '';
 
     socket.send(
       JSON.stringify({
         type: 'set-name',
         value: this.value,
-        packetNumbers: rangeToArray(
-          document.getElementById('packet-number').value
-        ),
+        packetNumbers: allPackets,
       })
     );
+
+    // Load the packet picker
+    const setNameValue = this.value;
+    await loadPacketPicker(setNameValue, allPackets, (selectedNums) => {
+      document.getElementById('packet-number').value = arrayToRange(selectedNums);
+      socket.send(JSON.stringify({ type: 'packet-number', value: selectedNums }));
+    });
   });
 
 document.getElementById('toggle-lock').addEventListener('click', function () {

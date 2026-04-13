@@ -100,6 +100,21 @@ code {
     min-height: 125px;
 }
 
+/* --- Packet picker --- */
+#packet-picker {
+    max-height: 200px;
+    overflow-y: auto;
+}
+#packet-picker .packet-btn {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+}
+#packet-picker .packet-btn.active {
+    background-color: #00416a;
+    border-color: #00416a;
+    color: #fff;
+}
+
 .text-highlight {
     background-color: #f8ff00;
     color: $dark;

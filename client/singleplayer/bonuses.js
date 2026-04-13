@@ -115,16 +115,72 @@ if (query.packetNumbers) {
   document.getElementById('packet-number').value = arrayToRange(query.packetNumbers);
 }
 
+async function loadPacketPicker (setName, selectedNumbers) {
+  const picker = document.getElementById('packet-picker');
+  if (!setName) {
+    picker.innerHTML = '<span class="text-muted small">Select a set first</span>';
+    return;
+  }
+
+  picker.innerHTML = '<span class="text-muted small">Loading...</span>';
+  let packets = await api.getPacketList(setName);
+
+  if (packets.length === 0) {
+    const numPackets = await api.getNumPackets(setName);
+    if (numPackets === 0) {
+      picker.innerHTML = '<span class="text-muted small">No packets found</span>';
+      return;
+    }
+    for (let i = 1; i <= numPackets; i++) {
+      packets.push({ name: `Packet ${i}`, number: i });
+    }
+  }
+
+  picker.innerHTML = '';
+  const selectAll = document.createElement('button');
+  selectAll.type = 'button';
+  selectAll.className = 'btn btn-outline-secondary btn-sm';
+  selectAll.textContent = 'All';
+  selectAll.addEventListener('click', () => {
+    query.packetNumbers = packets.map(p => p.number);
+    window.localStorage.setItem('singleplayer-bonus-query', JSON.stringify(query));
+    picker.querySelectorAll('.packet-btn').forEach(btn => btn.classList.add('active'));
+  });
+  picker.appendChild(selectAll);
+
+  for (const pkt of packets) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-outline-primary btn-sm packet-btn';
+    btn.dataset.packetNumber = pkt.number;
+    const label = pkt.name.length > 20 ? pkt.name.replace('Preliminary ', 'Prelim ').replace('Round ', 'R') : pkt.name;
+    btn.textContent = label;
+    btn.title = pkt.name;
+
+    if (selectedNumbers && selectedNumbers.includes(pkt.number)) {
+      btn.classList.add('active');
+    }
+
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('active');
+      const activeButtons = picker.querySelectorAll('.packet-btn.active');
+      query.packetNumbers = Array.from(activeButtons).map(b => parseInt(b.dataset.packetNumber));
+      window.localStorage.setItem('singleplayer-bonus-query', JSON.stringify(query));
+    });
+
+    picker.appendChild(btn);
+  }
+}
+
 if (query.setName) {
   document.getElementById('set-name').value = query.setName;
   api.getNumPackets(query.setName).then(numPackets => {
     maxPacketNumber = numPackets;
     if (maxPacketNumber === 0) {
       document.getElementById('set-name').classList.add('is-invalid');
-    } else {
-      document.getElementById('packet-number').placeholder = `Packet Numbers (1-${maxPacketNumber})`;
     }
   });
+  loadPacketPicker(query.setName, query.packetNumbers);
 }
 
 if (!query.threePartBonuses) {
@@ -556,11 +612,9 @@ document.getElementById('set-name').addEventListener('change', async function ()
 
   maxPacketNumber = await api.getNumPackets(this.value);
 
-  if (this.value === '' || maxPacketNumber === 0) {
-    document.getElementById('packet-number').placeholder = 'Packet Numbers';
-  } else {
-    document.getElementById('packet-number').placeholder = `Packet Numbers (1-${maxPacketNumber})`;
-  }
+  // Reset packet selection and load picker
+  query.packetNumbers = [];
+  await loadPacketPicker(this.value, []);
 
   window.localStorage.setItem('singleplayer-bonus-query', JSON.stringify(query));
 });
@@ -573,7 +627,8 @@ document.getElementById('start').addEventListener('click', async function () {
   }
 
   if (query.packetNumbers.length === 0 && settings.selectBySetName) {
-    query.packetNumbers = rangeToArray(document.getElementById('packet-number').value.trim(), maxPacketNumber);
+    // If no packets selected, select all
+    query.packetNumbers = Array.from({ length: maxPacketNumber }, (_, i) => i + 1);
   }
 
   document.getElementById('next').disabled = false;

@@ -56,6 +56,9 @@
                     </li>
                     
                     <li class="nav-item">
+                        <a class="nav-link" href="/upload">Upload</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="/settings">Settings</a>
                     </li> -->
                 </ul>
@@ -92,7 +95,13 @@
                 <div class="d-none" id="set-settings">
                     <input class="form-control" id="set-name" type="text" placeholder="Set Name" list="set-list">
                     <datalist id="set-list"></datalist>
-                    <input class="form-control my-1" id="packet-number" type="text" placeholder="Packet Numbers">
+                    <div class="my-1" id="packet-picker-container">
+                        <label class="form-label small text-muted mb-1">Packets:</label>
+                        <div class="d-flex flex-wrap gap-1" id="packet-picker">
+                            <span class="text-muted small">Select a set first</span>
+                        </div>
+                    </div>
+                    <input class="form-control my-1 d-none" id="packet-number" type="text" placeholder="Packet Numbers">
                     <input class="form-control" id="question-number" type="text" placeholder="Starting Question #">
                 </div>
                 <div id="difficulty-settings">

@@ -205,3 +205,111 @@ fetch('/admin/api/users')
 document.getElementById('search-users').addEventListener('input', (e) => {
   renderUsers(filterUsers(e.target.value));
 });
+
+// ── Uploads Tab ──────────────────────────────────────────────────────────────
+
+let allUploads = [];
+let uploadsLoaded = false;
+
+function difficultyLabel (val) {
+  if (val === 1) return 'Novice';
+  if (val === 5) return 'Intermediate';
+  if (val === 10) return 'Advanced';
+  return String(val);
+}
+
+function renderUploads (uploads) {
+  const tbody = document.getElementById('uploads-tbody');
+  if (uploads.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center">No uploads found.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = uploads.map(u => {
+    const date = u.uploadedAt ? new Date(u.uploadedAt).toLocaleDateString() : 'N/A';
+    const fileExt = (u.fileType || '').toUpperCase();
+    return `<tr>
+      <td>${escapeHtml(u.setName || 'N/A')}</td>
+      <td>
+        <span title="${escapeAttr(u.username || '')}">${escapeHtml(u.uploaderName || u.username || 'N/A')}</span>
+      </td>
+      <td><span class="badge bg-info">${fileExt}</span> ${escapeHtml(u.fileName || '')}</td>
+      <td>${u.questionCount || 0}</td>
+      <td>${difficultyLabel(u.difficulty)}</td>
+      <td>${u.year || 'N/A'}</td>
+      <td>${date}</td>
+      <td>
+        <button class="btn btn-sm btn-outline-danger delete-upload-btn"
+                data-upload-id="${u._id}"
+                data-set-name="${escapeAttr(u.setName || '')}">
+          Delete
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.querySelectorAll('.delete-upload-btn').forEach(btn => {
+    btn.addEventListener('click', handleDeleteUpload);
+  });
+}
+
+async function handleDeleteUpload (event) {
+  const btn = event.target;
+  const uploadId = btn.dataset.uploadId;
+  const setName = btn.dataset.setName;
+
+  if (!confirm(`Are you sure you want to delete the uploaded set "${setName}" and all its questions? This cannot be undone.`)) {
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Deleting...';
+
+  const response = await fetch(`/admin/api/uploads/${uploadId}`, { method: 'DELETE' });
+
+  if (response.ok) {
+    allUploads = allUploads.filter(u => u._id !== uploadId);
+    renderUploads(filterUploads(document.getElementById('search-uploads').value));
+  } else {
+    alert('Failed to delete upload.');
+    btn.disabled = false;
+    btn.textContent = 'Delete';
+  }
+}
+
+function filterUploads (query) {
+  if (!query) return allUploads;
+  const q = query.toLowerCase();
+  return allUploads.filter(u => {
+    const name = (u.setName || '').toLowerCase();
+    const uploader = (u.uploaderName || u.username || '').toLowerCase();
+    const email = (u.username || '').toLowerCase();
+    return name.includes(q) || uploader.includes(q) || email.includes(q);
+  });
+}
+
+function loadUploads () {
+  if (uploadsLoaded) return;
+  uploadsLoaded = true;
+
+  fetch('/admin/api/uploads')
+    .then(response => response.json())
+    .then(data => {
+      allUploads = data.uploads;
+      renderUploads(allUploads);
+    })
+    .catch(() => {
+      document.getElementById('uploads-tbody').innerHTML =
+        '<tr><td colspan="8" class="text-center text-danger">Failed to load uploads.</td></tr>';
+    });
+}
+
+// Load uploads when the tab is shown
+document.getElementById('uploads-tab').addEventListener('shown.bs.tab', () => {
+  loadUploads();
+});
+
+// Search filter for uploads
+document.getElementById('search-uploads').addEventListener('input', (e) => {
+  renderUploads(filterUploads(e.target.value));
+});
