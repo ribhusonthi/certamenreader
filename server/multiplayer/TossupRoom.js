@@ -414,11 +414,11 @@ class TossupRoom {
         break;
 
       case 'set-name':
-        if (
-          typeof message.value !== 'string' ||
-          !this.setList ||
-          !this.setList.includes(message.value)
-        ) {
+        if (typeof message.value !== 'string') {
+          return;
+        }
+        // Allow empty string to clear set name (switches to random mode)
+        if (message.value.length > 0 && (!this.setList || !this.setList.includes(message.value))) {
           return;
         }
 
