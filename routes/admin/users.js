@@ -2,6 +2,7 @@ import getAllUsers from '../../database/account-info/get-all-users.js';
 import setAdmin from '../../database/account-info/set-admin.js';
 import getCategoryStats from '../../database/account-info/user-stats/get-category-stats.js';
 import getUserId from '../../database/account-info/get-user-id.js';
+import { tossupData } from '../../database/account-info/collections.js';
 
 import { Router } from 'express';
 
@@ -45,6 +46,24 @@ router.get('/:username/stats', async (req, res) => {
   });
 
   res.json({ tossupStats, bonusStats });
+});
+
+// Get buzzpoint data for a specific user
+router.get('/:username/buzzpoints', async (req, res) => {
+  const username = decodeURIComponent(req.params.username);
+  const userId = await getUserId(username);
+  if (!userId) {
+    res.sendStatus(404);
+    return;
+  }
+
+  const buzzpoints = await tossupData.find({
+    user_id: userId,
+    isCorrect: true,
+    buzzpointIndex: { $exists: true, $gte: 0 }
+  }).sort({ recordedAt: -1 }).limit(200).toArray();
+
+  res.json({ buzzpoints });
 });
 
 // Toggle admin status

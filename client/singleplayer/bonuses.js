@@ -78,14 +78,7 @@ if (window.localStorage.getItem('questionNumberBonusSave')) {
   questionNumber = parseInt(window.localStorage.getItem('questionNumberBonusSave')) - 1;
 }
 
-// Load query and settings first so user doesn't see the default settings
-if (settings.selectBySetName) {
-  document.getElementById('difficulty-settings').classList.add('d-none');
-  document.getElementById('set-settings').classList.remove('d-none');
-  document.getElementById('toggle-select-by-set-name').checked = true;
-  document.getElementById('toggle-standard-only').disabled = true;
-  document.getElementById('toggle-three-part-bonuses').disabled = true;
-}
+// selectBySetName is now auto-detected from whether set-name is filled
 
 if (!settings.showHistory) {
   document.getElementById('toggle-show-history').checked = false;
@@ -174,6 +167,7 @@ async function loadPacketPicker (setName, selectedNumbers) {
 
 if (query.setName) {
   document.getElementById('set-name').value = query.setName;
+  document.getElementById('packet-picker-container').classList.remove('d-none');
   api.getNumPackets(query.setName).then(numPackets => {
     maxPacketNumber = numPackets;
     if (maxPacketNumber === 0) {
@@ -204,7 +198,7 @@ function queryUnlock () {
 }
 
 async function advanceQuestion () {
-  if (settings.selectBySetName) {
+  if (query.setName.length > 0) {
     do { // Get the next question
       questionNumber++;
 
@@ -433,7 +427,7 @@ async function next (revealedAllParts) {
 
   document.getElementById('set-name-info').textContent = query.setName;
   document.getElementById('packet-number-info').textContent = query.packetNumbers[0];
-  document.getElementById('packet-length-info').textContent = settings.selectBySetName ? bonuses.length : '-';
+  document.getElementById('packet-length-info').textContent = query.setName.length > 0 ? bonuses.length : '-';
 
   const currentBonus = bonuses[questionNumber - 1];
   const catBadge = document.getElementById('question-category');
@@ -610,6 +604,13 @@ document.getElementById('set-name').addEventListener('change', async function ()
     this.classList.add('is-invalid');
   }
 
+  // Show/hide packet picker based on whether a set name is entered
+  if (this.value.trim()) {
+    document.getElementById('packet-picker-container').classList.remove('d-none');
+  } else {
+    document.getElementById('packet-picker-container').classList.add('d-none');
+  }
+
   maxPacketNumber = await api.getNumPackets(this.value);
 
   // Reset packet selection and load picker
@@ -621,12 +622,12 @@ document.getElementById('set-name').addEventListener('change', async function ()
 
 document.getElementById('start').addEventListener('click', async function () {
   this.blur();
-  if (query.setName.length === 0 && settings.selectBySetName) {
-    window.alert('Please enter a set name.');
+  if (query.setName.length > 0 && !api.getSetList().includes(query.setName)) {
+    window.alert('Set name not found.');
     return false;
   }
 
-  if (query.packetNumbers.length === 0 && settings.selectBySetName) {
+  if (query.packetNumbers.length === 0 && query.setName.length > 0) {
     // If no packets selected, select all
     query.packetNumbers = Array.from({ length: maxPacketNumber }, (_, i) => i + 1);
   }
@@ -636,7 +637,7 @@ document.getElementById('start').addEventListener('click', async function () {
   document.getElementById('options').classList.add('d-none');
   document.getElementById('toggle-options').disabled = false;
 
-  if (settings.selectBySetName) {
+  if (query.setName.length > 0) {
     queryLock();
     try {
       bonuses = await api.getPacketBonuses(query.setName, query.packetNumbers[0]);
@@ -646,23 +647,6 @@ document.getElementById('start').addEventListener('click', async function () {
   }
 
   next(false);
-});
-
-document.getElementById('toggle-select-by-set-name').addEventListener('click', function () {
-  this.blur();
-  settings.selectBySetName = this.checked;
-  document.getElementById('toggle-standard-only').disabled = this.checked;
-  document.getElementById('toggle-three-part-bonuses').disabled = this.checked;
-
-  if (this.checked) {
-    document.getElementById('difficulty-settings').classList.add('d-none');
-    document.getElementById('set-settings').classList.remove('d-none');
-  } else {
-    document.getElementById('difficulty-settings').classList.remove('d-none');
-    document.getElementById('set-settings').classList.add('d-none');
-  }
-
-  window.localStorage.setItem('singleplayer-bonus-settings', JSON.stringify(settings));
 });
 
 document.getElementById('toggle-show-history').addEventListener('click', function () {

@@ -25,6 +25,15 @@ async function recordTossupData (username, data) {
     }
   }
 
+  // Store buzzpoint data for correct answers
+  if (data.isCorrect && typeof data.buzzpointIndex === 'number' && data.buzzpointIndex >= 0) {
+    newData.buzzpointIndex = data.buzzpointIndex;
+    newData.questionText = tossup.question || '';
+    newData.answerText = tossup.answer || '';
+    newData.setName = tossup.set?.name || tossup.setName || '';
+    newData.recordedAt = new Date();
+  }
+
   newData.tossup_id = new ObjectId(tossup._id);
   newData.set_id = new ObjectId(tossup.set._id);
   newData.user_id = userId;

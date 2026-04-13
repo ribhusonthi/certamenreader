@@ -141,8 +141,29 @@
                         <h5 class="modal-title" id="stats-modal-label">User Stats</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body" id="stats-modal-body">
-                        <p class="text-center">Loading stats...</p>
+                    <div class="modal-body">
+                        <ul class="nav nav-tabs mb-3" id="stats-tabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="stats-overview-tab" data-bs-toggle="tab"
+                                    data-bs-target="#stats-overview-panel" type="button" role="tab">Overview</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="stats-buzzpoints-tab" data-bs-toggle="tab"
+                                    data-bs-target="#stats-buzzpoints-panel" type="button" role="tab">Buzzpoints</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="stats-overview-panel" role="tabpanel">
+                                <div id="stats-modal-body">
+                                    <p class="text-center">Loading stats...</p>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="stats-buzzpoints-panel" role="tabpanel">
+                                <div id="buzzpoints-body">
+                                    <p class="text-center text-muted">Click to load buzzpoint data.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

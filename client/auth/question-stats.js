@@ -14,11 +14,11 @@ export default class questionStats {
     });
   }
 
-  static recordTossup (tossup, isCorrect, pointValue, celerity, multiplayer) {
+  static recordTossup (tossup, isCorrect, pointValue, celerity, multiplayer, buzzpointIndex) {
     fetch('/auth/question-stats/record-tossup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tossup, isCorrect, pointValue, celerity, multiplayer })
+      body: JSON.stringify({ tossup, isCorrect, pointValue, celerity, multiplayer, buzzpointIndex })
     }).then(response => {
       if (response.status === 401) {
         account.deleteUsername();
