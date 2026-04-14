@@ -140,25 +140,51 @@ function addCardAdminControls (cardBody, tossup, questionCounterId) {
 
   const catSelect = document.createElement('select');
   catSelect.className = 'admin-category-select';
+
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = tossup.category || 'Select category';
+  placeholder.disabled = true;
+  placeholder.selected = true;
+  catSelect.appendChild(placeholder);
+
   for (const cat of CERTAMEN_CATEGORIES) {
     const opt = document.createElement('option');
     opt.value = cat;
     opt.textContent = cat;
-    if (tossup.category === cat) opt.selected = true;
     catSelect.appendChild(opt);
   }
 
-  catSelect.addEventListener('change', async function () {
-    const resp = await api.updateTossup(tossup._id, { category: this.value });
-    if (resp.ok) {
-      tossup.category = this.value;
-      const footer = cardBody.parentElement.querySelector('.card-footer .text-muted');
-      if (footer) {
-        footer.textContent = `${tossup.set.name} / ${this.value} / ${tossup.subcategory || ''} ${tossup.alternate_subcategory ? '(' + tossup.alternate_subcategory + ')' : ''}`;
-      }
-    } else {
-      window.alert('Failed to update category.');
+  function showCardToast (message) {
+    const el = document.getElementById('admin-save-toast');
+    if (el) {
+      document.getElementById('admin-save-toast-text').textContent = message;
+      const toast = new bootstrap.Toast(el);
+      toast.show();
     }
+  }
+
+  catSelect.addEventListener('change', async function () {
+    const newCategory = this.value;
+    catSelect.disabled = true;
+    try {
+      const resp = await api.updateTossup(tossup._id, { category: newCategory });
+      if (resp.ok) {
+        tossup.category = newCategory;
+        const footer = cardBody.parentElement.querySelector('.card-footer .text-muted');
+        if (footer) {
+          footer.textContent = `${tossup.set.name} / ${newCategory} / ${tossup.subcategory || ''} ${tossup.alternate_subcategory ? '(' + tossup.alternate_subcategory + ')' : ''}`;
+        }
+        placeholder.textContent = newCategory;
+        placeholder.selected = true;
+        showCardToast('Category saved: ' + newCategory);
+      } else {
+        window.alert('Failed to update category (status ' + resp.status + ').');
+      }
+    } catch (e) {
+      window.alert('Failed to update category: ' + e.message);
+    }
+    catSelect.disabled = false;
   });
 
   function createEditBtn () {
@@ -205,27 +231,34 @@ function addCardAdminControls (cardBody, tossup, questionCounterId) {
       saveBtn.textContent = 'Saving...';
       const newQ = qTextarea.value;
       const newA = aTextarea.value;
-      const resp = await api.updateTossup(tossup._id, {
-        question: newQ,
-        question_sanitized: newQ.replace(/<[^>]*>/g, ''),
-        answer: newA,
-        answer_sanitized: newA.replace(/<[^>]*>/g, '')
-      });
-      if (resp.ok) {
-        tossup.question = newQ;
-        tossup.question_sanitized = newQ.replace(/<[^>]*>/g, '');
-        tossup.answer = newA;
-        tossup.answer_sanitized = newA.replace(/<[^>]*>/g, '');
-        const qDisplay = cardBody.querySelector('.card-question-text');
-        const aDisplay = cardBody.querySelector('.card-answer-text');
-        if (qDisplay) qDisplay.innerHTML = newQ;
-        if (aDisplay) aDisplay.innerHTML = 'ANSWER: ' + newA;
-        const header = cardBody.parentElement.querySelector('.card-header-clickable');
-        if (header) header.innerHTML = newA.replace(/<[^>]*>/g, '').replace(/\(.*?\)/g, '').trim();
-        editArea.remove();
-        restoreEditBtn();
-      } else {
-        window.alert('Failed to save changes.');
+      try {
+        const resp = await api.updateTossup(tossup._id, {
+          question: newQ,
+          question_sanitized: newQ.replace(/<[^>]*>/g, ''),
+          answer: newA,
+          answer_sanitized: newA.replace(/<[^>]*>/g, '')
+        });
+        if (resp.ok) {
+          tossup.question = newQ;
+          tossup.question_sanitized = newQ.replace(/<[^>]*>/g, '');
+          tossup.answer = newA;
+          tossup.answer_sanitized = newA.replace(/<[^>]*>/g, '');
+          const qDisplay = cardBody.querySelector('.card-question-text');
+          const aDisplay = cardBody.querySelector('.card-answer-text');
+          if (qDisplay) qDisplay.innerHTML = newQ;
+          if (aDisplay) aDisplay.innerHTML = 'ANSWER: ' + newA;
+          const header = cardBody.parentElement.querySelector('.card-header-clickable');
+          if (header) header.innerHTML = newA.replace(/<[^>]*>/g, '').replace(/\(.*?\)/g, '').trim();
+          editArea.remove();
+          restoreEditBtn();
+          showCardToast('Question saved');
+        } else {
+          window.alert('Failed to save changes (status ' + resp.status + '). Make sure the server has been restarted.');
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save';
+        }
+      } catch (e) {
+        window.alert('Failed to save changes: ' + e.message);
         saveBtn.disabled = false;
         saveBtn.textContent = 'Save';
       }

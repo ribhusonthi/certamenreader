@@ -10,6 +10,12 @@ import { insertTokensIntoHTML } from '../utilities/insert-tokens-into-html.js';
 const CERTAMEN_CATEGORIES = ['Language', 'Literature', 'Culture', 'History', 'Mythology'];
 let userIsAdmin = false;
 
+function showAdminToast (message) {
+  document.getElementById('admin-save-toast-text').textContent = message;
+  const toast = new bootstrap.Toast(document.getElementById('admin-save-toast'));
+  toast.show();
+}
+
 // Check admin status on load
 (async () => {
   await account.getUsername(); // ensure session data is fetched
@@ -712,26 +718,43 @@ function showAdminControls () {
   const catSelect = document.createElement('select');
   catSelect.className = 'admin-category-select';
   catSelect.id = 'admin-cat-select';
+
+  // Add a placeholder so the dropdown shows the current category, not the first option
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = currentTossup.category || 'Select category';
+  placeholder.disabled = true;
+  placeholder.selected = true;
+  catSelect.appendChild(placeholder);
+
   for (const cat of CERTAMEN_CATEGORIES) {
     const opt = document.createElement('option');
     opt.value = cat;
     opt.textContent = cat;
-    if (currentTossup.category === cat) opt.selected = true;
     catSelect.appendChild(opt);
   }
 
   catSelect.addEventListener('change', async function () {
     const newCategory = this.value;
-    const resp = await api.updateTossup(currentTossup._id, { category: newCategory });
-    if (resp.ok) {
-      currentTossup.category = newCategory;
-      // Update the badge
-      const catBadge = document.getElementById('question-category');
-      catBadge.textContent = newCategory;
-      catBadge.className = `question-cat-badge cat-${newCategory.toLowerCase().replace(/\s+/g, '-')}`;
-    } else {
-      window.alert('Failed to update category.');
+    catSelect.disabled = true;
+    try {
+      const resp = await api.updateTossup(currentTossup._id, { category: newCategory });
+      if (resp.ok) {
+        currentTossup.category = newCategory;
+        const catBadge = document.getElementById('question-category');
+        catBadge.textContent = newCategory;
+        catBadge.className = `question-cat-badge cat-${newCategory.toLowerCase().replace(/\s+/g, '-')}`;
+        // Reset placeholder to new category
+        placeholder.textContent = newCategory;
+        placeholder.selected = true;
+        showAdminToast('Category saved: ' + newCategory);
+      } else {
+        window.alert('Failed to update category (status ' + resp.status + ').');
+      }
+    } catch (e) {
+      window.alert('Failed to update category: ' + e.message);
     }
+    catSelect.disabled = false;
   });
 
   // Edit button
@@ -797,36 +820,40 @@ function enterEditMode (tossup) {
     const newQuestionSanitized = newQuestion.replace(/<[^>]*>/g, '');
     const newAnswerSanitized = newAnswer.replace(/<[^>]*>/g, '');
 
-    const resp = await api.updateTossup(tossup._id, {
-      question: newQuestion,
-      question_sanitized: newQuestionSanitized,
-      answer: newAnswer,
-      answer_sanitized: newAnswerSanitized
-    });
-
-    if (resp.ok) {
-      // Update the in-memory tossup
-      tossup.question = newQuestion;
-      tossup.question_sanitized = newQuestionSanitized;
-      tossup.answer = newAnswer;
-      tossup.answer_sanitized = newAnswerSanitized;
-
-      // Re-render the displayed question and answer
-      document.getElementById('question').innerHTML = insertTokensIntoHTML(tossup.question, tossup.question_sanitized, [[buzzpointIndex]], [' (#) ']);
-      document.getElementById('answer').innerHTML = 'ANSWER: ' + tossup.answer;
-
-      // Remove edit area, restore edit button
-      editArea.remove();
-      const newEditBtn = document.createElement('button');
-      newEditBtn.className = 'btn btn-sm btn-outline-secondary ms-3';
-      newEditBtn.textContent = 'Edit';
-      newEditBtn.id = 'admin-edit-btn';
-      newEditBtn.addEventListener('click', function () {
-        enterEditMode(tossup);
+    try {
+      const resp = await api.updateTossup(tossup._id, {
+        question: newQuestion,
+        question_sanitized: newQuestionSanitized,
+        answer: newAnswer,
+        answer_sanitized: newAnswerSanitized
       });
-      container.appendChild(newEditBtn);
-    } else {
-      window.alert('Failed to save changes.');
+
+      if (resp.ok) {
+        tossup.question = newQuestion;
+        tossup.question_sanitized = newQuestionSanitized;
+        tossup.answer = newAnswer;
+        tossup.answer_sanitized = newAnswerSanitized;
+
+        document.getElementById('question').innerHTML = insertTokensIntoHTML(tossup.question, tossup.question_sanitized, [[buzzpointIndex]], [' (#) ']);
+        document.getElementById('answer').innerHTML = 'ANSWER: ' + tossup.answer;
+
+        editArea.remove();
+        const newEditBtn = document.createElement('button');
+        newEditBtn.className = 'btn btn-sm btn-outline-secondary ms-3';
+        newEditBtn.textContent = 'Edit';
+        newEditBtn.id = 'admin-edit-btn';
+        newEditBtn.addEventListener('click', function () {
+          enterEditMode(tossup);
+        });
+        container.appendChild(newEditBtn);
+        showAdminToast('Question saved');
+      } else {
+        window.alert('Failed to save changes (status ' + resp.status + '). Make sure the server has been restarted.');
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save';
+      }
+    } catch (e) {
+      window.alert('Failed to save changes: ' + e.message);
       saveBtn.disabled = false;
       saveBtn.textContent = 'Save';
     }
