@@ -38,6 +38,18 @@ export default class account {
     return username;
   }
 
+  static async isAdmin () {
+    let data;
+    try {
+      data = window.sessionStorage.getItem('account-username');
+      data = data ? JSON.parse(data) : {};
+      data = data || {};
+    } catch (e) {
+      return false;
+    }
+    return data.admin === true;
+  }
+
   static setUsername (username, expires) {
     window.sessionStorage.setItem('account-username', JSON.stringify({ username, expires }));
   }

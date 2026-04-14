@@ -1,4 +1,5 @@
 import { checkToken } from '../../server/authentication.js';
+import isAdmin from '../../database/account-info/is-admin.js';
 
 import { Router } from 'express';
 
@@ -12,7 +13,8 @@ router.get('/', async (req, res) => {
     return;
   }
 
-  res.json({ username, expires });
+  const admin = await isAdmin(username);
+  res.json({ username, expires, admin });
 });
 
 export default router;

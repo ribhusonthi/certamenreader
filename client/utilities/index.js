@@ -1,5 +1,8 @@
 import star from '../auth/star.js';
+import api from '../api/index.js';
 import { removeParentheses } from './strings.js';
+
+const CERTAMEN_CATEGORIES = ['Language', 'Literature', 'Culture', 'History', 'Mythology'];
 
 // Constants and functions useful for quizbowl.
 
@@ -126,10 +129,138 @@ const createBonusCard = (function () {
   };
 })();
 
+function addCardAdminControls (cardBody, tossup, questionCounterId) {
+  const controls = document.createElement('div');
+  controls.className = 'mt-2 mb-1';
+
+  const catLabel = document.createElement('span');
+  catLabel.textContent = 'Category: ';
+  catLabel.style.fontWeight = '600';
+  catLabel.style.fontSize = '0.85rem';
+
+  const catSelect = document.createElement('select');
+  catSelect.className = 'admin-category-select';
+  for (const cat of CERTAMEN_CATEGORIES) {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat;
+    if (tossup.category === cat) opt.selected = true;
+    catSelect.appendChild(opt);
+  }
+
+  catSelect.addEventListener('change', async function () {
+    const resp = await api.updateTossup(tossup._id, { category: this.value });
+    if (resp.ok) {
+      tossup.category = this.value;
+      const footer = cardBody.parentElement.querySelector('.card-footer .text-muted');
+      if (footer) {
+        footer.textContent = `${tossup.set.name} / ${this.value} / ${tossup.subcategory || ''} ${tossup.alternate_subcategory ? '(' + tossup.alternate_subcategory + ')' : ''}`;
+      }
+    } else {
+      window.alert('Failed to update category.');
+    }
+  });
+
+  function createEditBtn () {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-sm btn-outline-secondary ms-3';
+    btn.textContent = 'Edit';
+    btn.addEventListener('click', function () {
+      btn.remove();
+      openEditArea();
+    });
+    return btn;
+  }
+
+  function restoreEditBtn () {
+    controls.appendChild(createEditBtn());
+  }
+
+  function openEditArea () {
+    const editArea = document.createElement('div');
+    editArea.className = 'admin-edit-area mt-2';
+
+    const qLabel = document.createElement('label');
+    qLabel.textContent = 'Question:';
+    const qTextarea = document.createElement('textarea');
+    qTextarea.className = 'form-control';
+    qTextarea.value = tossup.question;
+    qTextarea.rows = 4;
+
+    const aLabel = document.createElement('label');
+    aLabel.textContent = 'Answer:';
+    const aTextarea = document.createElement('textarea');
+    aTextarea.className = 'form-control';
+    aTextarea.value = tossup.answer;
+    aTextarea.rows = 2;
+
+    const btnGroup = document.createElement('div');
+    btnGroup.className = 'mt-2 d-flex gap-2';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'btn btn-sm btn-success';
+    saveBtn.textContent = 'Save';
+    saveBtn.addEventListener('click', async function () {
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+      const newQ = qTextarea.value;
+      const newA = aTextarea.value;
+      const resp = await api.updateTossup(tossup._id, {
+        question: newQ,
+        question_sanitized: newQ.replace(/<[^>]*>/g, ''),
+        answer: newA,
+        answer_sanitized: newA.replace(/<[^>]*>/g, '')
+      });
+      if (resp.ok) {
+        tossup.question = newQ;
+        tossup.question_sanitized = newQ.replace(/<[^>]*>/g, '');
+        tossup.answer = newA;
+        tossup.answer_sanitized = newA.replace(/<[^>]*>/g, '');
+        const qDisplay = cardBody.querySelector('.card-question-text');
+        const aDisplay = cardBody.querySelector('.card-answer-text');
+        if (qDisplay) qDisplay.innerHTML = newQ;
+        if (aDisplay) aDisplay.innerHTML = 'ANSWER: ' + newA;
+        const header = cardBody.parentElement.querySelector('.card-header-clickable');
+        if (header) header.innerHTML = newA.replace(/<[^>]*>/g, '').replace(/\(.*?\)/g, '').trim();
+        editArea.remove();
+        restoreEditBtn();
+      } else {
+        window.alert('Failed to save changes.');
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save';
+      }
+    });
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'btn btn-sm btn-outline-secondary';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.addEventListener('click', function () {
+      editArea.remove();
+      restoreEditBtn();
+    });
+
+    btnGroup.appendChild(saveBtn);
+    btnGroup.appendChild(cancelBtn);
+    editArea.appendChild(qLabel);
+    editArea.appendChild(qTextarea);
+    editArea.appendChild(aLabel);
+    editArea.appendChild(aTextarea);
+    editArea.appendChild(btnGroup);
+    controls.appendChild(editArea);
+  }
+
+  const editBtn = createEditBtn();
+
+  controls.appendChild(catLabel);
+  controls.appendChild(catSelect);
+  controls.appendChild(editBtn);
+  cardBody.appendChild(controls);
+}
+
 const createTossupCard = (function () {
   let questionCounter = 0;
 
-  return function (tossup) {
+  return function (tossup, { isAdmin = false } = {}) {
     if (!tossup || Object.keys(tossup).length === 0) return;
 
     questionCounter++;
@@ -152,10 +283,10 @@ const createTossupCard = (function () {
             </div>
             <div class="card-container collapse" id="question-${questionCounter}">
                 <div class="card-body">
-                    ${question}
+                    <span class="card-question-text">${question}</span>
                     <a class="user-select-none" href="#" id="report-question-${_id}" data-bs-toggle="modal" data-bs-target="#report-question-modal">Report Question</a>
                     <hr></hr>
-                    <div>ANSWER: ${answer}</div>
+                    <div class="card-answer-text">ANSWER: ${answer}</div>
                 </div>
                 <div class="card-footer">
                     <small class="text-muted">${set.name} / ${category} / ${subcategory} ${alternateSubcategory ? '(' + alternateSubcategory + ')' : ''}</small>
@@ -165,6 +296,12 @@ const createTossupCard = (function () {
         `;
 
     document.getElementById('room-history').prepend(card);
+
+    // Add admin edit controls to the card body
+    if (isAdmin && _id) {
+      const cardBody = card.querySelector('.card-body');
+      addCardAdminControls(cardBody, tossup, questionCounter);
+    }
 
     document.getElementById('report-question-' + _id).addEventListener('click', function () {
       document.getElementById('report-question-id').value = _id;
