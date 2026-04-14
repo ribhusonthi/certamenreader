@@ -7,6 +7,15 @@ import CategoryManager from '../utilities/category-manager.js';
 import { attachDropdownChecklist, getDropdownValues } from '../utilities/dropdown-checklist.js';
 import { insertTokensIntoHTML } from '../utilities/insert-tokens-into-html.js';
 
+const CERTAMEN_CATEGORIES = ['Language', 'Literature', 'Culture', 'History', 'Mythology'];
+let userIsAdmin = false;
+
+// Check admin status on load
+(async () => {
+  await account.getUsername(); // ensure session data is fetched
+  userIsAdmin = await account.isAdmin();
+})();
+
 // Functions and variables specific to the tossups page.
 
 // Status variables
@@ -558,6 +567,10 @@ async function next () {
   document.getElementById('toggle-correct').textContent = 'I was wrong';
   document.getElementById('toggle-correct').classList.add('d-none');
 
+  // Remove admin edit controls from previous question
+  const adminControls = document.getElementById('admin-controls');
+  if (adminControls) adminControls.remove();
+
   const hasNextQuestion = await advanceQuestion();
 
   if (!hasNextQuestion) {
@@ -672,6 +685,179 @@ function revealQuestion () {
 
   document.getElementById('toggle-correct').classList.remove('d-none');
   document.getElementById('toggle-correct').textContent = previous.isCorrect ? 'I was wrong' : 'I was right';
+
+  if (userIsAdmin) {
+    showAdminControls();
+  }
+}
+
+function showAdminControls () {
+  const currentTossup = tossups[questionNumber - 1];
+  if (!currentTossup || !currentTossup._id) return;
+
+  // Remove any existing admin controls
+  const existing = document.getElementById('admin-controls');
+  if (existing) existing.remove();
+
+  const container = document.createElement('div');
+  container.id = 'admin-controls';
+  container.className = 'mt-2 mb-2';
+
+  // Category dropdown
+  const catLabel = document.createElement('span');
+  catLabel.textContent = 'Category: ';
+  catLabel.style.fontWeight = '600';
+  catLabel.style.fontSize = '0.85rem';
+
+  const catSelect = document.createElement('select');
+  catSelect.className = 'admin-category-select';
+  catSelect.id = 'admin-cat-select';
+  for (const cat of CERTAMEN_CATEGORIES) {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat;
+    if (currentTossup.category === cat) opt.selected = true;
+    catSelect.appendChild(opt);
+  }
+
+  catSelect.addEventListener('change', async function () {
+    const newCategory = this.value;
+    const resp = await api.updateTossup(currentTossup._id, { category: newCategory });
+    if (resp.ok) {
+      currentTossup.category = newCategory;
+      // Update the badge
+      const catBadge = document.getElementById('question-category');
+      catBadge.textContent = newCategory;
+      catBadge.className = `question-cat-badge cat-${newCategory.toLowerCase().replace(/\s+/g, '-')}`;
+    } else {
+      window.alert('Failed to update category.');
+    }
+  });
+
+  // Edit button
+  const editBtn = document.createElement('button');
+  editBtn.className = 'btn btn-sm btn-outline-secondary ms-3';
+  editBtn.textContent = 'Edit';
+  editBtn.id = 'admin-edit-btn';
+
+  editBtn.addEventListener('click', function () {
+    enterEditMode(currentTossup);
+  });
+
+  container.appendChild(catLabel);
+  container.appendChild(catSelect);
+  container.appendChild(editBtn);
+
+  // Insert after the answer element
+  const answerEl = document.getElementById('answer');
+  answerEl.parentNode.insertBefore(container, answerEl.nextSibling);
+}
+
+function enterEditMode (tossup) {
+  const editBtn = document.getElementById('admin-edit-btn');
+  if (!editBtn) return;
+  editBtn.remove();
+
+  const container = document.getElementById('admin-controls');
+
+  const editArea = document.createElement('div');
+  editArea.className = 'admin-edit-area mt-2';
+
+  // Question textarea
+  const qLabel = document.createElement('label');
+  qLabel.textContent = 'Question:';
+  const qTextarea = document.createElement('textarea');
+  qTextarea.className = 'form-control';
+  qTextarea.id = 'admin-edit-question';
+  qTextarea.value = tossup.question;
+  qTextarea.rows = 4;
+
+  // Answer textarea
+  const aLabel = document.createElement('label');
+  aLabel.textContent = 'Answer:';
+  const aTextarea = document.createElement('textarea');
+  aTextarea.className = 'form-control';
+  aTextarea.id = 'admin-edit-answer';
+  aTextarea.value = tossup.answer;
+  aTextarea.rows = 2;
+
+  // Save / Cancel buttons
+  const btnGroup = document.createElement('div');
+  btnGroup.className = 'mt-2 d-flex gap-2';
+
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'btn btn-sm btn-success';
+  saveBtn.textContent = 'Save';
+  saveBtn.addEventListener('click', async function () {
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
+
+    const newQuestion = qTextarea.value;
+    const newAnswer = aTextarea.value;
+    const newQuestionSanitized = newQuestion.replace(/<[^>]*>/g, '');
+    const newAnswerSanitized = newAnswer.replace(/<[^>]*>/g, '');
+
+    const resp = await api.updateTossup(tossup._id, {
+      question: newQuestion,
+      question_sanitized: newQuestionSanitized,
+      answer: newAnswer,
+      answer_sanitized: newAnswerSanitized
+    });
+
+    if (resp.ok) {
+      // Update the in-memory tossup
+      tossup.question = newQuestion;
+      tossup.question_sanitized = newQuestionSanitized;
+      tossup.answer = newAnswer;
+      tossup.answer_sanitized = newAnswerSanitized;
+
+      // Re-render the displayed question and answer
+      document.getElementById('question').innerHTML = insertTokensIntoHTML(tossup.question, tossup.question_sanitized, [[buzzpointIndex]], [' (#) ']);
+      document.getElementById('answer').innerHTML = 'ANSWER: ' + tossup.answer;
+
+      // Remove edit area, restore edit button
+      editArea.remove();
+      const newEditBtn = document.createElement('button');
+      newEditBtn.className = 'btn btn-sm btn-outline-secondary ms-3';
+      newEditBtn.textContent = 'Edit';
+      newEditBtn.id = 'admin-edit-btn';
+      newEditBtn.addEventListener('click', function () {
+        enterEditMode(tossup);
+      });
+      container.appendChild(newEditBtn);
+    } else {
+      window.alert('Failed to save changes.');
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save';
+    }
+  });
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn btn-sm btn-outline-secondary';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.addEventListener('click', function () {
+    editArea.remove();
+    // Restore edit button
+    const newEditBtn = document.createElement('button');
+    newEditBtn.className = 'btn btn-sm btn-outline-secondary ms-3';
+    newEditBtn.textContent = 'Edit';
+    newEditBtn.id = 'admin-edit-btn';
+    newEditBtn.addEventListener('click', function () {
+      enterEditMode(tossup);
+    });
+    container.appendChild(newEditBtn);
+  });
+
+  btnGroup.appendChild(saveBtn);
+  btnGroup.appendChild(cancelBtn);
+
+  editArea.appendChild(qLabel);
+  editArea.appendChild(qTextarea);
+  editArea.appendChild(aLabel);
+  editArea.appendChild(aTextarea);
+  editArea.appendChild(btnGroup);
+
+  container.appendChild(editArea);
 }
 
 function toggleCorrect () {
@@ -866,7 +1052,7 @@ document.getElementById('next').addEventListener('click', async function () {
     next();
     return;
   }
-  createTossupCard(tossups[questionNumber - 1]);
+  createTossupCard(tossups[questionNumber - 1], { isAdmin: userIsAdmin });
   next();
 });
 

@@ -9920,6 +9920,36 @@ h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6, .navbar-brand {
   border-color: rgba(212, 175, 55, 0.4);
 }
 
+.cat-culture {
+  background-color: rgba(255, 111, 0, 0.12);
+  color: #b35900;
+  border-color: rgba(255, 111, 0, 0.4);
+}
+
+/* --- Admin edit controls --- */
+.admin-edit-area textarea {
+  width: 100%;
+  min-height: 80px;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.admin-edit-area label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.admin-category-select {
+  display: inline-block;
+  font-size: 0.82rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  border: 1px solid #ccc;
+  background: transparent;
+  cursor: pointer;
+}
+
 /* --- Statline --- */
 #statline {
   font-size: 0.82rem;

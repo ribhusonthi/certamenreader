@@ -102,6 +102,14 @@ export default class api {
     return api.SET_LIST;
   }
 
+  static async updateTossup (_id, fields) {
+    return await fetch('/api/admin/update-tossup', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ _id, ...fields })
+    });
+  }
+
   static reportQuestion (_id, reason, description) {
     document.getElementById('report-question-submit').disabled = true;
     fetch('/api/report-question', {
