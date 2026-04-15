@@ -45,6 +45,7 @@ function isAuthExempt(path) {
   return (
     path === '/' ||
     path === '/user/login' ||
+    path === '/waltoncertamen' ||
     path.startsWith('/auth/') ||
     path === '/login' ||
     path === '/login/' ||
