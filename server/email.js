@@ -3,7 +3,7 @@
  * Any other functions relating to emails, such as active password reset tokens, are in server/authentication.js.
  */
 
-import { QBREADER_EMAIL_ADDRESS } from '../constants.js';
+import { CERTAMENREADER_EMAIL_ADDRESS } from '../constants.js';
 
 import { createTransport } from 'nodemailer';
 
@@ -37,7 +37,7 @@ if (process.env.SENDGRID_API_KEY) {
  */
 async function sendEmail ({ to, subject = '', text, html }) {
   const message = {
-    from: QBREADER_EMAIL_ADDRESS,
+    from: CERTAMENREADER_EMAIL_ADDRESS,
     to,
     subject,
     text,

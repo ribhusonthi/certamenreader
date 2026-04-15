@@ -27,7 +27,7 @@ const router = Router();
 const CLIENT_ID     = process.env.DISCORD_CLIENT_ID;
 const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const BASE_URL      = process.env.BASE_URL ?? (
-  process.env.NODE_ENV === 'production' ? 'https://www.qbreader.org' : 'http://localhost:3000'
+  process.env.NODE_ENV === 'production' ? 'https://www.certamenreader.org' : 'http://localhost:3000'
 );
 const REDIRECT_URI  = `${BASE_URL}/auth/discord/callback`;
 

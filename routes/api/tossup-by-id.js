@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import getTossup from '../../database/qbreader/get-tossup.js';
+import getTossup from '../../database/certamenreader/get-tossup.js';
 import { ObjectId } from 'mongodb';
 
 const router = Router();

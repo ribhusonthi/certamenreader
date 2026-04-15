@@ -171,19 +171,81 @@ function extractAnswerFromLines (lines) {
   return { question, answer: toTitleCase(answer) };
 }
 
+// ── Bonus part extraction ───────────────────────────────────────────────────
+
+/**
+ * Parse bonus content (B1, B2, B3...) from a text block that follows a tossup.
+ * @param {string} bonusText - Raw text starting from the first bonus marker.
+ * @returns {{ parts: string[], answers: string[], answers_sanitized: string[] } | null}
+ */
+function parseBonusParts (bonusText) {
+  if (!bonusText || !bonusText.trim()) return null;
+
+  // Split by bonus markers: B1., B1:, B 1., B 1:, Bonus 1, etc.
+  const splitRe = /(?:^|\n)[ \t]*(?:B\s*\d\s*[.:&]\s*|B\d\s+|Bonus\s+\d\s*[.:]*\s*)/m;
+  const segments = bonusText.split(splitRe).slice(1); // first element is text before first marker
+
+  if (segments.length === 0) return null;
+
+  const parts = [];
+  const answers = [];
+  const answersSanitized = [];
+
+  for (const segment of segments) {
+    if (!segment.trim()) continue;
+
+    let cleaned = segment
+      .replace(/\*\*SCORE CHECK\*\*/g, '')
+      .replace(/[Ss]core\s*[Cc]heck[\s\S]*/gm, '')
+      .replace(/\[(?:[Nn]ote|NOTE)\s+to\s+.*?\]/gs, '')
+      .replace(/\[(?:[Nn]ote|NOTE)\s+to\s+.*$/gs, '')
+      .replace(/[Tt]ossups?\s+\d+.*?(?:to be raised|challenges?).*$/gm, '')
+      .replace(/(?:after this )?pause.*$/gim, '')
+      .replace(/moderator[:\s].*$/gim, '')
+      .replace(/make\s+sure\s+there\s+are\s+no\s+outstanding\s+challenges.*$/gim, '')
+      .replace(/.*(?:players|coaches).*lodge a challenge.*$/gim, '')
+      .replace(/.*please speak up now.*$/gim, '');
+
+    const lines = cleaned.split('\n').filter(l => l.trim() && !isPageHeader(l));
+    if (lines.length === 0) continue;
+
+    const { question, answer } = extractAnswerFromLines([...lines]);
+    if (!question.trim() || !answer.trim()) continue;
+
+    // Clean garbage from extracted answer
+    const cleanAnswer = answer
+      .replace(/\s*[Ss]core\s*[Cc]heck.*$/i, '')
+      .replace(/\s*[Tt]ossups?\s+\d+.*$/i, '')
+      .replace(/\s*[Mm]ake\s+sure\s+there\s+are\s+no.*$/i, '')
+      .replace(/\s*[Aa]fter\s+this\s+pause.*$/i, '')
+      .replace(/\s*[Gg]oing\s+into\s+the\s+final\s+tossup.*$/i, '')
+      .replace(/\s*[Mm]oderator.*$/i, '')
+      .trim();
+    if (!cleanAnswer) continue;
+
+    parts.push(question);
+    answers.push(cleanAnswer);
+    answersSanitized.push(cleanAnswer);
+  }
+
+  if (parts.length === 0) return null;
+  return { parts, answers, answers_sanitized: answersSanitized };
+}
+
 // ── Main parser ─────────────────────────────────────────────────────────────
 
 /**
- * Parse certamen question text into structured tossup objects.
+ * Parse certamen question text into structured tossup and bonus objects.
  * @param {string} text - The raw text content of the question file.
  * @param {object} setInfo - { name, year, difficulty }
- * @returns {{ tossups: object[], set: object }}
+ * @returns {{ tossups: object[], bonuses: object[], set: object }}
  */
 function parseQuestionText (text, setInfo) {
   const tossups = [];
+  const bonuses = [];
 
   if (!text || !text.trim()) {
-    return { tossups, set: null };
+    return { tossups, bonuses, set: null };
   }
 
   const difficultyValue = (() => {
@@ -232,8 +294,8 @@ function parseQuestionText (text, setInfo) {
       content = content.substring(0, srcMatch.index);
     }
 
-    // Split into tossup blocks
-    const tossupBlocks = content.split(/(?:^|\n)[ \t]*(?:TU|\d+)\s*[.:]\s*/m).slice(1);
+    // Split into tossup blocks (handles: "1.", "TU 1.", "TU:", "TU 1:", etc.)
+    const tossupBlocks = content.split(/(?:^|\n)[ \t]*(?:TU\s*\d*|\d+)\s*[.:]\s*/m).slice(1);
     const packetNumber = Math.floor(i / 2) + 1;
     let questionNumber = 1;
 
@@ -243,6 +305,7 @@ function parseQuestionText (text, setInfo) {
       // Separate tossup from bonus content
       const bMatch = block.match(/(?:^|\n)[ \t]*B\s*\d\s*[.:&]|(?:^|\n)[ \t]*B\d\s+\S|(?:^|\n)[ \t]*Bonus\s+\d/m);
       const tossupText = bMatch ? block.substring(0, bMatch.index) : block;
+      const bonusText = bMatch ? block.substring(bMatch.index) : null;
 
       // Clean up
       let cleaned = tossupText
@@ -266,6 +329,9 @@ function parseQuestionText (text, setInfo) {
         if (!finalQuestion) continue;
       }
 
+      const packetInfo = { name: packetName || `Packet ${packetNumber}`, number: packetNumber };
+      const setEmbed = { name: setObj.name, year: setObj.year, standard: false };
+
       const category = assignCategory(
         finalQuestion + ' ' + answer,
         mythologyIndex, historyIndex, literatureIndex
@@ -279,18 +345,48 @@ function parseQuestionText (text, setInfo) {
         category,
         subcategory: '',
         difficulty: difficultyValue,
-        packet: { name: packetName || `Packet ${packetNumber}`, number: packetNumber },
-        set: { name: setObj.name, year: setObj.year, standard: false },
+        packet: packetInfo,
+        set: setEmbed,
         packetNumber,
         questionNumber,
         setYear: setObj.year,
         type: 'tossup'
       });
+
+      // Parse bonus content if present
+      if (bonusText) {
+        const bonusParsed = parseBonusParts(bonusText);
+        if (bonusParsed) {
+          const bonusCategory = assignCategory(
+            bonusParsed.parts.join(' ') + ' ' + bonusParsed.answers.join(' '),
+            mythologyIndex, historyIndex, literatureIndex
+          );
+
+          bonuses.push({
+            leadin: '',
+            parts: bonusParsed.parts,
+            answers: bonusParsed.answers,
+            answers_sanitized: bonusParsed.answers_sanitized,
+            values: bonusParsed.parts.map(() => 5),
+            category: bonusCategory,
+            subcategory: '',
+            difficulty: difficultyValue,
+            packet: packetInfo,
+            set: setEmbed,
+            packetNumber,
+            questionNumber,
+            tossupNumber: questionNumber,
+            setYear: setObj.year,
+            type: 'bonus'
+          });
+        }
+      }
+
       questionNumber++;
     }
   }
 
-  return { tossups, set: setObj };
+  return { tossups, bonuses, set: setObj };
 }
 
 export { parseQuestionText };

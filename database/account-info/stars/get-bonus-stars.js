@@ -1,6 +1,6 @@
 import { bonusStars } from '../collections.js';
 
-import { bonuses } from '../../qbreader/collections.js';
+import { bonuses } from '../../certamenreader/collections.js';
 
 /**
  *

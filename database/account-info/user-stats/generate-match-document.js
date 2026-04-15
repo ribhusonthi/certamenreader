@@ -1,4 +1,4 @@
-import getSetId from '../../qbreader/get-set-id.js';
+import getSetId from '../../certamenreader/get-set-id.js';
 
 /**
  * Generates a match document for a given user and set of match options.

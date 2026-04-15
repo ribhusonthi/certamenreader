@@ -481,3 +481,25 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
     color: #C80815;
     animation: timerPulse 0.6s ease-in-out infinite alternate;
 }
+
+/* --- Bonus section (tossup+boni flow) --- */
+.bonus-section-card {
+    background-color: rgba($custom, 0.04);
+    border-color: rgba($custom, 0.2) !important;
+}
+
+#bonus-question {
+    font-size: 1.05rem;
+    line-height: 1.7;
+}
+
+#bonus-answer {
+    font-weight: 500;
+}
+
+.admin-category-select {
+    border-radius: 6px;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.85rem;
+    border: 1px solid rgba(128, 128, 128, 0.3);
+}

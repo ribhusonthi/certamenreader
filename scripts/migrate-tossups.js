@@ -28,7 +28,7 @@ async function migrate () {
   await client.connect();
   console.log('Connected to MongoDB');
 
-  const db = client.db('qbreader');
+  const db = client.db('certamenreader');
   const setsCol = db.collection('sets');
   const packetsCol = db.collection('packets');
   const tossupsCol = db.collection('tossups');

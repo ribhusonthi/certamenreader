@@ -1,6 +1,6 @@
 import { tossupStars } from '../collections.js';
 
-import { tossups } from '../../qbreader/collections.js';
+import { tossups } from '../../certamenreader/collections.js';
 
 /**
  *

@@ -1,7 +1,7 @@
 import { checkToken } from '../server/authentication.js';
 import { parseQuestionText } from '../server/parser.js';
-import { qbreader } from '../database/databases.js';
-import { tossups as tossupsCollection, sets as setsCollection, packets as packetsCollection } from '../database/qbreader/collections.js';
+import { certamenreader } from '../database/databases.js';
+import { tossups as tossupsCollection, bonuses as bonusesCollection, sets as setsCollection, packets as packetsCollection } from '../database/certamenreader/collections.js';
 import { users } from '../database/account-info/collections.js';
 
 import { Router } from 'express';
@@ -10,7 +10,7 @@ import mammoth from 'mammoth';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 
 const router = Router();
-const uploads = qbreader.collection('uploads');
+const uploads = certamenreader.collection('uploads');
 
 // Configure multer: store in memory, limit 10MB
 const upload = multer({
@@ -105,7 +105,7 @@ router.post('/api/upload', upload.single('file'), async (req, res) => {
     }
 
     // Parse questions
-    const { tossups, set } = parseQuestionText(text, {
+    const { tossups, bonuses, set } = parseQuestionText(text, {
       name: setName.trim(),
       year: parseInt(year, 10),
       difficulty: difficulty || 'intermediate'
@@ -180,6 +180,37 @@ router.post('/api/upload', upload.single('file'), async (req, res) => {
 
     await tossupsCollection.insertMany(tossupDocs);
 
+    // Insert bonuses with embedded set and packet objects
+    if (bonuses.length > 0) {
+      const bonusDocs = bonuses.map(b => ({
+        leadin: b.leadin,
+        parts: b.parts,
+        answers: b.answers,
+        answers_sanitized: b.answers_sanitized,
+        values: b.values,
+        category: b.category,
+        subcategory: b.subcategory,
+        difficulty: b.difficulty,
+        packet: {
+          _id: packetIdMap[b.packetNumber],
+          name: b.packet.name,
+          number: b.packetNumber
+        },
+        set: setEmbed,
+        setName: set.name,
+        type: 'bonus',
+        packetNumber: b.packetNumber,
+        questionNumber: b.questionNumber,
+        tossupNumber: b.tossupNumber,
+        number: b.questionNumber,
+        setYear: set.year,
+        createdAt: now,
+        updatedAt: now
+      }));
+
+      await bonusesCollection.insertMany(bonusDocs);
+    }
+
     // Look up uploader display name
     const user = await users.findOne({ username: req.username });
     const uploaderName = user ? (user.name || user.username) : req.username;
@@ -193,6 +224,7 @@ router.post('/api/upload', upload.single('file'), async (req, res) => {
       fileName: req.file.originalname,
       fileType: req.file.originalname.toLowerCase().split('.').pop(),
       questionCount: tossups.length,
+      bonusCount: bonuses.length,
       difficulty: set.difficulty,
       year: set.year,
       uploadedAt: now,
@@ -203,6 +235,7 @@ router.post('/api/upload', upload.single('file'), async (req, res) => {
       success: true,
       setName: set.name,
       questionCount: tossups.length,
+      bonusCount: bonuses.length,
       sampleQuestions: tossups.slice(0, 3).map(t => ({
         question: t.question.substring(0, 150) + (t.question.length > 150 ? '...' : ''),
         answer: t.answer,
@@ -233,7 +266,7 @@ router.post('/api/preview', upload.single('file'), async (req, res) => {
       return res.status(400).json({ error: 'File appears to be empty or unreadable.' });
     }
 
-    const { tossups } = parseQuestionText(text, {
+    const { tossups, bonuses: previewBonuses } = parseQuestionText(text, {
       name: req.body.setName || 'Preview',
       year: parseInt(req.body.year, 10) || new Date().getFullYear(),
       difficulty: req.body.difficulty || 'intermediate'
@@ -241,14 +274,19 @@ router.post('/api/preview', upload.single('file'), async (req, res) => {
 
     res.json({
       questionCount: tossups.length,
+      bonusCount: previewBonuses.length,
       extractedTextPreview: text.substring(0, 1000),
-      questions: tossups.slice(0, 10).map(t => ({
-        question: t.question,
-        answer: t.answer,
-        category: t.category,
-        packetName: t.packet.name,
-        questionNumber: t.questionNumber
-      }))
+      questions: tossups.slice(0, 10).map(t => {
+        const linkedBonus = previewBonuses.find(b => b.tossupNumber === t.questionNumber && b.packetNumber === t.packetNumber);
+        return {
+          question: t.question,
+          answer: t.answer,
+          category: t.category,
+          packetName: t.packet.name,
+          questionNumber: t.questionNumber,
+          bonusParts: linkedBonus ? linkedBonus.parts.length : 0
+        };
+      })
     });
   } catch (err) {
     console.error('Preview error:', err);

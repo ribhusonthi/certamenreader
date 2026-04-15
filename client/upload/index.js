@@ -72,13 +72,14 @@ document.getElementById('preview-btn').addEventListener('click', async () => {
       return;
     }
 
-    document.getElementById('preview-count').textContent = `${data.questionCount} question${data.questionCount !== 1 ? 's' : ''} found`;
+    const bonusLabel = data.bonusCount ? `, ${data.bonusCount} bonus set${data.bonusCount !== 1 ? 's' : ''}` : '';
+    document.getElementById('preview-count').textContent = `${data.questionCount} tossup${data.questionCount !== 1 ? 's' : ''}${bonusLabel} found`;
 
     let html = '';
 
     if (data.questions && data.questions.length > 0) {
       html += '<div class="table-responsive"><table class="table table-sm table-striped">';
-      html += '<thead><tr><th>#</th><th>Round</th><th>Question</th><th>Answer</th><th>Category</th></tr></thead><tbody>';
+      html += '<thead><tr><th>#</th><th>Round</th><th>Question</th><th>Answer</th><th>Category</th><th>Boni</th></tr></thead><tbody>';
       for (const q of data.questions) {
         const truncQ = q.question.length > 200
           ? q.question.substring(0, 200) + '...'
@@ -89,6 +90,7 @@ document.getElementById('preview-btn').addEventListener('click', async () => {
           <td>${escapeHtml(truncQ)}</td>
           <td><strong>${escapeHtml(q.answer)}</strong></td>
           <td><span class="badge bg-secondary">${escapeHtml(q.category)}</span></td>
+          <td>${q.bonusParts ? `${q.bonusParts} parts` : '<span class="text-muted">-</span>'}</td>
         </tr>`;
       }
       html += '</tbody></table></div>';
@@ -156,7 +158,8 @@ document.getElementById('upload-form').addEventListener('submit', async (e) => {
     }
 
     resultAlert.className = 'alert alert-success';
-    let html = `<strong>Upload successful!</strong> Added <strong>${data.questionCount}</strong> questions to set "<strong>${escapeHtml(data.setName)}</strong>".`;
+    const bonusMsg = data.bonusCount ? ` and <strong>${data.bonusCount}</strong> bonus set${data.bonusCount !== 1 ? 's' : ''}` : '';
+    let html = `<strong>Upload successful!</strong> Added <strong>${data.questionCount}</strong> tossup${data.questionCount !== 1 ? 's' : ''}${bonusMsg} to set "<strong>${escapeHtml(data.setName)}</strong>".`;
 
     if (data.sampleQuestions && data.sampleQuestions.length > 0) {
       html += '<div class="mt-2"><small class="text-muted">Sample questions:</small><ul class="mt-1">';

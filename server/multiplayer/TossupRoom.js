@@ -13,10 +13,10 @@ import {
   SUBCATEGORY_TO_CATEGORY,
   ALTERNATE_SUBCATEGORY_TO_CATEGORY,
 } from '../../constants.js';
-import getRandomTossups from '../../database/qbreader/get-random-tossups.js';
-import getSet from '../../database/qbreader/get-set.js';
-import getSetList from '../../database/qbreader/get-set-list.js';
-import getNumPackets from '../../database/qbreader/get-num-packets.js';
+import getRandomTossups from '../../database/certamenreader/get-random-tossups.js';
+import getSet from '../../database/certamenreader/get-set.js';
+import getSetList from '../../database/certamenreader/get-set-list.js';
+import getNumPackets from '../../database/certamenreader/get-num-packets.js';
 
 import { insertTokensIntoHTML } from '../../client/utilities/insert-tokens-into-html.js';
 

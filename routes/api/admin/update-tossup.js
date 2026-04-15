@@ -1,4 +1,4 @@
-import updateTossup from '../../../database/qbreader/update-tossup.js';
+import updateTossup from '../../../database/certamenreader/update-tossup.js';
 
 import { Router } from 'express';
 import { ObjectId } from 'mongodb';

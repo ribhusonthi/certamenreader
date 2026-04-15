@@ -1,4 +1,4 @@
-import getFrequencyList from '../../database/qbreader/get-frequency-list.js';
+import getFrequencyList from '../../database/certamenreader/get-frequency-list.js';
 
 import { Router } from 'express';
 
