@@ -42,6 +42,7 @@ import { ObjectId } from 'mongodb';
  * @property {string[]} answers
  * @property {number[]} [values]
  * @property {("e" | "m" | "h")[]} [difficultyModifiers]
+ * @property {number} [tossupNumber] - Links this bonus to its parent tossup's questionNumber within the same packet.
  *
  * @typedef {Question & BonusProperties} Bonus
  */

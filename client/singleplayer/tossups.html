@@ -179,6 +179,14 @@
                         <input class="form-check-input" id="toggle-rebuzz" type="checkbox" role="switch">
                         <label class="form-check-label" for="toggle-rebuzz">Allow rebuzzes</label>
                     </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" id="toggle-read-boni" type="checkbox" role="switch" checked>
+                        <label class="form-check-label" for="toggle-read-boni">Read boni after tossups</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" id="toggle-boni-on-drop" type="checkbox" role="switch">
+                        <label class="form-check-label" for="toggle-boni-on-drop">Read boni on dropped tossups</label>
+                    </div>
                     <div>
                         View more settings <a href="/settings">here</a>.
                     </div>
@@ -213,6 +221,23 @@
                     <div class="mt-2" id="question"></div>
                     <a class="mt-1 mt-lg-3 p-0 btn btn-link float-end d-none" id="toggle-correct">I was wrong</a>
                     <p class="mt-1 mt-lg-3" id="answer"></p>
+                    <div id="bonus-section" class="d-none mt-2 mb-3 p-3 border rounded bonus-section-card">
+                        <h6 class="mb-2"><strong>Bonus</strong> <span id="bonus-progress" class="text-muted small"></span></h6>
+                        <div id="bonus-question" class="mb-2"></div>
+                        <div id="bonus-answer" class="mb-2"></div>
+                        <form id="bonus-answer-form">
+                            <div class="input-group d-none mb-2" id="bonus-answer-input-group">
+                                <input class="form-control" id="bonus-answer-input" type="text" placeholder="Enter bonus answer">
+                                <button class="btn btn-success" id="bonus-answer-submit" type="submit">Submit</button>
+                            </div>
+                        </form>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-primary" id="bonus-reveal">Reveal</button>
+                            <button class="btn btn-sm btn-outline-secondary d-none" id="bonus-next-part">Next Part</button>
+                            <button class="btn btn-sm btn-success d-none" id="bonus-done">Continue</button>
+                        </div>
+                        <div id="bonus-score" class="mt-2 small text-muted"></div>
+                    </div>
                     <ul class="room-history list-unstyled" id="room-history"></ul>
                     </div>
                 </div><!-- /.reader-card -->

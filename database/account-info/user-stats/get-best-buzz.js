@@ -2,7 +2,7 @@ import { tossupData } from '../collections.js';
 import generateMatchDocument from './generate-match-document.js';
 import getUserId from '../get-user-id.js';
 
-import getTossup from '../../qbreader/get-tossup.js';
+import getTossup from '../../certamenreader/get-tossup.js';
 
 /**
  * Generates a match document for a given set of match options.

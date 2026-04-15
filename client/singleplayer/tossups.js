@@ -49,6 +49,13 @@ let tossupTimerInterval = null;
 let tossupTimerTenths = 0;
 let tossupTimerPhase = 'reading'; // 'reading' or 'answer'
 
+// Bonus state
+let currentBonus = null;
+let currentBonusPart = 0;
+let bonusCorrect = 0;
+let bonusTotal = 0;
+let inBonusPhase = false;
+
 const previous = {
   isCorrect: true,
   inPower: false,
@@ -116,6 +123,14 @@ if (settings.tossupTimer === undefined) {
   settings.tossupTimer = false;
 }
 
+if (settings.readBoni === undefined) {
+  settings.readBoni = true;
+}
+
+if (settings.boniOnDrop === undefined) {
+  settings.boniOnDrop = false;
+}
+
 if (window.localStorage.getItem('questionNumberTossupSave')) {
   questionNumber = parseInt(window.localStorage.getItem('questionNumberTossupSave'));
   document.getElementById('question-number').value = questionNumber;
@@ -145,6 +160,16 @@ if (settings.tossupTimer) {
 if (!settings.typeToAnswer) {
   document.getElementById('type-to-answer').checked = false;
   document.getElementById('toggle-rebuzz').disabled = true;
+}
+
+if (settings.readBoni) {
+  document.getElementById('toggle-read-boni').checked = true;
+} else {
+  document.getElementById('toggle-read-boni').checked = false;
+}
+
+if (settings.boniOnDrop) {
+  document.getElementById('toggle-boni-on-drop').checked = true;
 }
 
 if (query.difficulties) {
@@ -573,6 +598,9 @@ async function next () {
   document.getElementById('toggle-correct').textContent = 'I was wrong';
   document.getElementById('toggle-correct').classList.add('d-none');
 
+  // Clean up bonus section
+  hideBonusSection();
+
   // Remove admin edit controls from previous question
   const adminControls = document.getElementById('admin-controls');
   if (adminControls) adminControls.remove();
@@ -695,7 +723,150 @@ function revealQuestion () {
   if (userIsAdmin) {
     showAdminControls();
   }
+
+  // Start bonus phase if applicable
+  startBonusPhase(previous.isCorrect);
 }
+
+// ── Bonus handling ──────────────────────────────────────────────────────────
+
+function hideBonusSection () {
+  document.getElementById('bonus-section').classList.add('d-none');
+  document.getElementById('bonus-answer-input-group').classList.add('d-none');
+  document.getElementById('bonus-next-part').classList.add('d-none');
+  document.getElementById('bonus-done').classList.add('d-none');
+  document.getElementById('bonus-answer').textContent = '';
+  document.getElementById('bonus-question').textContent = '';
+  document.getElementById('bonus-score').textContent = '';
+  document.getElementById('bonus-progress').textContent = '';
+  inBonusPhase = false;
+  currentBonus = null;
+  currentBonusPart = 0;
+}
+
+async function startBonusPhase (wasCorrect) {
+  if (!settings.readBoni) return;
+  if (!wasCorrect && !settings.boniOnDrop) return;
+
+  const tossup = tossups[questionNumber - 1];
+  if (!tossup) return;
+
+  const setName = tossup.set?.name || query.setName;
+  const packetNumber = tossup.packet?.number || query.packetNumbers[0];
+  const tossupNum = tossup.questionNumber || tossup.number;
+
+  if (!setName || !packetNumber || !tossupNum) return;
+
+  const bonus = await api.getBonusForTossup(setName, packetNumber, tossupNum);
+  if (!bonus || !bonus.parts || bonus.parts.length === 0) return;
+
+  currentBonus = bonus;
+  currentBonusPart = 0;
+  bonusCorrect = 0;
+  bonusTotal = bonus.parts.length;
+  inBonusPhase = true;
+
+  document.getElementById('bonus-section').classList.remove('d-none');
+  document.getElementById('next').disabled = true;
+
+  showBonusPart();
+}
+
+function showBonusPart () {
+  if (!currentBonus || currentBonusPart >= currentBonus.parts.length) {
+    finishBonusPhase();
+    return;
+  }
+
+  const partNum = currentBonusPart + 1;
+  document.getElementById('bonus-progress').textContent = `(B${partNum} of ${currentBonus.parts.length})`;
+  document.getElementById('bonus-question').textContent = `B${partNum}: ${currentBonus.parts[currentBonusPart]}`;
+  document.getElementById('bonus-answer').textContent = '';
+
+  document.getElementById('bonus-reveal').classList.remove('d-none');
+  document.getElementById('bonus-reveal').disabled = false;
+  document.getElementById('bonus-next-part').classList.add('d-none');
+  document.getElementById('bonus-done').classList.add('d-none');
+
+  if (settings.typeToAnswer) {
+    document.getElementById('bonus-answer-input-group').classList.remove('d-none');
+    document.getElementById('bonus-answer-input').value = '';
+    document.getElementById('bonus-answer-input').focus();
+  }
+}
+
+async function giveBonusAnswer (givenAnswer) {
+  if (!currentBonus) return;
+
+  const correctAnswer = currentBonus.answers[currentBonusPart];
+  let { directive } = await api.checkAnswer(correctAnswer, givenAnswer);
+
+  // Fuzzy fallback
+  if (directive === 'reject' && givenAnswer.trim()) {
+    const mainAnswer = stripHtml(correctAnswer).split(/[\[(]/)[0].trim();
+    if (stringSimilarity(mainAnswer, givenAnswer) >= 0.9) {
+      directive = 'accept';
+    }
+  }
+
+  if (directive === 'accept') {
+    bonusCorrect++;
+    if (audio.soundEffects) audio.correct.play();
+  } else if (directive === 'prompt') {
+    document.getElementById('bonus-answer-input-group').classList.remove('d-none');
+    document.getElementById('bonus-answer-input').focus();
+    document.getElementById('bonus-answer-input').placeholder = 'Prompt - be more specific';
+    return;
+  } else {
+    if (audio.soundEffects) audio.incorrect.play();
+  }
+
+  revealBonusAnswer(directive === 'accept');
+}
+
+function revealBonusAnswer (wasCorrect) {
+  if (!currentBonus) return;
+
+  const answer = currentBonus.answers[currentBonusPart];
+  const answerEl = document.getElementById('bonus-answer');
+  answerEl.innerHTML = `ANSWER: <strong>${answer}</strong>`;
+  if (wasCorrect !== undefined) {
+    answerEl.innerHTML += wasCorrect
+      ? ' <span class="badge bg-success">Correct</span>'
+      : ' <span class="badge bg-danger">Incorrect</span>';
+  }
+
+  document.getElementById('bonus-reveal').classList.add('d-none');
+  document.getElementById('bonus-answer-input-group').classList.add('d-none');
+
+  const isLastPart = currentBonusPart >= currentBonus.parts.length - 1;
+  if (isLastPart) {
+    document.getElementById('bonus-done').classList.remove('d-none');
+    document.getElementById('bonus-score').textContent = `Bonus: ${bonusCorrect}/${bonusTotal} correct`;
+  } else {
+    document.getElementById('bonus-next-part').classList.remove('d-none');
+  }
+}
+
+function advanceBonusPart () {
+  currentBonusPart++;
+  if (currentBonusPart >= currentBonus.parts.length) {
+    finishBonusPhase();
+  } else {
+    showBonusPart();
+  }
+}
+
+function finishBonusPhase () {
+  inBonusPhase = false;
+  document.getElementById('next').disabled = false;
+  document.getElementById('bonus-reveal').classList.add('d-none');
+  document.getElementById('bonus-next-part').classList.add('d-none');
+  document.getElementById('bonus-done').classList.add('d-none');
+  document.getElementById('bonus-score').textContent = `Bonus: ${bonusCorrect}/${bonusTotal} correct`;
+}
+
+// ── Admin controls ─────────────────────────────────────────────────────────
 
 function showAdminControls () {
   const currentTossup = tossups[questionNumber - 1];
@@ -1202,6 +1373,45 @@ document.getElementById('toggle-tossup-timer').addEventListener('click', functio
   settings.tossupTimer = this.checked;
   if (!this.checked) stopTossupTimer();
   window.localStorage.setItem('singleplayer-tossup-settings', JSON.stringify(settings));
+});
+
+document.getElementById('toggle-read-boni').addEventListener('click', function () {
+  this.blur();
+  settings.readBoni = this.checked;
+  window.localStorage.setItem('singleplayer-tossup-settings', JSON.stringify(settings));
+});
+
+document.getElementById('toggle-boni-on-drop').addEventListener('click', function () {
+  this.blur();
+  settings.boniOnDrop = this.checked;
+  window.localStorage.setItem('singleplayer-tossup-settings', JSON.stringify(settings));
+});
+
+// Bonus UI event listeners
+document.getElementById('bonus-reveal').addEventListener('click', function () {
+  this.blur();
+  revealBonusAnswer(undefined);
+});
+
+document.getElementById('bonus-next-part').addEventListener('click', function () {
+  this.blur();
+  advanceBonusPart();
+});
+
+document.getElementById('bonus-done').addEventListener('click', function () {
+  this.blur();
+  finishBonusPhase();
+});
+
+document.getElementById('bonus-answer-form').addEventListener('submit', function (event) {
+  event.preventDefault();
+  event.stopPropagation();
+
+  const answer = document.getElementById('bonus-answer-input').value;
+  document.getElementById('bonus-answer-input').value = '';
+  document.getElementById('bonus-answer-input').placeholder = 'Enter bonus answer';
+
+  giveBonusAnswer(answer);
 });
 
 document.getElementById('year-range-a').onchange = function () {

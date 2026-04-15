@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import getBonus from '../../database/qbreader/get-bonus.js';
+import getBonus from '../../database/certamenreader/get-bonus.js';
 import { ObjectId } from 'mongodb';
 
 const router = Router();

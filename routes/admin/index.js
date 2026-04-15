@@ -1,7 +1,7 @@
 import isAdmin from '../../database/account-info/is-admin.js';
 import { checkToken } from '../../server/authentication.js';
-import { qbreader } from '../../database/databases.js';
-import { tossups as tossupsCollection, sets as setsCollection, packets as packetsCollection } from '../../database/qbreader/collections.js';
+import { certamenreader } from '../../database/databases.js';
+import { tossups as tossupsCollection, sets as setsCollection, packets as packetsCollection } from '../../database/certamenreader/collections.js';
 
 import geowordRouter from './geoword.js';
 import usersRouter from './users.js';
@@ -9,7 +9,7 @@ import usersRouter from './users.js';
 import { Router } from 'express';
 
 const router = Router();
-const uploads = qbreader.collection('uploads');
+const uploads = certamenreader.collection('uploads');
 
 router.use(async (req, res, next) => {
   const { username, token } = req.session;

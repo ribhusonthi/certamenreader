@@ -76,6 +76,21 @@ export default class api {
       .then(data => data.tossups);
   }
 
+  /**
+   * Fetch the bonus linked to a specific tossup.
+   * @param {string} setName
+   * @param {number} packetNumber
+   * @param {number} tossupNumber
+   * @returns {Promise<object|null>} The bonus object, or null if none exists.
+   */
+  static async getBonusForTossup (setName, packetNumber, tossupNumber) {
+    if (!setName || packetNumber == null || tossupNumber == null) return null;
+
+    return await fetch('/api/bonus-for-tossup?' + new URLSearchParams({ setName, packetNumber, tossupNumber }))
+      .then(response => response.json())
+      .then(data => data.bonus);
+  }
+
   static async getRandomBonus ({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, subcategories, threePartBonuses }) {
     return await fetch('/api/random-bonus?' + new URLSearchParams({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, subcategories, threePartBonuses }))
       .then(response => response.json())

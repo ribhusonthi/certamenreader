@@ -1,4 +1,4 @@
-import { packets } from '../../database/qbreader/collections.js';
+import { packets } from '../../database/certamenreader/collections.js';
 
 import { Router } from 'express';
 

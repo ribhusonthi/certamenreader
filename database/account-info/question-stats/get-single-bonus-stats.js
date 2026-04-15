@@ -1,6 +1,6 @@
 import { bonusData } from '../collections.js';
 
-import getBonus from '../../qbreader/get-bonus.js';
+import getBonus from '../../certamenreader/get-bonus.js';
 
 /**
  * Get the stats for a single bonus.

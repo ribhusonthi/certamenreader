@@ -7,7 +7,7 @@ const { sign, verify } = jsonwebtoken;
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 
-const baseURL = process.env.BASE_URL ?? (process.env.NODE_ENV === 'production' ? 'https://www.qbreader.org' : 'http://localhost:3000');
+const baseURL = process.env.BASE_URL ?? (process.env.NODE_ENV === 'production' ? 'https://www.certamenreader.org' : 'http://localhost:3000');
 const secret = process.env.SECRET ? process.env.SECRET : 'secret';
 
 /**

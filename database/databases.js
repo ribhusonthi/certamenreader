@@ -17,14 +17,14 @@ async function closeDatabase () {
 
 await connectToDatabase(true);
 
-const qbreader = client.db('qbreader');
+const certamenreader = client.db('certamenreader');
 const accountInfo = client.db('account-info');
 const geoword = client.db('geoword');
 
 export {
   connectToDatabase,
   closeDatabase,
-  qbreader,
+  certamenreader,
   accountInfo,
   geoword
 };
