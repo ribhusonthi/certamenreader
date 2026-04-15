@@ -17,59 +17,27 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-dark navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
-        <div class="container-fluid">
-            <a class="navbar-brand ms-1 py-0" id="logo" href="/">
-                <img src="/logocropped.png" alt="" width="200">
-            </a>
-            <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/singleplayer">Singleplayer</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/multiplayer">Multiplayer</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/db">Database</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/about">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/upload">Upload</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/settings">Settings</a>
-                    </li>
-                </ul>
-                <div class="d-flex">
-                    <ul class="navbar-nav mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="/user/login" id="login-link">Log in</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <div class="d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+        <div class="text-center px-4" style="max-width: 600px;">
+            <h1 class="display-4 fw-bold mb-4" id="site-title" style="cursor: default; user-select: none;">Certamen Reader</h1>
+            <hr class="my-4">
+            <h2 class="text-muted mb-3">This site is no longer available.</h2>
+            <p class="fs-5 text-muted mb-4">
+                Unfortunately, I can no longer afford to host Certamen Reader and have had to shut it down indefinitely.
+                Thank you to everyone who used the site — it meant a lot.
+            </p>
+            <p class="text-muted">
+                If you're looking for certamen practice material, check out
+                <a href="https://www.certamenlibrary.org/">certamenlibrary.org</a>.
+            </p>
 
-    <div class="container-xl mt-3 mb-5 pb-5">
-        <div class="row justify-content-center mt-5">
-            <div class="col-md-6 col-lg-4 text-center">
-                <h3 class="mb-4">Sign in to Certamen Reader</h3>
-                <div class="alert alert-info mb-4 text-start" role="alert">
-                    <strong>Login system updated.</strong> Certamen Reader now uses Google sign-in. Old accounts have been deleted — please sign in with your Google account to create a new one.
-                </div>
-                <p class="text-muted mb-4">Use your Google account to sign in. A new account will be created automatically if you don't have one.</p>
+            <!-- Hidden login section, revealed by clicking the title 5 times -->
+            <div id="login-section" style="display: none;" class="mt-5">
+                <h5 class="mb-3">Sign in</h5>
                 <div id="error-msg" class="alert alert-danger d-none" role="alert">
                     Your account is not authorized to access Certamen Reader.
                 </div>
-                <a href="/auth/google" class="btn btn-lg btn-outline-primary d-flex align-items-center justify-content-center gap-2" id="google-login-btn">
+                <a href="/auth/google" class="btn btn-lg btn-outline-primary d-flex align-items-center justify-content-center gap-2 mx-auto" id="google-login-btn" style="max-width: 300px;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48">
                         <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
                         <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
@@ -83,12 +51,28 @@
     </div>
 
     <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
-    <script type="module" src="/script.js"></script>
     <script>
+        // Reveal login by clicking the title 5 times
+        let clickCount = 0;
+        let clickTimer = null;
+        document.getElementById('site-title').addEventListener('click', () => {
+            clickCount++;
+            clearTimeout(clickTimer);
+            clickTimer = setTimeout(() => { clickCount = 0; }, 2000);
+            if (clickCount >= 5) {
+                document.getElementById('login-section').style.display = 'block';
+                clickCount = 0;
+            }
+        });
+
+        // Show error if unauthorized
         const params = new URLSearchParams(window.location.search);
         if (params.get('error') === 'unauthorized') {
+            document.getElementById('login-section').style.display = 'block';
             document.getElementById('error-msg').classList.remove('d-none');
         }
+
+        // Preserve redirect param on login button
         const redirect = params.get('redirect');
         if (redirect) {
             const btn = document.getElementById('google-login-btn');
