@@ -14,6 +14,7 @@ import loginRouter from './login.js';
 import uploadRouter from './upload.js';
 import userRouter from './user.js';
 import webhookRouter from './api/webhook.js';
+import { checkToken } from '../server/authentication.js';
 
 import { Router } from 'express';
 const router = Router();
@@ -23,7 +24,11 @@ const router = Router();
 // });
 
 router.get('/', (req, res) => {
-  res.sendFile('index.html', { root: './client' });
+  if (req.session && checkToken(req.session.username, req.session.token)) {
+    res.sendFile('index-authed.html', { root: './client' });
+  } else {
+    res.sendFile('index.html', { root: './client' });
+  }
 });
 
 router.get('/react(-dom)?/umd/*.js', (req, res) => {

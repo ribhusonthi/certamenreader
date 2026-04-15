@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Certamen Reader</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+
+    <link href="/apple-touch-icon.png" rel="apple-touch-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
+    <link type="image/x-icon" href="/favicon.ico" rel="icon">
+
+    <link href="/bootstrap/light.css" rel="stylesheet">
+    <link href="/bootstrap/dark.css" rel="stylesheet" id="custom-css">
+    <script type="module" src="/apply-theme.js"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-dark navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
+        <div class="container-fluid">
+            <a class="navbar-brand ms-1 py-0" id="logo" href="/">
+                <img src="logocropped.png" alt="" width="200">
+            </a>
+            <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/singleplayer">Singleplayer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/multiplayer">Multiplayer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/db">Database</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/upload">Upload</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/settings">Settings</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/login" id="login-link">Log in</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-xl mt-4 mb-5 pb-5">
+        <div class="row align-items-center justify-content-center mb-5 pb-4">
+            <div class="col-lg-8 text-center mx-auto">
+                <h1 class="display-3 fw-bold mb-3">Welcome to Certamen Reader</h1>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a class="btn btn-success btn-lg px-5" href="/singleplayer/tossups">Start Playing</a>
+                    <a class="btn btn-outline-light btn-lg px-4" href="/db">Search Database</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+            <div class="feature col">
+                <h3 class="fs-2">Singleplayer Practice</h3>
+                <p>Read tossups to yourself at your own speed.</p>
+                <a href="/singleplayer/tossups" class="icon-link">
+                    Go to Singleplayer
+                </a>
+            </div>
+            <div class="feature col">
+                <h3 class="fs-2">Multiplayer Rooms</h3>
+                <p>Play against your friends in real-time.</p>
+                <a href="/multiplayer" class="icon-link">
+                    Go to Multiplayer
+                </a>
+            </div>
+            <div class="feature col">
+                <h3 class="fs-2">Database</h3>
+                <p>Search through thousands of historical Certamen questions. Filter by set, year, difficulty, and more.</p>
+                <a href="/db" class="icon-link">
+                    Go to Database
+                </a>
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            <p>Join the <b>official Certamen Reader discord</b> <a href="https://discord.gg/US9udtNvKf">here</a>.</p>
+        </div>
+    </div>
+
+    <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/script.js"></script>
+
+    <script type="module" src="/index.js"></script>
+</body>
+
+</html>
