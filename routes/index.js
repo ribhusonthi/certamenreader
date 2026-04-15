@@ -102,6 +102,14 @@ router.get('/users', (req, res) => {
   res.redirect(`/user${req.url}`);
 });
 
+router.get('/waltoncertamen', (req, res) => {
+  if (req.session && checkToken(req.session.username, req.session.token)) {
+    res.redirect('/');
+  } else {
+    res.sendFile('waltoncertamen.html', { root: './client' });
+  }
+});
+
 /**
  * Routes:
  */
