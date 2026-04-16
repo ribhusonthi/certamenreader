@@ -5,10 +5,7 @@ import questionStats from '../auth/question-stats.js';
 import api from '../api/index.js';
 import audio from '../audio/index.js';
 import CategoryManager from '../utilities/category-manager.js';
-import {
-  attachDropdownChecklist,
-  getDropdownValues,
-} from '../utilities/dropdown-checklist.js';
+import { initSetSelector } from '../utilities/set-selector.js';
 import {
   arrayToRange,
   createTossupCard,
@@ -44,6 +41,7 @@ const categoryManager = new CategoryManager(
 let changedCategories = true;
 
 let maxPacketNumber = 24;
+let setSelector;
 
 async function loadPacketPicker (setName, selectedNumbers, onChangeCallback) {
   const picker = document.getElementById('packet-picker');
@@ -183,18 +181,28 @@ socket.onmessage = function (event) {
       } else {
         logEvent(data.username, 'cleared the difficulties');
       }
-      updateDifficulties(data.value);
+      setSelector?.setState({ difficulties: data.value });
       break;
     case 'packet-number':
-      data.value = arrayToRange(data.value);
-    // eslint-disable-next-line no-fallthrough
+      if (data.value.length > 0) {
+        logEvent(data.username, `changed the ${data.type} to ${arrayToRange(data.value)}`);
+      } else {
+        logEvent(data.username, `cleared the ${data.type}`);
+      }
+      document.getElementById('packet-number').value = arrayToRange(data.value);
+      break;
     case 'set-name':
       if (data.value.length > 0) {
         logEvent(data.username, `changed the ${data.type} to ${data.value}`);
       } else {
         logEvent(data.username, `cleared the ${data.type}`);
       }
-      document.getElementById(data.type).value = data.value;
+      setSelector?.setState({ setName: data.value });
+      if (data.value) {
+        document.getElementById('packet-picker-container').classList.remove('d-none');
+      } else {
+        document.getElementById('packet-picker-container').classList.add('d-none');
+      }
       break;
 
     case 'give-answer':
@@ -338,10 +346,7 @@ socket.onmessage = function (event) {
       break;
 
     case 'year-range':
-      $('#slider').slider('values', 0, data.minYear);
-      $('#slider').slider('values', 1, data.maxYear);
-      document.getElementById('year-range-a').textContent = data.minYear;
-      document.getElementById('year-range-b').textContent = data.maxYear;
+      setSelector?.setState({ minYear: data.minYear, maxYear: data.maxYear });
       break;
   }
 };
@@ -421,7 +426,6 @@ const socketOnConnectionAcknowledged = async (message) => {
 
   // Show packet picker if a set name is present
   if (message.setName && message.setName.length > 0) {
-    document.getElementById('set-name').value = message.setName;
     document.getElementById('packet-picker-container').classList.remove('d-none');
   }
 
@@ -490,20 +494,16 @@ const socketOnConnectionAcknowledgedQuery = async (message) => {
     categoryManager.export();
   categoryManager.loadCategoryModal();
 
-  updateDifficulties(message.difficulties || []);
-  document.getElementById('set-name').value = message.setName || '';
+  setSelector?.setState({
+    setName: message.setName || '',
+    difficulties: message.difficulties || [],
+    minYear: message.minYear,
+    maxYear: message.maxYear,
+  });
   document.getElementById('packet-number').value =
     arrayToRange(message.packetNumbers) || '';
 
-  maxPacketNumber = await api.getNumPackets(
-    document.getElementById('set-name').value
-  );
-  if (
-    document.getElementById('set-name').value !== '' &&
-    maxPacketNumber === 0
-  ) {
-    document.getElementById('set-name').classList.add('is-invalid');
-  }
+  maxPacketNumber = await api.getNumPackets(message.setName || '');
 
   // Load packet picker if a set is selected
   if (message.setName) {
@@ -517,11 +517,6 @@ const socketOnConnectionAcknowledgedQuery = async (message) => {
     message.powermarkOnly;
   document.getElementById('toggle-standard-only').checked =
     message.standardOnly;
-
-  $('#slider').slider('values', 0, message.minYear);
-  $('#slider').slider('values', 1, message.maxYear);
-  document.getElementById('year-range-a').textContent = message.minYear;
-  document.getElementById('year-range-b').textContent = message.maxYear;
 };
 
 const socketOnEndOfSet = () => {
@@ -900,20 +895,6 @@ function sortPlayerListGroup(descending = true) {
     });
 }
 
-function updateDifficulties(difficulties) {
-  Array.from(document.getElementById('difficulties').children).forEach((li) => {
-    const input = li.querySelector('input');
-
-    if (difficulties.includes(parseInt(input.value))) {
-      input.checked = true;
-      li.classList.add('active');
-    } else {
-      input.checked = false;
-      li.classList.remove('active');
-    }
-  });
-}
-
 function updateTimerDisplay(time) {
   const seconds = Math.floor(time / 10);
   const tenths = time % 10;
@@ -1086,15 +1067,6 @@ document.getElementById('clear-stats').addEventListener('click', function () {
   socket.send(JSON.stringify({ type: 'clear-stats' }));
 });
 
-document.getElementById('difficulties').addEventListener('change', function () {
-  socket.send(
-    JSON.stringify({
-      type: 'difficulties',
-      value: getDropdownValues('difficulties'),
-    })
-  );
-});
-
 document.getElementById('next').addEventListener('click', function () {
   this.blur();
   switch (this.innerHTML) {
@@ -1154,43 +1126,33 @@ document
     );
   });
 
-document
-  .getElementById('set-name')
-  .addEventListener('change', async function () {
-    if (api.getSetList().includes(this.value) || this.value.length === 0) {
-      this.classList.remove('is-invalid');
-    } else {
-      this.classList.add('is-invalid');
-    }
+async function applySetName (setName) {
+  if (setName) {
+    document.getElementById('packet-picker-container').classList.remove('d-none');
+  } else {
+    document.getElementById('packet-picker-container').classList.add('d-none');
+  }
 
-    // Show/hide packet picker based on whether a set name is entered
-    if (this.value.trim()) {
-      document.getElementById('packet-picker-container').classList.remove('d-none');
-    } else {
-      document.getElementById('packet-picker-container').classList.add('d-none');
-    }
+  maxPacketNumber = await api.getNumPackets(setName);
+  const allPackets = Array.from({ length: maxPacketNumber }, (_, i) => i + 1);
+  document.getElementById('packet-number').value =
+    maxPacketNumber > 0 ? `1-${maxPacketNumber}` : '';
 
-    maxPacketNumber = await api.getNumPackets(this.value);
+  socket.send(
+    JSON.stringify({
+      type: 'set-name',
+      value: setName,
+      packetNumbers: allPackets,
+    })
+  );
 
-    // Default: select all packets
-    const allPackets = Array.from({ length: maxPacketNumber }, (_, i) => i + 1);
-    document.getElementById('packet-number').value = maxPacketNumber > 0 ? `1-${maxPacketNumber}` : '';
-
-    socket.send(
-      JSON.stringify({
-        type: 'set-name',
-        value: this.value,
-        packetNumbers: allPackets,
-      })
-    );
-
-    // Load the packet picker
-    const setNameValue = this.value;
-    await loadPacketPicker(setNameValue, allPackets, (selectedNums) => {
+  if (setName) {
+    await loadPacketPicker(setName, allPackets, (selectedNums) => {
       document.getElementById('packet-number').value = arrayToRange(selectedNums);
       socket.send(JSON.stringify({ type: 'packet-number', value: selectedNums }));
     });
-  });
+  }
+}
 
 document.getElementById('toggle-lock').addEventListener('click', function () {
   this.blur();
@@ -1258,17 +1220,6 @@ document.getElementById('username').addEventListener('change', function () {
   username = this.value;
   window.localStorage.setItem('multiplayer-username', username);
 });
-
-document.getElementById('year-range-a').onchange = function () {
-  const [minYear, maxYear] = $('#slider').slider('values');
-  if (maxYear < minYear) {
-    document.querySelector('#yearRangeAlert').style.display = '';
-    return;
-  } else {
-    document.querySelector('#yearRangeAlert').style.display = 'none';
-  }
-  socket.send(JSON.stringify({ type: 'year-range', minYear, maxYear }));
-};
 
 document.querySelectorAll('#categories input').forEach((input) => {
   input.addEventListener('click', function () {
@@ -1349,5 +1300,25 @@ document.addEventListener('keypress', function (event) {
   }
 });
 
-attachDropdownChecklist();
 document.getElementById('username').value = username;
+
+setSelector = initSetSelector({
+  sets: api.getSetList(),
+  state: {
+    setName: '',
+    difficulties: [],
+    minYear: undefined,
+    maxYear: undefined,
+  },
+  on: {
+    onSetChange: async (setName) => {
+      await applySetName(setName);
+    },
+    onDifficultiesChange: (difficulties) => {
+      socket.send(JSON.stringify({ type: 'difficulties', value: difficulties }));
+    },
+    onYearRangeChange: (minYear, maxYear) => {
+      socket.send(JSON.stringify({ type: 'year-range', minYear, maxYear }));
+    },
+  },
+});

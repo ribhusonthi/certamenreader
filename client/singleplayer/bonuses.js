@@ -4,7 +4,7 @@ import api from '../api/index.js';
 import audio from '../audio/index.js';
 import { arrayToRange, createBonusCard, rangeToArray } from '../utilities/index.js';
 import CategoryManager from '../utilities/category-manager.js';
-import { attachDropdownChecklist, getDropdownValues } from '../utilities/dropdown-checklist.js';
+import { initSetSelector } from '../utilities/set-selector.js';
 
 // Functions and variables specific to the bonuses page.
 
@@ -94,17 +94,6 @@ if (!settings.bonusTimer) {
   document.getElementById('toggle-bonus-timer').checked = false;
 }
 
-if (query.difficulties) {
-  for (const element of document.getElementById('difficulties').children) {
-    const input = element.querySelector('input');
-    const difficulty = parseInt(input.value);
-    if (query.difficulties.includes(difficulty)) {
-      element.classList.add('active');
-      input.checked = true;
-    }
-  }
-}
-
 if (query.packetNumbers) {
   document.getElementById('packet-number').value = arrayToRange(query.packetNumbers);
 }
@@ -167,13 +156,9 @@ async function loadPacketPicker (setName, selectedNumbers) {
 }
 
 if (query.setName) {
-  document.getElementById('set-name').value = query.setName;
   document.getElementById('packet-picker-container').classList.remove('d-none');
   api.getNumPackets(query.setName).then(numPackets => {
     maxPacketNumber = numPackets;
-    if (maxPacketNumber === 0) {
-      document.getElementById('set-name').classList.add('is-invalid');
-    }
   });
   loadPacketPicker(query.setName, query.packetNumbers);
 }
@@ -540,11 +525,6 @@ document.getElementById('clear-stats').addEventListener('click', function () {
   clearStats();
 });
 
-document.getElementById('difficulties').addEventListener('change', function () {
-  query.difficulties = getDropdownValues('difficulties');
-  loadRandomBonuses(query);
-  window.localStorage.setItem('singleplayer-bonus-query', JSON.stringify(query));
-});
 
 document.getElementById('next').addEventListener('click', function () {
   this.blur();
@@ -595,31 +575,18 @@ document.getElementById('reveal').addEventListener('click', function () {
   }
 });
 
-document.getElementById('set-name').addEventListener('change', async function () {
-  query.setName = this.value.trim();
-
-  // make border red if set name is not in set list
-  if (api.getSetList().includes(this.value) || this.value.length === 0) {
-    this.classList.remove('is-invalid');
-  } else {
-    this.classList.add('is-invalid');
-  }
-
-  // Show/hide packet picker based on whether a set name is entered
-  if (this.value.trim()) {
+async function applySetName (setName) {
+  query.setName = setName.trim();
+  if (query.setName) {
     document.getElementById('packet-picker-container').classList.remove('d-none');
   } else {
     document.getElementById('packet-picker-container').classList.add('d-none');
   }
-
-  maxPacketNumber = await api.getNumPackets(this.value);
-
-  // Reset packet selection and load picker
+  maxPacketNumber = await api.getNumPackets(query.setName);
   query.packetNumbers = [];
-  await loadPacketPicker(this.value, []);
-
+  await loadPacketPicker(query.setName, []);
   window.localStorage.setItem('singleplayer-bonus-query', JSON.stringify(query));
-});
+}
 
 document.getElementById('start').addEventListener('click', async function () {
   this.blur();
@@ -691,19 +658,6 @@ document.getElementById('type-to-answer').addEventListener('click', function () 
   window.localStorage.setItem('singleplayer-bonus-settings', JSON.stringify(settings));
 });
 
-document.getElementById('year-range-a').onchange = function () {
-  query.minYear = $('#slider').slider('values', 0);
-  query.maxYear = $('#slider').slider('values', 1);
-  loadRandomBonuses(query);
-  window.localStorage.setItem('singleplayer-bonus-query', JSON.stringify(query));
-};
-
-document.getElementById('year-range-b').onchange = function () {
-  query.minYear = $('#slider').slider('values', 0);
-  query.maxYear = $('#slider').slider('values', 1);
-  loadRandomBonuses(query);
-  window.localStorage.setItem('singleplayer-bonus-query', JSON.stringify(query));
-};
 
 document.addEventListener('keydown', (event) => {
   if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) { return; }
@@ -749,12 +703,30 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
-attachDropdownChecklist();
 categoryManager.loadCategoryModal();
 
-window.onload = async () => {
-  $('#slider').slider('values', 0, query.minYear);
-  $('#slider').slider('values', 1, query.maxYear);
-  document.getElementById('year-range-a').textContent = query.minYear;
-  document.getElementById('year-range-b').textContent = query.maxYear;
-};
+initSetSelector({
+  sets: api.getSetList(),
+  state: {
+    setName: query.setName || '',
+    difficulties: query.difficulties || [],
+    minYear: query.minYear,
+    maxYear: query.maxYear
+  },
+  on: {
+    onSetChange: async (setName) => {
+      await applySetName(setName);
+    },
+    onDifficultiesChange: (difficulties) => {
+      query.difficulties = difficulties;
+      loadRandomBonuses(query);
+      window.localStorage.setItem('singleplayer-bonus-query', JSON.stringify(query));
+    },
+    onYearRangeChange: (minYear, maxYear) => {
+      query.minYear = minYear;
+      query.maxYear = maxYear;
+      loadRandomBonuses(query);
+      window.localStorage.setItem('singleplayer-bonus-query', JSON.stringify(query));
+    }
+  }
+});
