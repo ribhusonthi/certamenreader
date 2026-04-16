@@ -47,7 +47,9 @@ export default class CategoryManager {
       return true;
     }
 
-    return this.categories.includes(question.category) && this.subcategories.includes(question.subcategory);
+    const categoryMatch = this.categories.length === 0 || this.categories.includes(question.category);
+    const subcategoryMatch = this.subcategories.length === 0 || this.subcategories.includes(question.subcategory);
+    return categoryMatch && subcategoryMatch;
   }
 
   /**

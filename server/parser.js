@@ -51,8 +51,8 @@ function textHasKeyword (words, { singles, multis, maxLen }) {
 function assignCategory (text, mythIdx, histIdx, litIdx) {
   const words = (text.toLowerCase().match(WORD_RE) || []);
   if (textHasKeyword(words, mythIdx)) return 'Mythology';
-  if (textHasKeyword(words, histIdx)) return 'History';
-  if (textHasKeyword(words, litIdx)) return 'Literature';
+  if (textHasKeyword(words, histIdx)) return 'Roman History';
+  if (textHasKeyword(words, litIdx)) return 'Latin Literature';
   return 'Language';
 }
 
