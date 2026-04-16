@@ -632,6 +632,10 @@ async function next () {
     catBadge.className = 'question-cat-badge d-none';
   }
 
+  if (userIsAdmin) {
+    showAdminControls();
+  }
+
   paused = false;
   startReadingTimer();
   readQuestion(Date.now());
@@ -719,10 +723,6 @@ function revealQuestion () {
 
   document.getElementById('toggle-correct').classList.remove('d-none');
   document.getElementById('toggle-correct').textContent = previous.isCorrect ? 'I was wrong' : 'I was right';
-
-  if (userIsAdmin) {
-    showAdminControls();
-  }
 
   // Start bonus phase if applicable
   startBonusPhase(previous.isCorrect);
