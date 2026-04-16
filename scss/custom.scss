@@ -461,6 +461,11 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
     color: #8a6d10;
     border-color: rgba(212, 175, 55, 0.4);
 }
+.cat-culture {
+    background-color: rgba(183, 65, 14, 0.12);
+    color: #b7410e;
+    border-color: rgba(183, 65, 14, 0.3);
+}
 
 /* --- Statline --- */
 #statline {
@@ -498,8 +503,32 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
 }
 
 .admin-category-select {
-    border-radius: 6px;
-    padding: 0.2rem 0.4rem;
-    font-size: 0.85rem;
+    border-radius: 20px;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
     border: 1px solid rgba(128, 128, 128, 0.3);
+    cursor: pointer;
+
+    option {
+        font-weight: 600;
+        text-transform: uppercase;
+        padding: 0.25rem 0.5rem;
+    }
+}
+
+.question-cat-badge.admin-clickable {
+    cursor: pointer;
+    transition: filter 0.15s ease;
+}
+.question-cat-badge.admin-clickable:hover {
+    filter: brightness(0.93);
+}
+
+.admin-edit-btn {
+    font-size: 0.72rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 20px;
 }
