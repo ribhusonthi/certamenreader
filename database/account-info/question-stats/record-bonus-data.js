@@ -25,6 +25,15 @@ async function recordBonusData (username, data) {
     }
   }
 
+  // Store detailed fields needed for the admin "view boni" UI
+  if (Array.isArray(bonus.parts)) newData.parts = bonus.parts;
+  if (Array.isArray(bonus.answers)) newData.answers = bonus.answers;
+  if (typeof bonus.leadin === 'string') newData.leadin = bonus.leadin;
+  newData.setName = bonus.set?.name || bonus.setName || '';
+  if (typeof bonus.tossupNumber === 'number') newData.tossupNumber = bonus.tossupNumber;
+  if (typeof bonus.packetNumber === 'number') newData.packetNumber = bonus.packetNumber;
+  newData.recordedAt = new Date();
+
   newData.bonus_id = new ObjectId(bonus._id);
   newData.set_id = new ObjectId(bonus.set._id);
   newData.user_id = userId;

@@ -54,6 +54,7 @@ let currentBonus = null;
 let currentBonusPart = 0;
 let bonusCorrect = 0;
 let bonusTotal = 0;
+let bonusPointsPerPart = [];
 let inBonusPhase = false;
 
 const previous = {
@@ -602,8 +603,7 @@ async function next () {
   hideBonusSection();
 
   // Remove admin edit controls from previous question
-  const adminControls = document.getElementById('admin-controls');
-  if (adminControls) adminControls.remove();
+  clearAdminControls();
 
   const hasNextQuestion = await advanceQuestion();
 
@@ -733,6 +733,8 @@ function revealQuestion () {
 function hideBonusSection () {
   document.getElementById('bonus-section').classList.add('d-none');
   document.getElementById('bonus-answer-input-group').classList.add('d-none');
+  document.getElementById('bonus-got-it').classList.add('d-none');
+  document.getElementById('bonus-missed-it').classList.add('d-none');
   document.getElementById('bonus-next-part').classList.add('d-none');
   document.getElementById('bonus-done').classList.add('d-none');
   document.getElementById('bonus-answer').textContent = '';
@@ -742,6 +744,7 @@ function hideBonusSection () {
   inBonusPhase = false;
   currentBonus = null;
   currentBonusPart = 0;
+  bonusPointsPerPart = [];
 }
 
 async function startBonusPhase (wasCorrect) {
@@ -764,6 +767,7 @@ async function startBonusPhase (wasCorrect) {
   currentBonusPart = 0;
   bonusCorrect = 0;
   bonusTotal = bonus.parts.length;
+  bonusPointsPerPart = new Array(bonus.parts.length).fill(0);
   inBonusPhase = true;
 
   document.getElementById('bonus-section').classList.remove('d-none');
@@ -811,6 +815,7 @@ async function giveBonusAnswer (givenAnswer) {
 
   if (directive === 'accept') {
     bonusCorrect++;
+    bonusPointsPerPart[currentBonusPart] = 10;
     if (audio.soundEffects) audio.correct.play();
   } else if (directive === 'prompt') {
     document.getElementById('bonus-answer-input-group').classList.remove('d-none');
@@ -839,6 +844,35 @@ function revealBonusAnswer (wasCorrect) {
   document.getElementById('bonus-reveal').classList.add('d-none');
   document.getElementById('bonus-answer-input-group').classList.add('d-none');
 
+  const manualGrade = wasCorrect === undefined;
+  const isLastPart = currentBonusPart >= currentBonus.parts.length - 1;
+
+  if (manualGrade) {
+    document.getElementById('bonus-got-it').classList.remove('d-none');
+    document.getElementById('bonus-missed-it').classList.remove('d-none');
+  } else if (isLastPart) {
+    document.getElementById('bonus-done').classList.remove('d-none');
+    document.getElementById('bonus-score').textContent = `Bonus: ${bonusCorrect}/${bonusTotal} correct`;
+  } else {
+    document.getElementById('bonus-next-part').classList.remove('d-none');
+  }
+}
+
+function markBonusPart (wasCorrect) {
+  if (!currentBonus) return;
+  if (wasCorrect) {
+    bonusCorrect++;
+    bonusPointsPerPart[currentBonusPart] = 10;
+  }
+  const answerEl = document.getElementById('bonus-answer');
+  const answer = currentBonus.answers[currentBonusPart];
+  answerEl.innerHTML = `ANSWER: <strong>${answer}</strong>` + (wasCorrect
+    ? ' <span class="badge bg-success">Correct</span>'
+    : ' <span class="badge bg-danger">Incorrect</span>');
+
+  document.getElementById('bonus-got-it').classList.add('d-none');
+  document.getElementById('bonus-missed-it').classList.add('d-none');
+
   const isLastPart = currentBonusPart >= currentBonus.parts.length - 1;
   if (isLastPart) {
     document.getElementById('bonus-done').classList.remove('d-none');
@@ -857,67 +891,143 @@ function advanceBonusPart () {
   }
 }
 
-function finishBonusPhase () {
+function advanceWithN () {
+  if (inBonusPhase) {
+    const done = document.getElementById('bonus-done');
+    const nextPart = document.getElementById('bonus-next-part');
+    const reveal = document.getElementById('bonus-reveal');
+    if (done && !done.classList.contains('d-none')) { done.click(); return; }
+    if (nextPart && !nextPart.classList.contains('d-none')) { nextPart.click(); return; }
+    if (reveal && !reveal.classList.contains('d-none')) { reveal.click(); return; }
+    return;
+  }
+  document.getElementById('next').click();
+}
+
+async function finishBonusPhase () {
   inBonusPhase = false;
   document.getElementById('next').disabled = false;
   document.getElementById('bonus-reveal').classList.add('d-none');
+  document.getElementById('bonus-got-it').classList.add('d-none');
+  document.getElementById('bonus-missed-it').classList.add('d-none');
   document.getElementById('bonus-next-part').classList.add('d-none');
   document.getElementById('bonus-done').classList.add('d-none');
   document.getElementById('bonus-score').textContent = `Bonus: ${bonusCorrect}/${bonusTotal} correct`;
+
+  const bonusSnapshot = currentBonus;
+  const pointsSnapshot = bonusPointsPerPart.slice();
+  const tossup = tossups[questionNumber - 1];
+  if (bonusSnapshot && await account.getUsername()) {
+    const enrichedBonus = {
+      ...bonusSnapshot,
+      tossupNumber: tossup?.questionNumber || tossup?.number,
+      packetNumber: tossup?.packet?.number
+    };
+    questionStats.recordBonus(enrichedBonus, pointsSnapshot);
+  }
 }
 
 // ── Admin controls ─────────────────────────────────────────────────────────
+
+function clearAdminControls () {
+  const existing = document.getElementById('admin-controls');
+  if (existing) existing.remove();
+
+  const editBtn = document.getElementById('admin-edit-btn');
+  if (editBtn) editBtn.remove();
+
+  const catSelect = document.getElementById('admin-cat-select');
+  if (catSelect) catSelect.remove();
+
+  const catBadge = document.getElementById('question-category');
+  if (catBadge) {
+    catBadge.classList.remove('admin-clickable', 'd-none');
+    catBadge.onclick = null;
+    catBadge.removeAttribute('title');
+  }
+}
 
 function showAdminControls () {
   const currentTossup = tossups[questionNumber - 1];
   if (!currentTossup || !currentTossup._id) return;
 
-  // Remove any existing admin controls
-  const existing = document.getElementById('admin-controls');
-  if (existing) existing.remove();
+  clearAdminControls();
 
+  // Empty container below the answer — the edit area is rendered here when Edit is clicked.
   const container = document.createElement('div');
   container.id = 'admin-controls';
   container.className = 'mt-2 mb-2';
+  const answerEl = document.getElementById('answer');
+  answerEl.parentNode.insertBefore(container, answerEl.nextSibling);
 
-  // Category dropdown
-  const catLabel = document.createElement('span');
-  catLabel.textContent = 'Category: ';
-  catLabel.style.fontWeight = '600';
-  catLabel.style.fontSize = '0.85rem';
+  // Make the category badge itself act as the "change category" trigger.
+  const catBadge = document.getElementById('question-category');
+  if (catBadge) {
+    catBadge.classList.add('admin-clickable');
+    catBadge.title = 'Click to change category';
+    catBadge.onclick = () => openCategoryDropdown(currentTossup);
+  }
 
-  const catSelect = document.createElement('select');
-  catSelect.className = 'admin-category-select';
-  catSelect.id = 'admin-cat-select';
+  // Edit button sits right next to the category badge.
+  const editBtn = document.createElement('button');
+  editBtn.type = 'button';
+  editBtn.id = 'admin-edit-btn';
+  editBtn.className = 'btn btn-sm btn-outline-secondary admin-edit-btn';
+  editBtn.textContent = 'Edit';
+  editBtn.addEventListener('click', () => enterEditMode(currentTossup));
+  if (catBadge && catBadge.parentNode) {
+    catBadge.parentNode.insertBefore(editBtn, catBadge.nextSibling);
+  }
+}
 
-  // Add a placeholder so the dropdown shows the current category, not the first option
+function openCategoryDropdown (tossup) {
+  const catBadge = document.getElementById('question-category');
+  if (!catBadge) return;
+  if (document.getElementById('admin-cat-select')) return;
+
+  const select = document.createElement('select');
+  select.id = 'admin-cat-select';
+  const currentCatClass = tossup.category
+    ? `cat-${tossup.category.toLowerCase().replace(/\s+/g, '-')}`
+    : '';
+  select.className = `admin-category-select ${currentCatClass}`.trim();
+
   const placeholder = document.createElement('option');
   placeholder.value = '';
-  placeholder.textContent = currentTossup.category || 'Select category';
+  placeholder.textContent = tossup.category || 'Select category';
   placeholder.disabled = true;
   placeholder.selected = true;
-  catSelect.appendChild(placeholder);
+  select.appendChild(placeholder);
 
   for (const cat of CERTAMEN_CATEGORIES) {
     const opt = document.createElement('option');
     opt.value = cat;
     opt.textContent = cat;
-    catSelect.appendChild(opt);
+    opt.className = `cat-${cat.toLowerCase().replace(/\s+/g, '-')}`;
+    select.appendChild(opt);
   }
 
-  catSelect.addEventListener('change', async function () {
+  catBadge.classList.add('d-none');
+  catBadge.parentNode.insertBefore(select, catBadge);
+  select.focus();
+
+  const revert = () => {
+    if (select.parentNode) select.remove();
+    catBadge.classList.remove('d-none');
+  };
+
+  select.addEventListener('change', async function () {
     const newCategory = this.value;
-    catSelect.disabled = true;
+    if (!newCategory) { revert(); return; }
+    select.disabled = true;
     try {
-      const resp = await api.updateTossup(currentTossup._id, { category: newCategory });
+      const resp = await api.updateTossup(tossup._id, { category: newCategory });
       if (resp.ok) {
-        currentTossup.category = newCategory;
-        const catBadge = document.getElementById('question-category');
-        catBadge.textContent = newCategory;
-        catBadge.className = `question-cat-badge cat-${newCategory.toLowerCase().replace(/\s+/g, '-')}`;
-        // Reset placeholder to new category
-        placeholder.textContent = newCategory;
-        placeholder.selected = true;
+        tossup.category = newCategory;
+        catBadge.textContent = tossup.subcategory
+          ? `${newCategory} · ${tossup.subcategory}`
+          : newCategory;
+        catBadge.className = `question-cat-badge cat-${newCategory.toLowerCase().replace(/\s+/g, '-')} admin-clickable`;
         showAdminToast('Category saved: ' + newCategory);
       } else {
         window.alert('Failed to update category (status ' + resp.status + ').');
@@ -925,39 +1035,25 @@ function showAdminControls () {
     } catch (e) {
       window.alert('Failed to update category: ' + e.message);
     }
-    catSelect.disabled = false;
+    revert();
   });
 
-  // Edit button
-  const editBtn = document.createElement('button');
-  editBtn.className = 'btn btn-sm btn-outline-secondary ms-3';
-  editBtn.textContent = 'Edit';
-  editBtn.id = 'admin-edit-btn';
-
-  editBtn.addEventListener('click', function () {
-    enterEditMode(currentTossup);
+  select.addEventListener('blur', function () {
+    setTimeout(revert, 150);
   });
-
-  container.appendChild(catLabel);
-  container.appendChild(catSelect);
-  container.appendChild(editBtn);
-
-  // Insert after the answer element
-  const answerEl = document.getElementById('answer');
-  answerEl.parentNode.insertBefore(container, answerEl.nextSibling);
 }
 
 function enterEditMode (tossup) {
-  const editBtn = document.getElementById('admin-edit-btn');
-  if (!editBtn) return;
-  editBtn.remove();
-
   const container = document.getElementById('admin-controls');
+  if (!container) return;
+  if (container.querySelector('.admin-edit-area')) return;
+
+  const editBtn = document.getElementById('admin-edit-btn');
+  if (editBtn) editBtn.classList.add('d-none');
 
   const editArea = document.createElement('div');
   editArea.className = 'admin-edit-area mt-2';
 
-  // Question textarea
   const qLabel = document.createElement('label');
   qLabel.textContent = 'Question:';
   const qTextarea = document.createElement('textarea');
@@ -966,7 +1062,6 @@ function enterEditMode (tossup) {
   qTextarea.value = tossup.question;
   qTextarea.rows = 4;
 
-  // Answer textarea
   const aLabel = document.createElement('label');
   aLabel.textContent = 'Answer:';
   const aTextarea = document.createElement('textarea');
@@ -975,9 +1070,14 @@ function enterEditMode (tossup) {
   aTextarea.value = tossup.answer;
   aTextarea.rows = 2;
 
-  // Save / Cancel buttons
   const btnGroup = document.createElement('div');
   btnGroup.className = 'mt-2 d-flex gap-2';
+
+  const exitEdit = () => {
+    editArea.remove();
+    const btn = document.getElementById('admin-edit-btn');
+    if (btn) btn.classList.remove('d-none');
+  };
 
   const saveBtn = document.createElement('button');
   saveBtn.className = 'btn btn-sm btn-success';
@@ -1008,15 +1108,7 @@ function enterEditMode (tossup) {
         document.getElementById('question').innerHTML = insertTokensIntoHTML(tossup.question, tossup.question_sanitized, [[buzzpointIndex]], [' (#) ']);
         document.getElementById('answer').innerHTML = 'ANSWER: ' + tossup.answer;
 
-        editArea.remove();
-        const newEditBtn = document.createElement('button');
-        newEditBtn.className = 'btn btn-sm btn-outline-secondary ms-3';
-        newEditBtn.textContent = 'Edit';
-        newEditBtn.id = 'admin-edit-btn';
-        newEditBtn.addEventListener('click', function () {
-          enterEditMode(tossup);
-        });
-        container.appendChild(newEditBtn);
+        exitEdit();
         showAdminToast('Question saved');
       } else {
         window.alert('Failed to save changes (status ' + resp.status + '). Make sure the server has been restarted.');
@@ -1033,18 +1125,7 @@ function enterEditMode (tossup) {
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn btn-sm btn-outline-secondary';
   cancelBtn.textContent = 'Cancel';
-  cancelBtn.addEventListener('click', function () {
-    editArea.remove();
-    // Restore edit button
-    const newEditBtn = document.createElement('button');
-    newEditBtn.className = 'btn btn-sm btn-outline-secondary ms-3';
-    newEditBtn.textContent = 'Edit';
-    newEditBtn.id = 'admin-edit-btn';
-    newEditBtn.addEventListener('click', function () {
-      enterEditMode(tossup);
-    });
-    container.appendChild(newEditBtn);
-  });
+  cancelBtn.addEventListener('click', exitEdit);
 
   btnGroup.appendChild(saveBtn);
   btnGroup.appendChild(cancelBtn);
@@ -1393,6 +1474,16 @@ document.getElementById('bonus-reveal').addEventListener('click', function () {
   revealBonusAnswer(undefined);
 });
 
+document.getElementById('bonus-got-it').addEventListener('click', function () {
+  this.blur();
+  markBonusPart(true);
+});
+
+document.getElementById('bonus-missed-it').addEventListener('click', function () {
+  this.blur();
+  markBonusPart(false);
+});
+
 document.getElementById('bonus-next-part').addEventListener('click', function () {
   this.blur();
   advanceBonusPart();
@@ -1447,13 +1538,13 @@ document.addEventListener('keydown', (event) => {
       navigator.clipboard.writeText(tossups[0]?._id ?? '');
       break;
     case 'n':
-      document.getElementById('next').click();
+      advanceWithN();
       break;
     case 'p':
       document.getElementById('pause').click();
       break;
     case 's':
-      document.getElementById('next').click();
+      advanceWithN();
       break;
   }
 });

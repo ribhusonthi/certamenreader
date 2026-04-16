@@ -88,6 +88,7 @@ async function handleAdminToggle (event) {
 
 let currentStatsUsername = '';
 let buzzpointsLoaded = false;
+let boniLoaded = false;
 
 async function handleViewStats (event) {
   const btn = event.target;
@@ -96,6 +97,11 @@ async function handleViewStats (event) {
 
   currentStatsUsername = username;
   buzzpointsLoaded = false;
+  boniLoaded = false;
+  const boniBody = document.getElementById('boni-body');
+  if (boniBody) boniBody.classList.add('d-none');
+  const viewBoniBtn = document.getElementById('view-boni-btn');
+  if (viewBoniBtn) viewBoniBtn.textContent = 'View Boni';
 
   const modalLabel = document.getElementById('stats-modal-label');
   const modalBody = document.getElementById('stats-modal-body');
@@ -393,4 +399,86 @@ async function loadBuzzpoints () {
 
 document.getElementById('stats-buzzpoints-tab').addEventListener('shown.bs.tab', () => {
   loadBuzzpoints();
+});
+
+function renderBoni (records) {
+  const list = document.getElementById('boni-list');
+  if (!records || records.length === 0) {
+    list.innerHTML = '<p class="text-center text-muted">No bonus attempts recorded yet.</p>';
+    return;
+  }
+
+  let html = `<p class="text-muted mb-2">${records.length} bonus attempt${records.length !== 1 ? 's' : ''} recorded.</p>`;
+  html += '<div class="list-group">';
+
+  for (const r of records) {
+    const parts = Array.isArray(r.parts) ? r.parts : [];
+    const answers = Array.isArray(r.answers) ? r.answers : [];
+    const pts = Array.isArray(r.pointsPerPart) ? r.pointsPerPart : [];
+    const gotCount = pts.filter(p => p > 0).length;
+    const total = parts.length || pts.length;
+    const ppb = pts.reduce((a, b) => a + (Number(b) || 0), 0);
+    const cat = r.category || 'Unknown';
+    const subcat = r.subcategory ? ` / ${r.subcategory}` : '';
+    const setName = r.setName || '';
+    const date = r.recordedAt ? new Date(r.recordedAt).toLocaleDateString() : '';
+
+    let partsHtml = '';
+    for (let i = 0; i < Math.max(parts.length, answers.length, pts.length); i++) {
+      const got = (pts[i] || 0) > 0;
+      const badge = got
+        ? '<span class="badge bg-success">Got it</span>'
+        : '<span class="badge bg-danger">Missed</span>';
+      partsHtml += `<div class="mb-1" style="font-size:0.9rem;line-height:1.5">
+        <div><strong>B${i + 1}</strong> ${badge} ${escapeHtml(parts[i] || '')}</div>
+        <div class="text-muted ps-3"><em>Answer:</em> ${answers[i] || ''}</div>
+      </div>`;
+    }
+
+    html += `<div class="list-group-item">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <div>
+          <span class="question-cat-badge cat-${cat.toLowerCase().replace(/[^a-z]/g, '-')}">${escapeHtml(cat)}${escapeHtml(subcat)}</span>
+          <span class="badge bg-secondary ms-1">${gotCount}/${total} parts</span>
+          <span class="badge bg-info ms-1">${ppb} pts</span>
+        </div>
+        <small class="text-muted">${escapeHtml(setName)}${date ? ' - ' + date : ''}</small>
+      </div>
+      ${r.leadin ? `<div class="mb-2 text-muted fst-italic" style="font-size:0.9rem">${escapeHtml(r.leadin)}</div>` : ''}
+      ${partsHtml}
+    </div>`;
+  }
+
+  html += '</div>';
+  list.innerHTML = html;
+}
+
+async function loadBoni () {
+  if (boniLoaded || !currentStatsUsername) return;
+  boniLoaded = true;
+
+  const list = document.getElementById('boni-list');
+  list.innerHTML = '<p class="text-center">Loading boni...</p>';
+
+  try {
+    const response = await fetch(`/admin/api/users/${encodeURIComponent(currentStatsUsername)}/boni-records`);
+    if (!response.ok) throw new Error('Failed');
+    const { records } = await response.json();
+    renderBoni(records);
+  } catch {
+    list.innerHTML = '<p class="text-center text-danger">Failed to load boni.</p>';
+  }
+}
+
+document.getElementById('view-boni-btn').addEventListener('click', function () {
+  const body = document.getElementById('boni-body');
+  const hidden = body.classList.contains('d-none');
+  if (hidden) {
+    body.classList.remove('d-none');
+    this.textContent = 'Hide Boni';
+    loadBoni();
+  } else {
+    body.classList.add('d-none');
+    this.textContent = 'View Boni';
+  }
 });
