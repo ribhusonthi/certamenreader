@@ -1,6 +1,34 @@
 // Set default year to current year
 document.getElementById('year').value = new Date().getFullYear();
 
+// Wire dropzone to file input
+(() => {
+  const drop = document.getElementById('file-drop');
+  const input = document.getElementById('file-input');
+  const selected = document.getElementById('file-selected');
+  if (!drop || !input) return;
+
+  const showFile = (f) => {
+    if (f) {
+      selected.innerHTML = `<b style="color: var(--accent);">${f.name}</b> · ${(f.size/1024).toFixed(1)} KB`;
+      drop.setAttribute('data-dragging', 'false');
+    } else {
+      selected.textContent = '';
+    }
+  };
+  input.addEventListener('change', () => showFile(input.files[0]));
+  drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.setAttribute('data-dragging', 'true'); });
+  drop.addEventListener('dragleave', () => drop.setAttribute('data-dragging', 'false'));
+  drop.addEventListener('drop', (e) => {
+    e.preventDefault();
+    drop.setAttribute('data-dragging', 'false');
+    if (e.dataTransfer.files?.[0]) {
+      input.files = e.dataTransfer.files;
+      showFile(input.files[0]);
+    }
+  });
+})();
+
 function escapeHtml (str) {
   const div = document.createElement('div');
   div.textContent = str;

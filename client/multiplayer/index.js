@@ -39,27 +39,43 @@ fetch('/api/multiplayer/room-list')
     roomList.forEach(room => {
       const { roomName, playerCount, onlineCount, isPermanent } = room;
 
+      if (isPermanent) return;
+
+      const status = onlineCount >= 6 ? 'full' : onlineCount > 0 ? 'reading' : 'waiting';
+      const palette = ['#d4af37', '#66023c', '#2e8b57', '#00416a', '#c80815', '#b995ec'];
+      const avatars = [];
+      const avCount = Math.min(playerCount, 4);
+      for (let i = 0; i < avCount; i++) {
+        const ch = (roomName[i] || '?').toUpperCase();
+        avatars.push(`<div class="mp-avatar" style="background: ${palette[i % palette.length]}">${ch}</div>`);
+      }
+
       const a = document.createElement('a');
       a.href = `/multiplayer/${encodeURIComponent(roomName)}`;
-      a.className = 'btn btn-outline-primary btn-lg text-start d-flex justify-content-between align-items-center mb-2';
-      
-      const titleSpan = document.createElement('span');
-      titleSpan.className = 'fw-bold';
-      titleSpan.textContent = roomName;
-      
-      const infoSpan = document.createElement('span');
-      infoSpan.className = 'badge bg-primary rounded-pill fs-6';
-      infoSpan.textContent = `${playerCount} player${playerCount === 1 ? '' : 's'} - ${onlineCount} online`;
-
-      a.appendChild(titleSpan);
-      a.appendChild(infoSpan);
-
-      if (isPermanent) {
-        // Handle permanent if uncommented
-      } else {
-        document.getElementById('room-list').appendChild(a);
-      }
+      a.className = 'mp-room';
+      a.innerHTML = `
+        <div class="mp-room-hdr">
+          <div class="mp-room-name"></div>
+          <div class="mp-room-status" data-status="${status}">${status}</div>
+        </div>
+        <div class="mp-room-set">
+          <div class="set-name">Public room</div>
+          <div class="set-meta">${onlineCount} ONLINE · ${playerCount} TOTAL</div>
+        </div>
+        <div class="mp-room-players">
+          <div class="mp-avatars">${avatars.join('')}</div>
+          <span>${playerCount} player${playerCount === 1 ? '' : 's'}</span>
+        </div>
+      `;
+      a.querySelector('.mp-room-name').textContent = roomName;
+      document.getElementById('room-list').appendChild(a);
     });
+
+    const createCard = document.createElement('div');
+    createCard.className = 'mp-create';
+    createCard.innerHTML = '<div class="plus">+</div><div>Create a new room</div>';
+    createCard.addEventListener('click', () => document.getElementById('new-room-name').focus());
+    document.getElementById('room-list').appendChild(createCard);
   });
 
 document.getElementById('new-room-name').placeholder = await api.getRandomName();

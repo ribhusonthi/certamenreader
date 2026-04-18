@@ -48,13 +48,6 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/api-docs">API</a>
                     </li> -->
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="/upload">Upload</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/settings">Settings</a>
-                    </li>
                 </ul>
                 <div class="d-flex">
                     <ul class="navbar-nav mb-2 mb-lg-0">
@@ -67,35 +60,23 @@
         </div>
     </nav>
 
-    <div class="container mt-4 mb-5">
-        <h2 class="mb-4 text-center">Multiplayer</h2>
-        <div class="row justify-content-center">
-            <div class="col-12 col-md-10 col-lg-8">
-                <div class="card shadow-sm p-4 mb-4">
-                    <p class="lead">Play Certamen real-time against other players.</p>
-                    <p>You can invite friends to join you by sharing the URL to your room.</p>
-                    <hr>
-                    <p class="mb-2 fw-bold">Create or Join a Room:</p>
-                    <form id="form">
-                        <div class="input-group input-group-lg justify-content-center pb-3">
-                        <input class="form-control" id="new-room-name" type="text">
-                        <button class="btn btn-primary px-4" type="submit">Go</button>
-                    </div>
-                    <div class="form-check form-switch fs-5">
-                        <input class="form-check-input" id="private-room-checkbox" type="checkbox" role="switch">
-                        <label class="form-check-label" for="private-room-checkbox">
-                            Make room private
-                        </label>
-                    </div>
-                    </form>
-                </div>
-
-                <div class="card shadow-sm p-4 mb-5">
-                    <h5 class="mb-3">Check out a public room:</h5>
-                    <div class="d-grid gap-2" id="room-list"></div>
-                </div>
+    <div class="mp">
+        <div class="mp-hdr">
+            <div>
+                <h1>Rooms</h1>
+                <p>Play Certamen real-time against other players. Join a public room or create your own — share the URL to invite friends.</p>
             </div>
+            <form id="form" class="d-flex gap-2 align-items-center flex-wrap">
+                <input class="form-control" id="new-room-name" type="text" style="min-width: 200px;">
+                <div class="form-check form-switch m-0">
+                    <input class="form-check-input" id="private-room-checkbox" type="checkbox" role="switch">
+                    <label class="form-check-label" for="private-room-checkbox">Private</label>
+                </div>
+                <button class="btn btn-primary" type="submit">Create / Join</button>
+            </form>
         </div>
+
+        <div class="mp-rooms" id="room-list"></div>
     </div>
 
     <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>

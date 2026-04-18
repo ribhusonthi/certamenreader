@@ -54,13 +54,6 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/api-docs">API</a>
                     </li> -->
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="/upload">Upload</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/settings">Settings</a>
-                    </li>
                 </ul>
                 <div class="d-flex">
                     <ul class="navbar-nav mb-2 mb-lg-0">
@@ -189,7 +182,15 @@
                             </span>
                         </div>
                     </div>
-                    <div class="mt-2" id="question"></div>
+                    <div class="celerity" id="celerity-meter">
+                        <span class="label">Celerity</span>
+                        <div class="celerity-track">
+                            <div class="celerity-fill" id="celerity-fill" style="width: 0%"></div>
+                            <div class="celerity-mark" style="left: 55%" title="Power mark"></div>
+                        </div>
+                        <span class="value" id="celerity-value">1.00</span>
+                    </div>
+                    <div class="tossup mt-2" id="question"></div>
                     <a class="mt-1 mt-lg-3 p-0 btn btn-link float-end d-none" id="toggle-correct">I was wrong</a>
                     <p class="mt-1 mt-lg-3" id="answer"></p>
                     <div id="bonus-section" class="d-none mt-2 mb-3 p-3 border rounded bonus-section-card">
