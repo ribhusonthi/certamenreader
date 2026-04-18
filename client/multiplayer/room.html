@@ -88,96 +88,144 @@
                 </div>
             </div>
         </div>
-        <div class="row" id="info">
-            <div class="options d-lg-block col-12 col-lg-3 order-lg-1 mb-5" id="options">
-                <div class="timer d-block p-1 text-center" id="timer">
-                    <span class="face">20</span><span class="fraction">.0</span>
-                </div>
-                <hr>
-                <ul class="list-group" id="player-list-group"></ul>
-                <hr>
-                <div class="form-floating mb-1">
-                    <input class="form-control" id="username" type="text" placeholder="Username">
-                    <label for="username">Username</label>
-                </div>
-                <div class="mb-2" id="set-settings">
-                    <button type="button" id="open-set-modal" class="btn btn-outline-primary w-100 text-start mb-1"
-                        data-bs-toggle="modal" data-bs-target="#set-modal">Select set…</button>
-                    <div class="my-1 d-none" id="packet-picker-container">
-                        <label class="form-label small text-muted mb-1">Packets:</label>
-                        <div class="d-flex flex-wrap gap-1" id="packet-picker">
-                            <span class="text-muted small">Select a set first</span>
+        <div class="reader-wrap" id="info">
+            <aside class="sidebar-col" id="options">
+                <div class="sidebar">
+                    <div class="timer d-block p-1 text-center" id="timer">
+                        <span class="face">20</span><span class="fraction">.0</span>
+                    </div>
+
+                    <div class="sb-sec">
+                        <div class="sb-sec-hdr"><span>Players</span></div>
+                        <ul class="list-group" id="player-list-group"></ul>
+                    </div>
+
+                    <div class="sb-sec">
+                        <div class="sb-sec-hdr"><span>You</span></div>
+                        <div class="form-floating">
+                            <input class="form-control" id="username" type="text" placeholder="Username">
+                            <label for="username">Username</label>
                         </div>
                     </div>
-                    <input class="form-control d-none" id="packet-number" type="text">
+
+                    <div class="sb-sec" id="set-settings">
+                        <div class="sb-sec-hdr"><span>Current set</span>
+                            <a id="open-set-modal" class="link" data-bs-toggle="modal" data-bs-target="#set-modal">Change</a>
+                        </div>
+                        <div class="set-card">
+                            <div class="set-card-title" id="set-card-name">No set selected</div>
+                            <div class="set-card-meta">
+                                <span class="chip chip-active" id="set-card-difficulty">All levels</span>
+                            </div>
+                        </div>
+                        <div class="d-none" id="packet-picker-container">
+                            <div class="sb-sec-hdr" style="margin-top: 0.6rem;"><span>Packets</span></div>
+                            <div class="packets" id="packet-picker">
+                                <span class="text-muted small">Select a set first</span>
+                            </div>
+                        </div>
+                        <input class="form-control d-none" id="packet-number" type="text">
+                    </div>
+
+                    <div class="sb-sec">
+                        <div class="sb-sec-hdr"><span>Reading speed</span></div>
+                        <div class="slider-row">
+                            <input id="reading-speed" type="range" min="0" max="100" step="5">
+                            <div class="slider-label">
+                                <span>slow</span>
+                                <span class="v" id="reading-speed-display">50</span>
+                                <span>fast</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sb-sec">
+                        <div class="sb-sec-hdr"><span>Categories</span>
+                            <a class="link" id="category-toggle-all">toggle all</a>
+                        </div>
+                        <div class="cat-grid" id="category-chips">
+                            <button type="button" class="cat-chip" data-cat="Mythology" data-checkbox-id="Mythology">Mythology</button>
+                            <button type="button" class="cat-chip" data-cat="Roman History" data-checkbox-id="roman-history">Roman History</button>
+                            <button type="button" class="cat-chip" data-cat="Latin Literature" data-checkbox-id="latin-literature">Latin Literature</button>
+                            <button type="button" class="cat-chip" data-cat="Language" data-checkbox-id="language">Language</button>
+                            <button type="button" class="cat-chip" data-cat="Culture" data-checkbox-id="culture">Culture</button>
+                        </div>
+                        <div class="d-flex gap-2 mt-1">
+                            <a class="link" data-bs-target="#category-modal" data-bs-toggle="modal" style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--accent); cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em;">More filters →</a>
+                            <span style="flex:1"></span>
+                            <a class="link" id="clear-stats" style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-muted); cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em;">Clear stats</a>
+                        </div>
+                    </div>
+
+                    <div class="sb-sec">
+                        <div class="sb-sec-hdr"><span>Room settings</span>
+                            <a class="link" href="/settings">More</a>
+                        </div>
+                        <div class="toggles">
+                            <label class="toggle-row"><span>Powermarked tossups only</span>
+                                <input type="checkbox" id="toggle-powermark-only"><span class="toggle-switch"></span>
+                            </label>
+                            <label class="toggle-row"><span>Standard formats only</span>
+                                <input type="checkbox" id="toggle-standard-only"><span class="toggle-switch"></span>
+                            </label>
+                            <label class="toggle-row"><span>Allow skips</span>
+                                <input type="checkbox" id="toggle-skip"><span class="toggle-switch"></span>
+                            </label>
+                            <label class="toggle-row" data-on="true"><span>Public room</span>
+                                <input type="checkbox" id="toggle-visibility" checked><span class="toggle-switch"></span>
+                            </label>
+                            <label class="toggle-row"><span>Allow rebuzzes</span>
+                                <input type="checkbox" id="toggle-rebuzz"><span class="toggle-switch"></span>
+                            </label>
+                            <label class="toggle-row" data-on="true"><span>Enable timer</span>
+                                <input type="checkbox" id="toggle-timer" checked disabled><span class="toggle-switch"></span>
+                            </label>
+                            <label class="toggle-row"><span>Lock room</span>
+                                <input type="checkbox" id="toggle-lock" disabled><span class="toggle-switch"></span>
+                            </label>
+                        </div>
+                        <p class="mb-0 mt-1 text-muted" style="font-family: var(--font-mono); font-size: 0.7rem;"><i id="private-chat-warning">chat is disabled in public rooms</i></p>
+                    </div>
+
+                    <div class="sb-sec">
+                        <div class="sb-sec-hdr"><span>Shortcuts</span></div>
+                        <div class="shortcut-list">
+                            <div class="row-s"><span>Buzz</span><kbd>Space</kbd></div>
+                            <div class="row-s"><span>Next / Skip</span><kbd>N</kbd></div>
+                            <div class="row-s"><span>Chat</span><kbd>Enter</kbd></div>
+                            <div class="row-s"><span>Pause</span><kbd>P</kbd></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="mt-2" id="general-settings">
-                    <label for="reading-speed">Reading speed: <span id="reading-speed-display">50</span><br></label>
-                    <input class="form-range" id="reading-speed" type="range" min="0" max="100" step="5">
-                    <div class="text-center mb-2">
-                        <button class="btn btn-danger" id="category-select-button" data-bs-target="#category-modal"
-                            data-bs-toggle="modal" type="button">Category</button>
-                        <button class="btn btn-warning" id="clear-stats" type="button">Clear Stats</button>
+            </aside>
+
+            <main class="reader-main">
+                <div class="reader-hdr">
+                    <div class="reader-hdr-meta" id="question-metadata">
+                        <b id="question-info">
+                            <span id="set-name-info"></span>
+                            Packet <span id="packet-number-info">-</span>
+                            Question <span id="question-number-info">-</span>
+                        </b>
                     </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="toggle-powermark-only" type="checkbox" role="switch">
-                        <label class="form-check-label" for="toggle-powermark-only">Powermarked tossups only</label>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="toggle-standard-only" type="checkbox" role="switch">
-                        <label class="form-check-label" for="toggle-standard-only">Standard format only</label>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="toggle-skip" type="checkbox" role="switch">
-                        <label class="form-check-label" for="toggle-skip">Allow skips</label>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="toggle-visibility" type="checkbox" role="switch" checked>
-                        <label class="form-check-label" for="toggle-visibility">Public room</label>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="toggle-rebuzz" type="checkbox" role="switch">
-                        <label class="form-check-label" for="toggle-rebuzz">Allow rebuzzes</label>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="toggle-timer" type="checkbox" role="switch" checked disabled>
-                        <label class="form-check-label" for="toggle-timer">Enable timer</label>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="toggle-lock" type="checkbox" role="switch" disabled>
-                        <label class="form-check-label" for="toggle-lock">Lock room from new players</label>
-                    </div>
-                    <div>
-                        View more settings <a href="/settings">here</a>.
-                    </div>
-                    <p class="mb-1 text-muted"><i id="private-chat-warning">chat is disabled in public rooms</i></p>
-                </div>
-            </div>
-            <div class="col-12 col-lg-9">
-                <div class="reader-card">
-                    <div class="reader-controls d-flex flex-wrap gap-2 position-sticky top-0 pt-2 pb-2">
-                        <button class="btn btn-success" id="next" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
-                            title="Shortcut: n or s key">Next</button>
-                        <button class="btn btn-success d-none" id="skip" data-bs-placement="top" data-bs-toggle="tooltip"
-                            type="button" title="Shortcut: n or s key" disabled>Skip</button>
-                        <button class="btn btn-outline-warning d-lg-none" id="toggle-options" type="button">Options</button>
-                        <button class="btn btn-outline-info" id="chat" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
+                    <div class="reader-hdr-right d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-warning d-lg-none" id="toggle-options" type="button">Options</button>
+                        <button class="btn btn-sm btn-outline-info" id="chat" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
                             title="Shortcut: enter key">Chat</button>
                     </div>
-                    <div class="float-row mt-2">
-                        <span class="float-end ps-5 me-lg-2" id="question-metadata">
-                            <b id="question-info">
-                                <span id="set-name-info"></span>
-                                Packet <span id="packet-number-info">-</span>
-                                Question <span id="question-number-info">-</span>
-                            </b>
-                        </span>
-                    </div>
-                    <div class="mt-2" id="question"></div>
-                    <p class="my-1 my-lg-3" id="answer"></p>
-                    <ul class="room-history list-unstyled" id="room-history"></ul>
-                </div><!-- /.reader-card -->
-            </div>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 align-items-center mt-2">
+                    <button class="btn btn-success" id="next" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
+                        title="Shortcut: n or s key">Next</button>
+                    <button class="btn btn-success d-none" id="skip" data-bs-placement="top" data-bs-toggle="tooltip"
+                        type="button" title="Shortcut: n or s key" disabled>Skip</button>
+                </div>
+
+                <div class="tossup mt-2" id="question"></div>
+                <p class="my-1 my-lg-3" id="answer"></p>
+                <ul class="room-history list-unstyled" id="room-history"></ul>
+            </main>
         </div>
     </div>
 
@@ -516,7 +564,53 @@
 
     <script type="module" src="/readers.js"></script>
     <script type="module" src="/multiplayer/room.js"></script>
-
+    <script>
+      (function () {
+        const chips = document.querySelectorAll('#category-chips .cat-chip');
+        const syncChip = (chip) => {
+          const cb = document.getElementById(chip.dataset.checkboxId);
+          chip.setAttribute('data-on', cb && cb.checked ? 'true' : 'false');
+        };
+        chips.forEach(chip => {
+          const cb = document.getElementById(chip.dataset.checkboxId);
+          if (!cb) return;
+          syncChip(chip);
+          chip.addEventListener('click', (e) => {
+            e.preventDefault();
+            cb.checked = !cb.checked;
+            cb.dispatchEvent(new Event('change', { bubbles: true }));
+            syncChip(chip);
+          });
+          cb.addEventListener('change', () => syncChip(chip));
+        });
+        const toggleAll = document.getElementById('category-toggle-all');
+        if (toggleAll) {
+          toggleAll.addEventListener('click', () => {
+            const allOn = Array.from(chips).every(c => c.getAttribute('data-on') === 'true');
+            chips.forEach(chip => {
+              const cb = document.getElementById(chip.dataset.checkboxId);
+              if (cb && cb.checked === allOn) {
+                cb.checked = !allOn;
+                cb.dispatchEvent(new Event('change', { bubbles: true }));
+                syncChip(chip);
+              }
+            });
+          });
+        }
+        document.querySelectorAll('.toggle-row input[type="checkbox"]').forEach(cb => {
+          const row = cb.closest('.toggle-row');
+          if (!row) return;
+          const update = () => row.setAttribute('data-on', cb.checked ? 'true' : 'false');
+          update();
+          cb.addEventListener('change', update);
+        });
+        const speed = document.getElementById('reading-speed');
+        const speedDisplay = document.getElementById('reading-speed-display');
+        if (speed && speedDisplay) {
+          speed.addEventListener('input', () => { speedDisplay.textContent = speed.value; });
+        }
+      })();
+    </script>
 </body>
 
 </html>
