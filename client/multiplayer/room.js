@@ -437,7 +437,9 @@ const socketOnConnectionAcknowledged = async (message) => {
       break;
     case 1:
       showSkipButton();
-      document.getElementById('options').classList.add('d-none');
+      if (window.matchMedia('(max-width: 991.98px)').matches) {
+        document.getElementById('options').classList.add('d-none');
+      }
       if (message.buzzedIn) {
         document.getElementById('buzz').disabled = true;
         document.getElementById('next').disabled = true;
@@ -449,7 +451,9 @@ const socketOnConnectionAcknowledged = async (message) => {
       break;
     case 2:
       showNextButton();
-      document.getElementById('options').classList.add('d-none');
+      if (window.matchMedia('(max-width: 991.98px)').matches) {
+        document.getElementById('options').classList.add('d-none');
+      }
       break;
   }
 
@@ -679,7 +683,9 @@ const socketOnNext = (message) => {
   document.getElementById('packet-number-info').textContent =
     tossup?.packet.number ?? '-';
 
-  document.getElementById('options').classList.add('d-none');
+  if (window.matchMedia('(max-width: 991.98px)').matches) {
+    document.getElementById('options').classList.add('d-none');
+  }
   showSkipButton();
   document.getElementById('question').innerHTML = '';
   document.getElementById('answer').textContent = '';

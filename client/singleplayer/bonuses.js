@@ -603,7 +603,9 @@ document.getElementById('start').addEventListener('click', async function () {
 
   document.getElementById('next').disabled = false;
   document.getElementById('next').textContent = 'Skip';
-  document.getElementById('options').classList.add('d-none');
+  if (window.matchMedia('(max-width: 991.98px)').matches) {
+    document.getElementById('options').classList.add('d-none');
+  }
   document.getElementById('toggle-options').disabled = false;
 
   if (useSetMode) {
