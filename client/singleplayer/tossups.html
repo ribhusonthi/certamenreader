@@ -66,157 +66,195 @@
         </div>
     </nav>
 
-    <div class="container-fluid mt-1 mt-lg-3 mb-5 pb-5 px-xxl-5">
-        <div class="toast-container position-fixed top-0 end-0 p-3">
-            <div id="star-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header">
-                    <strong class="me-auto">You must be logged in to star questions.</strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="star-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">You must be logged in to star questions.</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>
-        <div class="toast-container position-fixed top-0 end-0 p-3">
-            <div id="funny-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header" style="background-color: yellow;">
-                    <h1 id="funny-toast-text" class="me-auto text-danger"></h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
+    </div>
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="funny-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header" style="background-color: yellow;">
+                <h1 id="funny-toast-text" class="me-auto text-danger"></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>
-        <div class="toast-container position-fixed top-0 end-0 p-3">
-            <div id="admin-save-toast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2000">
-                <div class="d-flex">
-                    <div class="toast-body" id="admin-save-toast-text">Saved!</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
+    </div>
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="admin-save-toast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2000">
+            <div class="d-flex">
+                <div class="toast-body" id="admin-save-toast-text">Saved!</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>
-        <div class="row" id="info">
-            <div class="options d-lg-block col-12 col-lg-3 order-lg-1 mb-5" id="options">
-                <div class="timer d-none p-1 text-center" id="tossup-timer">
+    </div>
+
+    <div class="reader-wrap" id="info">
+        <aside class="sidebar-col" id="options">
+            <div class="sidebar">
+                <div class="timer d-none p-2 text-center" id="tossup-timer">
                     <span class="face">20</span><span class="fraction">.0</span>
                 </div>
-                <div class="mb-2" id="set-settings">
-                    <button type="button" id="open-set-modal" class="btn btn-outline-primary w-100 text-start mb-1"
-                        data-bs-toggle="modal" data-bs-target="#set-modal">Select set…</button>
-                    <div class="my-1 d-none" id="packet-picker-container">
-                        <label class="form-label small text-muted mb-1">Packets:</label>
-                        <div class="d-flex flex-wrap gap-1" id="packet-picker">
+
+                <div class="sb-sec" id="set-settings">
+                    <div class="sb-sec-hdr"><span>Current set</span>
+                        <a id="open-set-modal" class="link" data-bs-toggle="modal" data-bs-target="#set-modal">Change</a>
+                    </div>
+                    <div class="set-card">
+                        <div class="set-card-title" id="set-name-info">No set selected</div>
+                        <div class="set-card-meta">
+                            <span class="chip chip-active" id="set-card-difficulty">All levels</span>
+                        </div>
+                    </div>
+                    <div class="d-none" id="packet-picker-container">
+                        <div class="sb-sec-hdr" style="margin-top: 0.6rem;"><span>Packets</span></div>
+                        <div class="packets" id="packet-picker">
                             <span class="text-muted small">Select a set first</span>
                         </div>
                     </div>
                     <input class="form-control my-1 d-none" id="packet-number" type="text" placeholder="Packet Numbers">
                 </div>
-                <div class="mt-2" id="general-settings">
-                    <label for="reading-speed">Reading speed: <span id="reading-speed-display">50</span><br></label>
-                    <input class="form-range" id="reading-speed" type="range" min="0" max="100" step="5">
-                    <div class="text-center mb-2">
-                        <button class="btn btn-outline-danger" id="category-select-button" data-bs-target="#category-modal"
-                            data-bs-toggle="modal" type="button">Category</button>
-                        <button class="btn btn-outline-secondary" id="clear-stats" type="button">Clear Stats</button>
+
+                <div class="sb-sec">
+                    <div class="sb-sec-hdr"><span>Reading speed</span></div>
+                    <div class="slider-row">
+                        <input id="reading-speed" type="range" min="0" max="100" step="5">
+                        <div class="slider-label">
+                            <span>slow</span>
+                            <span class="v" id="reading-speed-display">50</span>
+                            <span>fast</span>
+                        </div>
                     </div>
-                    <!-- <div class="form-check form-switch">
-                        <input class="form-check-input" id="toggle-powermark-only" type="checkbox" role="switch">
-                        <label class="form-check-label" for="toggle-powermark-only">Powermarked tossups only</label>
-                    </div> -->
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="toggle-tossup-timer" type="checkbox" role="switch">
-                        <label class="form-check-label" for="toggle-tossup-timer">Tossup timer (20s read / 5s buzz)</label>
+                </div>
+
+                <div class="sb-sec">
+                    <div class="sb-sec-hdr"><span>Categories</span>
+                        <a class="link" id="category-toggle-all">toggle all</a>
                     </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="toggle-njcl-mode" type="checkbox" role="switch" checked>
-                        <label class="form-check-label" for="toggle-njcl-mode">NJCL scoring (10/0, no negs)</label>
+                    <div class="cat-grid" id="category-chips">
+                        <button type="button" class="cat-chip" data-cat="Mythology" data-checkbox-id="Mythology">Mythology</button>
+                        <button type="button" class="cat-chip" data-cat="Roman History" data-checkbox-id="roman-history">Roman History</button>
+                        <button type="button" class="cat-chip" data-cat="Latin Literature" data-checkbox-id="latin-literature">Latin Literature</button>
+                        <button type="button" class="cat-chip" data-cat="Language" data-checkbox-id="language">Language</button>
+                        <button type="button" class="cat-chip" data-cat="Culture" data-checkbox-id="culture">Culture</button>
                     </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="toggle-standard-only" type="checkbox" role="switch">
-                        <label class="form-check-label" for="toggle-standard-only">Standard formats only</label>
+                    <div class="d-flex gap-2 mt-1">
+                        <a class="link" data-bs-target="#category-modal" data-bs-toggle="modal" style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--accent); cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em;">More filters →</a>
+                        <span style="flex:1"></span>
+                        <a class="link" id="clear-stats" style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-muted); cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em;">Clear stats</a>
                     </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="toggle-show-history" type="checkbox" role="switch" checked>
-                        <label class="form-check-label" for="toggle-show-history">Show question history</label>
+                </div>
+
+                <div class="sb-sec">
+                    <div class="sb-sec-hdr"><span>Settings</span>
+                        <a class="link" href="/settings">More</a>
                     </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="type-to-answer" type="checkbox" role="switch" checked>
-                        <label class="form-check-label" for="type-to-answer">Type to answer</label>
+                    <div class="toggles">
+                        <label class="toggle-row"><span>Tossup timer</span>
+                            <input type="checkbox" id="toggle-tossup-timer"><span class="toggle-switch"></span>
+                        </label>
+                        <label class="toggle-row" data-on="true"><span>NJCL scoring</span>
+                            <input type="checkbox" id="toggle-njcl-mode" checked><span class="toggle-switch"></span>
+                        </label>
+                        <label class="toggle-row"><span>Standard formats only</span>
+                            <input type="checkbox" id="toggle-standard-only"><span class="toggle-switch"></span>
+                        </label>
+                        <label class="toggle-row" data-on="true"><span>Show question history</span>
+                            <input type="checkbox" id="toggle-show-history" checked><span class="toggle-switch"></span>
+                        </label>
+                        <label class="toggle-row" data-on="true"><span>Type to answer</span>
+                            <input type="checkbox" id="type-to-answer" checked><span class="toggle-switch"></span>
+                        </label>
+                        <label class="toggle-row"><span>Allow rebuzzes</span>
+                            <input type="checkbox" id="toggle-rebuzz"><span class="toggle-switch"></span>
+                        </label>
+                        <label class="toggle-row" data-on="true"><span>Read boni after tossups</span>
+                            <input type="checkbox" id="toggle-read-boni" checked><span class="toggle-switch"></span>
+                        </label>
+                        <label class="toggle-row"><span>Read boni on drops</span>
+                            <input type="checkbox" id="toggle-boni-on-drop"><span class="toggle-switch"></span>
+                        </label>
                     </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="toggle-rebuzz" type="checkbox" role="switch">
-                        <label class="form-check-label" for="toggle-rebuzz">Allow rebuzzes</label>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="toggle-read-boni" type="checkbox" role="switch" checked>
-                        <label class="form-check-label" for="toggle-read-boni">Read boni after tossups</label>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="toggle-boni-on-drop" type="checkbox" role="switch">
-                        <label class="form-check-label" for="toggle-boni-on-drop">Read boni on dropped tossups</label>
-                    </div>
-                    <div>
-                        View more settings <a href="/settings">here</a>.
-                    </div>
-                    <div class="d-none d-lg-block">
-                        <hr>
-                        <p>
-                            <span class="text-nowrap"><kbd>k</kbd> = show/hide last question</span><br>
-                            <span class="text-nowrap"><kbd>t</kbd> = star/unstar last question</span><br>
-                            <span class="text-nowrap"><kbd>y</kbd> = copy current question id to clipboard</span><br>
-                        </p>
+                </div>
+
+                <div class="sb-sec">
+                    <div class="sb-sec-hdr"><span>Shortcuts</span></div>
+                    <div class="shortcut-list">
+                        <div class="row-s"><span>Buzz</span><kbd>Space</kbd></div>
+                        <div class="row-s"><span>Next tossup</span><kbd>N</kbd></div>
+                        <div class="row-s"><span>Pause / resume</span><kbd>P</kbd></div>
+                        <div class="row-s"><span>Star last</span><kbd>T</kbd></div>
+                        <div class="row-s"><span>Show / hide last</span><kbd>K</kbd></div>
+                        <div class="row-s"><span>Copy question id</span><kbd>Y</kbd></div>
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-lg-9">
-                <div class="reader-card">
-                    <div class="reader-controls d-flex flex-wrap gap-2 position-sticky top-0 pt-2 pb-2">
-                        <button class="btn btn-success" id="next" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
-                            title="Shortcut: n or s key">Start</button>
-                        <button class="btn btn-outline-warning d-lg-none" id="toggle-options" type="button" disabled>Options</button>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mt-2">
-                        <span id="statline">0/0 with 0 tossups seen (0 pts, celerity: 0)</span>
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="question-cat-badge d-none" id="question-category"></span>
-                            <span class="me-lg-2" id="question-metadata">
-                                <b id="question-info">
-                                    <span id="set-name-info"></span>
-                                </b>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="celerity" id="celerity-meter">
-                        <span class="label">Celerity</span>
-                        <div class="celerity-track">
-                            <div class="celerity-fill" id="celerity-fill" style="width: 0%"></div>
-                            <div class="celerity-mark" style="left: 55%" title="Power mark"></div>
-                        </div>
-                        <span class="value" id="celerity-value">1.00</span>
-                    </div>
-                    <div class="tossup mt-2" id="question"></div>
-                    <a class="mt-1 mt-lg-3 p-0 btn btn-link float-end d-none" id="toggle-correct">I was wrong</a>
-                    <p class="mt-1 mt-lg-3" id="answer"></p>
-                    <div id="bonus-section" class="d-none mt-2 mb-3 p-3 border rounded bonus-section-card">
-                        <h6 class="mb-2"><strong>Bonus</strong> <span id="bonus-progress" class="text-muted small"></span></h6>
-                        <div id="bonus-question" class="mb-2"></div>
-                        <div id="bonus-answer" class="mb-2"></div>
-                        <form id="bonus-answer-form">
-                            <div class="input-group d-none mb-2" id="bonus-answer-input-group">
-                                <input class="form-control" id="bonus-answer-input" type="text" placeholder="Enter bonus answer">
-                                <button class="btn btn-success" id="bonus-answer-submit" type="submit">Submit</button>
-                            </div>
-                        </form>
-                        <div class="d-flex gap-2 flex-wrap">
-                            <button class="btn btn-sm btn-outline-primary" id="bonus-reveal">Reveal</button>
-                            <button class="btn btn-sm btn-success d-none" id="bonus-got-it">I got it</button>
-                            <button class="btn btn-sm btn-danger d-none" id="bonus-missed-it">Missed it</button>
-                            <button class="btn btn-sm btn-outline-secondary d-none" id="bonus-next-part">Next Part</button>
-                            <button class="btn btn-sm btn-success d-none" id="bonus-done">Continue</button>
-                        </div>
-                        <div id="bonus-score" class="mt-2 small text-muted"></div>
-                    </div>
-                    <ul class="room-history list-unstyled" id="room-history"></ul>
-                    </div>
-                </div><!-- /.reader-card -->
+        </aside>
+
+        <main class="reader-main">
+            <div class="reader-hdr">
+                <div class="reader-hdr-meta" id="question-metadata">
+                    <span id="set-name-info-hdr"></span>
+                </div>
+                <div class="reader-hdr-right">
+                    <span class="cat-badge question-cat-badge d-none" id="question-category"></span>
+                </div>
             </div>
-        </div>
+
+            <div class="statline-grid" id="statline">0/0 with 0 tossups seen (0 pts, celerity: 0)</div>
+
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <button class="btn btn-primary" id="next" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
+                    title="Shortcut: n or s key">Start</button>
+                <button class="btn btn-outline-warning d-lg-none" id="toggle-options" type="button" disabled>Options</button>
+            </div>
+
+            <div class="celerity" id="celerity-meter">
+                <span class="label">Celerity</span>
+                <div class="celerity-track">
+                    <div class="celerity-fill" id="celerity-fill" style="width: 0%"></div>
+                    <div class="celerity-mark" style="left: 55%" title="Power mark"></div>
+                </div>
+                <span class="value" id="celerity-value">1.00</span>
+            </div>
+
+            <div class="tossup" id="question"></div>
+            <a class="p-0 btn btn-link float-end d-none" id="toggle-correct">I was wrong</a>
+            <p class="mb-0" id="answer"></p>
+
+            <div id="bonus-section" class="bonus-edit d-none">
+                <div class="bonus-hdr">
+                    <div class="bonus-hdr-title"><span class="ornament"></span>Bonus <span id="bonus-progress" class="text-muted small" style="font-family: var(--font-mono); font-weight: 400; font-size: 0.72rem;"></span></div>
+                    <div class="bonus-parts">
+                        <div class="bonus-part-chip" data-part="1">1</div>
+                        <div class="bonus-part-chip" data-part="2">2</div>
+                        <div class="bonus-part-chip" data-part="3">3</div>
+                    </div>
+                </div>
+                <div class="bonus-body">
+                    <div id="bonus-question" class="mb-2"></div>
+                    <div id="bonus-answer" class="mb-2"></div>
+                    <form id="bonus-answer-form">
+                        <div class="input-group d-none mb-2" id="bonus-answer-input-group">
+                            <input class="form-control" id="bonus-answer-input" type="text" placeholder="Enter bonus answer">
+                            <button class="btn btn-success" id="bonus-answer-submit" type="submit">Submit</button>
+                        </div>
+                    </form>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button class="btn btn-sm btn-outline-primary" id="bonus-reveal">Reveal</button>
+                        <button class="btn btn-sm btn-success d-none" id="bonus-got-it">I got it</button>
+                        <button class="btn btn-sm btn-danger d-none" id="bonus-missed-it">Missed it</button>
+                        <button class="btn btn-sm btn-outline-secondary d-none" id="bonus-next-part">Next Part</button>
+                        <button class="btn btn-sm btn-success d-none" id="bonus-done">Continue</button>
+                    </div>
+                    <div id="bonus-score" class="mt-2 small text-muted"></div>
+                </div>
+            </div>
+
+            <ul class="room-history list-unstyled" id="room-history"></ul>
+        </main>
     </div>
 
     <!-- Fixed buzz bar pinned to bottom -->
@@ -547,6 +585,58 @@
 
     <script type="module" src="/readers.js"></script>
     <script type="module" src="/singleplayer/tossups.js"></script>
+    <script>
+      // Sync the editorial category chips with the hidden modal checkboxes
+      (function () {
+        const chips = document.querySelectorAll('#category-chips .cat-chip');
+        const syncChip = (chip) => {
+          const cb = document.getElementById(chip.dataset.checkboxId);
+          chip.setAttribute('data-on', cb && cb.checked ? 'true' : 'false');
+        };
+        chips.forEach(chip => {
+          const cb = document.getElementById(chip.dataset.checkboxId);
+          if (!cb) return;
+          syncChip(chip);
+          chip.addEventListener('click', (e) => {
+            e.preventDefault();
+            cb.checked = !cb.checked;
+            cb.dispatchEvent(new Event('change', { bubbles: true }));
+            syncChip(chip);
+          });
+          cb.addEventListener('change', () => syncChip(chip));
+        });
+        const toggleAll = document.getElementById('category-toggle-all');
+        if (toggleAll) {
+          toggleAll.addEventListener('click', () => {
+            const allOn = Array.from(chips).every(c => c.getAttribute('data-on') === 'true');
+            chips.forEach(chip => {
+              const cb = document.getElementById(chip.dataset.checkboxId);
+              if (cb && cb.checked === allOn) {
+                cb.checked = !allOn;
+                cb.dispatchEvent(new Event('change', { bubbles: true }));
+                syncChip(chip);
+              }
+            });
+          });
+        }
+
+        // Mirror toggle state on editorial toggle-row wrappers
+        document.querySelectorAll('.toggle-row input[type="checkbox"]').forEach(cb => {
+          const row = cb.closest('.toggle-row');
+          if (!row) return;
+          const update = () => row.setAttribute('data-on', cb.checked ? 'true' : 'false');
+          update();
+          cb.addEventListener('change', update);
+        });
+
+        // Keep the sidebar reading-speed display synced to the slider value
+        const speed = document.getElementById('reading-speed');
+        const speedDisplay = document.getElementById('reading-speed-display');
+        if (speed && speedDisplay) {
+          speed.addEventListener('input', () => { speedDisplay.textContent = speed.value; });
+        }
+      })();
+    </script>
 </body>
 
 </html>

@@ -84,105 +84,129 @@
                 </div>
             </div>
         </div>
-        <div class="row" id="info">
-            <div class="options d-lg-block col-12 col-lg-3 order-lg-1 mb-5" id="options">
-                <div class="mb-2" id="set-settings">
-                    <button type="button" id="open-set-modal" class="btn btn-outline-primary w-100 text-start mb-1"
-                        data-bs-toggle="modal" data-bs-target="#set-modal">Select set…</button>
-                    <div class="my-1 d-none" id="packet-picker-container">
-                        <label class="form-label small text-muted mb-1">Packets:</label>
-                        <div class="d-flex flex-wrap gap-1" id="packet-picker">
-                            <span class="text-muted small">Select a set first</span>
+        <div class="reader-wrap" id="info">
+            <aside class="sidebar-col" id="options">
+                <div class="sidebar">
+                    <div class="sb-sec" id="set-settings">
+                        <div class="sb-sec-hdr"><span>Current set</span>
+                            <a id="open-set-modal" class="link" data-bs-toggle="modal" data-bs-target="#set-modal">Change</a>
                         </div>
-                    </div>
-                    <input class="form-control my-1 d-none" id="packet-number" type="text" placeholder="Packet Numbers">
-                    <input class="form-control d-none" id="question-number" type="text" placeholder="Starting Question #">
-                </div>
-                <div class="mt-2" id="general-settings">
-                    <div class="text-center mb-2">
-                        <button class="btn btn-danger" id="category-select-button" data-bs-target="#category-modal"
-                            data-bs-toggle="modal" type="button">Categories</button>
-                        <button class="btn btn-warning" id="clear-stats" type="button">Clear Stats</button>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="toggle-bonus-timer" type="checkbox" role="switch" checked>
-                        <label class="form-check-label" for="toggle-bonus-timer">15s bonus timer (NJCL)</label>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="toggle-three-part-bonuses" type="checkbox" role="switch" checked>
-                        <label class="form-check-label" for="toggle-three-part-bonuses">Only use 3-part bonuses</label>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="toggle-standard-only" type="checkbox" role="switch">
-                        <label class="form-check-label" for="toggle-standard-only">Standard formats only</label>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="toggle-show-history" type="checkbox" role="switch" checked>
-                        <label class="form-check-label" for="toggle-show-history">Show question history</label>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" id="type-to-answer" type="checkbox" role="switch" checked>
-                        <label class="form-check-label" for="type-to-answer">Type to answer</label>
-                    </div>
-                    <div>
-                        View more settings <a href="/settings">here</a>.
-                    </div>
-                    <div class="d-none d-lg-block">
-                        <hr>
-                        <p>
-                            <span class="text-nowrap"><kbd>k</kbd> = show/hide last question</span><br>
-                            <span class="text-nowrap"><kbd>t</kbd> = star/unstar last question</span><br>
-                            <span class="text-nowrap"><kbd>y</kbd> = copy current question id to clipboard</span><br>
-                            <span class="text-nowrap"><kbd>0</kbd> = toggle last bonus part</span><br>
-                            <span class="text-nowrap"><kbd>1</kbd> = toggle 1st bonus part</span><br>
-                            <span class="text-nowrap"><kbd>2</kbd> = toggle 2nd bonus part</span><br>
-                            <span class="text-nowrap"><kbd>3</kbd> = toggle 3rd bonus part</span>
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-lg-9">
-                <div class="buttons position-sticky top-0 pt-2">
-                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <button class="btn btn-success" id="start" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
-                            title="Shortcut: s key">Start</button>
-                        <button class="btn btn-primary" id="next" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
-                            title="Shortcut: n key" disabled>Next</button>
-                        <button class="btn btn-danger d-lg-none" id="toggle-options" type="button" disabled>Options</button>
-                        <div class="ms-auto d-flex align-items-center gap-2">
-                            <div class="bonus-timer-display d-none" id="bonus-timer-container">
-                                <span id="bonus-timer-count">15</span><span class="bonus-timer-unit">s</span>
+                        <div class="set-card">
+                            <div class="set-card-title" id="set-name-info">No set selected</div>
+                            <div class="set-card-meta">
+                                <span class="chip chip-active" id="set-card-difficulty">All levels</span>
                             </div>
-                            <button class="btn btn-primary" id="reveal" data-bs-placement="top" data-bs-toggle="tooltip"
-                                type="button" title="Shortcut: spacebar" disabled>Reveal</button>
+                        </div>
+                        <div class="d-none" id="packet-picker-container">
+                            <div class="sb-sec-hdr" style="margin-top: 0.6rem;"><span>Packets</span></div>
+                            <div class="packets" id="packet-picker">
+                                <span class="text-muted small">Select a set first</span>
+                            </div>
+                        </div>
+                        <input class="form-control my-1 d-none" id="packet-number" type="text" placeholder="Packet Numbers">
+                        <input class="form-control d-none" id="question-number" type="text" placeholder="Starting Question #">
+                    </div>
+
+                    <div class="sb-sec">
+                        <div class="sb-sec-hdr"><span>Categories</span>
+                            <a class="link" id="category-toggle-all">toggle all</a>
+                        </div>
+                        <div class="cat-grid" id="category-chips">
+                            <button type="button" class="cat-chip" data-cat="Mythology" data-checkbox-id="Mythology">Mythology</button>
+                            <button type="button" class="cat-chip" data-cat="Roman History" data-checkbox-id="roman-history">Roman History</button>
+                            <button type="button" class="cat-chip" data-cat="Latin Literature" data-checkbox-id="latin-literature">Latin Literature</button>
+                            <button type="button" class="cat-chip" data-cat="Language" data-checkbox-id="language">Language</button>
+                            <button type="button" class="cat-chip" data-cat="Culture" data-checkbox-id="culture">Culture</button>
+                        </div>
+                        <div class="d-flex gap-2 mt-1">
+                            <a class="link" data-bs-target="#category-modal" data-bs-toggle="modal" style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--accent); cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em;">More filters →</a>
+                            <span style="flex:1"></span>
+                            <a class="link" id="clear-stats" style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-muted); cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em;">Clear stats</a>
+                        </div>
+                    </div>
+
+                    <div class="sb-sec">
+                        <div class="sb-sec-hdr"><span>Settings</span>
+                            <a class="link" href="/settings">More</a>
+                        </div>
+                        <div class="toggles">
+                            <label class="toggle-row" data-on="true"><span>15s bonus timer (NJCL)</span>
+                                <input type="checkbox" id="toggle-bonus-timer" checked><span class="toggle-switch"></span>
+                            </label>
+                            <label class="toggle-row" data-on="true"><span>Only 3-part bonuses</span>
+                                <input type="checkbox" id="toggle-three-part-bonuses" checked><span class="toggle-switch"></span>
+                            </label>
+                            <label class="toggle-row"><span>Standard formats only</span>
+                                <input type="checkbox" id="toggle-standard-only"><span class="toggle-switch"></span>
+                            </label>
+                            <label class="toggle-row" data-on="true"><span>Show question history</span>
+                                <input type="checkbox" id="toggle-show-history" checked><span class="toggle-switch"></span>
+                            </label>
+                            <label class="toggle-row" data-on="true"><span>Type to answer</span>
+                                <input type="checkbox" id="type-to-answer" checked><span class="toggle-switch"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="sb-sec">
+                        <div class="sb-sec-hdr"><span>Shortcuts</span></div>
+                        <div class="shortcut-list">
+                            <div class="row-s"><span>Reveal</span><kbd>Space</kbd></div>
+                            <div class="row-s"><span>Start</span><kbd>S</kbd></div>
+                            <div class="row-s"><span>Next bonus</span><kbd>N</kbd></div>
+                            <div class="row-s"><span>Toggle last part</span><kbd>0</kbd></div>
+                            <div class="row-s"><span>Toggle part 1 / 2 / 3</span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd></div>
+                            <div class="row-s"><span>Star last</span><kbd>T</kbd></div>
+                            <div class="row-s"><span>Show / hide last</span><kbd>K</kbd></div>
+                            <div class="row-s"><span>Copy question id</span><kbd>Y</kbd></div>
                         </div>
                     </div>
                 </div>
+            </aside>
+
+            <main class="reader-main">
+                <div class="reader-hdr">
+                    <div class="reader-hdr-meta" id="question-metadata">
+                        <b id="question-info">
+                            <span id="set-name-info-hdr"></span>
+                            Packet <span id="packet-number-info">-</span>
+                            Question <span id="question-number-info">-</span>
+                            of <span id="packet-length-info">-</span>
+                        </b>
+                    </div>
+                    <div class="reader-hdr-right">
+                        <span class="cat-badge question-cat-badge d-none" id="question-category"></span>
+                    </div>
+                </div>
+
+                <div class="statline-grid" id="statline">0.00 PPB with 0 bonuses seen (0/0/0/0, 0 pts)</div>
+
+                <div class="d-flex flex-wrap gap-2 align-items-center mt-2">
+                    <button class="btn btn-success" id="start" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
+                        title="Shortcut: s key">Start</button>
+                    <button class="btn btn-primary" id="next" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
+                        title="Shortcut: n key" disabled>Next</button>
+                    <button class="btn btn-primary" id="reveal" data-bs-placement="top" data-bs-toggle="tooltip"
+                        type="button" title="Shortcut: spacebar" disabled>Reveal</button>
+                    <button class="btn btn-outline-warning d-lg-none" id="toggle-options" type="button" disabled>Options</button>
+                    <div class="ms-auto d-flex align-items-center gap-2">
+                        <div class="bonus-timer-display d-none" id="bonus-timer-container">
+                            <span id="bonus-timer-count">15</span><span class="bonus-timer-unit">s</span>
+                        </div>
+                    </div>
+                </div>
+
                 <form id="answer-form">
-                    <!-- User enters answer here -->
                     <div class="input-group d-none my-2" id="answer-input-group">
                         <input class="form-control" id="answer-input" type="text" placeholder="Enter answer">
                         <button class="btn btn-success" id="answer-submit" type="submit">Submit</button>
                     </div>
                 </form>
-                <div class="d-flex justify-content-between align-items-center mt-1">
-                    <span id="statline">0.00 PPB with 0 bonuses seen (0/0/0/0, 0 pts)</span>
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="question-cat-badge d-none" id="question-category"></span>
-                        <span class="me-lg-2" id="question-metadata">
-                        <b id="question-info">
-                            <span id="set-name-info"></span>
-                            Packet <span id="packet-number-info">-</span>
-                            Question <span id="question-number-info">-</span>
-                            of <span id="packet-length-info">-</span>
-                        </b>
-                        </span>
-                    </div>
-                </div>
-                <div class="mt-2" id="question"></div>
+
+                <div class="tossup mt-2" id="question"></div>
                 <p class="my-1 my-lg-3" id="answer"></p>
                 <ul class="room-history list-unstyled" id="room-history"></ul>
-            </div>
+            </main>
         </div>
     </div>
 
@@ -506,6 +530,48 @@
 
     <script type="module" src="/readers.js"></script>
     <script type="module" src="/singleplayer/bonuses.js"></script>
+    <script>
+      (function () {
+        const chips = document.querySelectorAll('#category-chips .cat-chip');
+        const syncChip = (chip) => {
+          const cb = document.getElementById(chip.dataset.checkboxId);
+          chip.setAttribute('data-on', cb && cb.checked ? 'true' : 'false');
+        };
+        chips.forEach(chip => {
+          const cb = document.getElementById(chip.dataset.checkboxId);
+          if (!cb) return;
+          syncChip(chip);
+          chip.addEventListener('click', (e) => {
+            e.preventDefault();
+            cb.checked = !cb.checked;
+            cb.dispatchEvent(new Event('change', { bubbles: true }));
+            syncChip(chip);
+          });
+          cb.addEventListener('change', () => syncChip(chip));
+        });
+        const toggleAll = document.getElementById('category-toggle-all');
+        if (toggleAll) {
+          toggleAll.addEventListener('click', () => {
+            const allOn = Array.from(chips).every(c => c.getAttribute('data-on') === 'true');
+            chips.forEach(chip => {
+              const cb = document.getElementById(chip.dataset.checkboxId);
+              if (cb && cb.checked === allOn) {
+                cb.checked = !allOn;
+                cb.dispatchEvent(new Event('change', { bubbles: true }));
+                syncChip(chip);
+              }
+            });
+          });
+        }
+        document.querySelectorAll('.toggle-row input[type="checkbox"]').forEach(cb => {
+          const row = cb.closest('.toggle-row');
+          if (!row) return;
+          const update = () => row.setAttribute('data-on', cb.checked ? 'true' : 'false');
+          update();
+          cb.addEventListener('change', update);
+        });
+      })();
+    </script>
 </body>
 
 </html>
