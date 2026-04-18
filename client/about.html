@@ -19,8 +19,9 @@
 <body>
     <nav class="navbar navbar-dark navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
         <div class="container-fluid">
-            <a class="navbar-brand ms-1 py-0" id="logo" href="/">
-                <img src="logocropped.png" alt="" width="200">
+            <a class="navbar-brand brand-editorial ms-1 py-0" id="logo" href="/">
+                <span class="brand-mark"><img src="/buzzer-icon.png" alt=""></span>
+                <span class="brand-word">Certamen<b>Reader</b></span>
             </a>
             <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,25 +69,29 @@
         </div>
     </nav>
 
-    <div class="container-xl mt-4 mb-5 pb-5">
-        <h2 class="mb-4">About</h2>
-        <div class="card shadow-sm p-4 mb-4">
+    <div class="container-xl mt-4 mb-5 pb-5" style="max-width: 1100px;">
+        <div style="padding-top: 0.5rem;">
+            <span class="ed-eyebrow">About</span>
+            <h1 class="ed-page-title mt-2">About <em style="color: var(--accent); font-style: italic; font-weight: 400;">Certamen Reader</em></h1>
+        </div>
+
+        <div class="card shadow-sm p-4 mb-4 mt-3">
             <p class="lead fs-4" id="numbering-info">
                 A text-based Certamen packet reader created by <a href="https://github.com/ribhusonthi" class="fw-bold">Ribhu Sonthi</a>,
                 adapted from <a href="https://github.com/geoffrey-wu" class="fw-bold">Geoffrey Wu's</a> QB Reader.
             </p>
-            <p class="fs-5 text-muted">
+            <p class="fs-5 text-muted mb-0">
                 Packets are collected from
                 <a href="https://www.certamenlibrary.org/">certamenlibrary.org</a>
                 and parsed into JSON files using a Python-based Certamen packet parser.
             </p>
         </div>
-        
+
         <div class="row g-4 d-flex align-items-stretch">
             <div class="col-12 col-md-6 mb-4">
                 <div class="card shadow-sm p-4 h-100">
-                    <h4 class="mb-3 text-primary fw-bold">Why Certamen Reader?</h4>
-                    <ul class="fs-5">
+                    <h4 class="ed-section-title">Why Certamen Reader?</h4>
+                    <ul class="fs-5" style="color: var(--ed-ink-dim); line-height: 1.6;">
                         <li class="mb-2">
                             Uses the latest set of questions.
                             Packets are uploaded to the website as soon as they are released.
@@ -98,11 +103,11 @@
 
             <div class="col-12 col-md-6 mb-4">
                 <div class="card shadow-sm p-4 h-100">
-                    <h4 class="mb-3 text-success fw-bold">Account Benefits</h4>
+                    <h4 class="ed-section-title">Account Benefits</h4>
                     <p class="fs-5 text-muted mb-2">
                         Making a free account with a verified email unlocks:
                     </p>
-                    <ul class="fs-5">
+                    <ul class="fs-5" style="color: var(--ed-ink-dim); line-height: 1.6;">
                         <li class="mb-1">Tracking your personal tossup and bonus stats.</li>
                         <li class="mb-1">Contributing to community-wide per-question stats.</li>
                         <li class="mb-1">Viewing per-question stats directly in the Database page.</li>
@@ -111,9 +116,9 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="card shadow-sm p-4">
-            <h4 class="mb-3 text-info fw-bold">Resources</h4>
+            <h4 class="ed-section-title">Resources</h4>
             <p class="fs-5 mb-2"><strong>Can I get a copy of all the questions?</strong><br> Join the Discord, there is a drive with all the questions.</p>
             <p class="fs-5 mb-0"><strong>Packet List:</strong><br> Also available in the Discord.</p>
         </div>

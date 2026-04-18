@@ -2,7 +2,8 @@ const SUBCATEGORIES = {
   Mythology: [],
   'Roman History': [],
   'Latin Literature': [],
-  Language: []
+  Language: [],
+  Culture: []
 };
 
 
