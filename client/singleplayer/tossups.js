@@ -42,6 +42,17 @@ let timeoutID = -1;
 let tossups = [{}];
 let tossupText = '';
 let tossupTextSplit = [];
+let tossupTotalWords = 0;
+
+function updateCelerity () {
+  const fill = document.getElementById('celerity-fill');
+  const value = document.getElementById('celerity-value');
+  if (!fill || !value || !tossupTotalWords) return;
+  const read = tossupTotalWords - tossupTextSplit.length;
+  const progress = Math.max(0, Math.min(1, read / tossupTotalWords));
+  fill.style.width = (progress * 100).toFixed(1) + '%';
+  value.textContent = (1 - progress).toFixed(2);
+}
 let letterQueue = []; // queue of individual characters to render
 let currentWordIndex = 0;
 
@@ -388,6 +399,8 @@ async function advanceQuestion () {
     if (Object.keys(tossups[0]).length > 0) {
       tossupText = tossups[questionNumber - 1].question_sanitized;
       tossupTextSplit = tossupText.split(' ').filter(word => word !== '');
+      tossupTotalWords = tossupTextSplit.length;
+      updateCelerity();
       //document.getElementById('question-number-info').textContent = questionNumber;
     }
   } else {
@@ -644,6 +657,7 @@ function pause () {
 function readQuestion (expectedReadTime) {
   if (!currentlyBuzzing && tossupTextSplit.length > 0) {
     const word = tossupTextSplit.shift();
+    updateCelerity();
     if (word === '(*)') {
       // skip power marker, no delay
       timeoutID = window.setTimeout(() => {

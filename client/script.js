@@ -4,7 +4,6 @@ import account from './accounts.js';
 
 function isTouchDevice () {
   if ('ontouchstart' in window) return true;
-
   // eslint-disable-next-line no-undef
   return window.DocumentTouch && document instanceof DocumentTouch;
 }
@@ -12,7 +11,6 @@ function isTouchDevice () {
 const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
 for (const tooltipTriggerEl of tooltipTriggerList) {
   if (isTouchDevice()) continue;
-
   // eslint-disable-next-line no-new
   new bootstrap.Tooltip(tooltipTriggerEl);
 }
@@ -25,42 +23,73 @@ if (new URLSearchParams(window.location.search).get('_loggedIn')) {
   window.history.replaceState({}, '', url);
 }
 
-account.getUsername().then(username => {
+function initials (name) {
+  if (!name) return '?';
+  const parts = name.trim().split(/\s+/);
+  return (parts[0][0] + (parts[1]?.[0] ?? '')).toUpperCase();
+}
+
+function buildAccountDropdown ({ authed, name, username }) {
   const loginLink = document.getElementById('login-link');
-  if (loginLink && username) {
-    // Fetch profile to get the display name
-    fetch('/auth/get-profile')
-      .then(response => response.json())
-      .then(data => {
-        loginLink.textContent = data.user.name || username;
-        loginLink.href = '/user/my-profile';
-      })
-      .catch(() => {
-        loginLink.textContent = username;
-        loginLink.href = '/user/my-profile';
-      });
+  if (!loginLink) return;
+  const parentLi = loginLink.closest('li');
+  if (!parentLi) return;
 
-    // Inject Stats and Stars into the navbar
-    const navList = document.querySelector('#navbarSupportedContent > ul.navbar-nav.me-auto');
-    if (navList) {
-      const statsLi = document.createElement('li');
-      statsLi.className = 'nav-item';
-      const statsA = document.createElement('a');
-      statsA.className = 'nav-link';
-      statsA.href = '/user/stats/tossups';
-      statsA.textContent = 'Stats';
-      statsLi.appendChild(statsA);
+  const display = authed ? (name || username || 'Account') : 'Account';
+  const avatar = authed ? initials(display) : '?';
 
-      const starsLi = document.createElement('li');
-      starsLi.className = 'nav-item';
-      const starsA = document.createElement('a');
-      starsA.className = 'nav-link';
-      starsA.href = '/user/stars/tossups';
-      starsA.textContent = 'Stars';
-      starsLi.appendChild(starsA);
+  const authedItems = `
+    <li class="ed-user-menu-hdr">
+      <div class="handle">@${username || ''}</div>
+      <div class="name">${display}</div>
+    </li>
+    <li><a class="dropdown-item" href="/user/my-profile"><span>My profile</span><span class="rt">→</span></a></li>
+    <li><a class="dropdown-item" href="/user/stats/tossups"><span>Stats &amp; progress</span><span class="rt">→</span></a></li>
+    <li><a class="dropdown-item" href="/user/stars/tossups"><span>Starred questions</span><span class="rt">→</span></a></li>
+    <li><a class="dropdown-item" href="/upload"><span>Upload packet</span><span class="rt">→</span></a></li>
+    <li><a class="dropdown-item" href="/settings"><span>Settings</span><span class="rt">→</span></a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="/auth/logout"><span>Log out</span></a></li>
+  `;
+  const guestItems = `
+    <li><a class="dropdown-item" href="/upload"><span>Upload packet</span><span class="rt">→</span></a></li>
+    <li><a class="dropdown-item" href="/settings"><span>Settings</span><span class="rt">→</span></a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="/user/login"><span>Log in</span></a></li>
+  `;
 
-      navList.appendChild(statsLi);
-      navList.appendChild(starsLi);
-    }
+  parentLi.outerHTML = `
+    <li class="nav-item dropdown" id="account-nav">
+      <a class="ed-user-pill dropdown-toggle" id="login-link" href="#" role="button"
+         data-bs-toggle="dropdown" aria-expanded="false">
+        <span class="ed-avatar">${avatar}</span>
+        <span>${display}</span>
+        <span class="ed-caret">▾</span>
+      </a>
+      <ul class="dropdown-menu dropdown-menu-end ed-user-menu" aria-labelledby="login-link">
+        ${authed ? authedItems : guestItems}
+      </ul>
+    </li>
+  `;
+
+  const toggle = document.getElementById('login-link');
+  if (toggle && window.bootstrap?.Dropdown) {
+    // eslint-disable-next-line no-new
+    new window.bootstrap.Dropdown(toggle);
   }
+}
+
+account.getUsername().then(username => {
+  if (!username) {
+    buildAccountDropdown({ authed: false });
+    return;
+  }
+  fetch('/auth/get-profile')
+    .then(r => r.json())
+    .then(data => {
+      buildAccountDropdown({ authed: true, name: data?.user?.name, username });
+    })
+    .catch(() => {
+      buildAccountDropdown({ authed: true, username });
+    });
 });
