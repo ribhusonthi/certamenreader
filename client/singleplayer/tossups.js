@@ -1303,7 +1303,9 @@ document.getElementById('next').addEventListener('click', async function () {
       // If no packets selected, select all
       query.packetNumbers = Array.from({ length: maxPacketNumber }, (_, i) => i + 1);
     }
-    document.getElementById('options').classList.add('d-none');
+    if (window.matchMedia('(max-width: 991.98px)').matches) {
+      document.getElementById('options').classList.add('d-none');
+    }
     document.getElementById('toggle-options').disabled = false;
     if (useSetMode) {
       queryLock();

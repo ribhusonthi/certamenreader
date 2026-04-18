@@ -11568,16 +11568,18 @@ body {
    Reader — editorial sidebar + reader-hdr + bonus + resolve
    (additive to existing .reader-card / .buzz-bar-fixed styles)
    ============================================================ */
-/* Two-column reader layout */
+/* Two-column reader layout — sidebar on the RIGHT */
 .reader-wrap {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 300px;
   gap: 0;
   align-items: start;
 }
 
 .reader-wrap > .sidebar-col {
-  border-right: 1px solid var(--border-soft);
+  grid-column: 2;
+  grid-row: 1;
+  border-left: 1px solid var(--border-soft);
   background: var(--bg-sunken);
   min-height: calc(100vh - 80px);
   position: sticky;
@@ -11586,16 +11588,29 @@ body {
   overflow-y: auto;
 }
 
+.reader-wrap > .reader-main {
+  grid-column: 1;
+  grid-row: 1;
+}
+
 @media (max-width: 991.98px) {
   .reader-wrap {
     grid-template-columns: 1fr;
   }
+  .reader-wrap > .sidebar-col,
+  .reader-wrap > .reader-main {
+    grid-column: 1;
+  }
   .reader-wrap > .sidebar-col {
+    grid-row: 2;
     position: static;
     max-height: none;
     min-height: 0;
-    border-right: none;
-    border-bottom: 1px solid var(--border-soft);
+    border-left: none;
+    border-top: 1px solid var(--border-soft);
+  }
+  .reader-wrap > .reader-main {
+    grid-row: 1;
   }
 }
 .sidebar {
