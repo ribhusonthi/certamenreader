@@ -2,10 +2,10 @@
 <html lang="en">
 
 <head>
-    <title>Certamen Reader</title>
+    <title>About — Certamen Reader</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="A text-based quizbowl packet reader created by Geoffrey Wu.">
+    <meta name="description" content="About Certamen Reader — a text-based quizbowl packet reader created by Ribhu Sonthi.">
 
     <link href="/apple-touch-icon.png" rel="apple-touch-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
@@ -39,17 +39,11 @@
                         <a class="nav-link" href="/db">Database</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="/leaderboards">Leaderboards</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link active" href="/about" aria-current="page">About</a>
                     </li>
-                    <!-- <li class="nav-item">
-                        <a class="nav-link" href="/frequency-list">Frequency List</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/geoword">Geoword</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/api-docs">API</a>
-                    </li> -->
                 </ul>
                 <div class="d-flex">
                     <ul class="navbar-nav mb-2 mb-lg-0">
@@ -62,59 +56,56 @@
         </div>
     </nav>
 
-    <div class="container-xl mt-4 mb-5 pb-5" style="max-width: 1100px;">
-        <div style="padding-top: 0.5rem;">
+    <div class="about-page">
+        <header class="about-hero">
             <span class="ed-eyebrow">About</span>
-            <h1 class="ed-page-title mt-2">About <em style="color: var(--accent); font-style: italic; font-weight: 400;">Certamen Reader</em></h1>
-        </div>
-
-        <div class="card shadow-sm p-4 mb-4 mt-3">
-            <p class="lead fs-4" id="numbering-info">
-                A text-based Certamen packet reader created by <a href="https://github.com/ribhusonthi" class="fw-bold">Ribhu Sonthi</a>,
-                adapted from <a href="https://github.com/geoffrey-wu" class="fw-bold">Geoffrey Wu's</a> QB Reader.
+            <h1>About <em>Certamen Reader</em></h1>
+            <p class="about-lede">
+                A text-based Certamen packet reader created by
+                <a href="https://github.com/ribhusonthi">Ribhu Sonthi</a>,
+                adapted from <a href="https://github.com/geoffrey-wu">Geoffrey Wu's</a> QB Reader.
+                Packets are collected from <a href="https://www.certamenlibrary.org/">certamenlibrary.org</a>
+                and parsed into JSON using a Python-based Certamen packet parser.
             </p>
-            <p class="fs-5 text-muted mb-0">
-                Packets are collected from
-                <a href="https://www.certamenlibrary.org/">certamenlibrary.org</a>
-                and parsed into JSON files using a Python-based Certamen packet parser.
-            </p>
-        </div>
+        </header>
 
-        <div class="row g-4 d-flex align-items-stretch">
-            <div class="col-12 col-md-6 mb-4">
-                <div class="card shadow-sm p-4 h-100">
-                    <h4 class="ed-section-title">Why Certamen Reader?</h4>
-                    <ul class="fs-5" style="color: var(--ed-ink-dim); line-height: 1.6;">
-                        <li class="mb-2">
-                            Uses the latest set of questions.
-                            Packets are uploaded to the website as soon as they are released.
-                        </li>
-                        <li>Can filter questions by tossup, difficulty, and packet</li>
-                    </ul>
-                </div>
+        <section class="about-grid">
+            <div class="about-card">
+                <h4>Why Certamen Reader?</h4>
+                <ul>
+                    <li>Uses the latest set of questions — packets are uploaded as soon as they are released.</li>
+                    <li>Filter questions by tossup, difficulty, and packet.</li>
+                    <li>Buzz anywhere in a tossup, type your answer, and track your celerity against the power mark.</li>
+                    <li>Keyboard-first, NJCL scoring by default — designed to feel like a moderator across the table.</li>
+                </ul>
             </div>
 
-            <div class="col-12 col-md-6 mb-4">
-                <div class="card shadow-sm p-4 h-100">
-                    <h4 class="ed-section-title">Account Benefits</h4>
-                    <p class="fs-5 text-muted mb-2">
-                        Making a free account with a verified email unlocks:
-                    </p>
-                    <ul class="fs-5" style="color: var(--ed-ink-dim); line-height: 1.6;">
-                        <li class="mb-1">Tracking your personal tossup and bonus stats.</li>
-                        <li class="mb-1">Contributing to community-wide per-question stats.</li>
-                        <li class="mb-1">Viewing per-question stats directly in the Database page.</li>
-                        <li>Access to practice tests.</li>
-                    </ul>
-                </div>
+            <div class="about-card">
+                <h4>Account benefits</h4>
+                <p>Making a free account with a verified email unlocks:</p>
+                <ul>
+                    <li>Tracking your personal tossup and bonus stats.</li>
+                    <li>Contributing to community-wide per-question stats.</li>
+                    <li>Viewing per-question stats directly on the Database page.</li>
+                    <li>Access to practice tests.</li>
+                </ul>
             </div>
-        </div>
+        </section>
 
-        <div class="card shadow-sm p-4">
-            <h4 class="ed-section-title">Resources</h4>
-            <p class="fs-5 mb-2"><strong>Can I get a copy of all the questions?</strong><br> Join the Discord, there is a drive with all the questions.</p>
-            <p class="fs-5 mb-0"><strong>Packet List:</strong><br> Also available in the Discord.</p>
-        </div>
+        <section class="about-card">
+            <h4>Resources</h4>
+            <div>
+                <div class="about-q">Can I get a copy of all the questions?</div>
+                <p>Join the Discord — there is a drive with all the questions.</p>
+            </div>
+            <div>
+                <div class="about-q">Packet list</div>
+                <p>Also available in the Discord.</p>
+            </div>
+            <div style="margin-top: 0.6rem;">
+                <a class="ed-discord" href="https://discord.gg/US9udtNvKf">Join the <b>official Certamen Reader discord</b></a>
+            </div>
+        </section>
     </div>
 
     <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>

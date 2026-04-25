@@ -14,16 +14,21 @@ export default class questionStats {
     });
   }
 
-  static recordTossup (tossup, isCorrect, pointValue, celerity, multiplayer, buzzpointIndex) {
-    fetch('/auth/question-stats/record-tossup', {
+  static async recordTossup (tossup, isCorrect, pointValue, celerity, multiplayer, buzzpointIndex) {
+    const response = await fetch('/auth/question-stats/record-tossup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ tossup, isCorrect, pointValue, celerity, multiplayer, buzzpointIndex })
-    }).then(response => {
-      if (response.status === 401) {
-        account.deleteUsername();
-        throw new Error('Unauthenticated');
-      }
     });
+    if (response.status === 401) {
+      account.deleteUsername();
+      return null;
+    }
+    if (!response.ok) return null;
+    try {
+      return await response.json();
+    } catch {
+      return null;
+    }
   }
 }

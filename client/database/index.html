@@ -37,7 +37,10 @@
                     <li class="nav-item">
                         <a class="nav-link active" href="/db" aria-current="page">Database</a>
                     </li>
-                    <li class="nav-item"></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/leaderboards">Leaderboards</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="/about">About</a>
                     </li>
                     <!-- <li class="nav-item">
@@ -61,34 +64,37 @@
         </div>
     </nav>
 
-    <div class="container-xl mt-3 mb-4">
-        <div class="row">
-            <div class="col-12">
-                <p class="lead">
-                    Search the database that powers Certamen Reader.
-                </p>
-                <p>
-                    Click on a card footer to view a question's stats.
-                    To copy a question to the clipboard, click on the left side of the header.
-                    To collapse a question, click on the right side of the header.
-                </p>
-                <div id="root"></div>
+    <div class="db-page">
+        <header class="db-hdr">
+            <div>
+                <span class="ed-eyebrow">Database</span>
+                <h1>Search the <em>question</em> database</h1>
+                <p>Every question ever read — filter by set, category, difficulty, or text. Starred and recently-seen questions surface at the top.</p>
+            </div>
+        </header>
+
+        <div class="db-hint">
+            <span><b>Card footer</b> opens per-question stats</span>
+            <span><b>Left of header</b> copies the question to your clipboard</span>
+            <span><b>Right of header</b> collapses the question</span>
+        </div>
+
+        <div id="root"></div>
+    </div>
+
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="clipboard-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Question copied to clipboard.</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>
-        <div class="toast-container position-fixed top-0 end-0 p-3">
-            <div id="clipboard-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header">
-                    <strong class="me-auto">Question copied to clipboard.</strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-            </div>
-        </div>
-        <div class="toast-container position-fixed top-0 end-0 p-3">
-            <div id="funny-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header" style="background-color: yellow;">
-                    <h1 id="funny-toast-text" class="me-auto text-danger"></h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
+    </div>
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="funny-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header" style="background-color: yellow;">
+                <h1 id="funny-toast-text" class="me-auto text-danger"></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>
     </div>

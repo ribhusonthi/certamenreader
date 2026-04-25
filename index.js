@@ -62,6 +62,12 @@ function hasBotSecret(req) {
 }
 
 app.use((req, res, next) => {
+  // Local-dev bypass: only active when LOCAL_DEV_BYPASS_AUTH=true is set in
+  // the (gitignored) .env. Inert in production where the env var is unset.
+  if (process.env.LOCAL_DEV_BYPASS_AUTH === 'true') {
+    return next();
+  }
+
   if (isAuthExempt(req.path)) {
     return next();
   }
