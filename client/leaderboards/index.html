@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Leaderboards — Certamen Reader</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Top players ranked by performance points.">
+
+    <link href="/apple-touch-icon.png" rel="apple-touch-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
+    <link type="image/x-icon" href="/favicon.ico" rel="icon">
+
+    <link href="/bootstrap/light.css" rel="stylesheet">
+    <link href="/bootstrap/dark.css" rel="stylesheet" id="custom-css">
+    <script type="module" src="/apply-theme.js"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-dark navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
+        <div class="container-fluid">
+            <a class="navbar-brand brand-editorial ms-1 py-0" id="logo" href="/">
+                <span class="brand-mark"><img src="/buzzer-icon.png" alt=""></span>
+                <span class="brand-word">Certamen<b>Reader</b></span>
+            </a>
+            <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="/singleplayer">Singleplayer</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/multiplayer">Multiplayer</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/db">Database</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/leaderboards" aria-current="page">Leaderboards</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
+                </ul>
+                <div class="d-flex">
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/login" id="login-link">Log in</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="lb-page">
+        <header class="lb-hdr">
+            <span class="ed-eyebrow">Leaderboards</span>
+            <h1>Top <em>players</em></h1>
+            <p>Ranked by total <b>performance points</b> earned in each category.</p>
+        </header>
+
+        <div class="lb-tabs" id="lb-tabs" role="tablist">
+            <button type="button" class="lb-tab" data-cat="Mythology"        data-active="true">Mythology</button>
+            <button type="button" class="lb-tab" data-cat="Roman History">History</button>
+            <button type="button" class="lb-tab" data-cat="Latin Literature">Literature</button>
+            <button type="button" class="lb-tab" data-cat="Language">Language</button>
+        </div>
+
+        <div class="lb-list-hdr">
+            <div>#</div>
+            <div>player</div>
+            <div class="num">buzzes</div>
+            <div class="num">best buzz</div>
+            <div class="num">total PP</div>
+        </div>
+        <div id="lb-list">
+            <div class="lb-empty">Loading…</div>
+        </div>
+    </div>
+
+    <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/script.js"></script>
+    <script type="module" src="/leaderboards/index.js"></script>
+</body>
+
+</html>

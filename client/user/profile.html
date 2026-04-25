@@ -2,10 +2,10 @@
 <html lang="en">
 
 <head>
-    <title>Certamen Reader</title>
+    <title>Profile — Certamen Reader</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="A text-based quizbowl packet reader to read questions to yourself.">
+    <meta name="description" content="Player profile and best buzzes.">
 
     <link href="/apple-touch-icon.png" rel="apple-touch-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
@@ -20,7 +20,8 @@
     <nav class="navbar navbar-dark navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
         <div class="container-fluid">
             <a class="navbar-brand brand-editorial ms-1 py-0" id="logo" href="/">
-                <span class="brand-mark"><img src="/buzzer-icon.png" alt=""></span><span class="brand-word">Certamen<b>Reader</b></span>
+                <span class="brand-mark"><img src="/buzzer-icon.png" alt=""></span>
+                <span class="brand-word">Certamen<b>Reader</b></span>
             </a>
             <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -28,27 +29,11 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/singleplayer" aria-current="page">Singleplayer</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/multiplayer">Multiplayer</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/db">Database</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/about">About</a>
-                    </li>
-                    <!-- <li class="nav-item">
-                        <a class="nav-link" href="/frequency-list">Frequency List</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/geoword">Geoword</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/api-docs">API</a>
-                    </li> -->
+                    <li class="nav-item"><a class="nav-link" href="/singleplayer">Singleplayer</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/multiplayer">Multiplayer</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/db">Database</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/leaderboards">Leaderboards</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
                 </ul>
                 <div class="d-flex">
                     <ul class="navbar-nav mb-2 mb-lg-0">
@@ -61,22 +46,13 @@
         </div>
     </nav>
 
-    <div class="container-xl mt-3 mb-5 pb-5">
-        <p class="lead">
-            Play Certamen questions by yourself.
-        </p>
-        <p>
-            <a type="button" class="btn btn-success btn-lg px-4" href="/singleplayer/tossups">Tossups</a>
-            <a type="button" class="btn btn-outline-secondary btn-lg px-4 disabled">Bonuses</a>
-    
-        </p>
-        <p class="text-muted">
-            Note: Bonuses not available yet.
-        </p>
+    <div class="profile-page" id="profile-root">
+        <div class="lb-empty">Loading profile…</div>
     </div>
 
     <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
     <script type="module" src="/script.js"></script>
+    <script type="module" src="/user/profile.js"></script>
 </body>
 
 </html>

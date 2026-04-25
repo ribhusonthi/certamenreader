@@ -7,6 +7,7 @@ import backupsRouter from './backups.js';
 import databaseRouter from './database.js';
 import frequencyListRouter from './frequency-list.js';
 import geowordRouter from './geoword/index.js';
+import leaderboardsRouter from './leaderboards.js';
 import multiplayerRouter from './multiplayer.js';
 import settingsRouter from './settings.js';
 import singleplayerRouter from './singleplayer/index.js';
@@ -24,6 +25,12 @@ const router = Router();
 // });
 
 router.get('/', (req, res) => {
+  // LOCAL_DEV_BYPASS_AUTH lives only in .env (gitignored); leaving the check
+  // in place is harmless when the flag is unset, which is the case in prod.
+  if (process.env.LOCAL_DEV_BYPASS_AUTH === 'true') {
+    res.sendFile('index-authed.html', { root: './client' });
+    return;
+  }
   if (req.session && checkToken(req.session.username, req.session.token)) {
     res.sendFile('index-authed.html', { root: './client' });
   } else {
@@ -83,7 +90,8 @@ router.get('/api-info', (req, res) => {
 });
 
 router.get('/bonuses', (_req, res) => {
-  res.redirect('/singleplayer/bonuses');
+  // Bonuses are now read inline with tossups; keep the old URL pointing there.
+  res.redirect('/singleplayer/tossups');
 });
 
 router.get('/database', (_req, res) => {
@@ -103,6 +111,10 @@ router.get('/users', (req, res) => {
 });
 
 router.get('/waltoncertamen', (req, res) => {
+  if (process.env.LOCAL_DEV_BYPASS_AUTH === 'true') {
+    res.redirect('/');
+    return;
+  }
   if (req.session && checkToken(req.session.username, req.session.token)) {
     res.redirect('/');
   } else {
@@ -124,6 +136,7 @@ router.use('/backups', backupsRouter);
 router.use('/db', databaseRouter);
 router.use('/frequency-list', frequencyListRouter);
 router.use('/geoword', geowordRouter);
+router.use('/leaderboards', leaderboardsRouter);
 router.use('/multiplayer', multiplayerRouter);
 router.use('/settings', settingsRouter);
 router.use('/singleplayer', singleplayerRouter);

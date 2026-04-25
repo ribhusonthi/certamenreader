@@ -53,6 +53,83 @@ function updateCelerity () {
   fill.style.width = (progress * 100).toFixed(1) + '%';
   value.textContent = (1 - progress).toFixed(2);
 }
+
+const DIFFICULTY_LABELS = {
+  1: 'Novice',
+  2: 'Novice',
+  3: 'Novice',
+  4: 'Intermediate',
+  5: 'Intermediate',
+  6: 'Intermediate',
+  7: 'Advanced',
+  8: 'Advanced',
+  9: 'Advanced',
+  10: 'Advanced'
+};
+
+/** Populate the reader header: set · packet · round · #num, plus category + level badges. */
+function updateReaderHeader (tossup) {
+  const setSpan   = document.getElementById('set-name-info-hdr');
+  const pktSpan   = document.getElementById('packet-info-hdr');
+  const pktDot    = document.getElementById('hdr-dot-packet');
+  const roundSpan = document.getElementById('round-info-hdr');
+  const roundDot  = document.getElementById('hdr-dot-round');
+  const numSpan   = document.getElementById('tossup-num-hdr');
+  const numDot    = document.getElementById('hdr-dot-num');
+  const catBadge  = document.getElementById('question-category');
+  const lvlBadge  = document.getElementById('question-level');
+
+  // Set name
+  const setName = tossup?.set?.name || query.setName || 'No set selected';
+  if (setSpan) setSpan.textContent = setName;
+
+  // Packet number (falls back to active packet filter)
+  const packetNumber = tossup?.packet?.number ?? query.packetNumbers?.[0];
+  const showPacket = packetNumber != null && packetNumber !== '';
+  if (pktSpan) { pktSpan.textContent = `Packet ${packetNumber}`; pktSpan.hidden = !showPacket; }
+  if (pktDot) pktDot.hidden = !showPacket;
+
+  // Round name — many sets label packets as "Round One" etc. via packet.name
+  const roundName = tossup?.packet?.name;
+  const showRound = !!(roundName && roundName !== `Packet ${packetNumber}`);
+  if (roundSpan) { roundSpan.textContent = roundName || ''; roundSpan.hidden = !showRound; }
+  if (roundDot) roundDot.hidden = !showRound;
+
+  // Question number (tossup number within the packet)
+  const tossupNum = tossup?.questionNumber ?? tossup?.number;
+  const showNum = tossupNum != null;
+  if (numSpan) {
+    numSpan.textContent = `#${String(tossupNum).padStart(2, '0')}`;
+    numSpan.hidden = !showNum;
+  }
+  if (numDot) numDot.hidden = !showNum;
+
+  // Category badge
+  if (catBadge) {
+    if (tossup?.category) {
+      catBadge.textContent = tossup.subcategory
+        ? `${tossup.category} · ${tossup.subcategory}`
+        : tossup.category;
+      catBadge.className = `question-cat-badge cat-${tossup.category.toLowerCase().replace(/\s+/g, '-')}`;
+      catBadge.setAttribute('data-cat', tossup.category);
+    } else {
+      catBadge.className = 'question-cat-badge d-none';
+      catBadge.removeAttribute('data-cat');
+    }
+  }
+
+  // Level / difficulty badge
+  if (lvlBadge) {
+    const diff = tossup?.set?.difficulty ?? tossup?.difficulty;
+    const label = DIFFICULTY_LABELS[diff] || (typeof diff === 'string' ? diff : null);
+    if (label) {
+      lvlBadge.textContent = label;
+      lvlBadge.classList.remove('d-none');
+    } else {
+      lvlBadge.classList.add('d-none');
+    }
+  }
+}
 let letterQueue = []; // queue of individual characters to render
 let currentWordIndex = 0;
 
@@ -68,25 +145,26 @@ let bonusTotal = 0;
 let bonusPointsPerPart = [];
 let inBonusPhase = false;
 
+// NJCL-only scoring: tossup = 10 (correct) / 0 (otherwise). No power, no neg.
 const previous = {
   isCorrect: true,
-  inPower: false,
-  negValue: -5,
-  powerValue: 15,
   endOfQuestion: false,
   celerity: 0
 };
 
-const stats = window.sessionStorage.getItem('tossup-stats')
-  ? JSON.parse(window.sessionStorage.getItem('tossup-stats'))
-  : {
-      powers: 0,
-      tens: 0,
-      negs: 0,
-      dead: 0,
-      points: 0,
-      totalCorrectCelerity: 0
-    };
+const stats = (() => {
+  const cached = window.sessionStorage.getItem('tossup-stats');
+  const base = { tens: 0, dead: 0, points: 0, totalCorrectCelerity: 0 };
+  if (!cached) return base;
+  const parsed = JSON.parse(cached);
+  // Roll any legacy power counts forward as tens, drop negs.
+  return {
+    tens: (parsed.tens ?? 0) + (parsed.powers ?? 0),
+    dead: parsed.dead ?? 0,
+    points: parsed.points ?? 0,
+    totalCorrectCelerity: parsed.totalCorrectCelerity ?? 0
+  };
+})();
 
 const defaults = {
   alternateSubcategories: [],
@@ -118,7 +196,6 @@ const categoryManager = new CategoryManager(query.categories, query.subcategorie
 const settings = window.localStorage.getItem('singleplayer-tossup-settings')
   ? JSON.parse(window.localStorage.getItem('singleplayer-tossup-settings'))
   : {
-      njclMode: true,
       tossupTimer: false,
       readingSpeed: 50,
       rebuzz: false,
@@ -127,9 +204,8 @@ const settings = window.localStorage.getItem('singleplayer-tossup-settings')
       typeToAnswer: true
     };
 
-if (settings.njclMode === undefined) {
-  settings.njclMode = true;
-}
+// NJCL is the only scoring mode now; clean up legacy field if present.
+if ('njclMode' in settings) delete settings.njclMode;
 
 if (settings.tossupTimer === undefined) {
   settings.tossupTimer = false;
@@ -459,9 +535,7 @@ function buzz () {
  * Clears user stats.
  */
 function clearStats () {
-  stats.powers = 0;
   stats.tens = 0;
-  stats.negs = 0;
   stats.dead = 0;
   stats.points = 0;
   stats.totalCorrectCelerity = 0;
@@ -530,7 +604,7 @@ async function giveAnswer (givenAnswer) {
         document.getElementById('next').disabled = false;
         document.getElementById('pause').disabled = false;
         startReadingTimer();
-        readQuestion(Date.now());
+        readQuestion();
       } else {
         revealQuestion();
       }
@@ -579,10 +653,11 @@ async function next () {
   clearTimeout(timeoutID);
   currentlyBuzzing = false;
 
-  if (await account.getUsername() && document.getElementById('answer').innerHTML) {
-    const pointValue = previous.isCorrect ? (previous.inPower ? previous.powerValue : 10) : (previous.endOfQuestion ? 0 : previous.negValue);
+  if (!previous.recorded && await account.getUsername() && document.getElementById('answer').innerHTML) {
+    const pointValue = previous.isCorrect ? 10 : 0;
     questionStats.recordTossup(tossups[questionNumber - 1], previous.isCorrect, pointValue, previous.celerity, false, previous.isCorrect ? buzzpointIndex : undefined);
   }
+  previous.recorded = false;
 
   document.getElementById('answer').textContent = '';
   document.getElementById('question').innerHTML = '';
@@ -603,24 +678,14 @@ async function next () {
 
   document.getElementById('buzz').textContent = 'Buzz';
   document.getElementById('buzz').disabled = false;
-  document.getElementById('next').textContent = 'Skip';
-  // document.getElementById('packet-number-info').textContent = query.packetNumbers[0];
-  // document.getElementById('packet-length-info').textContent = query.setName.length > 0 ? tossups.length : '-';
+  document.getElementById('next').innerHTML = 'Skip<span class="kbd-hint">N</span>';
   document.getElementById('pause').textContent = 'Pause';
   document.getElementById('pause').disabled = false;
   document.getElementById('question').innerHTML = '';
   document.getElementById('set-name-info').textContent = query.setName;
 
   const currentTossup = tossups[questionNumber - 1];
-  const catBadge = document.getElementById('question-category');
-  if (currentTossup && currentTossup.category) {
-    catBadge.textContent = currentTossup.subcategory
-      ? `${currentTossup.category} · ${currentTossup.subcategory}`
-      : currentTossup.category;
-    catBadge.className = `question-cat-badge cat-${currentTossup.category.toLowerCase().replace(/\s+/g, '-')}`;
-  } else {
-    catBadge.className = 'question-cat-badge d-none';
-  }
+  updateReaderHeader(currentTossup);
 
   if (userIsAdmin) {
     showAdminControls();
@@ -628,7 +693,7 @@ async function next () {
 
   paused = false;
   startReadingTimer();
-  readQuestion(Date.now());
+  readQuestion();
 }
 
 /**
@@ -641,7 +706,7 @@ function pause () {
     if (settings.tossupTimer && tossupTimerTenths > 0) {
       runTossupTimerInterval();
     }
-    readQuestion(Date.now());
+    readQuestion();
   } else {
     document.getElementById('buzz').setAttribute('disabled', 'disabled');
     document.getElementById('pause').textContent = 'Resume';
@@ -652,38 +717,51 @@ function pause () {
 }
 
 /**
- * Recursively reads the question based on the reading speed.
+ * Returns the base per-letter delay in ms, scaled by reading speed (0\u2013100).
+ * Slow end (~speed 0) types around 90ms/letter; fast end (~speed 100) ~12ms/letter.
  */
-function readQuestion (expectedReadTime) {
+function letterDelayMs () {
+  const s = Math.max(0, Math.min(100, settings.readingSpeed ?? 50));
+  return Math.max(10, 95 - s * 0.85);
+}
+
+/**
+ * Reads the question one letter at a time at a steady cadence, with small
+ * extra pauses on punctuation so sentences breathe. Cadence scales with
+ * settings.readingSpeed.
+ */
+function readQuestion () {
   if (!currentlyBuzzing && tossupTextSplit.length > 0) {
     const word = tossupTextSplit.shift();
     updateCelerity();
     if (word === '(*)') {
-      // skip power marker, no delay
-      timeoutID = window.setTimeout(() => {
-        readQuestion(expectedReadTime);
-      }, 0);
+      timeoutID = window.setTimeout(readQuestion, 0);
       return;
     }
 
-    // Build the letter queue for this word + trailing space
     const chars = (word + ' ').split('');
     const questionEl = document.getElementById('question');
+    const base = letterDelayMs();
 
     let charIndex = 0;
     function renderNextLetter () {
-      if (currentlyBuzzing || charIndex >= chars.length) {
-        if (!currentlyBuzzing) {
-          // Done with this word, schedule next word
-          let time = Math.log(word.length) + 1;
-          if ((word.endsWith('.') && word.charCodeAt(word.length - 2) > 96 && word.charCodeAt(word.length - 2) < 123) ||
-                  word.slice(-2) === '.\u201d' || word.slice(-2) === '!\u201d' || word.slice(-2) === '?\u201d') { time += 2; } else if (word.endsWith(',') || word.slice(-2) === ',\u201d') { time += 0.75; }
-          time = time * 0.9 * (125 - settings.readingSpeed);
-          const delay = time - Date.now() + expectedReadTime;
-          timeoutID = window.setTimeout(() => {
-            readQuestion(time + expectedReadTime);
-          }, Math.max(0, delay));
+      if (currentlyBuzzing) return;
+
+      if (charIndex >= chars.length) {
+        // Word finished. Pause longer on sentence-ending punctuation.
+        let extra = 0;
+        const last = word.slice(-1);
+        const last2 = word.slice(-2);
+        if (
+          (last === '.' && word.charCodeAt(word.length - 2) > 96 && word.charCodeAt(word.length - 2) < 123) ||
+          last2 === '.\u201d' || last2 === '!\u201d' || last2 === '?\u201d' ||
+          last === '!' || last === '?'
+        ) {
+          extra = base * 6;          // sentence break
+        } else if (last === ',' || last2 === ',\u201d' || last === ';' || last === ':') {
+          extra = base * 2.5;        // clause break
         }
+        timeoutID = window.setTimeout(readQuestion, extra);
         return;
       }
 
@@ -693,8 +771,7 @@ function readQuestion (expectedReadTime) {
       questionEl.appendChild(span);
       charIndex++;
 
-      const charDelay = 18;
-      timeoutID = window.setTimeout(renderNextLetter, charDelay);
+      timeoutID = window.setTimeout(renderNextLetter, base);
     }
 
     renderNextLetter();
@@ -703,9 +780,10 @@ function readQuestion (expectedReadTime) {
   }
 }
 
-function revealQuestion () {
-  document.getElementById('question').innerHTML = insertTokensIntoHTML(tossups[questionNumber - 1].question, tossups[questionNumber - 1].question_sanitized, [[buzzpointIndex]], [' (#) ']);
-  document.getElementById('answer').innerHTML = 'ANSWER: ' + tossups[questionNumber - 1].answer;
+async function revealQuestion () {
+  const t = tossups[questionNumber - 1];
+  document.getElementById('question').innerHTML = insertTokensIntoHTML(t.question, t.question_sanitized, [[buzzpointIndex]], [' (#) ']);
+  document.getElementById('answer').innerHTML = 'ANSWER: ' + t.answer;
 
   document.getElementById('buzz').disabled = true;
   document.getElementById('buzz').textContent = 'Buzz';
@@ -714,6 +792,27 @@ function revealQuestion () {
 
   document.getElementById('toggle-correct').classList.remove('d-none');
   document.getElementById('toggle-correct').textContent = previous.isCorrect ? 'I was wrong' : 'I was right';
+
+  // Record this buzz now so we can render the server-computed PP without
+  // exposing the formula to the client. next() will skip its own record call.
+  if (await account.getUsername()) {
+    const pointValue = previous.isCorrect ? 10 : 0;
+    const result = await questionStats.recordTossup(
+      t, previous.isCorrect, pointValue, previous.celerity, false,
+      previous.isCorrect ? buzzpointIndex : undefined
+    );
+    previous.recorded = true;
+    const ans = document.getElementById('answer');
+    if (previous.isCorrect && result) {
+      if (typeof result.pp === 'number' && result.pp > 0) {
+        ans.insertAdjacentHTML('beforeend',
+          ` <span class="pp-pop">+${result.pp.toLocaleString()}<small>pp</small></span>`);
+      } else if (result.replay) {
+        ans.insertAdjacentHTML('beforeend',
+          ' <span class="pp-pop pp-pop-replay" title="You already earned PP on this question.">replay · 0 pp</span>');
+      }
+    }
+  }
 
   // Start bonus phase if applicable
   startBonusPhase(previous.isCorrect);
@@ -806,7 +905,7 @@ async function giveBonusAnswer (givenAnswer) {
 
   if (directive === 'accept') {
     bonusCorrect++;
-    bonusPointsPerPart[currentBonusPart] = 10;
+    bonusPointsPerPart[currentBonusPart] = 5;
     if (audio.soundEffects) audio.correct.play();
   } else if (directive === 'prompt') {
     document.getElementById('bonus-answer-input-group').classList.remove('d-none');
@@ -853,7 +952,7 @@ function markBonusPart (wasCorrect) {
   if (!currentBonus) return;
   if (wasCorrect) {
     bonusCorrect++;
-    bonusPointsPerPart[currentBonusPart] = 10;
+    bonusPointsPerPart[currentBonusPart] = 5;
   }
   const answerEl = document.getElementById('bonus-answer');
   const answer = currentBonus.answers[currentBonusPart];
@@ -1133,19 +1232,12 @@ function enterEditMode (tossup) {
 function toggleCorrect () {
   const multiplier = previous.isCorrect ? -1 : 1;
 
-  if (previous.inPower) {
-    stats.powers += multiplier * 1;
-    stats.points += multiplier * previous.powerValue;
-  } else {
-    stats.tens += multiplier * 1;
-    stats.points += multiplier * 10;
-  }
+  // 10 points per correct tossup, 0 for incorrect/dead. No power, no neg.
+  stats.tens += multiplier;
+  stats.points += multiplier * 10;
 
   if (previous.endOfQuestion) {
-    stats.dead += multiplier * -1;
-  } else {
-    stats.negs += multiplier * -1;
-    stats.points += multiplier * -previous.negValue;
+    stats.dead += -multiplier;
   }
 
   stats.totalCorrectCelerity += multiplier * previous.celerity;
@@ -1159,31 +1251,21 @@ function toggleCorrect () {
 
 function updateScore (isCorrect) {
   const endOfQuestion = (tossupTextSplit.length === 0);
-  const inPower = !settings.njclMode && tossupTextSplit.includes('(*)') && tossupText.includes('(*)');
-  const powerValue = settings.njclMode ? 10 : (isPace(query.setName) ? 20 : 15);
-  const negValue = settings.njclMode ? 0 : (isPace(query.setName) ? 0 : -5);
-  const points = isCorrect ? (inPower ? powerValue : 10) : (endOfQuestion ? 0 : negValue);
+  const points = isCorrect ? 10 : 0;
 
   const characterCount = tossupTextSplit.join(' ').length;
   const celerity = characterCount / tossupText.length;
 
-  let result;
-
   if (isCorrect) {
-    result = inPower ? 'powers' : 'tens';
+    stats.tens += 1;
     stats.totalCorrectCelerity += celerity;
   } else {
-    result = endOfQuestion ? 'dead' : 'negs';
+    stats.dead += 1;
   }
-
-  stats[result] += 1;
   stats.points += points;
 
   previous.celerity = celerity;
   previous.endOfQuestion = endOfQuestion;
-  previous.inPower = inPower;
-  previous.negValue = negValue;
-  previous.powerValue = powerValue;
   previous.isCorrect = isCorrect;
 
   updateStatDisplay();
@@ -1196,19 +1278,13 @@ function updateScore (isCorrect) {
  * Updates the displayed stat line.
  */
 function updateStatDisplay () {
-  const { powers, tens, negs, dead, points, totalCorrectCelerity } = stats;
-  const numTossups = powers + tens + negs + dead;
-  const numCorrectTossups = powers + tens;
-  let celerity = numCorrectTossups === 0 ? 0 : parseFloat(totalCorrectCelerity) / numCorrectTossups;
+  const { tens, dead, points, totalCorrectCelerity } = stats;
+  const numTossups = tens + dead;
+  let celerity = tens === 0 ? 0 : parseFloat(totalCorrectCelerity) / tens;
   celerity = Math.round(1000 * celerity) / 1000;
   const includePlural = (numTossups === 1) ? '' : 's';
-  if (settings.njclMode) {
-    document.getElementById('statline').innerHTML =
-      `${numCorrectTossups}/${dead} with ${numTossups} tossup${includePlural} seen (${points} pts, celerity: ${celerity})`;
-  } else {
-    document.getElementById('statline').innerHTML =
-      `${powers}/${tens}/${negs} with ${numTossups} tossup${includePlural} seen (${points} pts, celerity: ${celerity})`;
-  }
+  document.getElementById('statline').innerHTML =
+    `${tens}/${dead} with ${numTossups} tossup${includePlural} seen (${points} pts, celerity: ${celerity})`;
 
   // disable clear stats button if no stats
   document.getElementById('clear-stats').disabled = (numTossups === 0);
@@ -1414,13 +1490,6 @@ document.getElementById('type-to-answer').addEventListener('click', function () 
 document.getElementById('toggle-rebuzz').addEventListener('click', function () {
   this.blur();
   settings.rebuzz = this.checked;
-  window.localStorage.setItem('singleplayer-tossup-settings', JSON.stringify(settings));
-});
-
-document.getElementById('toggle-njcl-mode').addEventListener('click', function () {
-  this.blur();
-  settings.njclMode = this.checked;
-  updateStatDisplay();
   window.localStorage.setItem('singleplayer-tossup-settings', JSON.stringify(settings));
 });
 

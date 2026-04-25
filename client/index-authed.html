@@ -5,7 +5,7 @@
     <title>Certamen Reader</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
+    <meta name="description" content="A text-based packet reader for certamen practice — solo or with friends.">
 
     <link href="/apple-touch-icon.png" rel="apple-touch-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
@@ -39,6 +39,9 @@
                         <a class="nav-link" href="/db">Database</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="/leaderboards">Leaderboards</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="/about">About</a>
                     </li>
                 </ul>
@@ -53,68 +56,104 @@
         </div>
     </nav>
 
-    <div class="container-xl mt-4 mb-5 pb-5">
-        <section class="ed-hero">
-            <div class="ed-hero-left">
-                <span class="ed-eyebrow">A text-based packet reader</span>
-                <h1 class="ed-title">Welcome to <em>Certamen Reader</em></h1>
-                <p class="ed-lede">
-                    Practice tossups and bonuses from the latest Certamen packets — on your own, or with friends
-                    in real time. Filter by set, category, and difficulty, and track your stats as you go.
+    <div class="home">
+        <!-- Hero -->
+        <section class="home-hero">
+            <div class="home-hero-left">
+                <h1 class="home-title">
+                    A text-based packet reader<br/>for <em>certamen</em> practice.
+                </h1>
+                <p class="home-lede">
+                    Solo or with friends. Buzz on a tossup, type your answer, 
+                    and track celerity against other people on the 
+                    ranked leaderboard.
                 </p>
-                <div class="ed-cta">
-                    <a class="btn btn-success btn-lg px-5" href="/singleplayer/tossups">Start Playing</a>
-                    <a class="btn btn-outline-light btn-lg px-4" href="/db">Search Database</a>
+                <div class="home-cta">
+                    <a class="btn btn-primary" href="/singleplayer/tossups">
+                        Start reading
+                    </a>
+                    <a class="btn btn-outline-light btn-ghost" href="/multiplayer">Join a room</a>
+                    <a class="btn btn-outline-light btn-ghost" href="/upload">Upload a packet</a>
                 </div>
             </div>
-            <aside class="ed-hero-right">
-                <div style="font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ed-ink-muted);">Quick Start</div>
-                <div style="font-family: var(--font-serif); font-size: 1.3rem; font-weight: 500; color: var(--ed-ink); letter-spacing: -0.01em;">Pick where to begin</div>
-                <div style="display: grid; gap: 0.55rem; margin-top: 0.3rem;">
-                    <a href="/singleplayer/tossups" style="display:flex; justify-content:space-between; align-items:center; padding: 0.7rem 0.85rem; border:1px solid var(--ed-border-soft); border-radius:8px; color:var(--ed-ink-dim); background: var(--ed-bg-sunken);">
-                        <span><b style="color:var(--ed-ink);">Singleplayer</b> · Tossups</span>
-                        <span style="color: var(--accent);">→</span>
-                    </a>
-                    <a href="/multiplayer" style="display:flex; justify-content:space-between; align-items:center; padding: 0.7rem 0.85rem; border:1px solid var(--ed-border-soft); border-radius:8px; color:var(--ed-ink-dim); background: var(--ed-bg-sunken);">
-                        <span><b style="color:var(--ed-ink);">Multiplayer</b> · Rooms</span>
-                        <span style="color: var(--accent);">→</span>
-                    </a>
-                    <a href="/upload" style="display:flex; justify-content:space-between; align-items:center; padding: 0.7rem 0.85rem; border:1px solid var(--ed-border-soft); border-radius:8px; color:var(--ed-ink-dim); background: var(--ed-bg-sunken);">
-                        <span><b style="color:var(--ed-ink);">Upload</b> · Your packet</span>
-                        <span style="color: var(--accent);">→</span>
-                    </a>
+            <!-- <aside class="home-hero-right">
+                <div style="display: flex; align-items: baseline;">
+                    <div class="home-set-eyebrow">Current set</div>
+                    <a class="home-set-change" href="/singleplayer/tossups">change</a>
                 </div>
-            </aside>
+                <div class="home-set-title" id="home-set-title">No set selected</div>
+                <div class="home-set-meta" id="home-set-meta">
+                    <span class="chip chip-active">All levels</span>
+                    <span class="chip">2010–2025</span>
+                </div>
+                <div class="home-set-stats">
+                    <div class="home-set-stat">
+                        <div class="l">Accuracy</div>
+                        <div class="v" id="home-stat-accuracy">—<small>%</small></div>
+                    </div>
+                    <div class="home-set-stat">
+                        <div class="l">Seen</div>
+                        <div class="v" id="home-stat-seen">0</div>
+                    </div>
+                    <div class="home-set-stat">
+                        <div class="l">Celerity</div>
+                        <div class="v" id="home-stat-celerity">—</div>
+                    </div>
+                </div>
+            </aside> -->
         </section>
 
-        <div class="row g-4 py-4 row-cols-1 row-cols-lg-3">
-            <div class="feature col">
-                <div class="ed-card-eyebrow">Practice</div>
-                <h3 class="fs-2">Singleplayer Practice</h3>
-                <p>Read tossups to yourself at your own speed.</p>
-                <a href="/singleplayer/tossups" class="icon-link">
-                    Go to Singleplayer
-                </a>
+        <!-- Two-column grid: Packets & Categories + Settings & Shortcuts -->
+        <div class="home-grid">
+            <div class="home-card">
+                <div class="home-card-hdr"><span>Sets</span><a href="/db">browse all →</a></div>
+                <div class="home-sets" id="home-sets">
+                    <div class="home-sets-empty">Loading sets…</div>
+                </div>
+                <div class="home-card-hdr" style="margin-top: 1.1rem;"><span>Categories</span></div>
+                <div class="cat-grid">
+                    <button type="button" class="cat-chip" data-cat="Mythology" data-on="true">Mythology</button>
+                    <button type="button" class="cat-chip" data-cat="Roman History" data-on="true">Roman History</button>
+                    <button type="button" class="cat-chip" data-cat="Latin Literature" data-on="true">Latin Literature</button>
+                    <button type="button" class="cat-chip" data-cat="Language" data-on="true">Language</button>
+                    <button type="button" class="cat-chip" data-cat="Culture" data-on="true">Culture</button>
+                </div>
             </div>
-            <div class="feature col">
-                <div class="ed-card-eyebrow">Compete</div>
-                <h3 class="fs-2">Multiplayer Rooms</h3>
-                <p>Play against your friends in real-time.</p>
-                <a href="/multiplayer" class="icon-link">
-                    Go to Multiplayer
-                </a>
-            </div>
-            <div class="feature col">
-                <div class="ed-card-eyebrow">Explore</div>
-                <h3 class="fs-2">Database</h3>
-                <p>Search through thousands of historical Certamen questions. Filter by set, year, difficulty, and more.</p>
-                <a href="/db" class="icon-link">
-                    Go to Database
-                </a>
+
+            <div class="home-card">
+                <div class="home-card-hdr"><span>Settings</span><a href="/singleplayer/tossups">edit →</a></div>
+                <div class="home-settings-grid">
+                    <div class="home-setting-row"><span>Tossup timer</span><span class="state">off</span></div>
+                    <div class="home-setting-row"><span>Standard formats</span><span class="state">off</span></div>
+                    <div class="home-setting-row"><span>Show history</span><span class="state" data-on="true">on</span></div>
+                    <div class="home-setting-row"><span>Type to answer</span><span class="state" data-on="true">on</span></div>
+                    <div class="home-setting-row"><span>Allow rebuzzes</span><span class="state">off</span></div>
+                    <div class="home-setting-row"><span>Read boni</span><span class="state" data-on="true">on</span></div>
+                    <div class="home-setting-row"><span>Boni on drops</span><span class="state">off</span></div>
+                </div>
+                <div class="home-card-hdr" style="margin-top: 1.1rem;"><span>Shortcuts</span></div>
+                <div class="home-shortcuts">
+                    <div class="home-shortcut"><span>Buzz</span><kbd>Space</kbd></div>
+                    <div class="home-shortcut"><span>Next tossup</span><kbd>N</kbd></div>
+                    <div class="home-shortcut"><span>Pause</span><kbd>P</kbd></div>
+                    <div class="home-shortcut"><span>Star</span><kbd>T</kbd></div>
+                    <div class="home-shortcut"><span>Show last</span><kbd>K</kbd></div>
+                    <div class="home-shortcut"><span>Copy id</span><kbd>Y</kbd></div>
+                </div>
             </div>
         </div>
 
-        <div class="text-center mt-5">
+        <!-- Recent activity -->
+        <div class="home-card">
+            <div class="home-card-hdr"><span>Recent activity</span><a href="/user/stats">full history →</a></div>
+            <div id="home-recent">
+                <div class="home-recent-row" style="color: var(--ink-faint); font-style: italic; font-family: var(--font-serif); grid-template-columns: 1fr; justify-items: center; padding: 1rem 0;">
+                    <span>No recent activity yet — start reading to see your last tossups here.</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 0.5rem;">
             <a class="ed-discord" href="https://discord.gg/US9udtNvKf">Join the <b>official Certamen Reader discord</b></a>
         </div>
     </div>

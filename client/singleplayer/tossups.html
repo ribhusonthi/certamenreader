@@ -43,6 +43,9 @@
                         <a class="nav-link" href="/db">Database</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="/leaderboards">Leaderboards</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="/about">About</a>
                     </li>
                     <!-- <li class="nav-item">
@@ -155,9 +158,6 @@
                         <label class="toggle-row"><span>Tossup timer</span>
                             <input type="checkbox" id="toggle-tossup-timer"><span class="toggle-switch"></span>
                         </label>
-                        <label class="toggle-row" data-on="true"><span>NJCL scoring</span>
-                            <input type="checkbox" id="toggle-njcl-mode" checked><span class="toggle-switch"></span>
-                        </label>
                         <label class="toggle-row"><span>Standard formats only</span>
                             <input type="checkbox" id="toggle-standard-only"><span class="toggle-switch"></span>
                         </label>
@@ -196,10 +196,17 @@
         <main class="reader-main">
             <div class="reader-hdr">
                 <div class="reader-hdr-meta" id="question-metadata">
-                    <span id="set-name-info-hdr"></span>
+                    <span id="set-name-info-hdr">No set selected</span>
+                    <span class="dot" id="hdr-dot-packet" hidden></span>
+                    <span id="packet-info-hdr" hidden></span>
+                    <span class="dot" id="hdr-dot-round" hidden></span>
+                    <span id="round-info-hdr" hidden></span>
+                    <span class="dot" id="hdr-dot-num" hidden></span>
+                    <span id="tossup-num-hdr" hidden></span>
                 </div>
                 <div class="reader-hdr-right">
                     <span class="cat-badge question-cat-badge d-none" id="question-category"></span>
+                    <span class="level-badge d-none" id="question-level"></span>
                 </div>
             </div>
 
@@ -207,7 +214,7 @@
 
             <div class="d-flex flex-wrap gap-2 align-items-center">
                 <button class="btn btn-primary" id="next" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
-                    title="Shortcut: n or s key">Start</button>
+                    title="Shortcut: n or s key">Start<span class="kbd-hint">Space</span></button>
                 <button class="btn btn-outline-warning d-lg-none" id="toggle-options" type="button" disabled>Options</button>
             </div>
 
@@ -269,6 +276,9 @@
                 <button class="btn btn-success" id="answer-submit" type="submit">Submit</button>
             </div>
         </form>
+        <div class="buzz-bar-hint" id="buzz-bar-hint">
+            Tap <kbd>Space</kbd> to buzz · <kbd>N</kbd> next · <kbd>T</kbd> star
+        </div>
     </div>
 
     <div class="modal modal-lg" id="set-modal" tabindex="-1">

@@ -13,6 +13,12 @@ const discordLinkTokens = accountInfo.collection('discord-link-tokens');
 // Create TTL index so MongoDB auto-expires tokens after 10 minutes
 discordLinkTokens.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 }).catch(() => {});
 
+// Speed up the per-user "have I already earned PP on this tossup?" lookup
+// done on every recordTossupData call, plus the leaderboard / profile
+// aggregations that group by user_id.
+tossupData.createIndex({ user_id: 1, tossup_id: 1 }).catch(() => {});
+tossupData.createIndex({ user_id: 1, pp: -1 }).catch(() => {});
+
 const usernameToId = {};
 const idToUsername = {};
 

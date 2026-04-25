@@ -2,10 +2,10 @@
 <html lang="en">
 
 <head>
-    <title>Certamen Reader</title>
+    <title>Settings — Certamen Reader</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Adjust QB Reader settings.">
+    <meta name="description" content="Adjust Certamen Reader site-wide settings.">
 
     <link href="/apple-touch-icon.png" rel="apple-touch-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
@@ -37,15 +37,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/db">Database</a>
                     </li>
-                    <!-- <li class="nav-item">
-                        <a class="nav-link" href="/frequency-list">Frequency List</a>
-                    </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/geoword">Geoword</a>
+                        <a class="nav-link" href="/leaderboards">Leaderboards</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/api-docs">API</a>
-                    </li> -->
                     <li class="nav-item">
                         <a class="nav-link" href="/about">About</a>
                     </li>
@@ -64,65 +58,93 @@
         </div>
     </nav>
 
-    <div class="container-xl mt-4 mb-5 pb-5">
-        <h2 class="mb-4">Settings</h2>
-        <p class="lead mb-4">Adjust site-wide preferences here.</p>
-        
-        <div class="row">
-            <div class="col-12 col-lg-6 mb-4">
-                <div class="card shadow-sm p-4 h-100">
-                    <h4 class="mb-3 text-primary">Appearance</h4>
-                    <p>
-                        <a id="toggle-color-theme" href="#" class="fw-bold fs-5">Toggle light/dark mode</a>.
-                        <br>(It defaults to your system setting.)
-                    </p>
-                    <p class="mb-4">
-                        Alternatively, <a id="reset-color-theme" href="#">click here</a> to clear your selection to allow the website to automatically adjust to your system setting.
-                    </p>
-                    
-                    <label for="font-size" class="fw-bold">Font size: <span id="font-size-display" class="text-primary">16</span>px</label>
+    <div class="settings-page">
+        <header class="settings-hdr">
+            <span class="ed-eyebrow">Settings</span>
+            <h1>Site preferences</h1>
+            <p>Adjust the theme, reader font, sound effects, and your multiplayer name.</p>
+        </header>
+
+        <div class="settings-grid">
+            <section class="settings-card">
+                <h4>Appearance</h4>
+
+                <div class="settings-row">
+                    <div>
+                        <div class="settings-label">Color theme</div>
+                        <div class="settings-hint">Defaults to your system setting. <a id="reset-color-theme" href="#" style="color: var(--accent);">reset to system</a>.</div>
+                    </div>
+                    <a id="toggle-color-theme" href="#" class="btn btn-outline-light btn-ghost" style="background: transparent; border: 1px solid var(--border); color: var(--ink-dim); padding: 0.45rem 0.85rem;">Toggle light / dark</a>
+                </div>
+
+                <div class="settings-row" style="flex-direction: column; align-items: stretch; gap: 0.4rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                        <span class="settings-label">Reader font size</span>
+                        <span style="font-family: var(--font-mono); color: var(--ink); font-size: 0.85rem;"><span id="font-size-display">16</span>px</span>
+                    </div>
                     <input class="form-range" id="font-size" type="range" value="16" min="10" max="30" step="1">
-                    <p class="text-muted small mb-4">This is the font size used to display the questions on the singleplayer and multiplayer pages.</p>
-                    
-                    <div class="form-check form-switch fs-5 mb-2">
-                        <input class="form-check-input" id="toggle-database-font-size" type="checkbox" role="switch">
-                        <label class="form-check-label" for="toggle-database-font-size">Apply font setting to database</label>
-                    </div>
-                    
-                    <div class="form-check form-switch fs-5 mb-2 mt-4">
-                        <input class="form-check-input" id="toggle-high-contrast-question-text" type="checkbox" role="switch">
-                        <label class="form-check-label" for="toggle-high-contrast-question-text">High contrast text</label>
-                    </div>
-                    <p class="text-muted small">
-                        When enabled, increases the contrast of the question text and the background by setting it in Times New Roman font and drawing a box around the questions.
-                    </p>
-                </div>
-            </div>
-
-            <div class="col-12 col-lg-6 mb-4">
-                <div class="card shadow-sm p-4 mb-4">
-                    <h4 class="mb-3 text-success">Gameplay</h4>
-                    <div class="form-check form-switch fs-5 mb-2">
-                        <input class="form-check-input" id="toggle-sound-effects" type="checkbox" role="switch">
-                        <label class="form-check-label" for="toggle-sound-effects">Play sound effects</label>
-                    </div>
-                    <p class="text-muted small mb-0">
-                        When enabled, plays sound effects when you buzz in, get a question right, or get a question wrong.
-                    </p>
+                    <div class="settings-hint">Used for question text in the singleplayer and multiplayer readers.</div>
                 </div>
 
-                <div class="card shadow-sm p-4">
-                    <h4 class="mb-3 text-info">Account & Profile</h4>
-                    <label for="multiplayer-name" class="fw-bold mb-2">Multiplayer username:</label>
-                    <input class="form-control form-control-lg" id="multiplayer-name" type="text" name="username" placeholder="Enter username...">
+                <label class="toggle-row" data-on="false">
+                    <div>
+                        <span class="settings-label">Apply font setting to database</span>
+                        <div class="settings-hint">Use the reader font size on Database cards too.</div>
+                    </div>
+                    <input class="form-check-input d-none" id="toggle-database-font-size" type="checkbox" role="switch">
+                    <span class="toggle-switch"></span>
+                </label>
+
+                <label class="toggle-row" data-on="false">
+                    <div>
+                        <span class="settings-label">High contrast question text</span>
+                        <div class="settings-hint">Renders questions in Times New Roman with a box around them.</div>
+                    </div>
+                    <input class="form-check-input d-none" id="toggle-high-contrast-question-text" type="checkbox" role="switch">
+                    <span class="toggle-switch"></span>
+                </label>
+            </section>
+
+            <section class="settings-card">
+                <h4>Gameplay</h4>
+                <label class="toggle-row" data-on="false">
+                    <div>
+                        <span class="settings-label">Play sound effects</span>
+                        <div class="settings-hint">Buzz in, correct, and neg sounds.</div>
+                    </div>
+                    <input class="form-check-input d-none" id="toggle-sound-effects" type="checkbox" role="switch">
+                    <span class="toggle-switch"></span>
+                </label>
+
+                <h4 style="margin-top: 0.8rem;">Account &amp; profile</h4>
+                <div class="up-row">
+                    <label for="multiplayer-name">Multiplayer username</label>
+                    <input class="form-control" id="multiplayer-name" type="text" name="username" placeholder="Enter a display name for multiplayer…">
                 </div>
-            </div>
+            </section>
         </div>
     </div>
 
     <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
     <script type="module" src="/script.js"></script>
     <script type="module" src="/settings/index.js"></script>
+
+    <script>
+      // Keep the editorial toggle switches in sync with the underlying checkboxes
+      (function () {
+        document.querySelectorAll('.toggle-row input[type="checkbox"]').forEach(cb => {
+          const row = cb.closest('.toggle-row');
+          if (!row) return;
+          const update = () => row.setAttribute('data-on', cb.checked ? 'true' : 'false');
+          update();
+          cb.addEventListener('change', update);
+        });
+        // Font size display
+        const fs = document.getElementById('font-size');
+        const fsd = document.getElementById('font-size-display');
+        if (fs && fsd) fs.addEventListener('input', () => { fsd.textContent = fs.value; });
+      })();
+    </script>
 </body>
 
 </html>

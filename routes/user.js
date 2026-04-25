@@ -26,6 +26,10 @@ router.get('/login', async (req, res) => {
 
 router.get('/my-profile', getPageSecurely('my-profile.html'));
 
+// Public profile pages (any logged-in user can view) — the page JS reads the
+// :username slug from the URL and fetches /auth/profile/:username for data.
+router.get('/profile/:username', getPageSecurely('profile.html'));
+
 router.get('/stars/bonuses', getPageSecurely('stars/bonuses.html'));
 router.get('/stars/tossups', getPageSecurely('stars/tossups.html'));
 
