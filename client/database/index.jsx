@@ -671,7 +671,7 @@ function QueryForm () {
       setQueryTime(timeElapsed);
     });
 
-    document.getElementById('set-list').innerHTML = api.getSetList().map(setName => `<option>${setName}</option>`).join('');
+    // The set picker now lives in #set-modal; it's populated by set-selector.js.
   }, []);
 
   return (
@@ -711,8 +711,11 @@ function QueryForm () {
             <input type='number' className='form-control' id='max-return-length' placeholder='# to Display' value={maxReturnLength} onChange={event => { setMaxReturnLength(event.target.value); }} />
           </div>
           <div className='input-group col-12 col-xl-6 mb-2'>
-            <input type='text' className='form-control' id='set-name' placeholder='Set Name' list='set-list' />
-            <datalist id='set-list' />
+            <button type='button' className='db-set-picker' id='db-set-picker' data-bs-toggle='modal' data-bs-target='#set-modal'>
+              <span className='db-set-picker-label' id='db-set-picker-label'>Any set</span>
+              <span className='db-set-picker-cta'>Change</span>
+            </button>
+            <input type='hidden' id='set-name' />
             <button type='button' className='btn btn-danger' id='category-select-button' data-bs-toggle='modal' data-bs-target='#category-modal'>Category</button>
           </div>
         </div>

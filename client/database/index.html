@@ -158,6 +158,64 @@
         </div>
     </div>
 
+    <!-- Editorial set picker — same modal markup as the singleplayer reader. -->
+    <div class="modal modal-lg ed-modal" id="set-modal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <span class="ed-eyebrow">Filter by set</span>
+                        <h5 class="modal-title">Pick a <em>set</em>, or search across everything.</h5>
+                    </div>
+                    <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="ed-modal-lede">Leave blank to search the whole library. Pick a set to scope your query.</p>
+
+                    <div class="ed-form-grid">
+                        <div class="ed-form-row">
+                            <label>Level</label>
+                            <div class="ed-chip-row" id="set-modal-difficulties">
+                                <label class="ed-chip" data-on="false"><input type="checkbox" value="1"><span>Novice</span></label>
+                                <label class="ed-chip" data-on="false"><input type="checkbox" value="5"><span>Intermediate</span></label>
+                                <label class="ed-chip" data-on="false"><input type="checkbox" value="10"><span>Advanced</span></label>
+                            </div>
+                        </div>
+
+                        <div class="ed-form-row">
+                            <label for="set-modal-tournament">Tournament</label>
+                            <select id="set-modal-tournament" class="ed-input"></select>
+                        </div>
+
+                        <div class="ed-form-row">
+                            <label>Year range</label>
+                            <div class="ed-year-range">
+                                <input id="set-modal-year-min" type="number" class="ed-input" placeholder="from">
+                                <span class="ed-year-sep">→</span>
+                                <input id="set-modal-year-max" type="number" class="ed-input" placeholder="to">
+                            </div>
+                        </div>
+
+                        <div class="ed-form-row">
+                            <label for="set-modal-search">Search</label>
+                            <input id="set-modal-search" type="search" class="ed-input" placeholder="Filter sets…">
+                        </div>
+                    </div>
+
+                    <div class="ed-modal-section-hdr">
+                        <span>Matching sets</span>
+                        <button id="set-modal-clear" type="button" class="ed-link">Clear selection</button>
+                    </div>
+                    <div id="set-modal-list" class="ed-set-list"></div>
+                    <div class="ed-modal-current">Selected: <span id="set-modal-current">none — search across all sets</span></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal" id="bonus-stats-modal" tabindex="-4">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -191,6 +249,7 @@
     <script type="module" src="/react/umd/react.production.min.js"></script>
     <script type="module" src="/react-dom/umd/react-dom.production.min.js"></script>
     <script type="module" src="/database/index.js"></script>
+    <script type="module" src="/database/set-picker.js"></script>
 </body>
 
 </html>

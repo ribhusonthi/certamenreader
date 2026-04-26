@@ -1,13 +1,14 @@
 import { tossupData, users } from './collections.js';
+import {
+  weightedTopSum, activityBonus, PP_TOP_N, PP_WEIGHT_DECAY
+} from '../../lib/performance-points.js';
 
 /**
- * Get a user's public profile: identity + total PP + their top buzzes
- * (sorted by PP descending).
+ * Public profile: identity + osu-style weighted PP totals + best buzzes.
  *
  * @param {string} username
  * @param {Object} [opts]
- * @param {number} [opts.topN=15]  How many best buzzes to return.
- * @returns {Promise<Object | null>}
+ * @param {number} [opts.topN=15]  How many best buzzes to return for display.
  */
 async function getUserProfile (username, { topN = 15 } = {}) {
   const user = await users.findOne(
@@ -16,24 +17,10 @@ async function getUserProfile (username, { topN = 15 } = {}) {
   );
   if (!user) return null;
 
-  const totals = await tossupData.aggregate([
-    { $match: { user_id: user._id, pp: { $gt: 0 } } },
-    {
-      $group: {
-        _id: null,
-        totalPP:        { $sum: '$pp' },
-        correctBuzzes:  { $sum: 1 },
-        bestPP:         { $max: '$pp' },
-        avgCelerity:    { $avg: '$celerity' }
-      }
-    }
-  ]).toArray();
-
-  const seen = await tossupData.countDocuments({ user_id: user._id });
-  const t = totals[0] || { totalPP: 0, correctBuzzes: 0, bestPP: 0, avgCelerity: 0 };
-
-  // Top N buzzes by PP (correct only).
-  const topBuzzes = await tossupData.find(
+  // Pull every PP-bearing buzz, sorted desc. The math is small enough to do in
+  // JS, and giving the client per-buzz weighted contributions makes the
+  // weighting transparent on the profile.
+  const allBuzzes = await tossupData.find(
     { user_id: user._id, pp: { $gt: 0 } },
     {
       projection: {
@@ -42,26 +29,26 @@ async function getUserProfile (username, { topN = 15 } = {}) {
         questionText: 1, answerText: 1, recordedAt: 1
       }
     }
-  )
-    .sort({ pp: -1, recordedAt: -1 })
-    .limit(topN)
-    .toArray();
+  ).sort({ pp: -1, recordedAt: -1 }).toArray();
 
-  return {
-    user: {
-      username: user.username,
-      name: user.name,
-      joined: user.createdAt
-    },
-    stats: {
-      totalPP:       Math.round(t.totalPP || 0),
-      correctBuzzes: t.correctBuzzes || 0,
-      seen,
-      bestPP:        Math.round(t.bestPP || 0),
-      avgCelerity:   Math.round((t.avgCelerity || 0) * 1000) / 1000
-    },
-    topBuzzes: topBuzzes.map(b => ({
+  const seen = await tossupData.countDocuments({ user_id: user._id });
+  const correctBuzzes = allBuzzes.length;
+  const ppList = allBuzzes.map(b => b.pp);
+  const weightedPP = weightedTopSum(ppList);
+  const bonusPP = activityBonus(correctBuzzes);
+  const bestPP = correctBuzzes ? Math.round(allBuzzes[0].pp) : 0;
+  const avgCelerity = correctBuzzes
+    ? allBuzzes.reduce((s, b) => s + (b.celerity || 0), 0) / correctBuzzes
+    : 0;
+
+  // Mark the top N for display, with their weighted contribution shown
+  // alongside the raw PP so the decay is transparent.
+  const topBuzzes = allBuzzes.slice(0, topN).map((b, i) => {
+    const weight = i < PP_TOP_N ? Math.pow(PP_WEIGHT_DECAY, i) : 0;
+    return {
       pp: Math.round(b.pp || 0),
+      weightedPP: Math.round((b.pp || 0) * weight),
+      weightPct: Math.round(weight * 1000) / 10,    // e.g. 95.0 → "95.0%"
       celerity: b.celerity,
       difficulty: b.difficulty,
       category: b.category,
@@ -71,7 +58,25 @@ async function getUserProfile (username, { topN = 15 } = {}) {
       questionText: b.questionText,
       answerText: b.answerText,
       recordedAt: b.recordedAt
-    }))
+    };
+  });
+
+  return {
+    user: {
+      username: user.username,
+      name: user.name,
+      joined: user.createdAt
+    },
+    stats: {
+      totalPP: weightedPP + bonusPP,
+      weightedPP,
+      bonusPP,
+      correctBuzzes,
+      seen,
+      bestPP,
+      avgCelerity: Math.round(avgCelerity * 1000) / 1000
+    },
+    topBuzzes
   };
 }
 
