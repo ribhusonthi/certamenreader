@@ -177,7 +177,7 @@ const defaults = {
   setName: '',
   standardOnly: false,
   subcategories: [],
-  version: '04-25-2026'
+  version: '04-26-2026'
 };
 
 let query;
@@ -448,8 +448,11 @@ async function advanceQuestion () {
       return false;
     }
 
-    query.setName = tossups[0].set.name;
-    query.packetNumbers = [tossups[0].packet.number];
+    // Don't mutate the user's filter just because *this* random tossup happens
+    // to come from a particular set/packet. Doing so silently locks them in
+    // when localStorage gets persisted later (e.g. after closing the category
+    // modal). Downstream code reads tossup.set.name / tossup.packet.number
+    // directly when it needs them.
 
     tossupText = tossups[0].question_sanitized;
     tossupTextSplit = tossupText.split(' ').filter(word => word !== '');
@@ -637,7 +640,7 @@ async function next () {
   document.getElementById('pause').textContent = 'Pause';
   document.getElementById('pause').disabled = false;
   document.getElementById('question').innerHTML = '';
-  document.getElementById('set-name-info').textContent = query.setName;
+  document.getElementById('set-name-info').textContent = query.setName || 'No set selected';
 
   const currentTossup = tossups[questionNumber - 1];
   updateReaderHeader(currentTossup);
