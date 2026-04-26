@@ -576,8 +576,7 @@
           syncChip(chip);
           chip.addEventListener('click', (e) => {
             e.preventDefault();
-            cb.checked = !cb.checked;
-            cb.dispatchEvent(new Event('change', { bubbles: true }));
+            cb.click();          // toggles + fires the click handler in room.js
             syncChip(chip);
           });
           cb.addEventListener('change', () => syncChip(chip));
@@ -589,8 +588,7 @@
             chips.forEach(chip => {
               const cb = document.getElementById(chip.dataset.checkboxId);
               if (cb && cb.checked === allOn) {
-                cb.checked = !allOn;
-                cb.dispatchEvent(new Event('change', { bubbles: true }));
+                cb.click();
                 syncChip(chip);
               }
             });
