@@ -54,7 +54,10 @@ if (!slug) {
             </div>
             <div class="profile-buzz-stats">
               <div class="profile-buzz-pp">${b.pp.toLocaleString()}<small> pp</small></div>
-              <div class="profile-buzz-sub">cel ${(b.celerity ?? 0).toFixed(2)} · ${escapeHtml(difficultyLabel(b.difficulty))}</div>
+              <div class="profile-buzz-sub">
+                <span class="profile-buzz-weight" title="Counts at ${b.weightPct.toFixed(1)}% — only your top 100 buzzes contribute, with each rank dropping 5%.">×${b.weightPct.toFixed(1)}%</span>
+                · cel ${(b.celerity ?? 0).toFixed(2)} · ${escapeHtml(difficultyLabel(b.difficulty))}
+              </div>
             </div>
           </div>
         `).join('');

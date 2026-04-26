@@ -736,7 +736,8 @@ function QueryForm() {
       setBonusPaginationShift(paginationShiftLength * Math.floor((bonusPaginationNumber - 1) / paginationShiftLength));
       setQueryTime(timeElapsed);
     });
-    document.getElementById('set-list').innerHTML = api.getSetList().map(setName => `<option>${setName}</option>`).join('');
+
+    // The set picker now lives in #set-modal; it's populated by set-selector.js.
   }, []);
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(CategoryModal, null), /*#__PURE__*/React.createElement("form", {
     className: "mt-4 mb-5",
@@ -806,14 +807,20 @@ function QueryForm() {
     }
   })), /*#__PURE__*/React.createElement("div", {
     className: "input-group col-12 col-xl-6 mb-2"
-  }, /*#__PURE__*/React.createElement("input", {
-    type: "text",
-    className: "form-control",
-    id: "set-name",
-    placeholder: "Set Name",
-    list: "set-list"
-  }), /*#__PURE__*/React.createElement("datalist", {
-    id: "set-list"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "db-set-picker",
+    id: "db-set-picker",
+    "data-bs-toggle": "modal",
+    "data-bs-target": "#set-modal"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "db-set-picker-label",
+    id: "db-set-picker-label"
+  }, "Any set"), /*#__PURE__*/React.createElement("span", {
+    className: "db-set-picker-cta"
+  }, "Change")), /*#__PURE__*/React.createElement("input", {
+    type: "hidden",
+    id: "set-name"
   }), /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn btn-danger",

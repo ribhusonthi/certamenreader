@@ -1,26 +1,29 @@
-// Shared logic for the "Select Set" modal used on singleplayer and multiplayer
-// pages. Replaces the old type-in set input + sidebar difficulty/year controls.
+// Shared logic for the "Choose a set" modal used on the singleplayer and
+// multiplayer pages. The packet picker now lives inside this modal too —
+// the sidebar only displays the selection summary.
 //
-// The modal (id="set-modal") is expected to already exist in the page HTML
-// with the following element ids inside:
-//   #set-modal-difficulties   container holding checkboxes with values 1/5/10
-//   #set-modal-tournament     <select> of tournament names (populated here)
-//   #set-modal-year-min       <input type="number"> min year
-//   #set-modal-year-max       <input type="number"> max year
-//   #set-modal-search         <input type="text"> free-text filter
-//   #set-modal-list           container into which matching sets are rendered
+// Expected DOM (inside the modal):
+//   #set-modal-difficulties   <label class="ed-chip"> wrapping a checkbox value=1/5/10
+//   #set-modal-tournament     <select> populated by this module
+//   #set-modal-year-min       year filter
+//   #set-modal-year-max       year filter
+//   #set-modal-search         free-text filter
+//   #set-modal-list           container for matching set rows
 //   #set-modal-clear          "Clear selected set" button
 //   #set-modal-current        span showing the currently-selected set name
+//   #set-modal-packets        container for packet chips (filled when a set is picked)
+//   #set-modal-packets-hdr    section header with "Toggle all" link
+//   #set-modal-packets-all    toggle-all button
 //
-// The caller also has an "opener" button in the page sidebar (usually
-// #open-set-modal) that displays the current selection summary.
+// Optional sidebar elements that get kept in sync:
+//   #open-set-modal           opener button label
+//   #set-name-info            "Current set" sidebar title
+//   #set-card-difficulty      sidebar level / random chip
+//   #set-card-packets         sidebar packet-count chip
 
 const DIFFICULTY_LABELS = { 1: 'Novice', 5: 'Intermediate', 10: 'Advanced' };
 
 function parseTournament (setName) {
-  // "Harvard Advanced 2015" -> "Harvard"
-  // "Premier Elite 2023"    -> "Premier"
-  // "Nationals Novice 2010" -> "Nationals"
   const parts = String(setName).trim().split(/\s+/);
   if (parts.length < 3) return setName;
   return parts.slice(0, -2).join(' ');
@@ -46,14 +49,16 @@ function parseDifficultyValue (setName) {
  * Initialize the set-selector modal.
  *
  * @param {Object}   opts
- * @param {string[]} opts.sets       All available set names.
- * @param {Object}   opts.state      Initial state { setName, difficulties, minYear, maxYear }.
- * @param {Object}   opts.on         Callbacks fired immediately when a control changes.
- *                                   { onSetChange(setName), onDifficultiesChange(list),
- *                                     onYearRangeChange(minYear, maxYear) }
- * @returns {{ setState: Function, refreshOpener: Function }}
+ * @param {string[]} opts.sets            All available set names.
+ * @param {Object}   opts.state           Initial state { setName, packetNumbers, difficulties, minYear, maxYear }.
+ * @param {Function} [opts.fetchPackets]  async (setName) => Array<{ name, number }>
+ *                                        Used to populate the in-modal packet picker.
+ * @param {Object}   opts.on              Callbacks fired immediately when a control changes.
+ *                                        { onSetChange(setName), onPacketsChange(numbers),
+ *                                          onDifficultiesChange(list),
+ *                                          onYearRangeChange(minYear, maxYear) }
  */
-export function initSetSelector ({ sets, state, on }) {
+export function initSetSelector ({ sets, state, on, fetchPackets }) {
   const modal = document.getElementById('set-modal');
   if (!modal) return { setState () {}, refreshOpener () {} };
 
@@ -65,6 +70,16 @@ export function initSetSelector ({ sets, state, on }) {
   const searchEl = document.getElementById('set-modal-search');
   const currentEl = document.getElementById('set-modal-current');
   const opener = document.getElementById('open-set-modal');
+
+  // Optional sidebar mirrors
+  const sidebarSetNameEl = document.getElementById('set-name-info');
+  const sidebarDifficultyEl = document.getElementById('set-card-difficulty');
+  const sidebarPacketsEl = document.getElementById('set-card-packets');
+
+  // Packet picker (inside the modal)
+  const packetsHdr = document.getElementById('set-modal-packets-hdr');
+  const packetsEl = document.getElementById('set-modal-packets');
+  const packetsAllBtn = document.getElementById('set-modal-packets-all');
 
   const difficultyInputs = Array.from(
     document.querySelectorAll('#set-modal-difficulties input[type="checkbox"]')
@@ -99,15 +114,25 @@ export function initSetSelector ({ sets, state, on }) {
   yearMinEl.value = state.minYear ?? minYearBound;
   yearMaxEl.value = state.maxYear ?? maxYearBound;
 
-  // Sync difficulty checkboxes from state
+  // Sync difficulty checkboxes from state and reflect on the editorial chip wrapper.
   for (const input of difficultyInputs) {
     input.checked = (state.difficulties || []).includes(parseInt(input.value, 10));
+    syncChipFromCheckbox(input);
+  }
+
+  function syncChipFromCheckbox (input) {
+    const chip = input.closest('.ed-chip');
+    if (chip) chip.setAttribute('data-on', input.checked ? 'true' : 'false');
+  }
+  for (const input of difficultyInputs) {
+    input.addEventListener('change', () => syncChipFromCheckbox(input));
   }
 
   function currentDifficulties () {
     return difficultyInputs.filter(i => i.checked).map(i => parseInt(i.value, 10));
   }
 
+  // ── Set list ──────────────────────────────────────────────────────────────
   function renderSetList () {
     const tournament = tournamentSelect.value;
     const diffs = currentDifficulties();
@@ -128,7 +153,6 @@ export function initSetSelector ({ sets, state, on }) {
       return true;
     });
 
-    // Sort: tournament alpha, then year desc
     filtered.sort((a, b) => {
       const ta = parseTournament(a);
       const tb = parseTournament(b);
@@ -140,55 +164,159 @@ export function initSetSelector ({ sets, state, on }) {
 
     setListEl.innerHTML = '';
     if (filtered.length === 0) {
-      setListEl.innerHTML =
-        '<div class="text-muted small p-2">No sets match these filters.</div>';
+      setListEl.innerHTML = '<div class="ed-set-empty">No sets match these filters.</div>';
       return;
     }
     for (const name of filtered) {
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'list-group-item list-group-item-action';
-      btn.textContent = name;
-      if (name === state.setName) btn.classList.add('active');
+      btn.className = 'ed-set-row';
+      const dv = parseDifficultyValue(name);
+      const yr = parseYear(name);
+      const tournament = parseTournament(name);
+      btn.innerHTML = `
+        <span class="ed-set-row-main">
+          <span class="ed-set-row-title">${escapeHtml(tournament)}</span>
+          <span class="ed-set-row-meta">${dv ? `<span class="ed-mini-chip" data-d="${dv}">${DIFFICULTY_LABELS[dv]}</span>` : ''}${yr != null ? `<span class="ed-mini-chip">${yr}</span>` : ''}</span>
+        </span>
+        <span class="ed-set-row-full">${escapeHtml(name)}</span>
+      `;
+      if (name === state.setName) btn.setAttribute('data-active', 'true');
       btn.addEventListener('click', () => {
-        state.setName = name;
-        // highlight
-        setListEl.querySelectorAll('.list-group-item').forEach(el =>
-          el.classList.remove('active')
-        );
-        btn.classList.add('active');
+        const wasSelected = state.setName === name;
+        if (wasSelected) {
+          // Click again to deselect
+          state.setName = '';
+        } else {
+          state.setName = name;
+        }
+        setListEl.querySelectorAll('.ed-set-row').forEach(el => el.removeAttribute('data-active'));
+        if (state.setName) btn.setAttribute('data-active', 'true');
         refreshOpener();
         refreshCurrent();
-        on.onSetChange?.(name);
+        refreshSidebar();
+        on.onSetChange?.(state.setName);
+        loadPackets();
       });
       setListEl.appendChild(btn);
     }
   }
 
+  // ── Packets ───────────────────────────────────────────────────────────────
+  let cachedPackets = [];
+  async function loadPackets () {
+    if (!packetsEl || !packetsHdr) return;
+    if (!state.setName || !fetchPackets) {
+      packetsEl.hidden = true;
+      packetsHdr.hidden = true;
+      packetsEl.innerHTML = '';
+      cachedPackets = [];
+      return;
+    }
+    packetsHdr.hidden = false;
+    packetsEl.hidden = false;
+    packetsEl.innerHTML = '<div class="ed-set-empty">Loading packets…</div>';
+    try {
+      cachedPackets = (await fetchPackets(state.setName)) || [];
+    } catch {
+      cachedPackets = [];
+    }
+    renderPackets();
+  }
+
+  function renderPackets () {
+    if (!packetsEl) return;
+    if (cachedPackets.length === 0) {
+      packetsEl.innerHTML = '<div class="ed-set-empty">No packets found for this set.</div>';
+      return;
+    }
+    packetsEl.innerHTML = '';
+    const selected = new Set((state.packetNumbers || []).map(Number));
+    for (const pkt of cachedPackets) {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'packet-chip';
+      chip.textContent = pkt.name || `Packet ${pkt.number}`;
+      chip.dataset.packetNumber = pkt.number;
+      chip.setAttribute('data-on', selected.has(pkt.number) ? 'true' : 'false');
+      chip.addEventListener('click', () => {
+        const isOn = chip.getAttribute('data-on') === 'true';
+        chip.setAttribute('data-on', isOn ? 'false' : 'true');
+        const numbers = Array.from(packetsEl.querySelectorAll('.packet-chip[data-on="true"]'))
+          .map(el => parseInt(el.dataset.packetNumber, 10));
+        state.packetNumbers = numbers;
+        refreshOpener();
+        refreshSidebar();
+        on.onPacketsChange?.(numbers);
+      });
+      packetsEl.appendChild(chip);
+    }
+  }
+
+  if (packetsAllBtn) {
+    packetsAllBtn.addEventListener('click', () => {
+      const allOn = Array.from(packetsEl.querySelectorAll('.packet-chip'))
+        .every(c => c.getAttribute('data-on') === 'true');
+      const next = allOn ? [] : cachedPackets.map(p => p.number);
+      packetsEl.querySelectorAll('.packet-chip').forEach(c => {
+        const n = parseInt(c.dataset.packetNumber, 10);
+        c.setAttribute('data-on', next.includes(n) ? 'true' : 'false');
+      });
+      state.packetNumbers = next;
+      refreshOpener();
+      refreshSidebar();
+      on.onPacketsChange?.(next);
+    });
+  }
+
+  // ── Display helpers ───────────────────────────────────────────────────────
   function refreshCurrent () {
     if (!currentEl) return;
-    currentEl.textContent = state.setName || '(no set selected)';
+    currentEl.textContent = state.setName || 'none — questions will be random';
   }
 
   function refreshOpener () {
     if (!opener) return;
-    const bits = [];
-    if (state.setName) bits.push(state.setName);
-    else bits.push('Select set…');
-    const diffs = state.difficulties || [];
-    if (diffs.length && diffs.length < Object.keys(DIFFICULTY_LABELS).length) {
-      bits.push(diffs.map(d => DIFFICULTY_LABELS[d] || d).join('/'));
-    }
-    const yMin = state.minYear;
-    const yMax = state.maxYear;
-    if (Number.isFinite(yMin) && Number.isFinite(yMax) &&
-        (yMin !== minYearBound || yMax !== maxYearBound)) {
-      bits.push(`${yMin}–${yMax}`);
-    }
-    opener.textContent = bits.join(' · ');
+    if (state.setName) opener.textContent = 'Change';
+    else opener.textContent = 'Choose';
   }
 
-  // Wire controls — live updates (no "apply" button required).
+  function refreshSidebar () {
+    if (sidebarSetNameEl) {
+      sidebarSetNameEl.textContent = state.setName || 'No set selected';
+    }
+    if (sidebarDifficultyEl) {
+      const diffs = state.difficulties || [];
+      if (state.setName) {
+        const dv = parseDifficultyValue(state.setName);
+        sidebarDifficultyEl.textContent = dv ? DIFFICULTY_LABELS[dv] : 'Set selected';
+        sidebarDifficultyEl.classList.add('chip-active');
+      } else if (diffs.length && diffs.length < 3) {
+        sidebarDifficultyEl.textContent = `Random · ${diffs.map(d => DIFFICULTY_LABELS[d]).join('/')}`;
+        sidebarDifficultyEl.classList.remove('chip-active');
+      } else {
+        sidebarDifficultyEl.textContent = 'Random · all levels';
+        sidebarDifficultyEl.classList.remove('chip-active');
+      }
+    }
+    if (sidebarPacketsEl) {
+      const n = (state.packetNumbers || []).length;
+      if (state.setName && n > 0) {
+        sidebarPacketsEl.textContent = `${n} packet${n === 1 ? '' : 's'}`;
+        sidebarPacketsEl.hidden = false;
+      } else {
+        sidebarPacketsEl.hidden = true;
+      }
+    }
+  }
+
+  function escapeHtml (s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  // ── Wire up filter controls ───────────────────────────────────────────────
   tournamentSelect.addEventListener('change', renderSetList);
   searchEl?.addEventListener('input', renderSetList);
 
@@ -197,6 +325,7 @@ export function initSetSelector ({ sets, state, on }) {
       state.difficulties = currentDifficulties();
       renderSetList();
       refreshOpener();
+      refreshSidebar();
       on.onDifficultiesChange?.(state.difficulties);
     });
   }
@@ -207,7 +336,6 @@ export function initSetSelector ({ sets, state, on }) {
     if (!Number.isFinite(yMin)) yMin = minYearBound;
     if (!Number.isFinite(yMax)) yMax = maxYearBound;
     if (yMin > yMax) {
-      // Swap to keep sane
       [yMin, yMax] = [yMax, yMin];
       yearMinEl.value = yMin;
       yearMaxEl.value = yMax;
@@ -223,30 +351,30 @@ export function initSetSelector ({ sets, state, on }) {
 
   clearSetBtn?.addEventListener('click', () => {
     state.setName = '';
-    setListEl.querySelectorAll('.list-group-item').forEach(el =>
-      el.classList.remove('active')
-    );
+    state.packetNumbers = [];
+    setListEl.querySelectorAll('.ed-set-row').forEach(el => el.removeAttribute('data-active'));
     refreshOpener();
     refreshCurrent();
+    refreshSidebar();
     on.onSetChange?.('');
+    loadPackets();
   });
 
   // Initial render
   renderSetList();
   refreshCurrent();
   refreshOpener();
+  refreshSidebar();
+  loadPackets();
 
   return {
-    /**
-     * Push external state into the UI without firing callbacks. Used when
-     * e.g. another player in a multiplayer room changes settings.
-     */
     setState (next) {
       if (typeof next.setName === 'string') state.setName = next.setName;
       if (Array.isArray(next.difficulties)) {
         state.difficulties = next.difficulties.slice();
         for (const input of difficultyInputs) {
           input.checked = state.difficulties.includes(parseInt(input.value, 10));
+          syncChipFromCheckbox(input);
         }
       }
       if (Number.isFinite(next.minYear)) {
@@ -257,11 +385,17 @@ export function initSetSelector ({ sets, state, on }) {
         state.maxYear = next.maxYear;
         yearMaxEl.value = next.maxYear;
       }
+      if (Array.isArray(next.packetNumbers)) {
+        state.packetNumbers = next.packetNumbers.slice();
+      }
       renderSetList();
       refreshCurrent();
       refreshOpener();
+      refreshSidebar();
+      loadPackets();
     },
-    refreshOpener
+    refreshOpener,
+    refreshSidebar
   };
 }
 

@@ -177,7 +177,7 @@ const defaults = {
   setName: '',
   standardOnly: false,
   subcategories: [],
-  version: '01-06-2025'
+  version: '04-25-2026'
 };
 
 let query;
@@ -261,70 +261,25 @@ if (settings.boniOnDrop) {
 }
 
 if (query.setName) {
-  document.getElementById('packet-picker-container').classList.remove('d-none');
   api.getNumPackets(query.setName).then(numPackets => {
     maxPacketNumber = numPackets;
   });
-  loadPacketPicker(query.setName, query.packetNumbers);
 }
 
-async function loadPacketPicker (setName, selectedNumbers) {
-  const picker = document.getElementById('packet-picker');
-  if (!setName) {
-    picker.innerHTML = '<span class="text-muted small">Select a set first</span>';
-    return;
-  }
-
-  picker.innerHTML = '<span class="text-muted small">Loading...</span>';
-  const packets = await api.getPacketList(setName);
-
-  if (packets.length === 0) {
-    // Fallback: generate numbered buttons from numPackets count
+// Resolves the list of packets for a set; the modal uses this to render its
+// in-modal packet picker. Falls back to numbered packets when the API returns
+// an empty list but the count endpoint says there are some.
+async function fetchPacketsForSet (setName) {
+  if (!setName) return [];
+  let packets = await api.getPacketList(setName);
+  if (!packets || packets.length === 0) {
     const numPackets = await api.getNumPackets(setName);
-    if (numPackets === 0) {
-      picker.innerHTML = '<span class="text-muted small">No packets found</span>';
-      return;
-    }
+    packets = [];
     for (let i = 1; i <= numPackets; i++) {
       packets.push({ name: `Packet ${i}`, number: i });
     }
   }
-
-  picker.innerHTML = '';
-  const selectAll = document.createElement('button');
-  selectAll.type = 'button';
-  selectAll.className = 'btn btn-outline-secondary btn-sm';
-  selectAll.textContent = 'All';
-  selectAll.addEventListener('click', () => {
-    query.packetNumbers = packets.map(p => p.number);
-    window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
-    picker.querySelectorAll('.packet-btn').forEach(btn => btn.classList.add('active'));
-  });
-  picker.appendChild(selectAll);
-
-  for (const pkt of packets) {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'btn btn-outline-primary btn-sm packet-btn';
-    btn.dataset.packetNumber = pkt.number;
-    // Shorten long packet names
-    const label = pkt.name.length > 20 ? pkt.name.replace('Preliminary ', 'Prelim ').replace('Round ', 'R') : pkt.name;
-    btn.textContent = label;
-    btn.title = pkt.name;
-
-    if (selectedNumbers && selectedNumbers.includes(pkt.number)) {
-      btn.classList.add('active');
-    }
-
-    btn.addEventListener('click', () => {
-      btn.classList.toggle('active');
-      const activeButtons = picker.querySelectorAll('.packet-btn.active');
-      query.packetNumbers = Array.from(activeButtons).map(b => parseInt(b.dataset.packetNumber));
-      window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
-    });
-
-    picker.appendChild(btn);
-  }
+  return packets;
 }
 
 updateStatDisplay();
@@ -1435,15 +1390,21 @@ document.getElementById('report-question-submit').addEventListener('click', func
 });
 
 async function applySetName (setName) {
-  query.setName = setName.trim();
-  if (query.setName) {
-    document.getElementById('packet-picker-container').classList.remove('d-none');
-  } else {
-    document.getElementById('packet-picker-container').classList.add('d-none');
-  }
-  maxPacketNumber = await api.getNumPackets(query.setName);
+  query.setName = (setName || '').trim();
   query.packetNumbers = [];
-  await loadPacketPicker(query.setName, []);
+  if (query.setName) {
+    maxPacketNumber = await api.getNumPackets(query.setName);
+  } else {
+    maxPacketNumber = 24;
+  }
+  // Reset the random tossup queue so the next "Start" actually pulls from
+  // the new selection (or back to fully-random if cleared).
+  randomTossups = [];
+  window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
+}
+
+function applyPacketSelection (numbers) {
+  query.packetNumbers = (numbers || []).slice();
   window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
 }
 
@@ -1585,13 +1546,18 @@ initSetSelector({
   sets: api.getSetList(),
   state: {
     setName: query.setName || '',
+    packetNumbers: query.packetNumbers || [],
     difficulties: query.difficulties || [],
     minYear: query.minYear,
     maxYear: query.maxYear
   },
+  fetchPackets: fetchPacketsForSet,
   on: {
     onSetChange: async (setName) => {
       await applySetName(setName);
+    },
+    onPacketsChange: (numbers) => {
+      applyPacketSelection(numbers);
     },
     onDifficultiesChange: (difficulties) => {
       query.difficulties = difficulties;
