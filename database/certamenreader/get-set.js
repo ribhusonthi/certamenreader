@@ -7,7 +7,7 @@ import * as types from '../../types.js';
 /**
  * Gets all questions in a set that satisfy the given parameters.
  * @param object - an object containing the parameters
- * @param {string} object.setName - the name of the set (e.g. "2021 ACF Fall").
+ * @param {string} object.setName - the name of the set.
  * @param {number[]} object.packetNumbers - an array of packet numbers to search. Each packet number is 1-indexed.
  * @param {string[]} object.categories
  * @param {string[]} object.subcategories

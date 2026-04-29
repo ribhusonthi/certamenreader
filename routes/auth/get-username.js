@@ -1,5 +1,6 @@
 import { checkToken } from '../../server/authentication.js';
 import isAdmin from '../../database/account-info/is-admin.js';
+import getUser from '../../database/account-info/get-user.js';
 
 import { Router } from 'express';
 
@@ -11,7 +12,7 @@ router.get('/', async (req, res) => {
   if (process.env.LOCAL_DEV_BYPASS_AUTH === 'true') {
     const username = process.env.DEV_USERNAME || 'local@dev';
     const expires = Date.now() + 24 * 60 * 60 * 1000;
-    res.json({ username, expires, admin: true });
+    res.json({ username, expires, admin: true, needsUsername: false });
     return;
   }
 
@@ -23,7 +24,9 @@ router.get('/', async (req, res) => {
   }
 
   const admin = await isAdmin(username);
-  res.json({ username, expires, admin });
+  const user = await getUser(username);
+  const needsUsername = user && user.usernameSet !== true;
+  res.json({ username, expires, admin, needsUsername });
 });
 
 export default router;

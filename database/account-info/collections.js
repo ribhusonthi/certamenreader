@@ -5,6 +5,8 @@ const bonusStars = accountInfo.collection('bonus-stars');
 const tossupData = accountInfo.collection('tossup-data');
 const tossupStars = accountInfo.collection('tossup-stars');
 const users = accountInfo.collection('users');
+const rankedRatings = accountInfo.collection('ranked-ratings');
+const rankedMatches = accountInfo.collection('ranked-matches');
 
 // Stores short-lived tokens used by `!link` in the Discord bot.
 // Documents: { token, username, expiresAt, createdAt }
@@ -18,6 +20,12 @@ discordLinkTokens.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 }).catch
 // aggregations that group by user_id.
 tossupData.createIndex({ user_id: 1, tossup_id: 1 }).catch(() => {});
 tossupData.createIndex({ user_id: 1, pp: -1 }).catch(() => {});
+users.createIndex({ username: 1 }, { unique: true }).catch(() => {});
+users.createIndex({ googleId: 1 }, { unique: true, sparse: true }).catch(() => {});
+rankedRatings.createIndex({ username: 1, mode: 1 }, { unique: true }).catch(() => {});
+rankedRatings.createIndex({ mode: 1, rating: -1 }).catch(() => {});
+rankedMatches.createIndex({ mode: 1, createdAt: -1 }).catch(() => {});
+rankedMatches.createIndex({ players: 1, createdAt: -1 }).catch(() => {});
 
 const usernameToId = {};
 const idToUsername = {};
@@ -26,6 +34,8 @@ export {
   bonusData,
   bonusStars,
   discordLinkTokens,
+  rankedMatches,
+  rankedRatings,
   tossupData,
   tossupStars,
   users,

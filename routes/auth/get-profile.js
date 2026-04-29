@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
   if (process.env.LOCAL_DEV_BYPASS_AUTH === 'true') {
     const username = process.env.DEV_USERNAME || 'local@dev';
     const name = process.env.DEV_NAME || 'Local Dev';
-    res.json({ user: { username, name, email: username, admin: true } });
+    res.json({ user: { username, name, email: username, admin: true, needsUsername: false } });
     return;
   }
 
@@ -25,7 +25,7 @@ router.get('/', async (req, res) => {
 
   const user = await getUser(username);
   const admin = await isAdmin(username);
-  res.json({ user: { ...user, admin } });
+  res.json({ user: { ...user, admin, needsUsername: user?.usernameSet !== true } });
 });
 
 export default router;

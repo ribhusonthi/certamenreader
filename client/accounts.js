@@ -38,6 +38,15 @@ export default class account {
     return username;
   }
 
+  static needsUsername () {
+    try {
+      const data = JSON.parse(window.sessionStorage.getItem('account-username') || '{}');
+      return data.needsUsername === true;
+    } catch (_e) {
+      return false;
+    }
+  }
+
   static async isAdmin () {
     let data;
     try {
@@ -51,6 +60,6 @@ export default class account {
   }
 
   static setUsername (username, expires) {
-    window.sessionStorage.setItem('account-username', JSON.stringify({ username, expires }));
+    window.sessionStorage.setItem('account-username', JSON.stringify({ username, expires, needsUsername: false }));
   }
 }

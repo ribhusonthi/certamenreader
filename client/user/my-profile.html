@@ -35,6 +35,9 @@
                         <a class="nav-link" href="/multiplayer">Multiplayer</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="/ranked">Ranked</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="/db">Database</a>
                     </li>
                     <li class="nav-item">
@@ -52,30 +55,49 @@
         </div>
     </nav>
 
-    <div class="container-xl mt-3 mb-5 pb-5">
-        <h1>
-            <p>Welcome, <span id="display-name"></span>!</p>
-        </h1>
-        <p>
-            Email: <b><span id="email"></span></b>
-        </p>
-        <p>
-            <button class="btn btn-primary" id="logout" type="button">Logout</button>
-            <a class="btn btn-outline-secondary ms-2 d-none" id="admin-link" href="/admin">Admin Console</a>
-        </p>
-        <p>
-            Here are links to your <a href="/user/stats/tossups">tossup stats</a> and <a href="/user/stats/bonuses">bonus stats</a>.
-            Or, check out your
-            <a href="/user/stats/tossup-graph">tossup stats</a>
-            and
-            <a href="/user/stats/bonus-graph">bonus stats</a>
-            plotted against time.
-        </p>
-        <p>
-            Use these links to view your starred <a href="/user/stars/tossups">tossups</a>
-            and <a href="/user/stars/bonuses">bonuses</a>.
-        </p>
-    </div>
+    <main class="settings-page profile-home">
+        <header class="settings-hdr">
+            <span class="ed-eyebrow">Profile</span>
+            <h1 id="display-name"></h1>
+            <p>Your public identity, stats, and saved questions.</p>
+        </header>
+
+        <div class="settings-grid">
+            <section class="settings-card">
+                <h4>Account</h4>
+                <div class="settings-row">
+                    <div>
+                        <div class="settings-label">Username</div>
+                        <div class="settings-hint">This is your public name on leaderboards and ranked.</div>
+                    </div>
+                    <strong id="username"></strong>
+                </div>
+                <div class="settings-row">
+                    <div>
+                        <div class="settings-label">Google account</div>
+                        <div class="settings-hint">Visible only to you and admins.</div>
+                    </div>
+                    <strong id="email"></strong>
+                </div>
+                <div class="d-flex gap-2 flex-wrap mt-3">
+                    <button class="btn btn-primary" id="logout" type="button">Logout</button>
+                    <a class="btn btn-outline-secondary d-none" id="admin-link" href="/admin">Admin Console</a>
+                </div>
+            </section>
+
+            <section class="settings-card">
+                <h4>Quick links</h4>
+                <div class="profile-link-grid">
+                    <a class="mp-room" href="/user/stats/tossups"><span class="mp-room-name">Tossup Stats</span><span class="mp-room-set">Category tables</span></a>
+                    <a class="mp-room" href="/user/stats/bonuses"><span class="mp-room-name">Bonus Stats</span><span class="mp-room-set">Category tables</span></a>
+                    <a class="mp-room" href="/user/stats/tossup-graph"><span class="mp-room-name">Tossup Graph</span><span class="mp-room-set">Progress over time</span></a>
+                    <a class="mp-room" href="/user/stats/bonus-graph"><span class="mp-room-name">Bonus Graph</span><span class="mp-room-set">Progress over time</span></a>
+                    <a class="mp-room" href="/user/stars/tossups"><span class="mp-room-name">Starred Tossups</span><span class="mp-room-set">Saved questions</span></a>
+                    <a class="mp-room" href="/user/stars/bonuses"><span class="mp-room-name">Starred Bonuses</span><span class="mp-room-set">Saved boni</span></a>
+                </div>
+            </section>
+        </div>
+    </main>
 
     <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
     <script type="module" src="/script.js"></script>

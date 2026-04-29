@@ -106,22 +106,36 @@ async function loadPacketPicker (setName, selectedNumbers, onChangeCallback) {
  */
 const players = {};
 
-const ROOM_NAME = decodeURIComponent(window.location.pathname.substring(13));
-let tossup = {};
-let USER_ID = window.localStorage.getItem('USER_ID') || 'unknown';
-let username =
-  window.localStorage.getItem('multiplayer-username') ||
-  (await api.getRandomName());
-
-const socket = new WebSocket(
-  window.location.href.replace('http', 'ws') +
-    (window.location.href.endsWith('?private=true') ? '&' : '?') +
-    new URLSearchParams({
-      roomName: ROOM_NAME,
-      userId: USER_ID,
-      username,
-    }).toString()
+const IS_RANKED_ROOM = window.location.pathname.startsWith('/ranked/room/');
+const ROOM_NAME = decodeURIComponent(
+  IS_RANKED_ROOM
+    ? window.location.pathname.substring('/ranked/room/'.length)
+    : window.location.pathname.substring('/multiplayer/'.length)
 );
+let tossup = {};
+const rankedTicket = new URLSearchParams(window.location.search).get('ticket');
+const accountUsername = await account.getUsername();
+let USER_ID = IS_RANKED_ROOM && accountUsername
+  ? `ranked:${accountUsername}`
+  : window.localStorage.getItem('USER_ID') || 'unknown';
+let username =
+  IS_RANKED_ROOM && accountUsername
+    ? accountUsername
+    : window.localStorage.getItem('multiplayer-username') ||
+      (await api.getRandomName());
+
+if (IS_RANKED_ROOM && (!rankedTicket || !accountUsername)) {
+  window.location.href = '/ranked';
+  throw new Error('Ranked room requires an authenticated ranked ticket.');
+}
+
+const socketUrl = new URL(window.location.href.replace(/^http/, 'ws'));
+socketUrl.searchParams.set('roomName', ROOM_NAME);
+socketUrl.searchParams.set('userId', USER_ID);
+socketUrl.searchParams.set('username', username);
+if (IS_RANKED_ROOM) socketUrl.searchParams.set('rankedTicket', rankedTicket);
+
+const socket = new WebSocket(socketUrl);
 
 socket.onmessage = function (event) {
   const data = JSON.parse(event.data);
@@ -242,6 +256,18 @@ socket.onmessage = function (event) {
       logEvent(data.username, `changed the reading speed to ${data.value}`);
       document.getElementById('reading-speed').value = data.value;
       document.getElementById('reading-speed-display').textContent = data.value;
+      break;
+
+    case 'ranked-state':
+      socketOnRankedState(data);
+      break;
+
+    case 'ranked-waiting':
+      logSystem(data.message);
+      break;
+
+    case 'ranked-match-complete':
+      socketOnRankedMatchComplete(data);
       break;
 
     case 'reveal-answer': {
@@ -705,6 +731,61 @@ const socketOnPause = (message) => {
   logEvent(message.username, `${message.paused ? '' : 'un'}paused the game`);
 };
 
+const socketOnRankedState = (message) => {
+  document.getElementById('ranked-panel')?.remove();
+  const panel = document.createElement('div');
+  panel.className = 'alert alert-primary py-2';
+  panel.id = 'ranked-panel';
+  panel.innerHTML = `
+    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+      <strong></strong>
+      <span class="small">${message.questionCount} tossups · locked settings</span>
+    </div>
+  `;
+  panel.querySelector('strong').textContent = `Ranked ${message.mode.label}`;
+  document.querySelector('.reader-main').prepend(panel);
+
+  document.getElementById('set-settings')?.classList.add('d-none');
+  document.getElementById('category-select-button')?.setAttribute('disabled', 'disabled');
+  document.getElementById('clear-stats').classList.add('d-none');
+  document.getElementById('toggle-visibility').disabled = true;
+  document.getElementById('toggle-rebuzz').disabled = true;
+  document.getElementById('toggle-skip').disabled = true;
+  document.getElementById('toggle-lock').disabled = true;
+  document.getElementById('toggle-timer').disabled = true;
+  document.getElementById('toggle-powermark-only').disabled = true;
+  document.getElementById('toggle-standard-only').disabled = true;
+  document.getElementById('username').disabled = true;
+  document.getElementById('private-chat-warning').textContent =
+    'ranked rooms are private and settings are locked';
+
+  if (message.matchComplete && message.result) {
+    socketOnRankedMatchComplete({ result: message.result });
+  }
+};
+
+const socketOnRankedMatchComplete = (message) => {
+  const result = message.result;
+  document.getElementById('buzz').disabled = true;
+  document.getElementById('next').disabled = true;
+  document.getElementById('skip').disabled = true;
+  document.getElementById('pause').disabled = true;
+
+  const ownChange = result.ratingChanges[username];
+  const lines = Object.entries(result.scores)
+    .map(([player, score]) => {
+      const change = result.ratingChanges[player];
+      const sign = change.delta >= 0 ? '+' : '';
+      return `${player}: ${score} (${change.before} → ${change.after}, ${sign}${change.delta})`;
+    })
+    .join(' · ');
+
+  logSystem(`Ranked match complete. ${lines}`);
+  if (ownChange) {
+    window.alert(`Match complete. Rating ${ownChange.before} → ${ownChange.after} (${ownChange.delta >= 0 ? '+' : ''}${ownChange.delta}).`);
+  }
+};
+
 const socketOnStart = (message) => {
   logEvent(message.username, 'started the game');
 
@@ -776,6 +857,16 @@ function logEvent(username, message) {
   i.appendChild(span1);
   i.appendChild(document.createTextNode(' '));
   i.appendChild(span2);
+
+  const li = document.createElement('li');
+  li.appendChild(i);
+
+  document.getElementById('room-history').prepend(li);
+}
+
+function logSystem(message) {
+  const i = document.createElement('i');
+  i.textContent = message;
 
   const li = document.createElement('li');
   li.appendChild(i);

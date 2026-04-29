@@ -12,10 +12,11 @@ import {
  */
 async function getUserProfile (username, { topN = 15 } = {}) {
   const user = await users.findOne(
-    { username },
+    { username, usernameSet: true },
     { projection: { _id: 1, username: 1, name: 1, createdAt: 1, admin: 1 } }
   );
   if (!user) return null;
+  if (user.username.includes('@')) return null;
 
   // Pull every PP-bearing buzz, sorted desc. The math is small enough to do in
   // JS, and giving the client per-buzz weighted contributions makes the

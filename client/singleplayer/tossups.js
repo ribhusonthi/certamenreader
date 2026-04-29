@@ -10,6 +10,52 @@ import { initSetSelector } from '../utilities/set-selector.js';
 const CERTAMEN_CATEGORIES = ['Language', 'Literature', 'Culture', 'History', 'Mythology'];
 let userIsAdmin = false;
 
+function categoryClassName (category) {
+  return category ? `cat-${category.toLowerCase().replace(/\s+/g, '-')}` : '';
+}
+
+function categoryLabel (tossup, category = tossup?.category) {
+  return tossup?.subcategory ? `${category} · ${tossup.subcategory}` : category;
+}
+
+function renderQuestionCategoryBadge (tossup, { adminClickable = false } = {}) {
+  const catBadge = document.getElementById('question-category');
+  if (!catBadge) return;
+
+  catBadge.onclick = null;
+  catBadge.onkeydown = null;
+  catBadge.removeAttribute('title');
+  catBadge.removeAttribute('role');
+  catBadge.removeAttribute('tabindex');
+
+  if (!tossup?.category) {
+    catBadge.className = 'cat-chip question-cat-badge d-none';
+    catBadge.removeAttribute('data-cat');
+    catBadge.removeAttribute('data-on');
+    catBadge.textContent = '';
+    return;
+  }
+
+  catBadge.textContent = categoryLabel(tossup);
+  catBadge.className = `cat-chip question-cat-badge ${categoryClassName(tossup.category)}`.trim();
+  catBadge.setAttribute('data-cat', tossup.category);
+  catBadge.setAttribute('data-on', 'true');
+
+  if (adminClickable) {
+    catBadge.classList.add('admin-clickable');
+    catBadge.title = 'Click to change category';
+    catBadge.setAttribute('role', 'button');
+    catBadge.setAttribute('tabindex', '0');
+    catBadge.onclick = () => openCategoryDropdown(tossup);
+    catBadge.onkeydown = (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openCategoryDropdown(tossup);
+      }
+    };
+  }
+}
+
 function showAdminToast (message) {
   document.getElementById('admin-save-toast-text').textContent = message;
   const toast = new bootstrap.Toast(document.getElementById('admin-save-toast'));
@@ -76,7 +122,6 @@ function updateReaderHeader (tossup) {
   const roundDot  = document.getElementById('hdr-dot-round');
   const numSpan   = document.getElementById('tossup-num-hdr');
   const numDot    = document.getElementById('hdr-dot-num');
-  const catBadge  = document.getElementById('question-category');
   const lvlBadge  = document.getElementById('question-level');
 
   // Set name
@@ -105,18 +150,7 @@ function updateReaderHeader (tossup) {
   if (numDot) numDot.hidden = !showNum;
 
   // Category badge
-  if (catBadge) {
-    if (tossup?.category) {
-      catBadge.textContent = tossup.subcategory
-        ? `${tossup.category} · ${tossup.subcategory}`
-        : tossup.category;
-      catBadge.className = `question-cat-badge cat-${tossup.category.toLowerCase().replace(/\s+/g, '-')}`;
-      catBadge.setAttribute('data-cat', tossup.category);
-    } else {
-      catBadge.className = 'question-cat-badge d-none';
-      catBadge.removeAttribute('data-cat');
-    }
-  }
+  renderQuestionCategoryBadge(tossup);
 
   // Level / difficulty badge
   if (lvlBadge) {
@@ -575,12 +609,6 @@ async function giveAnswer (givenAnswer) {
   }
 }
 
-function isPace (setName) {
-  if (!setName) { return false; }
-
-  return setName.includes('PACE');
-}
-
 async function loadRandomTossups ({ alternateSubcategories, categories, difficulties, maxYear, minYear, number = 1, powermarkOnly, standardOnly, subcategories } = {}) {
   randomTossups = [];
   randomTossups = await api.getRandomTossup({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, powermarkOnly, standardOnly, subcategories });
@@ -989,9 +1017,12 @@ function clearAdminControls () {
 
   const catBadge = document.getElementById('question-category');
   if (catBadge) {
-    catBadge.classList.remove('admin-clickable', 'd-none');
+    catBadge.classList.remove('admin-clickable');
     catBadge.onclick = null;
+    catBadge.onkeydown = null;
     catBadge.removeAttribute('title');
+    catBadge.removeAttribute('role');
+    catBadge.removeAttribute('tabindex');
   }
 }
 
@@ -1009,12 +1040,8 @@ function showAdminControls () {
   answerEl.parentNode.insertBefore(container, answerEl.nextSibling);
 
   // Make the category badge itself act as the "change category" trigger.
+  renderQuestionCategoryBadge(currentTossup, { adminClickable: true });
   const catBadge = document.getElementById('question-category');
-  if (catBadge) {
-    catBadge.classList.add('admin-clickable');
-    catBadge.title = 'Click to change category';
-    catBadge.onclick = () => openCategoryDropdown(currentTossup);
-  }
 
   // Edit button sits right next to the category badge.
   const editBtn = document.createElement('button');
@@ -1035,10 +1062,11 @@ function openCategoryDropdown (tossup) {
 
   const select = document.createElement('select');
   select.id = 'admin-cat-select';
-  const currentCatClass = tossup.category
-    ? `cat-${tossup.category.toLowerCase().replace(/\s+/g, '-')}`
-    : '';
+  const currentCatClass = categoryClassName(tossup.category);
   select.className = `admin-category-select ${currentCatClass}`.trim();
+  if (tossup.category) {
+    select.setAttribute('data-cat', tossup.category);
+  }
 
   const placeholder = document.createElement('option');
   placeholder.value = '';
@@ -1051,7 +1079,7 @@ function openCategoryDropdown (tossup) {
     const opt = document.createElement('option');
     opt.value = cat;
     opt.textContent = cat;
-    opt.className = `cat-${cat.toLowerCase().replace(/\s+/g, '-')}`;
+    opt.className = categoryClassName(cat);
     select.appendChild(opt);
   }
 
@@ -1072,11 +1100,10 @@ function openCategoryDropdown (tossup) {
       const resp = await api.updateTossup(tossup._id, { category: newCategory });
       if (resp.ok) {
         tossup.category = newCategory;
-        catBadge.textContent = tossup.subcategory
-          ? `${newCategory} · ${tossup.subcategory}`
-          : newCategory;
-        catBadge.className = `question-cat-badge cat-${newCategory.toLowerCase().replace(/\s+/g, '-')} admin-clickable`;
+        revert();
+        renderQuestionCategoryBadge(tossup, { adminClickable: true });
         showAdminToast('Category saved: ' + newCategory);
+        return;
       } else {
         window.alert('Failed to update category (status ' + resp.status + ').');
       }

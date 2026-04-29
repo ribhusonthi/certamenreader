@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Ranked | Certamen Reader</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/apple-touch-icon.png" rel="apple-touch-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
+    <link type="image/x-icon" href="/favicon.ico" rel="icon">
+
+    <link href="/bootstrap/light.css" rel="stylesheet">
+    <link href="/bootstrap/dark.css" rel="stylesheet" id="custom-css">
+    <script type="module" src="/apply-theme.js"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-dark navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
+        <div class="container-fluid">
+            <a class="navbar-brand brand-editorial ms-1 py-0" id="logo" href="/">
+                <span class="brand-mark"><img src="/buzzer-icon.png" alt=""></span><span class="brand-word">Certamen<b>Reader</b></span>
+            </a>
+            <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="/singleplayer">Singleplayer</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/multiplayer">Multiplayer</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/ranked">Ranked</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/db">Database</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/leaderboards">Leaderboards</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
+                </ul>
+                <div class="d-flex">
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link" href="/user/login" id="login-link">Log in</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="mp ranked">
+        <div class="mp-hdr">
+            <div>
+                <h1>Ranked</h1>
+                <p>Two players, ten tossups, locked settings. Pick a mode, queue, and climb a separate rating ladder.</p>
+            </div>
+            <div class="d-flex gap-2 align-items-center flex-wrap">
+                <button class="btn btn-primary" id="queue-button" type="button">Find Match</button>
+                <button class="btn btn-outline-secondary d-none" id="cancel-button" type="button">Cancel</button>
+            </div>
+        </div>
+
+        <div class="ranked-stats">
+            <div class="ranked-stat">
+                <span>Active ranked</span>
+                <strong id="active-users-count">0</strong>
+            </div>
+            <div class="ranked-stat">
+                <span>Queued here</span>
+                <strong id="selected-queue-count">0</strong>
+            </div>
+            <div class="ranked-stat wide">
+                <span>Selected mode</span>
+                <strong id="selected-active-count">0 active on this page</strong>
+            </div>
+        </div>
+
+        <div class="alert alert-secondary" id="queue-status">Choose a mode to queue.</div>
+
+        <div class="ranked-layout">
+            <section class="mp-rooms ranked-modes" id="mode-list"></section>
+            <aside class="ranked-leaderboard">
+                <div class="ranked-panel-hdr">
+                    <strong>Top Players</strong>
+                    <span id="leaderboard-mode">All Categories</span>
+                </div>
+                <div class="ranked-leaderboard-list" id="leaderboard-list"></div>
+            </aside>
+        </div>
+    </main>
+
+    <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/script.js"></script>
+    <script type="module" src="/ranked/index.js"></script>
+</body>
+
+</html>

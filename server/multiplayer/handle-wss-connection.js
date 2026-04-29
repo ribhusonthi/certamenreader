@@ -1,6 +1,7 @@
 import hasValidCharacters from '../moderation/has-valid-characters.js';
 import isAppropriateString from '../moderation/is-appropriate-string.js';
 import { createAndReturnRoom } from './TossupRoom.js';
+import { getRankedConnection } from '../ranked/matchmaking.js';
 
 import getRandomName from '../../get-random-name.js';
 
@@ -16,10 +17,29 @@ export default function handleWssConnection (ws, req) {
   const parsedUrl = new url.URL(req.url, process.env.BASE_URL ?? 'http://localhost');
   const isPrivate = parsedUrl.searchParams.get('private') === 'true';
   const roomName = parsedUrl.searchParams.get('roomName');
+  const rankedTicket = parsedUrl.searchParams.get('rankedTicket');
   let userId = parsedUrl.searchParams.get('userId') ?? 'unknown';
   let username = parsedUrl.searchParams.get('username') ?? getRandomName();
 
   userId = (userId === 'unknown') ? uuid.v4() : userId;
+
+  if (rankedTicket) {
+    const rankedConnection = getRankedConnection(rankedTicket, roomName);
+    if (!rankedConnection) {
+      ws.send(JSON.stringify({
+        type: 'error',
+        error: 'This ranked match link is invalid or has expired.'
+      }));
+      return false;
+    }
+
+    rankedConnection.room.connection(
+      ws,
+      rankedConnection.userId,
+      rankedConnection.username
+    );
+    return true;
+  }
 
   if (!hasValidCharacters(roomName)) {
     ws.send(JSON.stringify({

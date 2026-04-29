@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Choose username — Certamen Reader</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Choose your Certamen Reader username.">
+
+    <link href="/apple-touch-icon.png" rel="apple-touch-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
+    <link type="image/x-icon" href="/favicon.ico" rel="icon">
+
+    <link href="/bootstrap/light.css" rel="stylesheet">
+    <link href="/bootstrap/dark.css" rel="stylesheet" id="custom-css">
+    <script type="module" src="/apply-theme.js"></script>
+</head>
+
+<body>
+    <main class="settings-page username-setup">
+        <header class="settings-hdr">
+            <span class="ed-eyebrow">Account setup</span>
+            <h1>Choose a username</h1>
+            <p>This is the public name shown on leaderboards, profiles, ranked matches, stats, and starred question pages.</p>
+        </header>
+
+        <section class="settings-card username-setup-card">
+            <h4>Public username</h4>
+            <div class="settings-row username-warning">
+                <div>
+                    <div class="settings-label">This cannot be changed later.</div>
+                    <div class="settings-hint">Usernames are unique and may use letters, numbers, hyphens, and underscores. Do not include an @ sign.</div>
+                </div>
+            </div>
+            <form id="username-form" class="username-form">
+                <label for="username">Username</label>
+                <input class="form-control" id="username" name="username" type="text" minlength="3" maxlength="24" autocomplete="username" required>
+                <div class="settings-hint">3-24 characters. Usernames are saved in lowercase.</div>
+                <div class="text-danger mt-2 d-none" id="username-error"></div>
+                <button class="btn btn-primary mt-3" id="username-submit" type="submit">Set username</button>
+            </form>
+        </section>
+    </main>
+
+    <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/user/setup-username.js"></script>
+</body>
+
+</html>

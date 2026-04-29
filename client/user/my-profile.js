@@ -3,7 +3,8 @@ import account from '../accounts.js';
 fetch('/auth/get-profile')
   .then(response => response.json())
   .then(data => {
-    document.getElementById('display-name').textContent = data.user.name || data.user.username;
+    document.getElementById('display-name').textContent = data.user.username;
+    document.getElementById('username').textContent = data.user.username;
     document.getElementById('email').textContent = data.user.email;
 
     if (data.user.admin) {

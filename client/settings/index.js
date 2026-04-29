@@ -1,3 +1,5 @@
+import { applyColorTheme, preferredColorTheme } from '../apply-theme.js';
+
 if (window.localStorage.getItem('font-size')) {
   document.getElementById('font-size').value = window.localStorage.getItem('font-size');
   document.getElementById('font-size-display').textContent = window.localStorage.getItem('font-size');
@@ -16,24 +18,28 @@ if (window.localStorage.getItem('sound-effects') === 'true') {
 }
 
 const stylesheet = document.querySelector('#custom-css');
-document.getElementById('toggle-color-theme').addEventListener('click', function () {
-  if (stylesheet.getAttribute('href') === '/bootstrap/light.css') {
-    stylesheet.setAttribute('href', '/bootstrap/dark.css');
-    window.localStorage.setItem('color-theme', 'dark');
-  } else {
-    stylesheet.setAttribute('href', '/bootstrap/light.css');
-    window.localStorage.setItem('color-theme', 'light');
-  }
+const toggleColorTheme = document.getElementById('toggle-color-theme');
+
+function setColorThemeButtonText () {
+  const activeTheme = stylesheet.getAttribute('href') === '/bootstrap/light.css' ? 'light' : 'dark';
+  toggleColorTheme.textContent = activeTheme === 'light' ? 'Switch to dark' : 'Switch to light';
+}
+
+setColorThemeButtonText();
+
+toggleColorTheme.addEventListener('click', function (event) {
+  event.preventDefault();
+  const nextTheme = preferredColorTheme() === 'light' ? 'dark' : 'light';
+  window.localStorage.setItem('color-theme', nextTheme);
+  applyColorTheme(nextTheme);
+  setColorThemeButtonText();
 });
 
-document.getElementById('reset-color-theme').addEventListener('click', function () {
+document.getElementById('reset-color-theme').addEventListener('click', function (event) {
+  event.preventDefault();
   window.localStorage.removeItem('color-theme');
-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    // Get OS preferred color scheme
-    document.querySelector('#custom-css').setAttribute('href', '/bootstrap/dark.css');
-  } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-    document.querySelector('#custom-css').setAttribute('href', '/bootstrap/light.css');
-  }
+  applyColorTheme();
+  setColorThemeButtonText();
 });
 
 document.getElementById('font-size').addEventListener('input', function () {

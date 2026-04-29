@@ -1,10 +1,17 @@
-if (window.localStorage.getItem('color-theme') === 'dark') {
-  document.querySelector('#custom-css').setAttribute('href', '/bootstrap/dark.css');
-} else if (window.localStorage.getItem('color-theme') === 'light') {
-  document.querySelector('#custom-css').setAttribute('href', '/bootstrap/light.css');
-} else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-  // Get OS preferred color scheme
-  document.querySelector('#custom-css').setAttribute('href', '/bootstrap/dark.css');
-} else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-  document.querySelector('#custom-css').setAttribute('href', '/bootstrap/light.css');
+function preferredColorTheme () {
+  const storedTheme = window.localStorage.getItem('color-theme');
+  if (storedTheme === 'dark' || storedTheme === 'light') return storedTheme;
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+  return 'light';
 }
+
+function applyColorTheme (theme = preferredColorTheme()) {
+  const stylesheet = document.querySelector('#custom-css');
+  if (!stylesheet) return;
+  stylesheet.setAttribute('href', `/bootstrap/${theme}.css`);
+  document.documentElement.dataset.colorTheme = theme;
+}
+
+applyColorTheme();
+
+export { applyColorTheme, preferredColorTheme };

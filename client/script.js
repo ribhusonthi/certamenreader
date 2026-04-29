@@ -35,12 +35,12 @@ function buildAccountDropdown ({ authed, name, username }) {
   const parentLi = loginLink.closest('li');
   if (!parentLi) return;
 
-  const display = authed ? (name || username || 'Account') : 'Account';
+  const display = authed ? (username || name || 'Account') : 'Account';
   const avatar = authed ? initials(display) : '?';
 
   const authedItems = `
     <li class="ed-user-menu-hdr">
-      <div class="handle">@${username || ''}</div>
+      <div class="handle">${username || ''}</div>
       <div class="name">${display}</div>
     </li>
     <li><a class="dropdown-item" href="/user/my-profile"><span>My profile</span><span class="rt">→</span></a></li>
@@ -82,6 +82,10 @@ function buildAccountDropdown ({ authed, name, username }) {
 account.getUsername().then(username => {
   if (!username) {
     buildAccountDropdown({ authed: false });
+    return;
+  }
+  if (account.needsUsername() && window.location.pathname !== '/user/setup-username') {
+    window.location.href = '/user/setup-username';
     return;
   }
   fetch('/auth/get-profile')

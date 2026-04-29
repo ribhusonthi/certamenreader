@@ -45,13 +45,15 @@ function scoreTossup({ isCorrect, inPower, endOfQuestion, isPace = false }) {
   return isCorrect ? (inPower ? powerValue : 10) : endOfQuestion ? 0 : negValue;
 }
 
-class TossupRoom {
+export default class TossupRoom {
   constructor(
     name,
     isPermanent = false,
     categories = [],
     subcategories = [],
-    alternateSubcategories = []
+    alternateSubcategories = [],
+    difficulties = null,
+    setName = undefined
   ) {
     this.name = name;
     this.isPermanent = isPermanent;
@@ -84,14 +86,14 @@ class TossupRoom {
     this.setCache = [];
 
     this.query = {
-      difficulties: [4, 5],
+      difficulties: difficulties ?? [4, 5],
       minYear: DEFAULT_MIN_YEAR,
       maxYear: DEFAULT_MAX_YEAR,
       packetNumbers: [
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
         21, 22, 23, 24,
       ],
-      setName: '2023 PACE NSC',
+      setName: setName ?? '',
       alternateSubcategories,
       categories,
       subcategories,
@@ -967,8 +969,16 @@ class TossupRoom {
 const tossupRooms = {};
 
 for (const room of PERMANENT_ROOMS) {
-  const { name, categories, subcategories } = room;
-  tossupRooms[name] = new TossupRoom(name, true, categories, subcategories);
+  const { name, categories, subcategories, alternateSubcategories, difficulties, setName } = room;
+  tossupRooms[name] = new TossupRoom(
+    name,
+    true,
+    categories,
+    subcategories,
+    alternateSubcategories,
+    difficulties,
+    setName
+  );
 }
 
 /**

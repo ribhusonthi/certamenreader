@@ -4,7 +4,7 @@ import { removeParentheses } from './strings.js';
 
 const CERTAMEN_CATEGORIES = ['Language', 'Literature', 'Culture', 'History', 'Mythology'];
 
-// Constants and functions useful for quizbowl.
+// Constants and functions useful for certamen packet reading.
 
 function arrayToRange (array) {
   if (array.length === 0) return '';
