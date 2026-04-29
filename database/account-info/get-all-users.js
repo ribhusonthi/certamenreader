@@ -6,7 +6,7 @@ import { users } from './collections.js';
  */
 async function getAllUsers () {
   return await users.find({}, {
-    projection: { password: 0, googleId: 0 }
+    projection: { password: 0 }
   }).toArray();
 }
 

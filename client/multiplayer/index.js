@@ -2,6 +2,17 @@ import api from '../api/index.js';
 
 const ROOM_NAME_MAX_LENGTH = 32;
 
+const ROOM_THEMES = {
+  Novice: 'language',
+  Intermediate: 'history',
+  Advanced: 'literature',
+  Mythology: 'mythology',
+  Language: 'language',
+  Literature: 'literature',
+  History: 'history',
+  Culture: 'culture'
+};
+
 document.getElementById('form').addEventListener('submit', (event) => {
   event.preventDefault();
 
@@ -39,8 +50,6 @@ fetch('/api/multiplayer/room-list')
     roomList.forEach(room => {
       const { roomName, playerCount, onlineCount, isPermanent } = room;
 
-      if (isPermanent) return;
-
       const status = onlineCount >= 6 ? 'full' : onlineCount > 0 ? 'reading' : 'waiting';
       const palette = ['#d4af37', '#66023c', '#2e8b57', '#00416a', '#c80815', '#b995ec'];
       const avatars = [];
@@ -53,13 +62,16 @@ fetch('/api/multiplayer/room-list')
       const a = document.createElement('a');
       a.href = `/multiplayer/${encodeURIComponent(roomName)}`;
       a.className = 'mp-room';
+      if (ROOM_THEMES[roomName]) {
+        a.dataset.theme = ROOM_THEMES[roomName];
+      }
       a.innerHTML = `
         <div class="mp-room-hdr">
           <div class="mp-room-name"></div>
           <div class="mp-room-status" data-status="${status}">${status}</div>
         </div>
         <div class="mp-room-set">
-          <div class="set-name">Public room</div>
+          <div class="set-name">${isPermanent ? 'Permanent room' : 'Public room'}</div>
           <div class="set-meta">${onlineCount} ONLINE · ${playerCount} TOTAL</div>
         </div>
         <div class="mp-room-players">

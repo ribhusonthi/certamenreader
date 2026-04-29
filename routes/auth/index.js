@@ -7,6 +7,7 @@ import logoutRouter from './logout.js';
 import profileRouter from './profile.js';
 import questionStatsRouter from './question-stats/index.js';
 import starsRouter from './stars/index.js';
+import usernameRouter from './username.js';
 import userStatsRouter from './user-stats/index.js';
 
 import { Router } from 'express';
@@ -28,6 +29,7 @@ router.use('/leaderboard', leaderboardRouter);
 router.use('/logout', logoutRouter);
 router.use('/profile', profileRouter);
 router.use('/stars', starsRouter);
+router.use('/username', usernameRouter);
 router.use('/question-stats', questionStatsRouter);
 router.use('/user-stats', userStatsRouter);
 

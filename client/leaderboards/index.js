@@ -24,7 +24,7 @@ async function load (category) {
     }
 
     listEl.innerHTML = leaderboard.map(row => {
-      const display = row.name || row.username;
+      const display = row.username;
       const slug = encodeURIComponent(row.username);
       const medal = row.rank <= 3
         ? `<span class="lb-medal lb-medal-${row.rank}">${row.rank}</span>`
@@ -36,7 +36,6 @@ async function load (category) {
             <span class="lb-avatar">${initials(display)}</span>
             <span class="lb-player-text">
               <span class="lb-player-name">${escapeHtml(display)}</span>
-              <span class="lb-player-handle">@${escapeHtml(row.username.split('@')[0])}</span>
             </span>
           </div>
           <div class="num lb-cell">${row.buzzes.toLocaleString()}</div>

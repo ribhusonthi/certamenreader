@@ -1,4 +1,5 @@
 import { checkToken } from '../server/authentication.js';
+import getUser from '../database/account-info/get-user.js';
 
 import { Router } from 'express';
 
@@ -8,6 +9,12 @@ function getPageSecurely (htmlFile) {
   return async (req, res) => {
     if (!req.session || !checkToken(req.session.username, req.session.token)) {
       res.redirect('/user/login?redirect=' + encodeURIComponent(req.originalUrl));
+      return;
+    }
+
+    const user = await getUser(req.session.username);
+    if (htmlFile !== 'setup-username.html' && user?.usernameSet !== true) {
+      res.redirect('/user/setup-username');
       return;
     }
 
@@ -25,6 +32,7 @@ router.get('/login', async (req, res) => {
 });
 
 router.get('/my-profile', getPageSecurely('my-profile.html'));
+router.get('/setup-username', getPageSecurely('setup-username.html'));
 
 // Public profile pages (any logged-in user can view) — the page JS reads the
 // :username slug from the URL and fetches /auth/profile/:username for data.

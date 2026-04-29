@@ -33,8 +33,7 @@ if (!slug) {
       root.innerHTML = `<div class="lb-empty">No player named <em>${escapeHtml(slug)}</em>.</div>`;
     } else {
       const { user, stats, topBuzzes } = await resp.json();
-      const display = user.name || user.username;
-      const handle = user.username.split('@')[0];
+      const display = user.username;
       const joined = user.joined ? new Date(user.joined).toLocaleDateString(undefined, { year: 'numeric', month: 'short' }) : '';
 
       const topRows = topBuzzes.length === 0
@@ -67,7 +66,6 @@ if (!slug) {
           <div class="profile-hdr-left">
             <span class="profile-avatar">${initials(display)}</span>
             <div>
-              <div class="profile-handle">@${escapeHtml(handle)}</div>
               <h1 class="profile-name">${escapeHtml(display)}</h1>
               ${joined ? `<div class="profile-joined">Joined ${escapeHtml(joined)}</div>` : ''}
             </div>

@@ -37,7 +37,7 @@ function modaqifyBonus (bonus) {
 /**
  * Retrieves a packet of questions from the database.
  * @param {object} options - The options for the packet retrieval.
- * @param {string} options.setName - The name of the set (e.g. "2021 ACF Fall").
+ * @param {string} options.setName - The name of the set.
  * @param {number} options.packetNumber - **one-indexed** packet number.
  * @param {Array<String>} [options.questionTypes=['tossups', 'bonuses']] - The types of questions to retrieve.
  * If only one allowed type is specified, only that type will be searched for (increasing query speed).

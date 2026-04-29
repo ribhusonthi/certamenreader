@@ -30,6 +30,10 @@ kbd {
 // 6. Optionally include any other parts as needed
 @import "./custom.scss";
 
+:root {
+    color-scheme: dark;
+}
+
 // Dark mode glowing enhancements
 .bg-custom {
     box-shadow: 0 4px 25px rgba($custom, 0.4);

@@ -23,7 +23,7 @@ router.get('/callback', passport.authenticate('google', {
   session: false
 }), (req, res) => {
   const user = req.user;
-  const email = (user.username || user.email).toLowerCase();
+  const email = (user.email || user.username).toLowerCase();
 
   if (allowedEmails && !allowedEmails.has(email)) {
     console.log(`/api/auth: GOOGLE LOGIN DENIED: ${email} is not on the allowlist.`);
@@ -43,7 +43,7 @@ router.get('/callback', passport.authenticate('google', {
   // Redirect back to the page the user originally tried to visit, if any.
   // Only allow relative paths to prevent open redirect attacks.
   const state = req.query.state;
-  const base = (state && state.startsWith('/')) ? state : '/user/my-profile';
+  const base = user.usernameSet === true ? ((state && state.startsWith('/')) ? state : '/user/my-profile') : '/user/setup-username';
   const redirectTo = base + (base.includes('?') ? '&' : '?') + '_loggedIn=1';
   res.redirect(redirectTo);
 });

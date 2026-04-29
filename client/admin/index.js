@@ -3,19 +3,22 @@ let allUsers = [];
 function renderUsers (users) {
   const tbody = document.getElementById('users-tbody');
   if (users.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" class="text-center">No users found.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" class="text-center">No users found.</td></tr>';
     return;
   }
 
   tbody.innerHTML = users.map(user => {
     const joined = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A';
-    const isAdmin = user.admin ? 'Yes' : 'No';
     const adminBtnClass = user.admin ? 'btn-warning' : 'btn-outline-secondary';
     const adminBtnText = user.admin ? 'Remove Admin' : 'Make Admin';
 
     return `<tr>
-      <td>${escapeHtml(user.name || user.username || 'N/A')}</td>
+      <td>${escapeHtml(user.username || 'N/A')}${user.usernameSet === true ? '' : ' <span class="badge bg-warning text-dark">unset</span>'}</td>
+      <td>${escapeHtml(user.name || 'N/A')}</td>
       <td>${escapeHtml(user.email || 'N/A')}</td>
+      <td>${user.verifiedEmail ? 'Yes' : 'No'}</td>
+      <td>${user.photo ? `<a href="${escapeAttr(user.photo)}" target="_blank" rel="noopener">Photo</a>` : 'N/A'}</td>
+      <td><code>${escapeHtml(user.googleId || 'N/A')}</code></td>
       <td>${joined}</td>
       <td>
         <button class="btn btn-sm ${adminBtnClass} admin-toggle-btn"
@@ -27,7 +30,7 @@ function renderUsers (users) {
       <td>
         <button class="btn btn-sm btn-outline-primary view-stats-btn"
                 data-username="${escapeAttr(user.username || user.email)}"
-                data-display-name="${escapeAttr(user.name || user.username || 'User')}">
+                data-display-name="${escapeAttr(user.username || user.name || 'User')}">
           View Stats
         </button>
       </td>
@@ -51,7 +54,7 @@ function escapeHtml (str) {
 }
 
 function escapeAttr (str) {
-  return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  return String(str ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 async function handleAdminToggle (event) {
@@ -202,9 +205,11 @@ function filterUsers (query) {
   if (!query) return allUsers;
   const q = query.toLowerCase();
   return allUsers.filter(u => {
-    const name = (u.name || u.username || '').toLowerCase();
+    const username = (u.username || '').toLowerCase();
+    const name = (u.name || '').toLowerCase();
     const email = (u.email || '').toLowerCase();
-    return name.includes(q) || email.includes(q);
+    const googleId = (u.googleId || '').toLowerCase();
+    return username.includes(q) || name.includes(q) || email.includes(q) || googleId.includes(q);
   });
 }
 
@@ -217,7 +222,7 @@ fetch('/admin/api/users')
   })
   .catch(() => {
     document.getElementById('users-tbody').innerHTML =
-      '<tr><td colspan="5" class="text-center text-danger">Failed to load users.</td></tr>';
+      '<tr><td colspan="9" class="text-center text-danger">Failed to load users.</td></tr>';
   });
 
 // Search filter

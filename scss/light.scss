@@ -21,3 +21,38 @@
 
 // 6. Optionally include any other parts as needed
 @import "./custom.scss";
+
+:root {
+    color-scheme: light;
+
+    --accent-l: 0.56;
+    --accent-c: 0.15;
+    --accent-glow: oklch(var(--accent-l) var(--accent-c) var(--accent-h) / 0.22);
+
+    --ed-bg: oklch(0.985 0.008 85);
+    --ed-bg-raised: oklch(1 0 0);
+    --ed-bg-card: oklch(0.995 0.004 85);
+    --ed-bg-sunken: oklch(0.955 0.010 85);
+
+    --ed-border: oklch(0.82 0.014 80);
+    --ed-border-soft: oklch(0.88 0.012 80 / 0.75);
+
+    --ed-ink: oklch(0.22 0.018 55);
+    --ed-ink-dim: oklch(0.36 0.018 55);
+    --ed-ink-muted: oklch(0.52 0.016 55);
+    --ed-ink-faint: oklch(0.68 0.014 55);
+
+    --c-mythology: oklch(0.44 0.16 330);
+    --c-roman-history: oklch(0.43 0.13 155);
+    --c-latin-literature: oklch(0.50 0.14 85);
+    --c-language: oklch(0.40 0.14 245);
+    --c-culture: oklch(0.46 0.16 45);
+
+    --correct: oklch(0.46 0.15 150);
+    --incorrect: oklch(0.50 0.20 25);
+    --power: oklch(0.55 0.15 85);
+}
+
+.bg-custom {
+    box-shadow: 0 3px 18px oklch(0.56 0.15 287 / 0.16);
+}

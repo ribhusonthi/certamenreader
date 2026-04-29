@@ -47,7 +47,7 @@ export default class api {
   }
 
   /**
-     * @param {string} setName - The name of the set (e.g. "2021 ACF Fall").
+     * @param {string} setName - The name of the set.
      * @param {string | number} packetNumber - The packet number of the set.
      * @return {Promise<JSON[]>} An array containing the bonuses.
      */
@@ -62,7 +62,7 @@ export default class api {
   }
 
   /**
-     * @param {string} setName - The name of the set (e.g. "2021 ACF Fall").
+     * @param {string} setName - The name of the set.
      * @param {string} packetNumber - The packet number of the set.
      * @return {Promise<JSON[]>} An array containing the tossups.
      */
