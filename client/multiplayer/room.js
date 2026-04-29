@@ -38,7 +38,7 @@ const categoryManager = new CategoryManager(
   query.alternateSubcategories
 );
 
-let changedCategories = true;
+let changedCategories = false;
 
 let maxPacketNumber = 24;
 let setSelector;
@@ -136,6 +136,30 @@ socketUrl.searchParams.set('username', username);
 if (IS_RANKED_ROOM) socketUrl.searchParams.set('rankedTicket', rankedTicket);
 
 const socket = new WebSocket(socketUrl);
+
+function publishCategoryUpdate () {
+  const { categories, alternateSubcategories, subcategories } =
+    categoryManager.export();
+
+  window.localStorage.setItem(
+    'multiplayer-tossup-query',
+    JSON.stringify({ categories, alternateSubcategories, subcategories })
+  );
+
+  if (socket.readyState === WebSocket.OPEN) {
+    socket.send(
+      JSON.stringify({
+        type: 'update-categories',
+        categories,
+        alternateSubcategories,
+        subcategories
+      })
+    );
+    changedCategories = false;
+  } else {
+    changedCategories = true;
+  }
+}
 
 socket.onmessage = function (event) {
   const data = JSON.parse(event.data);
@@ -350,9 +374,11 @@ socket.onmessage = function (event) {
 
     case 'update-categories':
       logEvent(data.username, 'updated the categories');
-      const { alternateSubcategories, categories, subcategories } =
-        categoryManager.export();
-      categoryManager.import(categories, subcategories, alternateSubcategories);
+      categoryManager.import(
+        data.categories || [],
+        data.subcategories || [],
+        data.alternateSubcategories || []
+      );
       categoryManager.loadCategoryModal();
       break;
 
@@ -1118,18 +1144,9 @@ document
       JSON.stringify(categoryManager.export())
     );
     if (changedCategories) {
-      const { categories, alternateSubcategories, subcategories } =
-        categoryManager.export();
-      socket.send(
-        JSON.stringify({
-          type: 'update-categories',
-          categories: categories,
-          alternateSubcategories: alternateSubcategories,
-          subcategories: subcategories,
-        })
-      );
+      publishCategoryUpdate();
     }
-    changedCategories = true;
+    changedCategories = false;
   });
 
 document.getElementById('chat').addEventListener('click', function () {
@@ -1323,7 +1340,7 @@ document.querySelectorAll('#categories input').forEach((input) => {
     this.blur();
     categoryManager.updateCategory(input.dataset.category);
     categoryManager.loadCategoryModal();
-    changedCategories = true;
+    publishCategoryUpdate();
   });
 });
 
@@ -1332,7 +1349,7 @@ document.querySelectorAll('#subcategories input').forEach((input) => {
     this.blur();
     categoryManager.updateSubcategory(input.id);
     categoryManager.loadCategoryModal();
-    changedCategories = true;
+    publishCategoryUpdate();
   });
 });
 
@@ -1341,7 +1358,7 @@ document.querySelectorAll('#alternate-subcategories input').forEach((input) => {
     this.blur();
     categoryManager.updateAlternateSubcategory(input.id);
     categoryManager.loadCategoryModal();
-    changedCategories = true;
+    publishCategoryUpdate();
   });
 });
 
