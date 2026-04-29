@@ -3,7 +3,9 @@ function escapeHTML (unsafe) {
 }
 
 function removeParentheses (string) {
-  return string.replace(/[[].*/, '').replace(/\(.*\)/, '').trim();
+  const original = String(string ?? '').replace(/\s+/g, ' ').trim();
+  const cleaned = original.replace(/\[.*/, '').replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
+  return cleaned || original;
 }
 
 function titleCase (name) {
