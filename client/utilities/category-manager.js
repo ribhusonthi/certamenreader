@@ -6,7 +6,6 @@ const SUBCATEGORIES = {
   Culture: []
 };
 
-
 export default class CategoryManager {
   /**
      * @param {string[]} categories
@@ -65,6 +64,7 @@ export default class CategoryManager {
     document.querySelectorAll('#alternate-subcategories label').forEach(element => { element.classList.add('d-none'); });
 
     if (this.categories.length === 0 && this.subcategories.length === 0) {
+      document.getElementById('subcategory-info-text')?.remove();
       const subcategoryInfoText = document.createElement('div');
       subcategoryInfoText.className = 'text-muted text-center';
       subcategoryInfoText.textContent = 'You must select categories before you can select subcategories.';
@@ -89,6 +89,12 @@ export default class CategoryManager {
     for (const alternateSubcategory of this.alternateSubcategories) {
       document.getElementById(alternateSubcategory).checked = true;
     }
+
+    document.querySelectorAll('#category-chips .cat-chip').forEach(chip => {
+      const checkboxId = chip.dataset.checkboxId;
+      const checkbox = checkboxId ? document.getElementById(checkboxId) : null;
+      chip.setAttribute('data-on', checkbox?.checked ? 'true' : 'false');
+    });
   }
 
   /**

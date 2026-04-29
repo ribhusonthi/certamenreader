@@ -83,6 +83,7 @@ let questionNumber = 0; // WARNING: 1-indexed
  * We get 20 random questions at a time so we don't have to make an HTTP request between every question.
  */
 let randomTossups = [];
+let randomTossupsRequestId = 0;
 let timeoutID = -1;
 
 let tossups = [{}];
@@ -226,6 +227,13 @@ if (!window.localStorage.getItem('singleplayer-tossup-query')) {
 }
 
 const categoryManager = new CategoryManager(query.categories, query.subcategories, query.alternateSubcategories);
+
+function persistCategoryQuery () {
+  ({ categories: query.categories, subcategories: query.subcategories, alternateSubcategories: query.alternateSubcategories } = categoryManager.export());
+  randomTossups = [];
+  if (!useSetMode) loadRandomTossups(query);
+  window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
+}
 
 const settings = window.localStorage.getItem('singleplayer-tossup-settings')
   ? JSON.parse(window.localStorage.getItem('singleplayer-tossup-settings'))
@@ -610,8 +618,12 @@ async function giveAnswer (givenAnswer) {
 }
 
 async function loadRandomTossups ({ alternateSubcategories, categories, difficulties, maxYear, minYear, number = 1, powermarkOnly, standardOnly, subcategories } = {}) {
+  const requestId = ++randomTossupsRequestId;
   randomTossups = [];
-  randomTossups = await api.getRandomTossup({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, powermarkOnly, standardOnly, subcategories });
+  const tossupBatch = await api.getRandomTossup({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, powermarkOnly, standardOnly, subcategories });
+  if (requestId === randomTossupsRequestId) {
+    randomTossups = tossupBatch;
+  }
 }
 
 /**
@@ -1280,8 +1292,7 @@ document.querySelectorAll('#categories input').forEach(input => {
     this.blur();
     categoryManager.updateCategory(input.dataset.category);
     categoryManager.loadCategoryModal();
-    ({ categories: query.categories, subcategories: query.subcategories, alternateSubcategories: query.alternateSubcategories } = categoryManager.export());
-    window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
+    persistCategoryQuery();
   });
 });
 
@@ -1290,8 +1301,7 @@ document.querySelectorAll('#subcategories input').forEach(input => {
     this.blur();
     categoryManager.updateSubcategory(input.id);
     categoryManager.loadCategoryModal();
-    ({ categories: query.categories, subcategories: query.subcategories, alternateSubcategories: query.alternateSubcategories } = categoryManager.export());
-    window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
+    persistCategoryQuery();
   });
 });
 
@@ -1300,8 +1310,7 @@ document.querySelectorAll('#alternate-subcategories input').forEach(input => {
     this.blur();
     categoryManager.updateAlternateSubcategory(input.id);
     categoryManager.loadCategoryModal();
-    ({ categories: query.categories, subcategories: query.subcategories, alternateSubcategories: query.alternateSubcategories } = categoryManager.export());
-    window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
+    persistCategoryQuery();
   });
 });
 
