@@ -4,6 +4,19 @@ import getQuery from '../../database/certamenreader/get-query.js';
 import { Router } from 'express';
 const router = Router();
 
+function parseStringList (value) {
+  if (!value) return undefined;
+  if (value === 'undefined' || value === 'null') return undefined;
+  if (Array.isArray(value)) return value.filter(Boolean);
+  try {
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed)) return parsed.filter(Boolean);
+  } catch {
+    // Fall back to comma-separated legacy values.
+  }
+  return String(value).split(',').map(s => s.trim()).filter(Boolean);
+}
+
 router.get('/', async (req, res) => {
   if (!req.query.questionType) {
     req.query.questionType = 'all';
@@ -36,6 +49,8 @@ router.get('/', async (req, res) => {
   if (req.query.subcategories) {
     req.query.subcategories = req.query.subcategories.split(',');
   }
+
+  req.query.setNames = parseStringList(req.query.setNames);
 
   if (!req.query.tossupPagination) {
     req.query.tossupPagination = 1;

@@ -26,7 +26,7 @@ function unformatString (string) {
 }
 
 function getQuerySummary (options) {
-  const { queryString, difficulties, maxReturnLength, questionType, randomize, regex, searchType, setName } = options;
+  const { queryString, difficulties, maxReturnLength, questionType, randomize, regex, searchType, setName, setNames } = options;
 
   return `\
     [DATABASE] QUERY: string: ${OKCYAN}${queryString}${ENDC}; \
@@ -36,7 +36,7 @@ function getQuerySummary (options) {
     randomize: ${OKGREEN}${randomize}${ENDC}; \
     regex: ${OKGREEN}${regex}${ENDC}; \
     search type: ${OKGREEN}${searchType}${ENDC}; \
-    set name: ${OKGREEN}${setName}${ENDC}; \
+    set name: ${OKGREEN}${setName || setNames}${ENDC}; \
     `;
 }
 
@@ -44,6 +44,7 @@ function validateOptions ({
   queryString,
   difficulties,
   setName,
+  setNames,
   searchType = 'all',
   questionType = 'all',
   categories,
@@ -109,7 +110,11 @@ function validateOptions ({
     alternateSubcategories = alternateSubcategories.concat([null]);
   }
 
-  return { queryString, difficulties, setName, searchType, questionType, categories, subcategories, alternateSubcategories, maxReturnLength, randomize, regex, exactPhrase, powermarkOnly, tossupPagination, bonusPagination, minYear, maxYear, verbose, words };
+  if (!Array.isArray(setNames) || setNames.length === 0) {
+    setNames = undefined;
+  }
+
+  return { queryString, difficulties, setName, setNames, searchType, questionType, categories, subcategories, alternateSubcategories, maxReturnLength, randomize, regex, exactPhrase, powermarkOnly, tossupPagination, bonusPagination, minYear, maxYear, verbose, words };
 }
 
 /**
@@ -249,7 +254,7 @@ async function getBonusQuery (options) {
   }
 }
 
-function buildQueryAggregation ({ query, difficulties, categories, subcategories, alternateSubcategories, setName, maxReturnLength, randomize, minYear, maxYear, isEmpty, powermarkOnly }) {
+function buildQueryAggregation ({ query, difficulties, categories, subcategories, alternateSubcategories, setName, setNames, maxReturnLength, randomize, minYear, maxYear, isEmpty, powermarkOnly }) {
   if (isEmpty) {
     delete query.$or;
   }
@@ -270,7 +275,9 @@ function buildQueryAggregation ({ query, difficulties, categories, subcategories
     query.alternate_subcategory = { $in: alternateSubcategories };
   }
 
-  if (setName) {
+  if (setNames?.length) {
+    query['set.name'] = { $in: setNames };
+  } else if (setName) {
     query['set.name'] = setName;
   }
 

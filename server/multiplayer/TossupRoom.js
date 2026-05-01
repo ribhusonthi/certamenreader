@@ -36,6 +36,16 @@ const QuestionProgressEnum = Object.freeze({
   ANSWER_REVEALED: 2,
 });
 
+function normalizeSetNames (value) {
+  if (Array.isArray(value)) {
+    return [
+      ...new Set(value.map((name) => String(name || '').trim()).filter(Boolean))
+    ];
+  }
+  const single = String(value || '').trim();
+  return single ? [single] : [];
+}
+
 /**
  * @returns {Number} The number of points scored on a tossup.
  */
@@ -94,6 +104,7 @@ export default class TossupRoom {
         21, 22, 23, 24,
       ],
       setName: setName ?? '',
+      setNames: setName ? [setName] : [],
       alternateSubcategories,
       categories,
       subcategories,
@@ -379,6 +390,7 @@ export default class TossupRoom {
         break;
 
       case 'packet-number':
+        if (!this.query.setName) return;
         allowedPacketNumbers = await getNumPackets(this.query.setName);
         if (
           message.value.some(
@@ -419,12 +431,17 @@ export default class TossupRoom {
         if (typeof message.value !== 'string') {
           return;
         }
-        // Allow empty string to clear set name (switches to random mode)
-        if (message.value.length > 0 && (!this.setList || !this.setList.includes(message.value))) {
+        message.setNames = normalizeSetNames(message.setNames || message.value);
+        // Allow empty selection to clear set names (switches to random mode)
+        if (
+          message.setNames.some((name) => !this.setList || !this.setList.includes(name))
+        ) {
           return;
         }
 
-        allowedPacketNumbers = await getNumPackets(message.value);
+        message.value = message.setNames.length === 1 ? message.setNames[0] : '';
+        message.packetNumbers = message.value ? (message.packetNumbers || []) : [];
+        allowedPacketNumbers = message.value ? await getNumPackets(message.value) : 0;
         if (
           message.packetNumbers.some(
             (num) => num > allowedPacketNumbers || num < 1
@@ -436,10 +453,11 @@ export default class TossupRoom {
           type: 'set-name',
           username: this.players[userId].username,
           value: message.value,
+          setNames: message.setNames,
         });
         this.adjustQuery(
-          ['setName', 'packetNumbers'],
-          [message.value, message.packetNumbers]
+          ['setName', 'setNames', 'packetNumbers'],
+          [message.value, message.setNames, message.packetNumbers]
         );
         break;
 

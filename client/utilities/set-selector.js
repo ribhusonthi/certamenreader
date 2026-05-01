@@ -50,11 +50,12 @@ function parseDifficultyValue (setName) {
  *
  * @param {Object}   opts
  * @param {string[]} opts.sets            All available set names.
- * @param {Object}   opts.state           Initial state { setName, packetNumbers, difficulties, minYear, maxYear }.
+ * @param {Object}   opts.state           Initial state { setName, setNames, packetNumbers, difficulties, minYear, maxYear }.
  * @param {Function} [opts.fetchPackets]  async (setName) => Array<{ name, number }>
  *                                        Used to populate the in-modal packet picker.
  * @param {Object}   opts.on              Callbacks fired immediately when a control changes.
- *                                        { onSetChange(setName), onPacketsChange(numbers),
+ *                                        { onSetChange(setName, setNames), onSetNamesChange(setNames),
+ *                                          onPacketsChange(numbers),
  *                                          onDifficultiesChange(list),
  *                                          onYearRangeChange(minYear, maxYear) }
  */
@@ -72,7 +73,7 @@ export function initSetSelector ({ sets, state, on, fetchPackets }) {
   const opener = document.getElementById('open-set-modal');
 
   // Optional sidebar mirrors
-  const sidebarSetNameEl = document.getElementById('set-name-info');
+  const sidebarSetNameEl = document.getElementById('set-name-info') || document.getElementById('set-card-name');
   const sidebarDifficultyEl = document.getElementById('set-card-difficulty');
   const sidebarPacketsEl = document.getElementById('set-card-packets');
 
@@ -84,6 +85,39 @@ export function initSetSelector ({ sets, state, on, fetchPackets }) {
   const difficultyInputs = Array.from(
     document.querySelectorAll('#set-modal-difficulties input[type="checkbox"]')
   );
+
+  function normalizeSetNames (value) {
+    if (Array.isArray(value)) {
+      return [...new Set(value.map(s => String(s || '').trim()).filter(Boolean))];
+    }
+    const single = String(value || '').trim();
+    return single ? [single] : [];
+  }
+
+  function selectedSetNames () {
+    return normalizeSetNames(state.setNames || state.setName);
+  }
+
+  function setSelectedSetNames (names) {
+    state.setNames = normalizeSetNames(names);
+    state.setName = state.setNames.length === 1 ? state.setNames[0] : '';
+  }
+
+  function selectionSummary (noneText = 'none — questions will be random') {
+    const names = selectedSetNames();
+    if (names.length === 0) return noneText;
+    if (names.length === 1) return names[0];
+    if (names.length <= 3) return names.join(', ');
+    return `${names.slice(0, 3).join(', ')} +${names.length - 3} more`;
+  }
+
+  function emitSetChange () {
+    const names = selectedSetNames();
+    on.onSetNamesChange?.(names);
+    on.onSetChange?.(state.setName, names);
+  }
+
+  setSelectedSetNames(state.setNames || state.setName);
 
   // Bounds for year filters
   const years = sets.map(parseYear).filter(y => y != null);
@@ -181,21 +215,23 @@ export function initSetSelector ({ sets, state, on, fetchPackets }) {
         </span>
         <span class="ed-set-row-full">${escapeHtml(name)}</span>
       `;
-      if (name === state.setName) btn.setAttribute('data-active', 'true');
+      if (selectedSetNames().includes(name)) btn.setAttribute('data-active', 'true');
       btn.addEventListener('click', () => {
-        const wasSelected = state.setName === name;
-        if (wasSelected) {
-          // Click again to deselect
-          state.setName = '';
-        } else {
-          state.setName = name;
-        }
-        setListEl.querySelectorAll('.ed-set-row').forEach(el => el.removeAttribute('data-active'));
-        if (state.setName) btn.setAttribute('data-active', 'true');
+        const next = selectedSetNames();
+        const index = next.indexOf(name);
+        if (index >= 0) next.splice(index, 1);
+        else next.push(name);
+        setSelectedSetNames(next);
+        state.packetNumbers = [];
+        setListEl.querySelectorAll('.ed-set-row').forEach(el => {
+          const fullName = el.querySelector('.ed-set-row-full')?.textContent;
+          if (selectedSetNames().includes(fullName)) el.setAttribute('data-active', 'true');
+          else el.removeAttribute('data-active');
+        });
         refreshOpener();
         refreshCurrent();
         refreshSidebar();
-        on.onSetChange?.(state.setName);
+        emitSetChange();
         loadPackets();
       });
       setListEl.appendChild(btn);
@@ -206,7 +242,8 @@ export function initSetSelector ({ sets, state, on, fetchPackets }) {
   let cachedPackets = [];
   async function loadPackets () {
     if (!packetsEl || !packetsHdr) return;
-    if (!state.setName || !fetchPackets) {
+    const names = selectedSetNames();
+    if (names.length !== 1 || !fetchPackets) {
       packetsEl.hidden = true;
       packetsHdr.hidden = true;
       packetsEl.innerHTML = '';
@@ -217,7 +254,7 @@ export function initSetSelector ({ sets, state, on, fetchPackets }) {
     packetsEl.hidden = false;
     packetsEl.innerHTML = '<div class="ed-set-empty">Loading packets…</div>';
     try {
-      cachedPackets = (await fetchPackets(state.setName)) || [];
+      cachedPackets = (await fetchPackets(names[0])) || [];
     } catch {
       cachedPackets = [];
     }
@@ -272,24 +309,28 @@ export function initSetSelector ({ sets, state, on, fetchPackets }) {
   // ── Display helpers ───────────────────────────────────────────────────────
   function refreshCurrent () {
     if (!currentEl) return;
-    currentEl.textContent = state.setName || 'none — questions will be random';
+    currentEl.textContent = selectionSummary();
   }
 
   function refreshOpener () {
     if (!opener) return;
-    if (state.setName) opener.textContent = 'Change';
+    if (selectedSetNames().length) opener.textContent = 'Change';
     else opener.textContent = 'Choose';
   }
 
   function refreshSidebar () {
     if (sidebarSetNameEl) {
-      sidebarSetNameEl.textContent = state.setName || 'No set selected';
+      sidebarSetNameEl.textContent = selectionSummary('No set selected');
     }
     if (sidebarDifficultyEl) {
       const diffs = state.difficulties || [];
-      if (state.setName) {
-        const dv = parseDifficultyValue(state.setName);
+      const names = selectedSetNames();
+      if (names.length === 1) {
+        const dv = parseDifficultyValue(names[0]);
         sidebarDifficultyEl.textContent = dv ? DIFFICULTY_LABELS[dv] : 'Set selected';
+        sidebarDifficultyEl.classList.add('chip-active');
+      } else if (names.length > 1) {
+        sidebarDifficultyEl.textContent = `${names.length} sets selected`;
         sidebarDifficultyEl.classList.add('chip-active');
       } else if (diffs.length && diffs.length < 3) {
         sidebarDifficultyEl.textContent = `Random · ${diffs.map(d => DIFFICULTY_LABELS[d]).join('/')}`;
@@ -301,7 +342,7 @@ export function initSetSelector ({ sets, state, on, fetchPackets }) {
     }
     if (sidebarPacketsEl) {
       const n = (state.packetNumbers || []).length;
-      if (state.setName && n > 0) {
+      if (selectedSetNames().length === 1 && n > 0) {
         sidebarPacketsEl.textContent = `${n} packet${n === 1 ? '' : 's'}`;
         sidebarPacketsEl.hidden = false;
       } else {
@@ -350,13 +391,13 @@ export function initSetSelector ({ sets, state, on, fetchPackets }) {
   yearMaxEl.addEventListener('change', emitYearChange);
 
   clearSetBtn?.addEventListener('click', () => {
-    state.setName = '';
+    setSelectedSetNames([]);
     state.packetNumbers = [];
     setListEl.querySelectorAll('.ed-set-row').forEach(el => el.removeAttribute('data-active'));
     refreshOpener();
     refreshCurrent();
     refreshSidebar();
-    on.onSetChange?.('');
+    emitSetChange();
     loadPackets();
   });
 
@@ -369,7 +410,8 @@ export function initSetSelector ({ sets, state, on, fetchPackets }) {
 
   return {
     setState (next) {
-      if (typeof next.setName === 'string') state.setName = next.setName;
+      if (Array.isArray(next.setNames)) setSelectedSetNames(next.setNames);
+      else if (typeof next.setName === 'string') setSelectedSetNames(next.setName);
       if (Array.isArray(next.difficulties)) {
         state.difficulties = next.difficulties.slice();
         for (const input of difficultyInputs) {

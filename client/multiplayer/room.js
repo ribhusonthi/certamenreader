@@ -43,6 +43,22 @@ let changedCategories = false;
 let maxPacketNumber = 24;
 let setSelector;
 
+function normalizeSetNames (value) {
+  if (Array.isArray(value)) {
+    return [...new Set(value.map(s => String(s || '').trim()).filter(Boolean))];
+  }
+  const single = String(value || '').trim();
+  return single ? [single] : [];
+}
+
+function selectedSetSummary (setNames, noneText = 'No set selected') {
+  const names = normalizeSetNames(setNames);
+  if (names.length === 0) return noneText;
+  if (names.length === 1) return names[0];
+  if (names.length <= 3) return names.join(', ');
+  return `${names.slice(0, 3).join(', ')} +${names.length - 3} more`;
+}
+
 async function loadPacketPicker (setName, selectedNumbers, onChangeCallback) {
   const picker = document.getElementById('packet-picker');
   if (!picker) return;
@@ -230,13 +246,13 @@ socket.onmessage = function (event) {
       document.getElementById('packet-number').value = arrayToRange(data.value);
       break;
     case 'set-name':
-      if (data.value.length > 0) {
-        logEvent(data.username, `changed the ${data.type} to ${data.value}`);
+      if ((data.setNames || []).length > 0) {
+        logEvent(data.username, `changed the ${data.type} to ${selectedSetSummary(data.setNames)}`);
       } else {
         logEvent(data.username, `cleared the ${data.type}`);
       }
-      setSelector?.setState({ setName: data.value });
-      if (data.value) {
+      setSelector?.setState({ setName: data.value, setNames: data.setNames || normalizeSetNames(data.value) });
+      if ((data.setNames || []).length === 1) {
         document.getElementById('packet-picker-container').classList.remove('d-none');
       } else {
         document.getElementById('packet-picker-container').classList.add('d-none');
@@ -552,6 +568,7 @@ const socketOnConnectionAcknowledgedQuery = async (message) => {
 
   setSelector?.setState({
     setName: message.setName || '',
+    setNames: message.setNames || normalizeSetNames(message.setName),
     difficulties: message.difficulties || [],
     minYear: message.minYear,
     maxYear: message.maxYear,
@@ -559,14 +576,18 @@ const socketOnConnectionAcknowledgedQuery = async (message) => {
   document.getElementById('packet-number').value =
     arrayToRange(message.packetNumbers) || '';
 
-  maxPacketNumber = await api.getNumPackets(message.setName || '');
+  const selectedNames = normalizeSetNames(message.setNames || message.setName);
+  maxPacketNumber = selectedNames.length === 1 ? await api.getNumPackets(selectedNames[0]) : 0;
 
   // Load packet picker if a set is selected
-  if (message.setName) {
-    await loadPacketPicker(message.setName, message.packetNumbers || [], (selectedNums) => {
+  if (selectedNames.length === 1) {
+    document.getElementById('packet-picker-container').classList.remove('d-none');
+    await loadPacketPicker(selectedNames[0], message.packetNumbers || [], (selectedNums) => {
       document.getElementById('packet-number').value = arrayToRange(selectedNums);
       socket.send(JSON.stringify({ type: 'packet-number', value: selectedNums }));
     });
+  } else {
+    document.getElementById('packet-picker-container').classList.add('d-none');
   }
 
   document.getElementById('toggle-powermark-only').checked =
@@ -1240,14 +1261,17 @@ document
     );
   });
 
-async function applySetName (setName) {
-  if (setName) {
+async function applySetNames (setNames) {
+  const selectedNames = normalizeSetNames(setNames);
+  const singleSetName = selectedNames.length === 1 ? selectedNames[0] : '';
+
+  if (singleSetName) {
     document.getElementById('packet-picker-container').classList.remove('d-none');
   } else {
     document.getElementById('packet-picker-container').classList.add('d-none');
   }
 
-  maxPacketNumber = await api.getNumPackets(setName);
+  maxPacketNumber = singleSetName ? await api.getNumPackets(singleSetName) : 0;
   const allPackets = Array.from({ length: maxPacketNumber }, (_, i) => i + 1);
   document.getElementById('packet-number').value =
     maxPacketNumber > 0 ? `1-${maxPacketNumber}` : '';
@@ -1255,13 +1279,14 @@ async function applySetName (setName) {
   socket.send(
     JSON.stringify({
       type: 'set-name',
-      value: setName,
+      value: singleSetName,
+      setNames: selectedNames,
       packetNumbers: allPackets,
     })
   );
 
-  if (setName) {
-    await loadPacketPicker(setName, allPackets, (selectedNums) => {
+  if (singleSetName) {
+    await loadPacketPicker(singleSetName, allPackets, (selectedNums) => {
       document.getElementById('packet-number').value = arrayToRange(selectedNums);
       socket.send(JSON.stringify({ type: 'packet-number', value: selectedNums }));
     });
@@ -1420,19 +1445,20 @@ setSelector = initSetSelector({
   sets: api.getSetList(),
   state: {
     setName: '',
+    setNames: [],
     difficulties: [],
     minYear: undefined,
-    maxYear: undefined,
+    maxYear: undefined
   },
   on: {
-    onSetChange: async (setName) => {
-      await applySetName(setName);
+    onSetNamesChange: async (setNames) => {
+      await applySetNames(setNames);
     },
     onDifficultiesChange: (difficulties) => {
       socket.send(JSON.stringify({ type: 'difficulties', value: difficulties }));
     },
     onYearRangeChange: (minYear, maxYear) => {
       socket.send(JSON.stringify({ type: 'year-range', minYear, maxYear }));
-    },
-  },
+    }
+  }
 });

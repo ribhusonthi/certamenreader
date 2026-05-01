@@ -571,6 +571,7 @@ function QueryForm() {
       ignoreWordOrder,
       searchType,
       setName: document.getElementById('set-name').value,
+      setNames: document.getElementById('set-names').value,
       tossupPagination: tossupPaginationNumber,
       bonusPagination: bonusPaginationNumber,
       minYear,
@@ -660,7 +661,7 @@ function QueryForm() {
   }
   const tossupCards = [];
   for (let i = 0; i < highlightedTossups.length; i++) {
-    tossupCards.push( /*#__PURE__*/React.createElement(TossupCard, {
+    tossupCards.push(/*#__PURE__*/React.createElement(TossupCard, {
       key: i,
       tossup: tossups[i],
       highlightedTossup: highlightedTossups[i],
@@ -671,7 +672,7 @@ function QueryForm() {
   }
   const bonusCards = [];
   for (let i = 0; i < highlightedBonuses.length; i++) {
-    bonusCards.push( /*#__PURE__*/React.createElement(BonusCard, {
+    bonusCards.push(/*#__PURE__*/React.createElement(BonusCard, {
       key: i,
       bonus: bonuses[i],
       highlightedBonus: highlightedBonuses[i],
@@ -821,6 +822,9 @@ function QueryForm() {
   }, "Change")), /*#__PURE__*/React.createElement("input", {
     type: "hidden",
     id: "set-name"
+  }), /*#__PURE__*/React.createElement("input", {
+    type: "hidden",
+    id: "set-names"
   }), /*#__PURE__*/React.createElement("button", {
     type: "button",
     className: "btn btn-danger",
@@ -1149,4 +1153,4 @@ function QueryForm() {
   })));
 }
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render( /*#__PURE__*/React.createElement(QueryForm, null));
+root.render(/*#__PURE__*/React.createElement(QueryForm, null));

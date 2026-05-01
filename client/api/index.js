@@ -107,8 +107,8 @@ export default class api {
       .then(data => data.randomName);
   }
 
-  static async getRandomTossup ({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, powermarkOnly, standardOnly, subcategories }) {
-    return await fetch('/api/random-tossup?' + new URLSearchParams({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, powermarkOnly, standardOnly, subcategories }))
+  static async getRandomTossup ({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, powermarkOnly, setNames, standardOnly, subcategories }) {
+    return await fetch('/api/random-tossup?' + new URLSearchParams({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, powermarkOnly, setNames: Array.isArray(setNames) ? JSON.stringify(setNames) : setNames, standardOnly, subcategories }))
       .then(response => response.json())
       .then(response => response.tossups);
   }
