@@ -3,6 +3,19 @@ import getRandomTossups from '../../database/certamenreader/get-random-tossups.j
 import { Router } from 'express';
 const router = Router();
 
+function parseStringList (value) {
+  if (!value) return undefined;
+  if (value === 'undefined' || value === 'null') return undefined;
+  if (Array.isArray(value)) return value.filter(Boolean);
+  try {
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed)) return parsed.filter(Boolean);
+  } catch {
+    // Fall back to comma-separated legacy values.
+  }
+  return String(value).split(',').map(s => s.trim()).filter(Boolean);
+}
+
 router.get('/', async (req, res) => {
   if (req.query.difficulties) {
     req.query.difficulties = req.query.difficulties
@@ -32,6 +45,7 @@ router.get('/', async (req, res) => {
   req.query.number = isNaN(req.query.number) ? undefined : parseInt(req.query.number);
 
   req.query.setName = req.query.setName || undefined;
+  req.query.setNames = parseStringList(req.query.setNames);
   req.query.powermarkOnly = (req.query.powermarkOnly === 'true');
   req.query.standardOnly = (req.query.standardOnly === 'true');
 

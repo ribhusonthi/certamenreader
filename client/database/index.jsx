@@ -528,6 +528,7 @@ function QueryForm () {
       ignoreWordOrder,
       searchType,
       setName: document.getElementById('set-name').value,
+      setNames: document.getElementById('set-names').value,
       tossupPagination: tossupPaginationNumber,
       bonusPagination: bonusPaginationNumber,
       minYear,
@@ -716,6 +717,7 @@ function QueryForm () {
               <span className='db-set-picker-cta'>Change</span>
             </button>
             <input type='hidden' id='set-name' />
+            <input type='hidden' id='set-names' />
             <button type='button' className='btn btn-danger' id='category-select-button' data-bs-toggle='modal' data-bs-target='#category-modal'>Category</button>
           </div>
         </div>

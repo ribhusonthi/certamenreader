@@ -210,6 +210,7 @@ const defaults = {
   packetNumbers: [],
   powermarkOnly: false,
   setName: '',
+  setNames: [],
   standardOnly: false,
   subcategories: [],
   version: '04-26-2026'
@@ -225,6 +226,12 @@ if (!window.localStorage.getItem('singleplayer-tossup-query')) {
     window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
   }
 }
+
+if (!Array.isArray(query.setNames)) {
+  query.setNames = query.setName ? [query.setName] : [];
+}
+query.setNames = [...new Set(query.setNames.map(s => String(s || '').trim()).filter(Boolean))];
+query.setName = query.setNames.length === 1 ? query.setNames[0] : '';
 
 const categoryManager = new CategoryManager(query.categories, query.subcategories, query.alternateSubcategories);
 
@@ -300,6 +307,18 @@ if (settings.readBoni) {
 
 if (settings.boniOnDrop) {
   document.getElementById('toggle-boni-on-drop').checked = true;
+}
+
+function selectedSetNames () {
+  return Array.isArray(query.setNames) ? query.setNames.filter(Boolean) : (query.setName ? [query.setName] : []);
+}
+
+function selectedSetSummary (noneText = 'No set selected') {
+  const names = selectedSetNames();
+  if (names.length === 0) return noneText;
+  if (names.length === 1) return names[0];
+  if (names.length <= 3) return names.join(', ');
+  return `${names.slice(0, 3).join(', ')} +${names.length - 3} more`;
 }
 
 if (query.setName) {
@@ -617,10 +636,10 @@ async function giveAnswer (givenAnswer) {
   }
 }
 
-async function loadRandomTossups ({ alternateSubcategories, categories, difficulties, maxYear, minYear, number = 1, powermarkOnly, standardOnly, subcategories } = {}) {
+async function loadRandomTossups ({ alternateSubcategories, categories, difficulties, maxYear, minYear, number = 1, powermarkOnly, setNames, standardOnly, subcategories } = {}) {
   const requestId = ++randomTossupsRequestId;
   randomTossups = [];
-  const tossupBatch = await api.getRandomTossup({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, powermarkOnly, standardOnly, subcategories });
+  const tossupBatch = await api.getRandomTossup({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, powermarkOnly, setNames, standardOnly, subcategories });
   if (requestId === randomTossupsRequestId) {
     randomTossups = tossupBatch;
   }
@@ -630,16 +649,16 @@ async function loadRandomTossups ({ alternateSubcategories, categories, difficul
  * Get a random tossup.
  * @returns
  */
-async function getRandomTossup ({ alternateSubcategories, categories, difficulties, minYear, maxYear, powermarkOnly, subcategories, standardOnly } = {}) {
+async function getRandomTossup ({ alternateSubcategories, categories, difficulties, minYear, maxYear, powermarkOnly, setNames, subcategories, standardOnly } = {}) {
   if (randomTossups.length === 0) {
-    await loadRandomTossups({ alternateSubcategories, categories, difficulties, maxYear, minYear, number: 20, powermarkOnly, subcategories, standardOnly });
+    await loadRandomTossups({ alternateSubcategories, categories, difficulties, maxYear, minYear, number: 20, powermarkOnly, setNames, subcategories, standardOnly });
   }
 
   const randomQuestion = randomTossups.pop();
 
   // Begin loading the next batch of questions (asynchronously)
   if (randomTossups.length === 0) {
-    loadRandomTossups({ alternateSubcategories, categories, difficulties, maxYear, minYear, number: 20, powermarkOnly, subcategories, standardOnly });
+    loadRandomTossups({ alternateSubcategories, categories, difficulties, maxYear, minYear, number: 20, powermarkOnly, setNames, subcategories, standardOnly });
   }
 
   return randomQuestion;
@@ -680,7 +699,7 @@ async function next () {
   document.getElementById('pause').textContent = 'Pause';
   document.getElementById('pause').disabled = false;
   document.getElementById('question').innerHTML = '';
-  document.getElementById('set-name-info').textContent = query.setName || 'No set selected';
+  document.getElementById('set-name-info').textContent = selectedSetSummary();
 
   const currentTossup = tossups[questionNumber - 1];
   updateReaderHeader(currentTossup);
@@ -1360,12 +1379,12 @@ document.getElementById('clear-stats').addEventListener('click', function () {
   clearStats();
 });
 
-
 document.getElementById('next').addEventListener('click', async function () {
   this.blur();
   if (!started) {
-    useSetMode = query.setName.length > 0;
-    if (useSetMode && !api.getSetList().includes(query.setName)) {
+    const selectedNames = selectedSetNames();
+    useSetMode = selectedNames.length === 1;
+    if (selectedNames.some(name => !api.getSetList().includes(name))) {
       window.alert('Set name not found.');
       return;
     }
@@ -1428,8 +1447,9 @@ document.getElementById('report-question-submit').addEventListener('click', func
   );
 });
 
-async function applySetName (setName) {
-  query.setName = (setName || '').trim();
+async function applySetNames (setNames) {
+  query.setNames = [...new Set((setNames || []).map(s => String(s || '').trim()).filter(Boolean))];
+  query.setName = query.setNames.length === 1 ? query.setNames[0] : '';
   query.packetNumbers = [];
   if (query.setName) {
     maxPacketNumber = await api.getNumPackets(query.setName);
@@ -1585,6 +1605,7 @@ initSetSelector({
   sets: api.getSetList(),
   state: {
     setName: query.setName || '',
+    setNames: selectedSetNames(),
     packetNumbers: query.packetNumbers || [],
     difficulties: query.difficulties || [],
     minYear: query.minYear,
@@ -1592,8 +1613,8 @@ initSetSelector({
   },
   fetchPackets: fetchPacketsForSet,
   on: {
-    onSetChange: async (setName) => {
-      await applySetName(setName);
+    onSetNamesChange: async (setNames) => {
+      await applySetNames(setNames);
     },
     onPacketsChange: (numbers) => {
       applyPacketSelection(numbers);
