@@ -77,6 +77,8 @@ function buildAccountDropdown ({ authed, name, username }) {
     // eslint-disable-next-line no-new
     new window.bootstrap.Dropdown(toggle);
   }
+
+  document.body.classList.add('account-nav-ready');
 }
 
 account.getUsername().then(username => {
@@ -96,4 +98,6 @@ account.getUsername().then(username => {
     .catch(() => {
       buildAccountDropdown({ authed: true, username });
     });
+}).catch(() => {
+  buildAccountDropdown({ authed: false });
 });
