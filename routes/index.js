@@ -21,6 +21,12 @@ import { checkToken } from '../server/authentication.js';
 import { Router } from 'express';
 const router = Router();
 
+function hasReturningUserCookie (req) {
+  const raw = req.headers.cookie;
+  if (!raw) return false;
+  return raw.split(';').some(part => part.trim().startsWith('cr_returning='));
+}
+
 // router.get('/login', (req, res) => {
 //   res.sendFile('index.html', { root: './client' });
 // });
@@ -34,6 +40,8 @@ router.get('/', (req, res) => {
   }
   if (req.session && checkToken(req.session.username, req.session.token)) {
     res.sendFile('index-authed.html', { root: './client' });
+  } else if (hasReturningUserCookie(req)) {
+    res.redirect('/auth/google');
   } else {
     res.sendFile('index.html', { root: './client' });
   }
