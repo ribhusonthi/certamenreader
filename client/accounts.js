@@ -18,21 +18,21 @@ export default class account {
 
     let { username, expires } = data;
 
-    if (username === null) {
-      return null;
-    } else if (username === undefined) {
+    if (username === undefined || (username === null && (expires === null || expires < Date.now()))) {
       const data = await fetch('/auth/get-username')
         .then(response => {
           if (response.status === 401) {
-            return { username: null, expires: null };
+            return { username: null, expires: Date.now() + 30 * 1000 };
           }
           return response.json();
         });
       username = data.username;
       window.sessionStorage.setItem('account-username', JSON.stringify(data));
+    } else if (username === null) {
+      return null;
     } else if (expires === null || expires < Date.now()) {
       username = null;
-      window.sessionStorage.setItem('account-username', JSON.stringify({ username: null, expires: null }));
+      window.sessionStorage.setItem('account-username', JSON.stringify({ username: null, expires: Date.now() + 30 * 1000 }));
     }
 
     return username;
