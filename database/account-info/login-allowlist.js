@@ -16,6 +16,10 @@ async function isLoginEmailAllowed (user) {
     return true;
   }
 
+  if (await loginAllowlist.countDocuments({}, { limit: 1 }) === 0) {
+    return true;
+  }
+
   const email = normalizeEmail(user?.email || user?.username);
   if (!email) {
     return false;
