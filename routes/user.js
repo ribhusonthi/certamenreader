@@ -22,9 +22,25 @@ function getPageSecurely (htmlFile) {
   };
 }
 
+function hasReturningUserCookie (req) {
+  const raw = req.headers.cookie;
+  if (!raw) return false;
+  return raw.split(';').some(part => part.trim().startsWith('cr_returning='));
+}
+
 router.get('/login', async (req, res) => {
   if (req.session && checkToken(req.session.username, req.session.token)) {
     res.redirect('/user/my-profile');
+    return;
+  }
+
+  // Returning user with an expired session: skip the hidden landing page and
+  // bounce straight through Google. Don't auto-redirect when an error is being
+  // surfaced (e.g. ?error=unauthorized) to avoid an OAuth loop.
+  if (!req.query.error && hasReturningUserCookie(req)) {
+    const redirect = req.query.redirect;
+    const target = redirect ? `/auth/google?redirect=${encodeURIComponent(redirect)}` : '/auth/google';
+    res.redirect(target);
     return;
   }
 

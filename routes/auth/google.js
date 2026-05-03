@@ -35,6 +35,16 @@ router.get('/callback', passport.authenticate('google', {
   req.session.token = generateToken(username);
   req.session.expires = expires;
 
+  // Long-lived flag so a returning visitor whose session has expired can be
+  // redirected straight back into Google OAuth instead of hunting for the
+  // hidden sign-in landing page. Cleared on explicit logout.
+  res.cookie('cr_returning', '1', {
+    maxAge: 1000 * 60 * 60 * 24 * 365,
+    httpOnly: false,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production'
+  });
+
   console.log(`/api/auth: GOOGLE LOGIN: User ${username} (${user.name}) successfully logged in.`);
 
   // Redirect back to the page the user originally tried to visit, if any.
