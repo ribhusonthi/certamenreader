@@ -69,7 +69,6 @@ passport.use(new GoogleStrategy({
       user = { ...user, email, name, photo, verifiedEmail: true };
     }
 
-    user.googleAccessToken = accessToken;
     done(null, user);
   } catch (err) {
     done(err, null);
