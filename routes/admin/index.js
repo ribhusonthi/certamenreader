@@ -4,6 +4,7 @@ import { certamenreader } from '../../database/databases.js';
 import { tossups as tossupsCollection, sets as setsCollection, packets as packetsCollection } from '../../database/certamenreader/collections.js';
 
 import geowordRouter from './geoword.js';
+import allowlistRouter from './allowlist.js';
 import usersRouter from './users.js';
 
 import { Router } from 'express';
@@ -35,6 +36,7 @@ router.get('/category-reports', (_req, res) => {
 });
 
 router.use('/geoword', geowordRouter);
+router.use('/api/allowlist', allowlistRouter);
 router.use('/api/users', usersRouter);
 
 // Get all uploads
