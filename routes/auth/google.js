@@ -1,4 +1,5 @@
 import { COOKIE_MAX_AGE } from '../../constants.js';
+import { driveMetadataScope, isGoogleUserAuthorized } from '../../server/google-drive-authorization.js';
 import { generateToken } from '../../server/authentication.js';
 
 import passport from 'passport';
@@ -8,25 +9,21 @@ const router = Router();
 
 router.get('/', (req, res, next) => {
   passport.authenticate('google', {
-    scope: ['profile', 'email'],
+    scope: ['profile', 'email', driveMetadataScope],
     session: false,
     state: req.query.redirect || undefined
   })(req, res, next);
 });
 
-const allowedEmails = process.env.ALLOWED_EMAILS
-  ? new Set(process.env.ALLOWED_EMAILS.split(',').map(e => e.trim().toLowerCase()))
-  : null; // null means no restriction
-
 router.get('/callback', passport.authenticate('google', {
   failureRedirect: '/user/login',
   session: false
-}), (req, res) => {
+}), async (req, res) => {
   const user = req.user;
   const email = (user.email || user.username).toLowerCase();
 
-  if (allowedEmails && !allowedEmails.has(email)) {
-    console.log(`/api/auth: GOOGLE LOGIN DENIED: ${email} is not on the allowlist.`);
+  if (!(await isGoogleUserAuthorized(user))) {
+    console.log(`/api/auth: GOOGLE LOGIN DENIED: ${email} is not authorized.`);
     res.redirect('/user/login?error=unauthorized');
     return;
   }
