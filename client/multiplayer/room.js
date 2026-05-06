@@ -131,19 +131,24 @@ const ROOM_NAME = decodeURIComponent(
 let tossup = {};
 const rankedTicket = new URLSearchParams(window.location.search).get('ticket');
 const accountUsername = await account.getUsername();
-let USER_ID = IS_RANKED_ROOM && accountUsername
-  ? `ranked:${accountUsername}`
-  : window.localStorage.getItem('USER_ID') || 'unknown';
-let username =
-  IS_RANKED_ROOM && accountUsername
-    ? accountUsername
-    : window.localStorage.getItem('multiplayer-username') ||
-      (await api.getRandomName());
 
-if (IS_RANKED_ROOM && (!rankedTicket || !accountUsername)) {
+if (!accountUsername) {
+  window.location.href = '/user/login?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+  throw new Error('Multiplayer requires an authenticated account.');
+}
+
+if (IS_RANKED_ROOM && !rankedTicket) {
   window.location.href = '/ranked';
   throw new Error('Ranked room requires an authenticated ranked ticket.');
 }
+
+let USER_ID = IS_RANKED_ROOM
+  ? `ranked:${accountUsername}`
+  : window.localStorage.getItem('USER_ID') || 'unknown';
+const username = accountUsername;
+
+const selfUsernameEl = document.getElementById('self-username');
+if (selfUsernameEl) selfUsernameEl.textContent = username;
 
 const socketUrl = new URL(window.location.href.replace(/^http/, 'ws'));
 socketUrl.searchParams.set('roomName', ROOM_NAME);
@@ -197,8 +202,6 @@ socket.onmessage = function (event) {
 
     case 'force-username':
       window.alert(data.message);
-      window.localStorage.setItem('multiplayer-username', data.username);
-      document.querySelector('#username').value = data.username;
       break;
 
     case 'chat':
@@ -446,15 +449,11 @@ const socketOnChangeUsername = (message) => {
     message.oldUsername,
     `changed their username to ${message.newUsername}`
   );
-  document.getElementById('username-' + message.userId).textContent =
-    message.newUsername;
-  players[message.userId].username = message.newUsername;
-  sortPlayerListGroup();
-
-  if (message.userId === USER_ID) {
-    username = message.newUsername;
-    window.localStorage.setItem('multiplayer-username', username);
-    document.getElementById('username').value = username;
+  const usernameEl = document.getElementById('username-' + message.userId);
+  if (usernameEl) usernameEl.textContent = message.newUsername;
+  if (players[message.userId]) {
+    players[message.userId].username = message.newUsername;
+    sortPlayerListGroup();
   }
 };
 
@@ -802,7 +801,6 @@ const socketOnRankedState = (message) => {
   document.getElementById('toggle-timer').disabled = true;
   document.getElementById('toggle-powermark-only').disabled = true;
   document.getElementById('toggle-standard-only').disabled = true;
-  document.getElementById('username').disabled = true;
   document.getElementById('private-chat-warning').textContent =
     'ranked rooms are private and settings are locked';
 
@@ -1347,19 +1345,6 @@ document
     );
   });
 
-document.getElementById('username').addEventListener('change', function () {
-  socket.send(
-    JSON.stringify({
-      type: 'change-username',
-      userId: USER_ID,
-      oldUsername: username,
-      username: this.value,
-    })
-  );
-  username = this.value;
-  window.localStorage.setItem('multiplayer-username', username);
-});
-
 document.querySelectorAll('#categories input').forEach((input) => {
   input.addEventListener('click', function () {
     this.blur();
@@ -1438,8 +1423,6 @@ document.addEventListener('keypress', function (event) {
     document.getElementById('chat').click();
   }
 });
-
-document.getElementById('username').value = username;
 
 setSelector = initSetSelector({
   sets: api.getSetList(),

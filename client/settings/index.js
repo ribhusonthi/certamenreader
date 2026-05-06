@@ -74,8 +74,63 @@ document.getElementById('toggle-sound-effects').addEventListener('click', functi
   }
 });
 
-document.getElementById('multiplayer-name').addEventListener('input', function () {
-  window.localStorage.setItem('multiplayer-username', this.value);
+const ankiTokenStatus = document.getElementById('anki-token-status');
+const ankiTokenOutput = document.getElementById('anki-token-output');
+const generateAnkiToken = document.getElementById('generate-anki-token');
+const copyAnkiToken = document.getElementById('copy-anki-token');
+const revokeAnkiToken = document.getElementById('revoke-anki-token');
+
+function setAnkiTokenStatus (metadata) {
+  copyAnkiToken.classList.add('d-none');
+  ankiTokenOutput.classList.add('d-none');
+  ankiTokenOutput.value = '';
+
+  if (metadata?.hasToken) {
+    const createdAt = metadata.createdAt ? new Date(metadata.createdAt).toLocaleString() : 'unknown date';
+    ankiTokenStatus.textContent = `A sync token exists. Created: ${createdAt}.`;
+  } else {
+    ankiTokenStatus.textContent = 'No sync token exists.';
+  }
+}
+
+async function loadAnkiTokenStatus () {
+  const response = await fetch('/auth/anki-token');
+  if (!response.ok) {
+    ankiTokenStatus.textContent = 'Token status is unavailable.';
+    return;
+  }
+
+  setAnkiTokenStatus(await response.json());
+}
+
+generateAnkiToken.addEventListener('click', async function () {
+  const response = await fetch('/auth/anki-token', { method: 'POST' });
+  if (!response.ok) {
+    ankiTokenStatus.textContent = 'Could not generate a token.';
+    return;
+  }
+
+  const result = await response.json();
+  ankiTokenOutput.value = result.token;
+  ankiTokenOutput.classList.remove('d-none');
+  copyAnkiToken.classList.remove('d-none');
+  ankiTokenStatus.textContent = 'New token generated. Copy it now; it will not be shown again.';
 });
 
-document.getElementById('multiplayer-name').value = window.localStorage.getItem('multiplayer-username') || '';
+copyAnkiToken.addEventListener('click', async function () {
+  if (!ankiTokenOutput.value) return;
+  await navigator.clipboard.writeText(ankiTokenOutput.value);
+  ankiTokenStatus.textContent = 'Token copied.';
+});
+
+revokeAnkiToken.addEventListener('click', async function () {
+  const response = await fetch('/auth/anki-token', { method: 'DELETE' });
+  if (!response.ok) {
+    ankiTokenStatus.textContent = 'Could not revoke the token.';
+    return;
+  }
+
+  setAnkiTokenStatus({ hasToken: false });
+});
+
+loadAnkiTokenStatus();
