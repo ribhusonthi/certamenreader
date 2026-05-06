@@ -28,8 +28,35 @@ export const reservedNames = [
   'yourusername', 'yoursite', 'yourdomain'
 ];
 
+// Distinctive profanity / slur stems used as substring checks against the
+// leetspeak-normalized name (e.g. 3→e, 0→o, separators stripped). Keep this
+// list to terms unlikely to collide with real names — substring matching on
+// short generic words like 'ass' or 'tit' would block legitimate names like
+// "cassius" or "titus", which is unacceptable on a Latin-themed site.
+export const inappropriateSubstrings = [
+  'fuck', 'shit', 'cunt', 'bitch', 'asshole', 'bastard',
+  'blowjob', 'bollock', 'bukkake', 'bullshit', 'coochie',
+  'cumshot', 'dildo', 'dyke', 'faggot', 'handjob',
+  'hentai', 'jackoff', 'jerkoff', 'jizz', 'kike',
+  'milf', 'molest', 'motherfuck', 'nigga', 'nigger',
+  'paki', 'pedo', 'porn', 'pussy', 'queef',
+  'rapist', 'retard', 'rimjob', 'shithead',
+  'skank', 'slut', 'spic', 'tranny', 'twat',
+  'vagina', 'wanker', 'whore'
+];
+
+// Whole-token bans (matched after splitting on hyphen/underscore + lowercasing).
+// Use this list for short or generic words where substring matching would
+// cause false positives.
 export const inappropriateNames = [
-  'gyatt','cenat','monkus','mcpickle','sigma','fuck','bitch'
+  'gyatt', 'cenat', 'monkus', 'mcpickle', 'sigma',
+  'anal', 'anus', 'arse', 'ass', 'ballsack', 'boner', 'boob',
+  'clit', 'cock', 'coon', 'crap', 'cum', 'damn', 'dick',
+  'douche', 'fag', 'goddamn', 'hoe', 'horny', 'kunt',
+  'nipple', 'orgasm', 'orgy', 'penis', 'piss', 'porno',
+  'prick', 'pube', 'rape', 'scrotum', 'semen', 'sex',
+  'shag', 'spunk', 'tit', 'titties', 'turd', 'wank', 'wop',
+  ...inappropriateSubstrings
 ];
 
 const banList = reservedNames.concat(inappropriateNames);

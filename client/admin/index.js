@@ -1,8 +1,6 @@
 /* global alert, bootstrap, confirm */
 
 let allUsers = [];
-let allowedEmails = [];
-let allowlistLoaded = false;
 
 function renderUsers (users) {
   const tbody = document.getElementById('users-tbody');
@@ -341,103 +339,6 @@ document.getElementById('uploads-tab').addEventListener('shown.bs.tab', () => {
 document.getElementById('search-uploads').addEventListener('input', (e) => {
   renderUploads(filterUploads(e.target.value));
 });
-
-// ── Allowed Emails Tab ───────────────────────────────────────────────────────
-
-function renderAllowedEmails () {
-  const tbody = document.getElementById('allowlist-tbody');
-  if (!allowedEmails.length) {
-    tbody.innerHTML = '<tr><td colspan="4" class="text-center">No emails are currently allowed.</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = allowedEmails.map(item => {
-    const updated = item.updatedAt ? new Date(item.updatedAt).toLocaleString() : 'N/A';
-    return `<tr>
-      <td>${escapeHtml(item.email)}</td>
-      <td>${escapeHtml(item.addedBy || 'N/A')}</td>
-      <td>${updated}</td>
-      <td>
-        <button class="btn btn-sm btn-outline-danger remove-allowlist-email"
-                data-email="${escapeAttr(item.email)}">
-          Remove
-        </button>
-      </td>
-    </tr>`;
-  }).join('');
-
-  document.querySelectorAll('.remove-allowlist-email').forEach(btn => {
-    btn.addEventListener('click', handleRemoveAllowedEmail);
-  });
-}
-
-async function loadAllowlist () {
-  if (allowlistLoaded) return;
-  allowlistLoaded = true;
-
-  try {
-    const response = await fetch('/admin/api/allowlist');
-    if (!response.ok) throw new Error('Failed');
-    const data = await response.json();
-    allowedEmails = data.emails || [];
-    renderAllowedEmails();
-  } catch {
-    document.getElementById('allowlist-tbody').innerHTML =
-      '<tr><td colspan="4" class="text-center text-danger">Failed to load allowed emails.</td></tr>';
-  }
-}
-
-async function handleAddAllowedEmail (event) {
-  event.preventDefault();
-
-  const input = document.getElementById('allowlist-email');
-  const email = input.value.trim();
-  if (!email) return;
-
-  const response = await fetch('/admin/api/allowlist', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email })
-  });
-
-  if (!response.ok) {
-    alert('Failed to add email.');
-    return;
-  }
-
-  const data = await response.json();
-  const added = data.email;
-  allowedEmails = allowedEmails.filter(item => item.email !== added.email);
-  allowedEmails.push(added);
-  allowedEmails.sort((a, b) => a.email.localeCompare(b.email));
-  input.value = '';
-  renderAllowedEmails();
-}
-
-async function handleRemoveAllowedEmail (event) {
-  const email = event.target.dataset.email;
-  if (!confirm(`Remove ${email} from the login allowlist?`)) {
-    return;
-  }
-
-  const response = await fetch(`/admin/api/allowlist/${encodeURIComponent(email)}`, {
-    method: 'DELETE'
-  });
-
-  if (!response.ok) {
-    alert('Failed to remove email.');
-    return;
-  }
-
-  allowedEmails = allowedEmails.filter(item => item.email !== email);
-  renderAllowedEmails();
-}
-
-document.getElementById('allowlist-tab').addEventListener('shown.bs.tab', () => {
-  loadAllowlist();
-});
-
-document.getElementById('allowlist-form').addEventListener('submit', handleAddAllowedEmail);
 
 // ── Buzzpoints Tab ──────────────────────────────────────────────────────────────
 

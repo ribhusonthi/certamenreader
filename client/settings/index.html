@@ -65,7 +65,7 @@
         <header class="settings-hdr">
             <span class="ed-eyebrow">Settings</span>
             <h1>Site preferences</h1>
-            <p>Adjust the theme, reader font, sound effects, and your multiplayer name.</p>
+            <p>Adjust the theme, reader font, and sound effects.</p>
         </header>
 
         <div class="settings-grid">
@@ -119,10 +119,16 @@
                     <span class="toggle-switch"></span>
                 </label>
 
-                <h4 style="margin-top: 0.8rem;">Account &amp; profile</h4>
+                <h4 style="margin-top: 0.8rem;">Anki tracking</h4>
                 <div class="up-row">
-                    <label for="multiplayer-name">Multiplayer username</label>
-                    <input class="form-control" id="multiplayer-name" type="text" name="username" placeholder="Enter a display name for multiplayer…">
+                    <label>Sync token</label>
+                    <div class="settings-hint" id="anki-token-status">Checking token status...</div>
+                    <input class="form-control d-none" id="anki-token-output" type="text" readonly>
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        <button class="btn btn-outline-light btn-ghost" id="generate-anki-token" type="button" style="background: transparent; border: 1px solid var(--border); color: var(--ink-dim); padding: 0.45rem 0.85rem;">Generate token</button>
+                        <button class="btn btn-outline-light btn-ghost d-none" id="copy-anki-token" type="button" style="background: transparent; border: 1px solid var(--border); color: var(--ink-dim); padding: 0.45rem 0.85rem;">Copy token</button>
+                        <button class="btn btn-outline-light btn-ghost" id="revoke-anki-token" type="button" style="background: transparent; border: 1px solid var(--border); color: var(--ink-dim); padding: 0.45rem 0.85rem;">Revoke token</button>
+                    </div>
                 </div>
             </section>
         </div>

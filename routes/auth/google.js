@@ -1,5 +1,4 @@
 import { COOKIE_MAX_AGE } from '../../constants.js';
-import isLoginEmailAllowed from '../../database/account-info/login-allowlist.js';
 import { generateToken } from '../../server/authentication.js';
 
 import passport from 'passport';
@@ -20,14 +19,6 @@ router.get('/callback', passport.authenticate('google', {
   session: false
 }), async (req, res) => {
   const user = req.user;
-  const email = (user.email || user.username).toLowerCase();
-
-  if (!(await isLoginEmailAllowed(user))) {
-    console.log(`/api/auth: GOOGLE LOGIN DENIED: ${email} is not authorized.`);
-    res.redirect('/user/login?error=unauthorized');
-    return;
-  }
-
   const username = user.username || user.email;
   const expires = Date.now() + COOKIE_MAX_AGE;
 

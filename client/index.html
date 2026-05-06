@@ -5,7 +5,7 @@
     <title>Certamen Reader</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
+    <meta name="description" content="A text-based packet reader for certamen practice — solo or with friends.">
 
     <link href="/apple-touch-icon.png" rel="apple-touch-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
@@ -17,23 +17,62 @@
 </head>
 
 <body>
-    <div class="d-flex align-items-center justify-content-center" style="min-height: 100vh;">
-        <div class="text-center px-4" style="max-width: 600px;">
-            <h1 class="display-4 fw-bold mb-4">Certamen Reader</h1>
-            <hr class="my-4">
-            <h2 class="text-muted mb-3">This site is temporarily down.</h2>
-            <p class="fs-5 text-muted mb-4">
-                I am fixing critical bugs, and unfortunately, I cannot currently host the website.
-                Thank you to everyone who used the site -- and it will be back soon.
-            </p>
-            <p class="text-muted">
-                If you're looking for certamen practice sets, check out
-                <a href="https://www.certamenlibrary.org/">certamenlibrary.org</a>.
-            </p>
+    <nav class="navbar navbar-dark navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
+        <div class="container-fluid">
+            <a class="navbar-brand brand-editorial ms-1 py-0" id="logo" href="/">
+                <span class="brand-mark"><img src="/buzzer-icon.png" alt=""></span>
+                <span class="brand-word">Certamen<b>Reader</b></span>
+            </a>
+            <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/login" id="login-link">Log in</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="home">
+        <section class="home-hero">
+            <div class="home-hero-left">
+                <h1 class="home-title">
+                    A text-based packet reader<br/>for <em>certamen</em> practice.
+                </h1>
+                <p class="home-lede">
+                    Solo or with friends. Buzz on a tossup, type your answer,
+                    and track celerity against other people on the
+                    ranked leaderboard.
+                </p>
+                <div class="home-cta">
+                    <a class="btn btn-primary" href="/user/login">Log in to start</a>
+                    <a class="btn btn-outline-light btn-ghost" href="/about">Learn more</a>
+                </div>
+                <p class="home-lede" style="margin-top: 1.5rem; font-size: 0.95rem;">
+                    Sign in with Google to play singleplayer or multiplayer, upload your own packets,
+                    and track your stats over time.
+                </p>
+            </div>
+        </section>
+
+        <div style="text-align: center; margin-top: 0.5rem;">
+            <a class="ed-discord" href="https://discord.gg/US9udtNvKf">Join the <b>official Certamen Reader discord</b></a>
         </div>
     </div>
 
     <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/script.js"></script>
 </body>
 
 </html>
