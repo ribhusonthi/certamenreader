@@ -21,30 +21,11 @@ import { checkToken } from '../server/authentication.js';
 import { Router } from 'express';
 const router = Router();
 
-function hasReturningUserCookie (req) {
-  const raw = req.headers.cookie;
-  if (!raw) return false;
-  return raw.split(';').some(part => part.trim().startsWith('cr_returning='));
-}
-
-// router.get('/login', (req, res) => {
-//   res.sendFile('index.html', { root: './client' });
-// });
-
-router.get('/', (req, res) => {
-  // LOCAL_DEV_BYPASS_AUTH lives only in .env (gitignored); leaving the check
-  // in place is harmless when the flag is unset, which is the case in prod.
-  if (process.env.LOCAL_DEV_BYPASS_AUTH === 'true') {
-    res.sendFile('index-authed.html', { root: './client' });
-    return;
-  }
-  if (req.session && checkToken(req.session.username, req.session.token)) {
-    res.sendFile('index-authed.html', { root: './client' });
-  } else if (hasReturningUserCookie(req)) {
-    res.redirect('/auth/google');
-  } else {
-    res.sendFile('index.html', { root: './client' });
-  }
+// The home page is the same for everyone — signed-in users see their data
+// load in, guests see the same layout but every interactive tab/CTA bounces
+// them through the global auth middleware to the login screen.
+router.get('/', (_req, res) => {
+  res.sendFile('index-authed.html', { root: './client' });
 });
 
 router.get('/react(-dom)?/umd/*.js', (req, res) => {

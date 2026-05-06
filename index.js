@@ -6,8 +6,6 @@ import indexRouter from './routes/index.js';
 import webhookRouter from './routes/api/webhook.js';
 import handleWssConnection from './server/multiplayer/handle-wss-connection.js';
 
-// Initialize passport and Google OAuth strategy
-import './server/authentication.js';
 import { checkToken } from './server/authentication.js';
 import passport from 'passport';
 
@@ -21,6 +19,12 @@ const server = createServer(app);
 const port = process.env.PORT || 3000;
 const wss = new WebSocketServer({ server, maxPayload: WEBSOCKET_MAX_PAYLOAD });
 
+// Cloud Run terminates TLS at the proxy and forwards as HTTP. Without this,
+// Express thinks every request is plain HTTP and `cookie-session` with
+// `secure: true` would refuse to set the cookie — which is what was
+// silently logging users out on every page load.
+app.set('trust proxy', 1);
+
 // See https://masteringjs.io/tutorials/express/query-parameters
 // for why we use 'simple'
 app.set('query parser', 'simple');
@@ -31,8 +35,21 @@ app.use(express.json());
 app.use(cookieSession({
   name: 'session',
   keys: [process.env.SECRET_KEY_1 ?? 'secretKey1', process.env.SECRET_KEY_2 ?? 'secretKey2'],
-  maxAge: COOKIE_MAX_AGE
+  maxAge: COOKIE_MAX_AGE,
+  httpOnly: true,
+  sameSite: 'lax',
+  secure: process.env.NODE_ENV === 'production'
 }));
+
+// Roll the cookie on each request so the 7-day window is anchored to last
+// activity rather than first login — without this, the cookie expires 7 days
+// after sign-in even if the user is using the site daily.
+app.use((req, res, next) => {
+  if (req.session && req.session.username) {
+    req.session.touchedAt = Date.now();
+  }
+  next();
+});
 
 app.use(passport.initialize());
 
@@ -41,12 +58,14 @@ app.use(ipFilterError);
 
 // Lock the entire site behind authentication.
 // Exempt: login page, Google OAuth routes, and static assets.
-function isAuthExempt(path) {
+function isAuthExempt (path) {
   return (
     path === '/' ||
     path === '/user/login' ||
     path === '/waltoncertamen' ||
+    path === '/api/set-list' ||
     path.startsWith('/auth/') ||
+    path.startsWith('/api/anki') ||
     path === '/login' ||
     path === '/login/' ||
     /\.(js|jsx|css|map|png|ico|svg|woff2?|ttf|eot)$/.test(path)
@@ -56,7 +75,7 @@ function isAuthExempt(path) {
 // Allow the Discord bot (or any trusted service) to bypass cookie auth by
 // sending a shared secret header. This is required for the bot to call
 // /api/random-tossup, /api/check-answer, /api/discord/*, etc.
-function hasBotSecret(req) {
+function hasBotSecret (req) {
   const botSecret = req.get('X-Bot-Secret');
   return botSecret && process.env.BOT_SECRET && botSecret === process.env.BOT_SECRET;
 }
