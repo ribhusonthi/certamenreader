@@ -25,6 +25,19 @@ const wss = new WebSocketServer({ server, maxPayload: WEBSOCKET_MAX_PAYLOAD });
 // silently logging users out on every page load.
 app.set('trust proxy', 1);
 
+// Canonicalise the apex domain to `www`. Both certamenreader.org and
+// www.certamenreader.org are mapped to this Cloud Run service, but the OAuth
+// callback only runs on `www`, so the session cookie is scoped to `www`. A
+// user who lands on the apex would appear logged-out because the browser
+// won't send the www cookie there. Redirecting up-front keeps every request
+// on the same host as the cookie.
+app.use((req, res, next) => {
+  if (req.hostname === 'certamenreader.org') {
+    return res.redirect(301, `https://www.certamenreader.org${req.originalUrl}`);
+  }
+  next();
+});
+
 // See https://masteringjs.io/tutorials/express/query-parameters
 // for why we use 'simple'
 app.set('query parser', 'simple');
