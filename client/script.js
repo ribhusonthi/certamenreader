@@ -49,7 +49,7 @@ function buildAccountDropdown ({ authed, name, username }) {
     <li><a class="dropdown-item" href="/upload"><span>Upload packet</span><span class="rt">→</span></a></li>
     <li><a class="dropdown-item" href="/settings"><span>Settings</span><span class="rt">→</span></a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="/auth/logout"><span>Log out</span></a></li>
+    <li><a class="dropdown-item" id="nav-logout" href="#"><span>Log out</span></a></li>
   `;
   const guestItems = `
     <li><a class="dropdown-item" href="/upload"><span>Upload packet</span><span class="rt">→</span></a></li>
@@ -76,6 +76,18 @@ function buildAccountDropdown ({ authed, name, username }) {
   if (toggle && window.bootstrap?.Dropdown) {
     // eslint-disable-next-line no-new
     new window.bootstrap.Dropdown(toggle);
+  }
+
+  const logout = document.getElementById('nav-logout');
+  if (logout) {
+    logout.addEventListener('click', (e) => {
+      e.preventDefault();
+      fetch('/auth/logout', { method: 'POST' })
+        .finally(() => {
+          account.deleteUsername();
+          window.location.href = '/';
+        });
+    });
   }
 
   document.body.classList.add('account-nav-ready');
