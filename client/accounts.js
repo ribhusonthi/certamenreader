@@ -1,8 +1,11 @@
 export default class account {
   static deleteUsername () {
     window.sessionStorage.setItem('account-username', JSON.stringify({ username: null, expires: null }));
-    document.getElementById('login-link').textContent = 'Log in';
-    document.getElementById('login-link').href = '/user/login';
+    const loginLink = document.getElementById('login-link');
+    if (loginLink) {
+      loginLink.textContent = 'Log in';
+      loginLink.href = '/user/login';
+    }
   }
 
   static async getUsername () {
@@ -18,7 +21,7 @@ export default class account {
 
     let { username, expires } = data;
 
-    if (username === undefined || (username === null && (expires === null || expires < Date.now()))) {
+    if (username === undefined || expires === null || expires < Date.now()) {
       const data = await fetch('/auth/get-username')
         .then(response => {
           if (response.status === 401) {
@@ -30,9 +33,6 @@ export default class account {
       window.sessionStorage.setItem('account-username', JSON.stringify(data));
     } else if (username === null) {
       return null;
-    } else if (expires === null || expires < Date.now()) {
-      username = null;
-      window.sessionStorage.setItem('account-username', JSON.stringify({ username: null, expires: Date.now() + 30 * 1000 }));
     }
 
     return username;

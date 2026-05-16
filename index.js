@@ -56,10 +56,12 @@ app.use(cookieSession({
 
 // Roll the cookie on each request so the 7-day window is anchored to last
 // activity rather than first login — without this, the cookie expires 7 days
-// after sign-in even if the user is using the site daily.
+// after sign-in even if the user is using the site daily. Keep the session's
+// client-visible expiry in the same rolling window.
 app.use((req, res, next) => {
   if (req.session && req.session.username) {
     req.session.touchedAt = Date.now();
+    req.session.expires = Date.now() + COOKIE_MAX_AGE;
   }
   next();
 });
