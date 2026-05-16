@@ -103,12 +103,16 @@ account.getUsername().then(username => {
     return;
   }
   fetch('/auth/get-profile')
-    .then(r => r.json())
+    .then(r => {
+      if (!r.ok) throw new Error('Session no longer valid');
+      return r.json();
+    })
     .then(data => {
       buildAccountDropdown({ authed: true, name: data?.user?.name, username });
     })
     .catch(() => {
-      buildAccountDropdown({ authed: true, username });
+      account.deleteUsername();
+      buildAccountDropdown({ authed: false });
     });
 }).catch(() => {
   buildAccountDropdown({ authed: false });
