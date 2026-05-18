@@ -1426,6 +1426,7 @@ document.addEventListener('keypress', function (event) {
 
 setSelector = initSetSelector({
   sets: api.getSetList(),
+  isNew: api.isSetNew,
   state: {
     setName: '',
     setNames: [],

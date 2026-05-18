@@ -131,7 +131,7 @@ export default class TossupRoom {
     this.DEAD_TIME_LIMIT = 20; // time to buzz after question is read
     this.ANSWER_TIME_LIMIT = 20; // time to give answer after buzzing
 
-    getSetList().then((setList) => {
+    getSetList().then(({ setList }) => {
       this.setList = setList;
     });
   }

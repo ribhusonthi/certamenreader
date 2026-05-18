@@ -30,31 +30,43 @@ function parseDifficultyValue (setName) {
   return null;
 }
 
+const NEW_SET_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+
 const homeSetsEl = document.getElementById('home-sets');
 if (homeSetsEl) {
   try {
-    const setList = await fetch('/api/set-list')
-      .then(r => r.json())
-      .then(d => d.setList || []);
+    const { setList = [], setMeta = {} } = await fetch('/api/set-list').then(r => r.json());
+
+    const now = Date.now();
+    const isNew = name => {
+      const ts = Date.parse(setMeta?.[name]?.createdAt || '');
+      return Number.isFinite(ts) && (now - ts) < NEW_SET_WINDOW_MS;
+    };
 
     const byTournament = new Map();
     for (const name of setList) {
       const t = parseTournament(name);
       const y = parseYear(name);
       const d = parseDifficultyValue(name);
-      if (!byTournament.has(t)) byTournament.set(t, { years: new Set(), diffs: new Set() });
+      if (!byTournament.has(t)) byTournament.set(t, { years: new Set(), diffs: new Set(), hasNew: false });
       const entry = byTournament.get(t);
       if (y != null) entry.years.add(y);
       if (d != null) entry.diffs.add(d);
+      if (isNew(name)) entry.hasNew = true;
     }
 
     const rows = [...byTournament.entries()]
-      .map(([name, { years, diffs }]) => ({
+      .map(([name, { years, diffs, hasNew }]) => ({
         name,
         years: [...years].sort((a, b) => a - b),
-        diffs: [...diffs].sort((a, b) => a - b)
+        diffs: [...diffs].sort((a, b) => a - b),
+        hasNew
       }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => {
+        // Tournaments with a recent addition float to the top.
+        if (a.hasNew !== b.hasNew) return a.hasNew ? -1 : 1;
+        return a.name.localeCompare(b.name);
+      });
 
     if (rows.length === 0) {
       homeSetsEl.innerHTML = '<div class="home-sets-empty">No sets available yet.</div>';
@@ -65,6 +77,7 @@ if (homeSetsEl) {
         const yearRange = yMin == null ? '—'
           : yMin === yMax ? String(yMin)
             : `${yMin}–${yMax}`;
+        const newChip = r.hasNew ? '<span class="home-set-row-diff" data-new="true">New</span>' : '';
         const diffChips = r.diffs.length
           ? r.diffs.map(d => `<span class="home-set-row-diff" data-d="${d}">${DIFF_LABEL[d] || d}</span>`).join('')
           : '<span class="home-set-row-diff">—</span>';
@@ -74,7 +87,7 @@ if (homeSetsEl) {
               <div class="home-set-row-name">${r.name}</div>
               <div class="home-set-row-years">${yearRange}</div>
             </div>
-            <div class="home-set-row-diffs">${diffChips}</div>
+            <div class="home-set-row-diffs">${newChip}${diffChips}</div>
           </a>`;
       }).join('');
     }

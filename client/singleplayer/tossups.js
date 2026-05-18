@@ -1603,6 +1603,7 @@ categoryManager.loadCategoryModal();
 
 initSetSelector({
   sets: api.getSetList(),
+  isNew: api.isSetNew,
   state: {
     setName: query.setName || '',
     setNames: selectedSetNames(),
