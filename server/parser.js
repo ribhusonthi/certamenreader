@@ -120,6 +120,14 @@ function isPageHeader (line) {
 
 // ── Answer extraction ───────────────────────────────────────────────────────
 
+// Strip an "ANS:" / "ANSWER:" / "Answer:" / "A:" prefix that some packets
+// put in front of the actual answer text. Longest alternative first so
+// "Answer" isn't truncated to "ANS" + "wer". The bare "A" form requires
+// a literal ":" separator so it doesn't eat single-letter answers.
+function stripAnswerPrefix (answer) {
+  return answer.replace(/^(?:(?:ANSWER|Answer|ANS)\s*[:.\-]?|A:)\s*/i, '').trim();
+}
+
 function extractAnswerFromLines (lines) {
   // Trim trailing empty lines
   while (lines.length > 0 && !lines[lines.length - 1].trim()) {
@@ -144,6 +152,7 @@ function extractAnswerFromLines (lines) {
     const question = lines.slice(0, answerStart).map(l => l.trim()).join(' ').trim();
     if (!/^\d+$/.test(answer)) {
       answer = answer.replace(/\s+\d{1,2}$/, '').trim();
+      answer = stripAnswerPrefix(answer);
       return { question, answer: toTitleCase(answer) };
     }
     lines = lines.slice(0, answerStart);
@@ -159,15 +168,24 @@ function extractAnswerFromLines (lines) {
     if (candidate && /[A-Z]/.test(candidate)) {
       const qEnd = inlineMatch.index + inlineMatch[0].indexOf(candidate);
       const question = [...lines.slice(0, -1).map(l => l.trim()), lastLine.substring(0, qEnd).trim()].join(' ').trim();
-      const cleanAnswer = candidate.replace(/\s+\d{1,2}$/, '').trim();
+      const cleanAnswer = stripAnswerPrefix(candidate.replace(/\s+\d{1,2}$/, '').trim());
       return { question, answer: toTitleCase(cleanAnswer) };
     }
+  }
+
+  // Inline "ANS:" / "Answer:" / "A:" prefix on the last line.
+  const ansInline = lastLine.match(/^(.*?[?!.])\s*(?:(?:ANS|Answer|ANSWER)\s*[:.\-]|A:)\s*(.+)$/);
+  if (ansInline) {
+    const question = [...lines.slice(0, -1).map(l => l.trim()), ansInline[1].trim()].join(' ').trim();
+    const answer = ansInline[2].trim().replace(/\s+\d{1,2}$/, '').trim();
+    return { question, answer: toTitleCase(answer) };
   }
 
   // Fallback: last line is the answer
   let answer = lastLine;
   const question = lines.slice(0, -1).map(l => l.trim()).join(' ').trim();
   answer = answer.replace(/\s+\d{1,2}$/, '').trim();
+  answer = stripAnswerPrefix(answer);
   return { question, answer: toTitleCase(answer) };
 }
 
@@ -181,8 +199,9 @@ function extractAnswerFromLines (lines) {
 function parseBonusParts (bonusText) {
   if (!bonusText || !bonusText.trim()) return null;
 
-  // Split by bonus markers: B1., B1:, B 1., B 1:, Bonus 1, etc.
-  const splitRe = /(?:^|\n)[ \t]*(?:B\s*\d\s*[.:&]\s*|B\d\s+|Bonus\s+\d\s*[.:]*\s*)/m;
+  // Split by bonus markers: B1., B1:, B1), B 1., B 1:, Bonus 1, Bonus A,
+  // BO:, BONUS A:, plain BONUS: (no number — virginia/uva), etc.
+  const splitRe = /(?:^|\n)[ \t]*(?:B\s*\d\s*[.):&]\s*|B\d\s+|Bonus\s+\d\s*[.:]*\s*|Bonus\s+[AB]\s*[.:]?\s*|BO\s*[.:]\s*|Bonus\s*[.:]\s*)/im;
   const segments = bonusText.split(splitRe).slice(1); // first element is text before first marker
 
   if (segments.length === 0) return null;
@@ -248,6 +267,10 @@ function parseQuestionText (text, setInfo) {
     return { tossups, bonuses, set: null };
   }
 
+  // Strip zero-width chars from pdftotext output (Virginia/UVA insert ZWSP
+  // between markers like "TOSSUP" and ":") so regexes can match.
+  text = text.replace(/[​-‏﻿]/g, '');
+
   const difficultyValue = (() => {
     const d = (setInfo.difficulty || '').toLowerCase();
     if (d === 'advanced' || d === 'elite') return 10;
@@ -259,9 +282,9 @@ function parseQuestionText (text, setInfo) {
     return 5; // default
   })();
 
-  // Split into rounds/packets
+  // Split into rounds/packets. Allow optional level prefix (Advanced/Novice/etc).
   const packetSplits = text.split(
-    /(?:^|\n)((?:(?:Preliminary\s+)?Round\s+(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten|I{1,3}V?|VI{0,3}|IV|Extra)(?:\s+\w+)*|Semifinal(?:s|\s+Round)?|Final(?:s|\s+Round)?|Quarterfinal(?:s|\s+Round)?|Tiebreakers)(?:\s+Extra\s+Questions|\s+Extras?)?)\s*(?:[A-Z][a-z]+\s+\d+,?\s*\d*)?\s*(?:\r?\n|$)/im
+    /(?:^|\n)((?:(?:Advanced|Intermediate|Novice|Elite|Upper|Lower)\s+)?(?:(?:Preliminary\s+)?Round\s+(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten|I{1,3}V?|VI{0,3}|IV|Extra)(?:\s+\w+)*|Semifinal(?:s|\s+Round)?|Final(?:s|\s+Round)?|Quarterfinal(?:s|\s+Round)?|Tiebreakers)(?:\s+Extra\s+Questions|\s+Extras?)?)\s*(?:[A-Z][a-z]+\s+\d+,?\s*\d*)?\s*(?:\r?\n|$)/im
   );
 
   // If no round markers found, treat entire text as one packet
@@ -294,16 +317,25 @@ function parseQuestionText (text, setInfo) {
       content = content.substring(0, srcMatch.index);
     }
 
-    // Split into tossup blocks (handles: "1.", "TU 1.", "TU:", "TU 1:", etc.)
-    const tossupBlocks = content.split(/(?:^|\n)[ \t]*(?:TU\s*\d*|\d+)\s*[.:]\s*/m).slice(1);
+    // Split into tossup blocks. Handles: "1.", "1:", "1)", "TU 1.", "TU 1:",
+    // "TU:", "TU #1:", "Tossup #1:", "Toss-Up #1:", "Toss Up 1:", "Toss Up # 1"
+    // (newline after number — no terminator), etc. Bare digits still require
+    // a [.):] terminator to avoid false matches on body text.
+    const tossupBlocks = content.split(
+      /(?:^|\n)[ \t]*(?:(?:Toss[\s-]?up|Tossup)\s*#?\s*\d+\s*[.):]?\s*|TU\s*#?\s*\d*\s*[.):]\s*|\d+\s*[.):]\s*)/im
+    ).slice(1);
     const packetNumber = Math.floor(i / 2) + 1;
     let questionNumber = 1;
 
-    for (const block of tossupBlocks) {
-      if (!block.trim()) continue;
+    for (const rawBlock of tossupBlocks) {
+      if (!rawBlock.trim()) continue;
+
+      // Some packets put a redundant marker right after the number, e.g.
+      // "1. TOSSUP) ..." — strip the marker so the question text is clean.
+      const block = rawBlock.replace(/^[ \t]*(?:TOSS[\s-]?UP|Tossup)\s*[:)]?\s*/i, '');
 
       // Separate tossup from bonus content
-      const bMatch = block.match(/(?:^|\n)[ \t]*B\s*\d\s*[.:&]|(?:^|\n)[ \t]*B\d\s+\S|(?:^|\n)[ \t]*Bonus\s+\d/m);
+      const bMatch = block.match(/(?:^|\n)[ \t]*B\s*\d\s*[.):&]|(?:^|\n)[ \t]*B\d\s+\S|(?:^|\n)[ \t]*Bonus\s+[\dAB]|(?:^|\n)[ \t]*BO\s*[.:]|(?:^|\n)[ \t]*Bonus\s*[.:]/im);
       const tossupText = bMatch ? block.substring(0, bMatch.index) : block;
       const bonusText = bMatch ? block.substring(bMatch.index) : null;
 
