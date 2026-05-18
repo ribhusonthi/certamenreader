@@ -19,7 +19,7 @@
 import { MongoClient } from 'mongodb';
 import { computePP } from '../lib/performance-points.js';
 
-const uri = 'mongodb+srv://ribhusonthi1:5P6HayzbwIv2fodd@certamen.c4puhpe.mongodb.net/?retryWrites=true&w=majority&appName=Certamen';
+const uri = process.env.MONGO_URI;
 const client = new MongoClient(uri);
 
 async function main () {

@@ -2,6 +2,7 @@ import { accountInfo } from '../databases.js';
 
 const bonusData = accountInfo.collection('bonus-data');
 const bonusStars = accountInfo.collection('bonus-stars');
+const ankiReviewData = accountInfo.collection('anki-review-data');
 const tossupData = accountInfo.collection('tossup-data');
 const tossupStars = accountInfo.collection('tossup-stars');
 const users = accountInfo.collection('users');
@@ -20,6 +21,8 @@ discordLinkTokens.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 }).catch
 // aggregations that group by user_id.
 tossupData.createIndex({ user_id: 1, tossup_id: 1 }).catch(() => {});
 tossupData.createIndex({ user_id: 1, pp: -1 }).catch(() => {});
+ankiReviewData.createIndex({ user_id: 1, reviewedAt: -1 }).catch(() => {});
+ankiReviewData.createIndex({ user_id: 1, eventId: 1 }, { unique: true }).catch(() => {});
 users.createIndex({ username: 1 }, { unique: true }).catch(() => {});
 users.createIndex({ googleId: 1 }, { unique: true, sparse: true }).catch(() => {});
 rankedRatings.createIndex({ username: 1, mode: 1 }, { unique: true }).catch(() => {});
@@ -31,6 +34,7 @@ const usernameToId = {};
 const idToUsername = {};
 
 export {
+  ankiReviewData,
   bonusData,
   bonusStars,
   discordLinkTokens,

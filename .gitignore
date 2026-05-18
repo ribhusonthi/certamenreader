@@ -1,4 +1,11 @@
 node_modules
 
 **/.DS_store
+.DS_Store
 .env
+.env.*
+
+# Local-only operational scripts. Existing tracked scripts are kept
+# (gitignore doesn't auto-untrack); this rule only blocks accidental
+# additions of new scripts that may contain credentials.
+scripts/

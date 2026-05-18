@@ -1,4 +1,5 @@
 import discordRouter from './discord.js';
+import ankiTokenRouter from './anki-token.js';
 import getProfileRouter from './get-profile.js';
 import getUsernameRouter from './get-username.js';
 import googleRouter from './google.js';
@@ -22,6 +23,7 @@ router.use(rateLimit({
 }));
 
 router.use('/discord', discordRouter);
+router.use('/anki-token', ankiTokenRouter);
 router.use('/get-profile', getProfileRouter);
 router.use('/get-username', getUsernameRouter);
 router.use('/google', googleRouter);
