@@ -659,6 +659,9 @@ function QueryForm() {
       }, '', '?' + params);
     }).catch(error => {
       console.error('Error:', error);
+      if (error.message === 'Authentication required.') {
+        return;
+      }
       window.alert('Invalid query. Please check your search parameters and try again.');
     }).finally(() => {
       document.querySelectorAll('b.collapsed[data-bs-toggle="collapse"]').forEach(element => element.classList.remove('collapsed'));
