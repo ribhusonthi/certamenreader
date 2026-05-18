@@ -114,6 +114,11 @@ app.use((req, res, next) => {
     return next();
   }
 
+  if (req.path.startsWith('/api/')) {
+    res.status(401).json({ error: 'Authentication required.' });
+    return;
+  }
+
   res.redirect('/user/login?redirect=' + encodeURIComponent(req.originalUrl));
 });
 

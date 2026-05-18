@@ -21,6 +21,23 @@ const ALTERNATE_SUBCATEGORY_BUTTONS = [
 
 const categoryManager = new CategoryManager();
 
+async function readQueryResponse (response) {
+  if (response.status === 401) {
+    window.location.href = '/user/login?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+    throw new Error('Authentication required.');
+  }
+
+  if (response.status === 400) {
+    throw new Error('Invalid query');
+  }
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}.`);
+  }
+
+  return await response.json();
+}
+
 function getMatchIndices (clean, regex) {
   const iterator = clean.matchAll(regex);
   const starts = [];
@@ -536,13 +553,7 @@ function QueryForm () {
     }).toString();
 
     fetch(`/api/query?${params}`)
-      .then(response => {
-        if (response.status === 400) {
-          throw new Error('Invalid query');
-        }
-        return response;
-      })
-      .then(response => response.json())
+      .then(response => readQueryResponse(response))
       .then(response => {
         const { tossups, bonuses, queryString: modifiedQueryString } = response;
         const regExp = RegExp(modifiedQueryString, 'ig');

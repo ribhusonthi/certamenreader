@@ -5,6 +5,19 @@ export default class api {
   static SET_LIST = [];
   static SET_META = {};
 
+  static async readJson (response) {
+    if (response.status === 401) {
+      window.location.href = '/user/login?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+      throw new Error('Authentication required.');
+    }
+
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}.`);
+    }
+
+    return await response.json();
+  }
+
   /**
    * @param {string} setName
    * @returns {boolean} true if the named set was created within the last week.
@@ -31,7 +44,7 @@ export default class api {
     }
 
     return await fetch('/api/check-answer?' + new URLSearchParams({ answerline, givenAnswer }))
-      .then(response => response.json());
+      .then(response => api.readJson(response));
   }
 
   /**
@@ -44,7 +57,7 @@ export default class api {
     }
 
     return await fetch('/api/num-packets?' + new URLSearchParams({ setName }))
-      .then(response => response.json())
+      .then(response => api.readJson(response))
       .then(data => data.numPackets);
   }
 
@@ -58,7 +71,7 @@ export default class api {
     }
 
     return await fetch('/api/packet-list?' + new URLSearchParams({ setName }))
-      .then(response => response.json())
+      .then(response => api.readJson(response))
       .then(data => data.packets);
   }
 
@@ -73,7 +86,7 @@ export default class api {
     }
 
     return await fetch('/api/packet-bonuses?' + new URLSearchParams({ setName, packetNumber }))
-      .then(response => response.json())
+      .then(response => api.readJson(response))
       .then(data => data.bonuses);
   }
 
@@ -88,7 +101,7 @@ export default class api {
     }
 
     return await fetch('/api/packet-tossups?' + new URLSearchParams({ setName, packetNumber }))
-      .then(response => response.json())
+      .then(response => api.readJson(response))
       .then(data => data.tossups);
   }
 
@@ -103,13 +116,13 @@ export default class api {
     if (!setName || packetNumber == null || tossupNumber == null) return null;
 
     return await fetch('/api/bonus-for-tossup?' + new URLSearchParams({ setName, packetNumber, tossupNumber }))
-      .then(response => response.json())
+      .then(response => api.readJson(response))
       .then(data => data.bonus);
   }
 
   static async getRandomBonus ({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, subcategories, threePartBonuses }) {
     return await fetch('/api/random-bonus?' + new URLSearchParams({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, subcategories, threePartBonuses }))
-      .then(response => response.json())
+      .then(response => api.readJson(response))
       .then(response => response.bonuses);
   }
 
@@ -119,13 +132,13 @@ export default class api {
      */
   static async getRandomName () {
     return await fetch('/api/random-name')
-      .then(res => res.json())
+      .then(response => api.readJson(response))
       .then(data => data.randomName);
   }
 
   static async getRandomTossup ({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, powermarkOnly, setNames, standardOnly, subcategories }) {
     return await fetch('/api/random-tossup?' + new URLSearchParams({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, powermarkOnly, setNames: Array.isArray(setNames) ? JSON.stringify(setNames) : setNames, standardOnly, subcategories }))
-      .then(response => response.json())
+      .then(response => api.readJson(response))
       .then(response => response.tossups);
   }
 
@@ -164,6 +177,6 @@ export default class api {
   }
 }
 
-const setListResponse = await fetch('/api/set-list').then(response => response.json());
+const setListResponse = await fetch('/api/set-list').then(response => api.readJson(response));
 api.SET_LIST = setListResponse.setList || [];
 api.SET_META = setListResponse.setMeta || {};
