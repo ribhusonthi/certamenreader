@@ -29,6 +29,7 @@ function applySelection (setNames) {
 
 initSetSelector({
   sets: api.getSetList(),
+  isNew: api.isSetNew,
   state: { setName: '', setNames: [], difficulties: [], minYear: undefined, maxYear: undefined },
   on: {
     onSetNamesChange: (setNames) => applySelection(setNames),

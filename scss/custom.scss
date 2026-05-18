@@ -1328,6 +1328,12 @@ body {
 .ed-mini-chip[data-d="1"]  { color: var(--correct);   border-color: color-mix(in oklab, var(--correct) 35%, transparent); }
 .ed-mini-chip[data-d="5"]  { color: var(--accent);    border-color: color-mix(in oklab, var(--accent) 45%, transparent); }
 .ed-mini-chip[data-d="10"] { color: var(--incorrect); border-color: color-mix(in oklab, var(--incorrect) 35%, transparent); }
+.ed-mini-chip[data-new="true"] {
+    color: var(--incorrect);
+    border-color: color-mix(in oklab, var(--incorrect) 55%, transparent);
+    background: color-mix(in oklab, var(--incorrect) 14%, transparent);
+    font-weight: 600;
+}
 
 /* In-modal packet picker */
 .ed-modal-packets {
@@ -3114,6 +3120,12 @@ body:not(.account-nav-ready) #login-link {
 .home-set-row-diff[data-d="1"]  { color: var(--correct);   border-color: color-mix(in oklab, var(--correct) 35%, transparent);   background: color-mix(in oklab, var(--correct) 12%, transparent); }
 .home-set-row-diff[data-d="5"]  { color: var(--accent);    border-color: color-mix(in oklab, var(--accent) 45%, transparent);    background: var(--accent-soft); }
 .home-set-row-diff[data-d="10"] { color: var(--incorrect); border-color: color-mix(in oklab, var(--incorrect) 35%, transparent); background: color-mix(in oklab, var(--incorrect) 12%, transparent); }
+.home-set-row-diff[data-new="true"] {
+    color: var(--incorrect);
+    border-color: color-mix(in oklab, var(--incorrect) 55%, transparent);
+    background: color-mix(in oklab, var(--incorrect) 16%, transparent);
+    font-weight: 600;
+}
 .home-shortcuts {
     display: grid;
     grid-template-columns: 1fr 1fr;

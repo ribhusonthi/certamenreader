@@ -1,5 +1,21 @@
+// Sets created within this many days are flagged "new" in pickers.
+const NEW_SET_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+
 export default class api {
   static SET_LIST = [];
+  static SET_META = {};
+
+  /**
+   * @param {string} setName
+   * @returns {boolean} true if the named set was created within the last week.
+   */
+  static isSetNew (setName) {
+    const meta = api.SET_META?.[setName];
+    if (!meta?.createdAt) return false;
+    const t = Date.parse(meta.createdAt);
+    if (!Number.isFinite(t)) return false;
+    return Date.now() - t < NEW_SET_WINDOW_MS;
+  }
 
   /**
      * @param {string} answerline
@@ -148,6 +164,6 @@ export default class api {
   }
 }
 
-api.SET_LIST = await fetch('/api/set-list')
-  .then(response => response.json())
-  .then(data => data.setList);
+const setListResponse = await fetch('/api/set-list').then(response => response.json());
+api.SET_LIST = setListResponse.setList || [];
+api.SET_META = setListResponse.setMeta || {};
