@@ -24,7 +24,7 @@ async function readQueryResponse(response) {
   }
   return await response.json();
 }
-function getMatchIndices(clean, regex) {
+function getMatchIndices(clean = '', regex) {
   const iterator = clean.matchAll(regex);
   const starts = [];
   const ends = [];
@@ -49,18 +49,20 @@ function highlightTossupQuery({
   const words = ignoreWordOrder ? queryString.split(' ').filter(word => word !== '').map(word => new RegExp(word, 'ig')) : [regExp];
   for (const word of words) {
     if (searchType === 'question' || searchType === 'all') {
+      const questionSanitized = tossup.question_sanitized ?? tossup.question ?? '';
       const {
         starts,
         ends
-      } = getMatchIndices(tossup.question_sanitized, word);
-      tossup.question = insertTokensIntoHTML(tossup.question, tossup.question_sanitized, [starts, ends]);
+      } = getMatchIndices(questionSanitized, word);
+      tossup.question = insertTokensIntoHTML(tossup.question ?? '', questionSanitized, [starts, ends]);
     }
     if (searchType === 'answer' || searchType === 'all') {
+      const answerSanitized = tossup.answer_sanitized ?? tossup.answer ?? '';
       const {
         starts,
         ends
-      } = getMatchIndices(tossup.answer_sanitized, word);
-      tossup.answer = insertTokensIntoHTML(tossup.answer, tossup.answer_sanitized, [starts, ends]);
+      } = getMatchIndices(answerSanitized, word);
+      tossup.answer = insertTokensIntoHTML(tossup.answer ?? '', answerSanitized, [starts, ends]);
     }
   }
   return tossup;
@@ -76,27 +78,30 @@ function highlightBonusQuery({
   for (const word of words) {
     if (searchType === 'question' || searchType === 'all') {
       {
+        const leadinSanitized = bonus.leadin_sanitized ?? bonus.leadin ?? '';
         const {
           starts,
           ends
-        } = getMatchIndices(bonus.leadin_sanitized, word);
-        bonus.leadin = insertTokensIntoHTML(bonus.leadin, bonus.leadin_sanitized, [starts, ends]);
+        } = getMatchIndices(leadinSanitized, word);
+        bonus.leadin = insertTokensIntoHTML(bonus.leadin ?? '', leadinSanitized, [starts, ends]);
       }
       for (let i = 0; i < bonus.parts.length; i++) {
+        const partSanitized = bonus.parts_sanitized?.[i] ?? bonus.parts[i] ?? '';
         const {
           starts,
           ends
-        } = getMatchIndices(bonus.parts_sanitized[i], word);
-        bonus.parts[i] = insertTokensIntoHTML(bonus.parts[i], bonus.parts_sanitized[i], [starts, ends]);
+        } = getMatchIndices(partSanitized, word);
+        bonus.parts[i] = insertTokensIntoHTML(bonus.parts[i] ?? '', partSanitized, [starts, ends]);
       }
     }
     if (searchType === 'answer' || searchType === 'all') {
       for (let i = 0; i < bonus.answers.length; i++) {
+        const answerSanitized = bonus.answers_sanitized?.[i] ?? bonus.answers[i] ?? '';
         const {
           starts,
           ends
-        } = getMatchIndices(bonus.answers_sanitized[i], word);
-        bonus.answers[i] = insertTokensIntoHTML(bonus.answers[i], bonus.answers_sanitized[i], [starts, ends]);
+        } = getMatchIndices(answerSanitized, word);
+        bonus.answers[i] = insertTokensIntoHTML(bonus.answers[i] ?? '', answerSanitized, [starts, ends]);
       }
     }
   }
