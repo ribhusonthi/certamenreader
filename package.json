@@ -9,9 +9,7 @@
         "start": "node index.js",
         "sass": "sass scss/light.scss client/bootstrap/light.css && sass scss/dark.scss client/bootstrap/dark.css",
         "lint": "npx semistandard --fix",
-        "test:frontend": "",
-        "test:backend": "mocha test/database.test.js",
-        "test:all": "npm run test:frontend && npm run test:backend"
+        "test:all": "npm test"
     },
     "dependencies": {
         "bootstrap": "5.2.3",

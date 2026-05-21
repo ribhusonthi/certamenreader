@@ -57,6 +57,13 @@ async function recordTossupData (username, data) {
     newData.answerText = tossup.answer || '';
   }
 
+  // Persist the literal text the user typed (when they used type-to-answer).
+  // Trimmed so " " etc. stay out of the audit trail. Used to spot-check whether
+  // graders are accepting/rejecting real buzzes correctly.
+  if (typeof data.givenAnswer === 'string' && data.givenAnswer.trim() !== '') {
+    newData.givenAnswer = data.givenAnswer.trim();
+  }
+
   newData.tossup_id = tossupObjectId;
   newData.set_id = new ObjectId(tossup.set._id);
   newData.user_id = userId;

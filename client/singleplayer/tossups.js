@@ -184,7 +184,8 @@ let inBonusPhase = false;
 const previous = {
   isCorrect: true,
   endOfQuestion: false,
-  celerity: 0
+  celerity: 0,
+  givenAnswer: ''
 };
 
 const stats = (() => {
@@ -589,6 +590,8 @@ async function giveAnswer (givenAnswer) {
   stopTossupTimer();
   currentlyBuzzing = false;
 
+  previous.givenAnswer = typeof givenAnswer === 'string' ? givenAnswer : '';
+
   let { directive, directedPrompt } = await api.checkAnswer(tossups[questionNumber - 1].answer, givenAnswer);
 
   // Fuzzy fallback: if rejected but ~90% similar to the main answer, accept
@@ -672,9 +675,10 @@ async function next () {
 
   if (!previous.recorded && await account.getUsername() && document.getElementById('answer').innerHTML) {
     const pointValue = previous.isCorrect ? 10 : 0;
-    questionStats.recordTossup(tossups[questionNumber - 1], previous.isCorrect, pointValue, previous.celerity, false, previous.isCorrect ? buzzpointIndex : undefined);
+    questionStats.recordTossup(tossups[questionNumber - 1], previous.isCorrect, pointValue, previous.celerity, false, previous.isCorrect ? buzzpointIndex : undefined, previous.givenAnswer);
   }
   previous.recorded = false;
+  previous.givenAnswer = '';
 
   document.getElementById('answer').textContent = '';
   document.getElementById('question').innerHTML = '';
@@ -816,7 +820,8 @@ async function revealQuestion () {
     const pointValue = previous.isCorrect ? 10 : 0;
     const result = await questionStats.recordTossup(
       t, previous.isCorrect, pointValue, previous.celerity, false,
-      previous.isCorrect ? buzzpointIndex : undefined
+      previous.isCorrect ? buzzpointIndex : undefined,
+      previous.givenAnswer
     );
     previous.recorded = true;
     const ans = document.getElementById('answer');
