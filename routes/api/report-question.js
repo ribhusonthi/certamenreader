@@ -6,7 +6,7 @@ const router = Router();
 
 router.post('/', async (req, res) => {
   const _id = req.body._id;
-  const reason = req.body.reason ?? '';
+  const reason = Array.isArray(req.body.reason) ? req.body.reason : (req.body.reason ?? '');
   const description = req.body.description ?? '';
   const successful = await reportQuestion(_id, reason, description);
   if (successful) {

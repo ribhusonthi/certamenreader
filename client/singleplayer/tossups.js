@@ -682,8 +682,7 @@ async function next () {
 
   document.getElementById('answer').textContent = '';
   document.getElementById('question').innerHTML = '';
-  document.getElementById('toggle-correct').textContent = 'I was wrong';
-  document.getElementById('toggle-correct').classList.add('d-none');
+  document.getElementById('question-report-prompt').classList.add('d-none');
 
   // Clean up bonus section
   hideBonusSection();
@@ -811,8 +810,9 @@ async function revealQuestion () {
   document.getElementById('next').disabled = false;
   document.getElementById('next').textContent = 'Next';
 
-  document.getElementById('toggle-correct').classList.remove('d-none');
-  document.getElementById('toggle-correct').textContent = previous.isCorrect ? 'I was wrong' : 'I was right';
+  if (t._id) {
+    document.getElementById('question-report-prompt').classList.remove('d-none');
+  }
 
   // Record this buzz now so we can render the server-computed PP without
   // exposing the formula to the client. next() will skip its own record call.
@@ -1250,26 +1250,6 @@ function enterEditMode (tossup) {
   container.appendChild(editArea);
 }
 
-function toggleCorrect () {
-  const multiplier = previous.isCorrect ? -1 : 1;
-
-  // 10 points per correct tossup, 0 for incorrect/dead. No power, no neg.
-  stats.tens += multiplier;
-  stats.points += multiplier * 10;
-
-  if (previous.endOfQuestion) {
-    stats.dead += -multiplier;
-  }
-
-  stats.totalCorrectCelerity += multiplier * previous.celerity;
-
-  previous.isCorrect = !previous.isCorrect;
-  document.getElementById('toggle-correct').textContent = previous.isCorrect ? 'I was wrong' : 'I was right';
-
-  updateStatDisplay();
-  window.sessionStorage.setItem('tossup-stats', JSON.stringify(stats));
-}
-
 function updateScore (isCorrect) {
   const endOfQuestion = (tossupTextSplit.length === 0);
   const points = isCorrect ? 10 : 0;
@@ -1445,9 +1425,15 @@ document.getElementById('reading-speed').addEventListener('input', function () {
 });
 
 document.getElementById('report-question-submit').addEventListener('click', function () {
+  const reasons = Array.from(document.querySelectorAll('#report-question-modal .report-question-reason:checked')).map(input => input.value);
+  if (reasons.length === 0) {
+    window.alert('Please select at least one issue.');
+    return;
+  }
+
   api.reportQuestion(
     document.getElementById('report-question-id').value,
-    document.getElementById('report-question-reason').value,
+    reasons,
     document.getElementById('report-question-description').value
   );
 });
@@ -1472,10 +1458,19 @@ function applyPacketSelection (numbers) {
   window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
 }
 
-
-document.getElementById('toggle-correct').addEventListener('click', function () {
+document.getElementById('report-current-question').addEventListener('click', function (event) {
+  event.preventDefault();
   this.blur();
-  toggleCorrect();
+  const tossup = tossups[questionNumber - 1];
+  document.getElementById('report-question-id').value = tossup?._id || '';
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('report-question-modal')).show();
+});
+
+document.getElementById('report-question-modal').addEventListener('hidden.bs.modal', function () {
+  document.querySelectorAll('#report-question-modal .report-question-reason').forEach(input => {
+    input.checked = false;
+  });
+  document.getElementById('report-question-description').value = '';
 });
 
 // document.getElementById('toggle-powermark-only').addEventListener('click', function () {

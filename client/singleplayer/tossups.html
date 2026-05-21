@@ -226,8 +226,11 @@
             </div>
 
             <div class="tossup" id="question"></div>
-            <a class="p-0 btn btn-link float-end d-none" id="toggle-correct">I was wrong</a>
             <p class="mb-0" id="answer"></p>
+            <p class="question-report-prompt d-none text-muted small mb-0" id="question-report-prompt">
+                If this question was parsed incorrectly, has the wrong category, wrong difficulty,
+                wrong round, or wrong answer, <a href="#" id="report-current-question">report this question</a>.
+            </p>
 
             <div id="bonus-section" class="bonus-edit d-none">
                 <div class="bonus-hdr">
@@ -552,12 +555,15 @@
             </div>
         </div>
     </div>
+    </div>
+    </div>
+    </div>
 
     <div class="modal" id="report-question-modal" tabindex="-2">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Report Question</h5>
+                    <h5 class="modal-title">Report this question</h5>
                     <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -567,21 +573,31 @@
                             <input class="form-control" id="report-question-id" type="text" disabled>
                         </div>
                         <div class="mb-3">
-                            <label class="col-form-label" for="report-question-reason">Reason:</label>
-                            <select class="form-select" id="report-question-reason" aria-label="Default select example">
-                                <option value="wrong-category" selected>Wrong category/subcategory</option>
-                                <option value="answer-checking">Incorrect answer checking</option>
-                                <option value="text-error">Error in question or answer text</option>
-                                <option value="other">Other</option>
-                            </select>
+                            <div class="col-form-label">What is wrong?</div>
+                            <div class="form-check">
+                                <input class="form-check-input report-question-reason" id="report-question-parsed-wrong" type="checkbox" value="parsed-wrong">
+                                <label class="form-check-label" for="report-question-parsed-wrong">Question was parsed wrong</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input report-question-reason" id="report-question-wrong-category" type="checkbox" value="wrong-category">
+                                <label class="form-check-label" for="report-question-wrong-category">Wrong category</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input report-question-reason" id="report-question-wrong-difficulty" type="checkbox" value="wrong-difficulty">
+                                <label class="form-check-label" for="report-question-wrong-difficulty">Wrong difficulty</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input report-question-reason" id="report-question-wrong-round" type="checkbox" value="wrong-round">
+                                <label class="form-check-label" for="report-question-wrong-round">Wrong round</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input report-question-reason" id="report-question-wrong-answer" type="checkbox" value="wrong-answer">
+                                <label class="form-check-label" for="report-question-wrong-answer">Wrong answer</label>
+                            </div>
                         </div>
                         <div>
-                            <p class="text-muted">
-                                If your answer was parsed incorrectly, please enter what answer you gave below.
-                            </p>
-                            <label class="col-form-label" for="report-question-description">Additional
-                                Information:</label>
-                            <textarea class="form-control" id="report-question-description" rows="3"></textarea>
+                            <label class="col-form-label" for="report-question-description">What's wrong? <span class="text-muted">(optional)</span></label>
+                            <textarea class="form-control" id="report-question-description" rows="3" placeholder="Add details, or include the answer you gave if answer checking was wrong."></textarea>
                         </div>
                     </form>
                 </div>
