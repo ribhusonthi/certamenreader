@@ -236,4 +236,4 @@ document.getElementById('new-category').addEventListener('input', function () {
   }
 });
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render( /*#__PURE__*/React.createElement(Reports, null));
+root.render(/*#__PURE__*/React.createElement(Reports, null));

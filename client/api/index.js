@@ -39,7 +39,7 @@ export default class api {
     * }>}
     */
   static async checkAnswer (answerline, givenAnswer) {
-    if (givenAnswer === '') {
+    if (typeof givenAnswer !== 'string' || givenAnswer.trim() === '') {
       return { directive: 'reject', directedPrompt: null };
     }
 

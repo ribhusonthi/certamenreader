@@ -20,7 +20,7 @@ import getNumPackets from '../../database/certamenreader/get-num-packets.js';
 
 import { insertTokensIntoHTML } from '../../client/utilities/insert-tokens-into-html.js';
 
-import checkAnswer from 'qb-answer-checker';
+import checkAnswer from '../../lib/answer-checker.js';
 
 import createDOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
@@ -761,10 +761,13 @@ export default class TossupRoom {
       this.tossup.question.length;
     const endOfQuestion = this.wordIndex === this.questionSplit.length;
     const inPower = this.questionSplit.indexOf('(*)') >= this.wordIndex;
-    const { directive, directedPrompt } = checkAnswer(
-      this.tossup.answer,
-      givenAnswer
-    );
+    // Whitespace-only answers must never be matched against the answerline —
+    // the matcher treats an empty token list as a vacuous match and would
+    // otherwise accept " " as correct.
+    const hasContent = typeof givenAnswer === 'string' && givenAnswer.trim() !== '';
+    const { directive, directedPrompt } = hasContent
+      ? checkAnswer(this.tossup.answer, givenAnswer)
+      : { directive: 'reject', directedPrompt: undefined };
     const points = scoreTossup({
       isCorrect: directive === 'accept',
       inPower,

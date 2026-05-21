@@ -677,7 +677,8 @@ const socketOnGiveAnswer = async (message) => {
       score,
       message.perQuestionCelerity,
       true,
-      score > 0 ? message.buzzpointIndex : undefined
+      score > 0 ? message.buzzpointIndex : undefined,
+      givenAnswer
     );
   }
 
