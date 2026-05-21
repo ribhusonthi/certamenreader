@@ -5,27 +5,32 @@ import { ObjectId } from 'mongodb';
 /**
  * Report question with given id to the database.
  * @param {string} _id - the id of the question to report
- * @param {'wrong-category' | 'text-error' | 'answer-checking' | 'other'} reason - the reason for reporting
+ * @param {string | string[]} reason - the reason or reasons for reporting
  * @param {string} description - a description of the problem
  * @param {boolean} [verbose=true] - whether to log the result to the console
  * @returns {Promise<boolean>} true if successful, false otherwise.
  */
-async function reportQuestion(_id, reason, description, verbose = true) {
-  await questionReports.insertOne({
+async function reportQuestion (_id, reason, description, verbose = true) {
+  const reasons = (Array.isArray(reason) ? reason : [reason]).filter(Boolean);
+  if (reasons.length === 0) return false;
+
+  const reports = reasons.map(reason => ({
+    reason,
+    description
+  }));
+
+  await questionReports.insertMany(reports.map(report => ({
     questionID: _id,
-    reason: reason,
-    description: description,
-    createdAt: new Date(),
-  });
+    reason: report.reason,
+    description: report.description,
+    createdAt: new Date()
+  })));
   await tossups.updateOne(
     { _id: new ObjectId(_id) },
     {
       $push: {
-        reports: {
-          reason,
-          description,
-        },
-      },
+        reports: { $each: reports }
+      }
     }
   );
 
@@ -33,11 +38,8 @@ async function reportQuestion(_id, reason, description, verbose = true) {
     { _id: new ObjectId(_id) },
     {
       $push: {
-        reports: {
-          reason,
-          description,
-        },
-      },
+        reports: { $each: reports }
+      }
     }
   );
 

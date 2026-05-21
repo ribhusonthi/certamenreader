@@ -162,7 +162,11 @@ export default class api {
       body: JSON.stringify({ _id, reason, description })
     }).then(response => {
       if (response.status === 200) {
-        document.getElementById('report-question-reason').value = 'wrong-category';
+        const reasonSelect = document.getElementById('report-question-reason');
+        if (reasonSelect) reasonSelect.value = 'wrong-category';
+        document.querySelectorAll('.report-question-reason').forEach(input => {
+          input.checked = false;
+        });
         document.getElementById('report-question-description').value = '';
         window.alert('Question has been reported.');
       } else {
