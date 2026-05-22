@@ -25,9 +25,17 @@ async function getUserProfile (username, { topN = 15 } = {}) {
     { user_id: user._id, pp: { $gt: 0 } },
     {
       projection: {
-        _id: 1, pp: 1, celerity: 1, difficulty: 1, category: 1,
-        setName: 1, packetName: 1, questionNumber: 1,
-        questionText: 1, answerText: 1, recordedAt: 1
+        _id: 1,
+        pp: 1,
+        celerity: 1,
+        difficulty: 1,
+        category: 1,
+        setName: 1,
+        packetName: 1,
+        questionNumber: 1,
+        questionText: 1,
+        answerText: 1,
+        recordedAt: 1
       }
     }
   ).sort({ pp: -1, recordedAt: -1 }).toArray();
@@ -49,7 +57,7 @@ async function getUserProfile (username, { topN = 15 } = {}) {
     return {
       pp: Math.round(b.pp || 0),
       weightedPP: Math.round((b.pp || 0) * weight),
-      weightPct: Math.round(weight * 1000) / 10,    // e.g. 95.0 → "95.0%"
+      weightPct: Math.round(weight * 1000) / 10, // e.g. 95.0 → "95.0%"
       celerity: b.celerity,
       difficulty: b.difficulty,
       category: b.category,

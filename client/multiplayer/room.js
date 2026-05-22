@@ -9,13 +9,13 @@ import { initSetSelector } from '../utilities/set-selector.js';
 import {
   arrayToRange,
   createTossupCard,
-  rangeToArray,
+  rangeToArray
 } from '../utilities/index.js';
 import { escapeHTML } from '../utilities/strings.js';
 const defaults = {
   alternateSubcategories: [],
   categories: [],
-  subcategories: [],
+  subcategories: []
 };
 
 let query;
@@ -41,7 +41,7 @@ const categoryManager = new CategoryManager(
 let changedCategories = false;
 
 let maxPacketNumber = 24;
-let setSelector;
+let setSelector = null;
 
 function normalizeSetNames (value) {
   if (Array.isArray(value)) {
@@ -68,7 +68,7 @@ async function loadPacketPicker (setName, selectedNumbers, onChangeCallback) {
   }
 
   picker.innerHTML = '<span class="text-muted small">Loading...</span>';
-  let packets = await api.getPacketList(setName);
+  const packets = await api.getPacketList(setName);
 
   if (packets.length === 0) {
     const numPackets = await api.getNumPackets(setName);
@@ -334,14 +334,14 @@ socket.onmessage = function (event) {
       document.getElementById('toggle-lock').checked = data.lock;
       break;
 
-    // case 'toggle-powermark-only':
-    //   logEvent(
-    //     data.username,
-    //     `${data.powermarkOnly ? 'enabled' : 'disabled'} powermark only`
-    //   );
-    //   document.getElementById('toggle-powermark-only').checked =
-    //     data.powermarkOnly;
-    //   break;
+      // case 'toggle-powermark-only':
+      //   logEvent(
+      //     data.username,
+      //     `${data.powermarkOnly ? 'enabled' : 'disabled'} powermark only`
+      //   );
+      //   document.getElementById('toggle-powermark-only').checked =
+      //     data.powermarkOnly;
+      //   break;
 
     case 'toggle-rebuzz':
       logEvent(
@@ -465,7 +465,7 @@ const socketOnClearStats = (message) => {
     'powers',
     'tens',
     'tuh',
-    'zeroes',
+    'zeroes'
   ]) {
     players[message.userId][field] = 0;
   }
@@ -561,8 +561,6 @@ const socketOnConnectionAcknowledgedQuery = async (message) => {
   //   message.validSubcategories,
   //   message.validAlternateSubcategories
   // );
-  const { categories, subcategories, alternateSubcategories } =
-    categoryManager.export();
   categoryManager.loadCategoryModal();
 
   setSelector?.setState({
@@ -570,7 +568,7 @@ const socketOnConnectionAcknowledgedQuery = async (message) => {
     setNames: message.setNames || normalizeSetNames(message.setName),
     difficulties: message.difficulties || [],
     minYear: message.minYear,
-    maxYear: message.maxYear,
+    maxYear: message.maxYear
   });
   document.getElementById('packet-number').value =
     arrayToRange(message.packetNumbers) || '';
@@ -611,7 +609,7 @@ const socketOnGiveAnswer = async (message) => {
     directive,
     directedPrompt,
     score,
-    celerity,
+    celerity
   } = message;
 
   logGiveAnswer(username, givenAnswer, false, directive);
@@ -860,7 +858,7 @@ const PING_INTERVAL_ID = setInterval(() => {
   socket.send(JSON.stringify({ type: 'ping' }));
 }, 45000);
 
-function logChat(username, message, isLive = false, userId = null) {
+function logChat (username, message, isLive = false, userId = null) {
   if (!isLive && message === '') {
     document.getElementById('live-chat-' + userId).parentElement.remove();
     return;
@@ -892,7 +890,7 @@ function logChat(username, message, isLive = false, userId = null) {
   document.getElementById('room-history').prepend(li);
 }
 
-function logEvent(username, message) {
+function logEvent (username, message) {
   const span1 = document.createElement('span');
   span1.textContent = username;
 
@@ -910,7 +908,7 @@ function logEvent(username, message) {
   document.getElementById('room-history').prepend(li);
 }
 
-function logSystem(message) {
+function logSystem (message) {
   const i = document.createElement('i');
   i.textContent = message;
 
@@ -920,7 +918,7 @@ function logSystem(message) {
   document.getElementById('room-history').prepend(li);
 }
 
-function logGiveAnswer(username, message, isLive = false, directive = null) {
+function logGiveAnswer (username, message, isLive = false, directive = null) {
   const badge = document.createElement('span');
   badge.textContent = 'Buzz';
   switch (directive) {
@@ -992,14 +990,14 @@ function logGiveAnswer(username, message, isLive = false, directive = null) {
   }
 }
 
-function showNextButton() {
+function showNextButton () {
   document.getElementById('next').classList.remove('d-none');
   document.getElementById('next').disabled = false;
   document.getElementById('skip').classList.add('d-none');
   document.getElementById('skip').disabled = true;
 }
 
-function showSkipButton() {
+function showSkipButton () {
   document.getElementById('skip').classList.remove('d-none');
   document.getElementById('skip').disabled =
     !document.getElementById('toggle-skip').checked;
@@ -1007,7 +1005,7 @@ function showSkipButton() {
   document.getElementById('next').disabled = true;
 }
 
-function sortPlayerListGroup(descending = true) {
+function sortPlayerListGroup (descending = true) {
   const listGroup = document.getElementById('player-list-group');
   const items = Array.from(listGroup.children);
   const offset = 'list-group-'.length;
@@ -1038,7 +1036,7 @@ function sortPlayerListGroup(descending = true) {
     });
 }
 
-function updateTimerDisplay(time) {
+function updateTimerDisplay (time) {
   const seconds = Math.floor(time / 10);
   const tenths = time % 10;
 
@@ -1046,7 +1044,7 @@ function updateTimerDisplay(time) {
   document.querySelector('.timer .fraction').innerText = '.' + tenths;
 }
 
-function upsertPlayerItem(player) {
+function upsertPlayerItem (player) {
   const {
     userId,
     username,
@@ -1056,7 +1054,7 @@ function upsertPlayerItem(player) {
     tuh = 0,
     points = 0,
     celerity = 0,
-    isOnline,
+    isOnline
   } = player;
 
   if (document.getElementById('list-group-' + userId)) {
@@ -1138,7 +1136,7 @@ document
     socket.send(
       JSON.stringify({
         type: 'give-answer',
-        givenAnswer: answer,
+        givenAnswer: answer
       })
     );
   });
@@ -1280,7 +1278,7 @@ async function applySetNames (setNames) {
       type: 'set-name',
       value: singleSetName,
       setNames: selectedNames,
-      packetNumbers: allPackets,
+      packetNumbers: allPackets
     })
   );
 
@@ -1304,7 +1302,7 @@ document
     socket.send(
       JSON.stringify({
         type: 'toggle-powermark-only',
-        powermarkOnly: this.checked,
+        powermarkOnly: this.checked
       })
     );
   });
@@ -1319,7 +1317,6 @@ document.getElementById('toggle-skip').addEventListener('click', function () {
   socket.send(JSON.stringify({ type: 'toggle-skip', skip: this.checked }));
 });
 
-
 document
   .getElementById('toggle-standard-only')
   .addEventListener('click', function () {
@@ -1327,7 +1324,7 @@ document
     socket.send(
       JSON.stringify({
         type: 'toggle-standard-only',
-        standardOnly: this.checked,
+        standardOnly: this.checked
       })
     );
   });
@@ -1382,8 +1379,7 @@ document.addEventListener('keydown', function (event) {
     socket.send(JSON.stringify({ type: 'chat', message: '' }));
   }
 
-  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName))
-    return;
+  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) { return; }
 
   switch (event.key) {
     case ' ':

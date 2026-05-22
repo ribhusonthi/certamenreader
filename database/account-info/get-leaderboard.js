@@ -23,26 +23,32 @@ async function getLeaderboard ({ limit = 100, category } = {}) {
     { $match: match },
     // Per-user top buzzes by PP, descending.
     { $sort: { user_id: 1, pp: -1 } },
-    { $group: {
-      _id: '$user_id',
-      // We only need the top-N for the weighted sum; cap the array there to
-      // keep memory bounded for whales.
-      topPPs: { $push: '$pp' },
-      buzzes: { $sum: 1 },
-      bestPP: { $max: '$pp' }
-    } },
-    { $project: {
-      _id: 1,
-      buzzes: 1,
-      bestPP: 1,
-      topPPs: { $slice: ['$topPPs', PP_TOP_N] }
-    } },
-    { $lookup: {
-      from: 'users',
-      localField: '_id',
-      foreignField: '_id',
-      as: 'user'
-    } },
+    {
+      $group: {
+        _id: '$user_id',
+        // We only need the top-N for the weighted sum; cap the array there to
+        // keep memory bounded for whales.
+        topPPs: { $push: '$pp' },
+        buzzes: { $sum: 1 },
+        bestPP: { $max: '$pp' }
+      }
+    },
+    {
+      $project: {
+        _id: 1,
+        buzzes: 1,
+        bestPP: 1,
+        topPPs: { $slice: ['$topPPs', PP_TOP_N] }
+      }
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'user'
+      }
+    },
     { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } }
   ]).toArray();
 

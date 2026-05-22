@@ -16,7 +16,7 @@ const CATEGORY_BUTTONS = [
 const SUBCATEGORY_BUTTONS = [];
 
 const ALTERNATE_SUBCATEGORY_BUTTONS = [
-  
+
 ];
 
 const categoryManager = new CategoryManager();
@@ -800,13 +800,13 @@ function QueryForm () {
       </form>
 
       {currentlySearching && <div className='d-block mx-auto mt-3 spinner-border' role='status'><span className='d-none'>Loading...</span></div>}
-      
+
       {hasSearched && (
         <div>
           <div className='row text-center mt-2 mt-sm-0'>
             <h3 id='tossups'>Tossups</h3>
           </div>
-      {
+          {
                 tossupCount > 0
                   ? <div className='float-row mb-3'>
                     <span className='text-muted float-start'>Showing {tossups.length} of {tossupCount} results ({queryTime} seconds)</span>&nbsp;
@@ -818,8 +818,8 @@ function QueryForm () {
                     </div> // eslint-disable-line
                   : <div className='text-muted'>No tossups found</div>
             }
-      <div>{tossupCards}</div>
-      {
+          <div>{tossupCards}</div>
+          {
                 tossupPaginationLength > 1 &&
                   <nav aria-label='tossup nagivation'>
                     <ul className='pagination justify-content-center'>
@@ -861,11 +861,11 @@ function QueryForm () {
                     </ul>
                   </nav>
             }
-      <div className='mb-5' />
-      <div className='row text-center'>
-        <h3 id='bonuses'>Bonuses</h3>
-      </div>
-      {
+          <div className='mb-5' />
+          <div className='row text-center'>
+            <h3 id='bonuses'>Bonuses</h3>
+          </div>
+          {
                 bonusCount > 0
                   ? <div className='float-row mb-3'>
                     <span className='text-muted float-start'>Showing {bonuses.length} of {bonusCount} results ({queryTime} seconds)</span>&nbsp;
@@ -877,8 +877,8 @@ function QueryForm () {
                     </div> // eslint-disable-line
                   : <div className='text-muted'>No bonuses found</div>
             }
-      <div>{bonusCards}</div>
-      {
+          <div>{bonusCards}</div>
+          {
                 bonusPaginationLength > 1 &&
                   <nav aria-label='bonus nagivation'>
                     <ul className='pagination justify-content-center'>
@@ -920,7 +920,7 @@ function QueryForm () {
                     </ul>
                   </nav>
             }
-      <div className='mb-5' />
+          <div className='mb-5' />
         </div>
       )}
     </div>
