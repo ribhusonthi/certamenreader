@@ -125,7 +125,7 @@ function isPageHeader (line) {
 // "Answer" isn't truncated to "ANS" + "wer". The bare "A" form requires
 // a literal ":" separator so it doesn't eat single-letter answers.
 function stripAnswerPrefix (answer) {
-  return answer.replace(/^(?:(?:ANSWER|Answer|ANS)\s*[:.\-]?|A:)\s*/i, '').trim();
+  return answer.replace(/^(?:(?:ANSWER|Answer|ANS)\s*[:.-]?|A:)\s*/i, '').trim();
 }
 
 function extractAnswerFromLines (lines) {
@@ -174,7 +174,7 @@ function extractAnswerFromLines (lines) {
   }
 
   // Inline "ANS:" / "Answer:" / "A:" prefix on the last line.
-  const ansInline = lastLine.match(/^(.*?[?!.])\s*(?:(?:ANS|Answer|ANSWER)\s*[:.\-]|A:)\s*(.+)$/);
+  const ansInline = lastLine.match(/^(.*?[?!.])\s*(?:(?:ANS|Answer|ANSWER)\s*[:.-]|A:)\s*(.+)$/);
   if (ansInline) {
     const question = [...lines.slice(0, -1).map(l => l.trim()), ansInline[1].trim()].join(' ').trim();
     const answer = ansInline[2].trim().replace(/\s+\d{1,2}$/, '').trim();
@@ -213,7 +213,7 @@ function parseBonusParts (bonusText) {
   for (const segment of segments) {
     if (!segment.trim()) continue;
 
-    let cleaned = segment
+    const cleaned = segment
       .replace(/\*\*SCORE CHECK\*\*/g, '')
       .replace(/[Ss]core\s*[Cc]heck[\s\S]*/gm, '')
       .replace(/\[(?:[Nn]ote|NOTE)\s+to\s+.*?\]/gs, '')
@@ -269,7 +269,7 @@ function parseQuestionText (text, setInfo) {
 
   // Strip zero-width chars from pdftotext output (Virginia/UVA insert ZWSP
   // between markers like "TOSSUP" and ":") so regexes can match.
-  text = text.replace(/[​-‏﻿]/g, '');
+  text = text.replace(/[\u200B-\u200F\uFEFF]/g, '');
 
   const difficultyValue = (() => {
     const d = (setInfo.difficulty || '').toLowerCase();
@@ -340,7 +340,7 @@ function parseQuestionText (text, setInfo) {
       const bonusText = bMatch ? block.substring(bMatch.index) : null;
 
       // Clean up
-      let cleaned = tossupText
+      const cleaned = tossupText
         .replace(/\*\*SCORE CHECK\*\*/g, '')
         .replace(/\[(?:[Nn]ote|NOTE)\s+to\s+.*?\]/gs, '')
         .replace(/\[(?:[Nn]ote|NOTE)\s+to\s+.*$/gs, '');

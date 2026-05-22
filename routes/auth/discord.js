@@ -24,12 +24,12 @@ import { users } from '../../database/account-info/collections.js';
 
 const router = Router();
 
-const CLIENT_ID     = process.env.DISCORD_CLIENT_ID;
+const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
-const BASE_URL      = process.env.BASE_URL ?? (
+const BASE_URL = process.env.BASE_URL ?? (
   process.env.NODE_ENV === 'production' ? 'https://www.certamenreader.org' : 'http://localhost:3000'
 );
-const REDIRECT_URI  = `${BASE_URL}/auth/discord/callback`;
+const REDIRECT_URI = `${BASE_URL}/auth/discord/callback`;
 
 // ─── Step 1: start OAuth flow ────────────────────────────────────────────────
 
@@ -42,11 +42,11 @@ router.get('/', (req, res) => {
   }
 
   const params = new URLSearchParams({
-    client_id:     CLIENT_ID,
-    redirect_uri:  REDIRECT_URI,
+    client_id: CLIENT_ID,
+    redirect_uri: REDIRECT_URI,
     response_type: 'code',
-    scope:         'identify',   // we only need the Discord user ID + username
-    prompt:        'consent'
+    scope: 'identify', // we only need the Discord user ID + username
+    prompt: 'consent'
   });
 
   res.redirect(`https://discord.com/api/oauth2/authorize?${params.toString()}`);
@@ -68,14 +68,14 @@ router.get('/callback', async (req, res) => {
   try {
     // Exchange code for an access token
     const tokenRes = await fetch('https://discord.com/api/oauth2/token', {
-      method:  'POST',
+      method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body:    new URLSearchParams({
-        client_id:     CLIENT_ID,
+      body: new URLSearchParams({
+        client_id: CLIENT_ID,
         client_secret: CLIENT_SECRET,
-        grant_type:    'authorization_code',
+        grant_type: 'authorization_code',
         code,
-        redirect_uri:  REDIRECT_URI
+        redirect_uri: REDIRECT_URI
       }).toString()
     });
 
@@ -99,9 +99,9 @@ router.get('/callback', async (req, res) => {
       { username },
       {
         $set: {
-          discordId:       discordUser.id,
+          discordId: discordUser.id,
           discordUsername: discordUser.username,
-          discordDisplay:  discordUser.global_name ?? discordUser.username,
+          discordDisplay: discordUser.global_name ?? discordUser.username,
           discordLinkedAt: new Date()
         }
       }

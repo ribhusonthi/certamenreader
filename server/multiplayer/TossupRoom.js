@@ -4,15 +4,7 @@ import { PERMANENT_ROOMS, ROOM_NAME_MAX_LENGTH } from './constants.js';
 import RateLimit from '../RateLimit.js';
 
 import { HEADER, ENDC, OKBLUE, OKGREEN } from '../../bcolors.js';
-import {
-  DEFAULT_MIN_YEAR,
-  DEFAULT_MAX_YEAR,
-  CATEGORIES,
-  SUBCATEGORIES_FLATTENED,
-  ALTERNATE_SUBCATEGORIES_FLATTENED,
-  SUBCATEGORY_TO_CATEGORY,
-  ALTERNATE_SUBCATEGORY_TO_CATEGORY,
-} from '../../constants.js';
+import { DEFAULT_MIN_YEAR, DEFAULT_MAX_YEAR } from '../../constants.js';
 import getRandomTossups from '../../database/certamenreader/get-random-tossups.js';
 import getSet from '../../database/certamenreader/get-set.js';
 import getSetList from '../../database/certamenreader/get-set-list.js';
@@ -33,7 +25,7 @@ const rateLimiter = new RateLimit(50, 1000);
 const QuestionProgressEnum = Object.freeze({
   NOT_STARTED: 0,
   READING: 1,
-  ANSWER_REVEALED: 2,
+  ANSWER_REVEALED: 2
 });
 
 function normalizeSetNames (value) {
@@ -49,14 +41,14 @@ function normalizeSetNames (value) {
 /**
  * @returns {Number} The number of points scored on a tossup.
  */
-function scoreTossup({ isCorrect, inPower, endOfQuestion, isPace = false }) {
+function scoreTossup ({ isCorrect, inPower, endOfQuestion, isPace = false }) {
   const powerValue = isPace ? 20 : 15;
   const negValue = isPace ? 0 : -5;
   return isCorrect ? (inPower ? powerValue : 10) : endOfQuestion ? 0 : negValue;
 }
 
 export default class TossupRoom {
-  constructor(
+  constructor (
     name,
     isPermanent = false,
     categories = [],
@@ -101,7 +93,7 @@ export default class TossupRoom {
       maxYear: DEFAULT_MAX_YEAR,
       packetNumbers: [
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-        21, 22, 23, 24,
+        21, 22, 23, 24
       ],
       setName: setName ?? '',
       setNames: setName ? [setName] : [],
@@ -110,7 +102,7 @@ export default class TossupRoom {
       subcategories,
       reverse: true, // used for `database.getSet`
       powermarkOnly: false,
-      standardOnly: false,
+      standardOnly: false
     };
 
     this.settings = {
@@ -120,7 +112,7 @@ export default class TossupRoom {
       readingSpeed: 50,
       selectBySetName: false,
       skip: false,
-      timer: true,
+      timer: true
     };
 
     this.rateLimitExceeded = new Set();
@@ -136,7 +128,7 @@ export default class TossupRoom {
     });
   }
 
-  connection(socket, userId, username) {
+  connection (socket, userId, username) {
     const isNew = !(userId in this.players);
     if (isNew) {
       this.createPlayer(userId);
@@ -180,7 +172,7 @@ export default class TossupRoom {
       this.message(userId, {
         type: 'leave',
         userId,
-        username,
+        username
       });
     });
 
@@ -204,21 +196,21 @@ export default class TossupRoom {
         rebuzz: this.settings.rebuzz,
         selectBySetName: this.settings.selectBySetName,
         skip: this.settings.skip,
-        timer: this.settings.timer,
+        timer: this.settings.timer
       })
     );
 
     socket.send(
       JSON.stringify({
         type: 'connection-acknowledged-query',
-        ...this.query,
+        ...this.query
       })
     );
 
     socket.send(
       JSON.stringify({
         type: 'connection-acknowledged-tossup',
-        tossup: this.tossup,
+        tossup: this.tossup
       })
     );
 
@@ -226,7 +218,7 @@ export default class TossupRoom {
       socket.send(
         JSON.stringify({
           type: 'update-question',
-          word: this.questionSplit.slice(0, this.wordIndex).join(' '),
+          word: this.questionSplit.slice(0, this.wordIndex).join(' ')
         })
       );
     }
@@ -244,7 +236,7 @@ export default class TossupRoom {
             [this.buzzpointIndices],
             [' (#) ']
           ),
-          answer: this.tossup.answer,
+          answer: this.tossup.answer
         })
       );
     }
@@ -254,11 +246,11 @@ export default class TossupRoom {
       isNew,
       userId,
       username,
-      user: this.players[userId],
+      user: this.players[userId]
     });
   }
 
-  async message(userId, message) {
+  async message (userId, message) {
     const type = message.type || '';
     let allowedPacketNumbers;
 
@@ -277,7 +269,7 @@ export default class TossupRoom {
             type: 'force-username',
             username: this.players[userId].username,
             message:
-              'Your username contains an inappropriate word, so it has been reverted.',
+              'Your username contains an inappropriate word, so it has been reverted.'
           });
           break;
         }
@@ -291,7 +283,7 @@ export default class TossupRoom {
           type: 'change-username',
           userId,
           oldUsername,
-          newUsername,
+          newUsername
         });
         break;
       }
@@ -306,7 +298,7 @@ export default class TossupRoom {
           type: 'chat',
           username: this.players[userId].username,
           message: message.message,
-          userId,
+          userId
         });
         break;
 
@@ -319,7 +311,7 @@ export default class TossupRoom {
           type: 'chat-live-update',
           username: this.players[userId].username,
           message: message.message,
-          userId,
+          userId
         });
         break;
 
@@ -327,7 +319,7 @@ export default class TossupRoom {
         this.players[userId].clearStats();
         this.sendSocketMessage({
           type: 'clear-stats',
-          userId,
+          userId
         });
         break;
 
@@ -347,7 +339,7 @@ export default class TossupRoom {
         this.sendSocketMessage({
           type: 'difficulties',
           username: this.players[userId].username,
-          value: message.value,
+          value: message.value
         });
         this.adjustQuery(['difficulties'], [message.value]);
         break;
@@ -372,12 +364,12 @@ export default class TossupRoom {
         this.sendSocketMessage({
           type: 'give-answer-live-update',
           username: this.players[userId].username,
-          message: message.message,
+          message: message.message
         });
         break;
 
       case 'leave':
-        //this.deletePlayer(userId);  dont remove this comment
+        // this.deletePlayer(userId);  dont remove this comment
         this.players[userId].isOnline = false;
         delete this.sockets[userId];
         this.sendSocketMessage(message);
@@ -399,14 +391,13 @@ export default class TossupRoom {
               value < 1 ||
               value > allowedPacketNumbers
           )
-        )
-          return;
+        ) { return; }
 
         this.adjustQuery(['packetNumbers'], [message.value]);
         this.sendSocketMessage({
           type: 'packet-number',
           username: this.players[userId].username,
-          value: this.query.packetNumbers,
+          value: this.query.packetNumbers
         });
         break;
 
@@ -423,7 +414,7 @@ export default class TossupRoom {
         this.sendSocketMessage({
           type: 'reading-speed',
           username: this.players[userId].username,
-          value: this.settings.readingSpeed,
+          value: this.settings.readingSpeed
         });
         break;
 
@@ -446,14 +437,13 @@ export default class TossupRoom {
           message.packetNumbers.some(
             (num) => num > allowedPacketNumbers || num < 1
           )
-        )
-          return;
+        ) { return; }
 
         this.sendSocketMessage({
           type: 'set-name',
           username: this.players[userId].username,
           value: message.value,
-          setNames: message.setNames,
+          setNames: message.setNames
         });
         this.adjustQuery(
           ['setName', 'setNames', 'packetNumbers'],
@@ -470,7 +460,7 @@ export default class TossupRoom {
         this.sendSocketMessage({
           type: 'toggle-lock',
           lock: this.settings.lock,
-          username: this.players[userId].username,
+          username: this.players[userId].username
         });
         break;
 
@@ -479,7 +469,7 @@ export default class TossupRoom {
         this.sendSocketMessage({
           type: 'toggle-powermark-only',
           powermarkOnly: message.powermarkOnly,
-          username: this.players[userId].username,
+          username: this.players[userId].username
         });
         this.adjustQuery(['powermarkOnly'], [message.powermarkOnly]);
         break;
@@ -489,7 +479,7 @@ export default class TossupRoom {
         this.sendSocketMessage({
           type: 'toggle-rebuzz',
           rebuzz: this.settings.rebuzz,
-          username: this.players[userId].username,
+          username: this.players[userId].username
         });
         break;
 
@@ -498,7 +488,7 @@ export default class TossupRoom {
         this.sendSocketMessage({
           type: 'toggle-skip',
           skip: this.settings.skip,
-          username: this.players[userId].username,
+          username: this.players[userId].username
         });
         break;
 
@@ -507,7 +497,7 @@ export default class TossupRoom {
         this.sendSocketMessage({
           type: 'toggle-standard-only',
           standardOnly: message.standardOnly,
-          username: this.players[userId].username,
+          username: this.players[userId].username
         });
         this.adjustQuery(['standardOnly'], [message.standardOnly]);
         break;
@@ -521,7 +511,7 @@ export default class TossupRoom {
         this.sendSocketMessage({
           type: 'toggle-timer',
           timer: this.settings.timer,
-          username: this.players[userId].username,
+          username: this.players[userId].username
         });
         break;
 
@@ -535,7 +525,7 @@ export default class TossupRoom {
         this.sendSocketMessage({
           type: 'toggle-visibility',
           public: this.settings.public,
-          username: this.players[userId].username,
+          username: this.players[userId].username
         });
         break;
 
@@ -590,14 +580,14 @@ export default class TossupRoom {
           categories: message.categories,
           subcategories: message.subcategories,
           alternateSubcategories: message.alternateSubcategories,
-          username: this.players[userId].username,
+          username: this.players[userId].username
         });
         this.adjustQuery(
           ['categories', 'subcategories', 'alternateSubcategories'],
           [
             message.categories,
             message.subcategories,
-            message.alternateSubcategories,
+            message.alternateSubcategories
           ]
         );
         break;
@@ -614,14 +604,14 @@ export default class TossupRoom {
           return this.sendPrivateMessage(userId, {
             type: 'year-range',
             minYear: this.query.minYear,
-            maxYear: this.query.maxYear,
+            maxYear: this.query.maxYear
           });
         }
 
         this.sendSocketMessage({
           type: 'year-range',
           minYear,
-          maxYear,
+          maxYear
         });
         this.adjustQuery(['minYear', 'maxYear'], [minYear, maxYear]);
         break;
@@ -629,7 +619,7 @@ export default class TossupRoom {
     }
   }
 
-  adjustQuery(settings, values) {
+  adjustQuery (settings, values) {
     if (settings.length !== values.length) {
       return;
     }
@@ -655,13 +645,13 @@ export default class TossupRoom {
     }
   }
 
-  async advanceQuestion() {
+  async advanceQuestion () {
     this.queryingQuestion = true;
 
     if (this.query.setName && this.query.setName.length > 0) {
       if (this.setCache.length === 0) {
         this.sendSocketMessage({
-          type: 'end-of-set',
+          type: 'end-of-set'
         });
         return false;
       } else {
@@ -678,7 +668,7 @@ export default class TossupRoom {
         if (this.randomQuestionCache.length === 0) {
           this.tossup = {};
           this.sendSocketMessage({
-            type: 'no-questions-found',
+            type: 'no-questions-found'
           });
           return false;
         }
@@ -693,14 +683,14 @@ export default class TossupRoom {
     return true;
   }
 
-  buzz(userId) {
+  buzz (userId) {
     if (!this.settings.rebuzz && this.buzzes.includes(userId)) return;
 
     if (this.buzzedIn) {
       return this.sendSocketMessage({
         type: 'lost-buzzer-race',
         userId,
-        username: this.players[userId].username,
+        username: this.players[userId].username
       });
     }
 
@@ -715,12 +705,12 @@ export default class TossupRoom {
     this.sendSocketMessage({
       type: 'buzz',
       userId,
-      username: this.players[userId].username,
+      username: this.players[userId].username
     });
 
     this.sendSocketMessage({
       type: 'update-question',
-      word: '(#)',
+      word: '(#)'
     });
 
     this.startServerTimer(this.ANSWER_TIME_LIMIT * 10, () => {
@@ -728,28 +718,28 @@ export default class TossupRoom {
     });
   }
 
-  createPlayer(userId) {
+  createPlayer (userId) {
     this.players[userId] = new Player(userId);
   }
 
-  deletePlayer(userId) {
+  deletePlayer (userId) {
     this.sendSocketMessage({
       type: 'leave',
       userId,
-      username: this.players[userId].username,
+      username: this.players[userId].username
     });
 
     delete this.players[userId];
   }
 
-  giveAnswer(userId, givenAnswer) {
+  giveAnswer (userId, givenAnswer) {
     if (this.buzzedIn !== userId) return;
 
     this.liveAnswer = '';
     clearInterval(this.timerInterval);
     this.sendSocketMessage({
       type: 'timer-update',
-      timeRemaining: this.ANSWER_TIME_LIMIT * 10,
+      timeRemaining: this.ANSWER_TIME_LIMIT * 10
     });
 
     if (Object.keys(this.tossup).length === 0) {
@@ -771,7 +761,7 @@ export default class TossupRoom {
     const points = scoreTossup({
       isCorrect: directive === 'accept',
       inPower,
-      endOfQuestion,
+      endOfQuestion
     });
 
     switch (directive) {
@@ -816,7 +806,7 @@ export default class TossupRoom {
       // the below fields are used to record buzzpoint data
       tossup: this.tossup,
       perQuestionCelerity: celerity,
-      buzzpointIndex: this.buzzpointIndices[this.buzzpointIndices.length - 1],
+      buzzpointIndex: this.buzzpointIndices[this.buzzpointIndices.length - 1]
     });
   }
 
@@ -826,15 +816,14 @@ export default class TossupRoom {
    * @param {'next' | 'skip' | 'start'} type - The type of next button pressed.
    * @returns
    */
-  async next(userId, type) {
+  async next (userId, type) {
     if (this.queryingQuestion) return;
     if (this.buzzedIn) return; // prevents skipping when someone has buzzed in
 
     if (
       this.questionProgress === QuestionProgressEnum.READING &&
       !this.settings.skip
-    )
-      return;
+    ) { return; }
 
     clearTimeout(this.timeoutID);
 
@@ -855,7 +844,7 @@ export default class TossupRoom {
       type,
       userId,
       username: this.players[userId].username,
-      tossup: this.tossup,
+      tossup: this.tossup
     });
 
     this.wordIndex = 0;
@@ -863,7 +852,7 @@ export default class TossupRoom {
     this.readQuestion(Date.now());
   }
 
-  pause(userId) {
+  pause (userId) {
     if (this.buzzedIn) return;
 
     this.paused = !this.paused;
@@ -880,11 +869,11 @@ export default class TossupRoom {
     this.sendSocketMessage({
       type: 'pause',
       paused: this.paused,
-      username: this.players[userId].username,
+      username: this.players[userId].username
     });
   }
 
-  async readQuestion(expectedReadTime) {
+  async readQuestion (expectedReadTime) {
     if (Object.keys(this.tossup).length === 0) return;
     if (this.wordIndex >= this.questionSplit.length) {
       this.startServerTimer(
@@ -899,7 +888,7 @@ export default class TossupRoom {
 
     this.sendSocketMessage({
       type: 'update-question',
-      word,
+      word
     });
 
     // calculate time needed before reading next word
@@ -927,7 +916,7 @@ export default class TossupRoom {
     }, delay);
   }
 
-  revealQuestion() {
+  revealQuestion () {
     if (Object.keys(this.tossup).length === 0) return;
 
     this.questionProgress = QuestionProgressEnum.ANSWER_REVEALED;
@@ -939,18 +928,18 @@ export default class TossupRoom {
         [this.buzzpointIndices],
         [' (#) ']
       ),
-      answer: this.tossup.answer,
+      answer: this.tossup.answer
     });
   }
 
-  sendSocketMessage(message) {
+  sendSocketMessage (message) {
     message = JSON.stringify(message);
     for (const socket of Object.values(this.sockets)) {
       socket.send(message);
     }
   }
 
-  sendPrivateMessage(userId, message) {
+  sendPrivateMessage (userId, message) {
     message = JSON.stringify(message);
     this.sockets[userId].send(message);
   }
@@ -961,7 +950,7 @@ export default class TossupRoom {
    * @param {Function} callback - called when timer is up
    * @returns
    */
-  startServerTimer(time, callback) {
+  startServerTimer (time, callback) {
     if (this.settings.timer === false) {
       return;
     }
@@ -980,7 +969,7 @@ export default class TossupRoom {
 
       this.sendSocketMessage({
         type: 'timer-update',
-        timeRemaining: this.timeRemaining,
+        timeRemaining: this.timeRemaining
       });
       this.timeRemaining--;
     }, 100);
@@ -1008,7 +997,7 @@ for (const room of PERMANENT_ROOMS) {
  * @param {String} roomName
  * @returns {TossupRoom}
  */
-function createAndReturnRoom(roomName, isPrivate = false) {
+function createAndReturnRoom (roomName, isPrivate = false) {
   roomName = DOMPurify.sanitize(roomName);
   roomName = roomName?.substring(0, ROOM_NAME_MAX_LENGTH) ?? '';
 

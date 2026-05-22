@@ -16,5 +16,5 @@ export {
   bonuses,
   tossupData,
   bonusData,
-  questionReports,
+  questionReports
 };

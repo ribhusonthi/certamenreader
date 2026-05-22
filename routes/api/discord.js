@@ -30,7 +30,7 @@ router.post('/generate-link-token', async (req, res) => {
     return res.status(401).json({ error: 'Not logged in.' });
   }
 
-  const token     = String(Math.floor(100000 + Math.random() * 900000));
+  const token = String(Math.floor(100000 + Math.random() * 900000));
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
   await discordLinkTokens.replaceOne(

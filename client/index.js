@@ -74,8 +74,10 @@ if (homeSetsEl) {
       homeSetsEl.innerHTML = rows.map(r => {
         const yMin = r.years[0];
         const yMax = r.years[r.years.length - 1];
-        const yearRange = yMin == null ? '—'
-          : yMin === yMax ? String(yMin)
+        const yearRange = yMin == null
+          ? '—'
+          : yMin === yMax
+            ? String(yMin)
             : `${yMin}–${yMax}`;
         const newChip = r.hasNew ? '<span class="home-set-row-diff" data-new="true">New</span>' : '';
         const diffChips = r.diffs.length

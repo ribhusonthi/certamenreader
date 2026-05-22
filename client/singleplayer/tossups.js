@@ -2,7 +2,7 @@ import account from '../accounts.js';
 import questionStats from '../auth/question-stats.js';
 import api from '../api/index.js';
 import audio from '../audio/index.js';
-import { arrayToRange, createTossupCard, rangeToArray } from '../utilities/index.js';
+import { createTossupCard } from '../utilities/index.js';
 import CategoryManager from '../utilities/category-manager.js';
 import { insertTokensIntoHTML } from '../utilities/insert-tokens-into-html.js';
 import { initSetSelector } from '../utilities/set-selector.js';
@@ -116,14 +116,14 @@ const DIFFICULTY_LABELS = {
 
 /** Populate the reader header: set · packet · round · #num, plus category + level badges. */
 function updateReaderHeader (tossup) {
-  const setSpan   = document.getElementById('set-name-info-hdr');
-  const pktSpan   = document.getElementById('packet-info-hdr');
-  const pktDot    = document.getElementById('hdr-dot-packet');
+  const setSpan = document.getElementById('set-name-info-hdr');
+  const pktSpan = document.getElementById('packet-info-hdr');
+  const pktDot = document.getElementById('hdr-dot-packet');
   const roundSpan = document.getElementById('round-info-hdr');
-  const roundDot  = document.getElementById('hdr-dot-round');
-  const numSpan   = document.getElementById('tossup-num-hdr');
-  const numDot    = document.getElementById('hdr-dot-num');
-  const lvlBadge  = document.getElementById('question-level');
+  const roundDot = document.getElementById('hdr-dot-round');
+  const numSpan = document.getElementById('tossup-num-hdr');
+  const numDot = document.getElementById('hdr-dot-num');
+  const lvlBadge = document.getElementById('question-level');
 
   // Set name
   const setName = tossup?.set?.name || query.setName || 'No set selected';
@@ -165,9 +165,6 @@ function updateReaderHeader (tossup) {
     }
   }
 }
-let letterQueue = []; // queue of individual characters to render
-let currentWordIndex = 0;
-
 let tossupTimerInterval = null;
 let tossupTimerTenths = 0;
 let tossupTimerPhase = 'reading'; // 'reading' or 'answer'
@@ -494,7 +491,7 @@ async function advanceQuestion () {
       tossupTextSplit = tossupText.split(' ').filter(word => word !== '');
       tossupTotalWords = tossupTextSplit.length;
       updateCelerity();
-      //document.getElementById('question-number-info').textContent = questionNumber;
+      // document.getElementById('question-number-info').textContent = questionNumber;
     }
   } else {
     queryLock();
@@ -518,7 +515,7 @@ async function advanceQuestion () {
 
     tossupText = tossups[0].question_sanitized;
     tossupTextSplit = tossupText.split(' ').filter(word => word !== '');
-    //document.getElementById('question-number-info').textContent = tossups[0].number;
+    // document.getElementById('question-number-info').textContent = tossups[0].number;
     questionNumber = 1;
   }
 
@@ -596,7 +593,7 @@ async function giveAnswer (givenAnswer) {
 
   // Fuzzy fallback: if rejected but ~90% similar to the main answer, accept
   if (directive === 'reject' && givenAnswer.trim()) {
-    const mainAnswer = stripHtml(tossups[questionNumber - 1].answer).split(/[\[(]/)[0].trim();
+    const mainAnswer = stripHtml(tossups[questionNumber - 1].answer).split(/[[(]/)[0].trim();
     if (stringSimilarity(mainAnswer, givenAnswer) >= 0.9) {
       directive = 'accept';
     }
@@ -777,9 +774,9 @@ function readQuestion () {
           last2 === '.\u201d' || last2 === '!\u201d' || last2 === '?\u201d' ||
           last === '!' || last === '?'
         ) {
-          extra = base * 6;          // sentence break
+          extra = base * 6; // sentence break
         } else if (last === ',' || last2 === ',\u201d' || last === ';' || last === ':') {
-          extra = base * 2.5;        // clause break
+          extra = base * 2.5; // clause break
         }
         timeoutID = window.setTimeout(readQuestion, extra);
         return;
@@ -919,7 +916,7 @@ async function giveBonusAnswer (givenAnswer) {
 
   // Fuzzy fallback
   if (directive === 'reject' && givenAnswer.trim()) {
-    const mainAnswer = stripHtml(correctAnswer).split(/[\[(]/)[0].trim();
+    const mainAnswer = stripHtml(correctAnswer).split(/[[(]/)[0].trim();
     if (stringSimilarity(mainAnswer, givenAnswer) >= 0.9) {
       directive = 'accept';
     }

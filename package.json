@@ -4,6 +4,7 @@
     "type": "module",
     "scripts": {
         "test": "mocha",
+        "test:frontend": "mocha",
         "build": "npm run compile-react && npm run sass",
         "compile-react": "babel client --extensions .jsx --out-dir client",
         "start": "node index.js",
@@ -54,7 +55,11 @@
     "semistandard": {
         "globals": [
             "$",
+            "alert",
             "bootstrap",
+            "confirm",
+            "localStorage",
+            "location",
             "React",
             "ReactDOM"
         ],

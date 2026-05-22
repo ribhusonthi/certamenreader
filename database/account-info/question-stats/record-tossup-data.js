@@ -35,12 +35,14 @@ async function recordTossupData (username, data) {
     { user_id: userId, tossup_id: tossupObjectId, pp: { $gt: 0 } },
     { projection: { _id: 1 } }
   );
-  newData.pp = alreadyScored ? 0 : computePP({
-    isCorrect: !!data.isCorrect,
-    celerity: data.celerity,
-    difficulty: tossup.set?.difficulty ?? tossup.difficulty,
-    packetName: tossup.packet?.name || tossup.packetName
-  });
+  newData.pp = alreadyScored
+    ? 0
+    : computePP({
+      isCorrect: !!data.isCorrect,
+      celerity: data.celerity,
+      difficulty: tossup.set?.difficulty ?? tossup.difficulty,
+      packetName: tossup.packet?.name || tossup.packetName
+    });
   if (alreadyScored) newData.replay = true;
 
   // Always carry these forward so leaderboard / profile rendering can hydrate

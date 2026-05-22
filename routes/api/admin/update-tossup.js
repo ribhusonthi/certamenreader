@@ -6,7 +6,14 @@ import { ObjectId } from 'mongodb';
 const router = Router();
 
 router.put('/', async (req, res) => {
-  const { _id, category, question, question_sanitized, answer, answer_sanitized } = req.body;
+  const {
+    _id,
+    category,
+    question,
+    question_sanitized: questionSanitized,
+    answer,
+    answer_sanitized: answerSanitized
+  } = req.body;
 
   if (!_id) {
     return res.status(400).json({ error: 'Missing _id' });
@@ -15,9 +22,9 @@ router.put('/', async (req, res) => {
   const fields = {};
   if (category !== undefined) fields.category = category;
   if (question !== undefined) fields.question = question;
-  if (question_sanitized !== undefined) fields.question_sanitized = question_sanitized;
+  if (questionSanitized !== undefined) fields.question_sanitized = questionSanitized;
   if (answer !== undefined) fields.answer = answer;
-  if (answer_sanitized !== undefined) fields.answer_sanitized = answer_sanitized;
+  if (answerSanitized !== undefined) fields.answer_sanitized = answerSanitized;
 
   const result = await updateTossup(new ObjectId(_id), fields);
 
