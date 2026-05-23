@@ -3,7 +3,6 @@ import { checkToken } from '../../server/authentication.js';
 import { certamenreader } from '../../database/databases.js';
 import { tossups as tossupsCollection, sets as setsCollection, packets as packetsCollection } from '../../database/certamenreader/collections.js';
 
-import geowordRouter from './geoword.js';
 import usersRouter from './users.js';
 
 import { Router } from 'express';
@@ -34,7 +33,6 @@ router.get('/category-reports', (_req, res) => {
   res.sendFile('category-reports.html', { root: './client/admin' });
 });
 
-router.use('/geoword', geowordRouter);
 router.use('/api/users', usersRouter);
 
 // Get all uploads

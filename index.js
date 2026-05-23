@@ -3,7 +3,6 @@ import 'dotenv/config';
 import { ipFilterMiddleware, ipFilterError } from './server/moderation/ip-filter.js';
 import { WEBSOCKET_MAX_PAYLOAD, COOKIE_MAX_AGE } from './constants.js';
 import indexRouter from './routes/index.js';
-import webhookRouter from './routes/api/webhook.js';
 import handleWssConnection from './server/multiplayer/handle-wss-connection.js';
 
 import { checkToken } from './server/authentication.js';
@@ -42,7 +41,6 @@ app.use((req, res, next) => {
 // for why we use 'simple'
 app.set('query parser', 'simple');
 
-app.use('/api/webhook', express.raw({ type: '*/*' }), webhookRouter);
 app.use(express.json());
 
 app.use(cookieSession({
