@@ -22,12 +22,10 @@ await connectToDatabase(true);
 
 const certamenreader = client.db('certamenreader');
 const accountInfo = client.db('account-info');
-const geoword = client.db('geoword');
 
 export {
   connectToDatabase,
   closeDatabase,
   certamenreader,
-  accountInfo,
-  geoword
+  accountInfo
 };

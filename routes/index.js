@@ -6,7 +6,6 @@ import authRouter from './auth/index.js';
 import backupsRouter from './backups.js';
 import databaseRouter from './database.js';
 import frequencyListRouter from './frequency-list.js';
-import geowordRouter from './geoword/index.js';
 import leaderboardsRouter from './leaderboards.js';
 import multiplayerRouter from './multiplayer.js';
 import rankedRouter from './ranked.js';
@@ -15,7 +14,6 @@ import singleplayerRouter from './singleplayer/index.js';
 import loginRouter from './login.js';
 import uploadRouter from './upload.js';
 import userRouter from './user.js';
-import webhookRouter from './api/webhook.js';
 import { checkToken } from '../server/authentication.js';
 
 import { Router } from 'express';
@@ -125,7 +123,6 @@ router.use('/auth', authRouter);
 router.use('/backups', backupsRouter);
 router.use('/db', databaseRouter);
 router.use('/frequency-list', frequencyListRouter);
-router.use('/geoword', geowordRouter);
 router.use('/leaderboards', leaderboardsRouter);
 router.use('/multiplayer', multiplayerRouter);
 router.use('/ranked', rankedRouter);
@@ -133,7 +130,6 @@ router.use('/settings', settingsRouter);
 router.use('/singleplayer', singleplayerRouter);
 router.use('/upload', uploadRouter);
 router.use('/user', userRouter);
-router.use('/webhook', webhookRouter);
 
 router.use((req, res) => {
   res.sendFile(req.url, { root: './client' });
