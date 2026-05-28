@@ -1,4 +1,5 @@
 import star from '../../auth/star.js';
+import { formatAnswerline } from '../../utilities/strings.js';
 
 const tossups = await star.getStarredTossups();
 const tossupList = document.getElementById('tossup-list');
@@ -20,7 +21,7 @@ for (const tossup of tossups) {
                 <div class="card-body">
                     <span>${tossup.question}</span>&nbsp;
                     <hr></hr>
-                    <div><b>ANSWER:</b> ${tossup.formatted_answer ?? tossup.answer}</div>
+                    <div><b>ANSWER:</b> ${formatAnswerline(tossup.formatted_answer ?? tossup.answer)}</div>
                 </div>
                 <div class="card-footer">
                     <small class="text-muted">${tossup.packet.name ? 'Packet ' + tossup.packet.name : '&nbsp;'}</small>

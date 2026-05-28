@@ -1,4 +1,5 @@
 import { attachDropdownChecklist, getDropdownValues } from '../../utilities/dropdown-checklist.js';
+import { formatAnswerline } from '../../utilities/strings.js';
 
 function fetchTossupStats ({ difficulties = '', setName = '', includeMultiplayer = true, includeSingleplayer = true, startDate = '', endDate = '' } = {}) {
   fetch('/auth/user-stats/tossup?' + new URLSearchParams({ difficulties, setName, includeMultiplayer, includeSingleplayer, startDate, endDate }))
@@ -26,7 +27,7 @@ function fetchTossupStats ({ difficulties = '', setName = '', includeMultiplayer
                             <div class="card-body">
                                 <span>${tossup.question}</span>&nbsp;
                                 <hr></hr>
-                                <div><b>ANSWER:</b> ${tossup.answer}</div>
+                                <div><b>ANSWER:</b> ${formatAnswerline(tossup.answer)}</div>
                             </div>
                             <div class="card-footer">
                                 <small class="text-muted">${tossup.packet.name ? 'Packet ' + tossup.packet.name : '&nbsp;'}</small>
