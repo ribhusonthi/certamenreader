@@ -489,3 +489,142 @@ document.getElementById('view-boni-btn').addEventListener('click', function () {
     this.textContent = 'View Boni';
   }
 });
+
+// ── Question Reports tab ────────────────────────────────────────────────────
+
+let allReports = [];
+let visibleReports = [];
+let reportsLoaded = false;
+
+function formatReportDate (raw) {
+  if (!raw) return '';
+  const d = new Date(raw);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function reasonBadge (reason) {
+  const tone = {
+    'wrong-category': 'bg-info text-dark',
+    'wrong-difficulty': 'bg-warning text-dark',
+    'wrong-round': 'bg-warning text-dark',
+    'wrong-answer': 'bg-danger',
+    'text-error': 'bg-secondary'
+  }[reason] || 'bg-secondary';
+  return `<span class="badge ${tone}">${escapeHtml(reason || 'unknown')}</span>`;
+}
+
+function reportQuestionText (r) {
+  if (r.type === 'tossup' && r.question) return r.question;
+  if (r.type === 'bonus' && r.parts?.length) {
+    return r.parts.map((p, i) => `<b>[${i + 1}]</b> ${p}`).join('<br>');
+  }
+  return '<span class="text-muted">(question deleted)</span>';
+}
+
+function reportAnswerText (r) {
+  if (r.type === 'tossup' && r.answer) return r.answer;
+  if (r.type === 'bonus' && r.answers?.length) {
+    return r.answers.map((a, i) => `<b>[${i + 1}]</b> ${a}`).join('<br>');
+  }
+  return '';
+}
+
+function renderReports (reports) {
+  visibleReports = reports;
+  const tbody = document.getElementById('reports-tbody');
+  const summary = document.getElementById('reports-summary');
+  summary.textContent = `Showing ${reports.length} report${reports.length === 1 ? '' : 's'}`;
+
+  if (reports.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center">No reports.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = reports.map((r, i) => `
+    <tr data-row-index="${i}">
+      <td>${reasonBadge(r.reason)}<div class="small text-muted mt-1">${escapeHtml(r.type)}</div></td>
+      <td>${reportQuestionText(r)}<div class="small text-muted mt-1">${escapeHtml(r.set?.name || '')}${r.packet?.number ? ' · P' + r.packet.number : ''}${r.number ? ' · Q' + r.number : ''}</div></td>
+      <td>${reportAnswerText(r)}</td>
+      <td>${r.description ? escapeHtml(r.description) : '<span class="text-muted">—</span>'}</td>
+      <td class="small">${formatReportDate(r.createdAt)}</td>
+      <td><button class="btn btn-sm btn-outline-danger dismiss-report-btn" data-row-index="${i}">Dismiss</button></td>
+    </tr>
+  `).join('');
+
+  tbody.querySelectorAll('.dismiss-report-btn').forEach(btn => {
+    btn.addEventListener('click', handleDismissReport);
+  });
+}
+
+function filterReports () {
+  const reason = document.getElementById('reports-reason-filter').value;
+  const term = document.getElementById('search-reports').value.trim().toLowerCase();
+  return allReports.filter(r => {
+    if (reason && r.reason !== reason) return false;
+    if (!term) return true;
+    const hay = [
+      r.question, r.answer, r.description,
+      ...(r.parts || []), ...(r.answers || [])
+    ].filter(Boolean).join(' ').toLowerCase();
+    return hay.includes(term);
+  });
+}
+
+async function loadReports () {
+  reportsLoaded = true;
+  const tbody = document.getElementById('reports-tbody');
+  tbody.innerHTML = '<tr><td colspan="6" class="text-center">Loading reports...</td></tr>';
+  try {
+    const res = await fetch('/api/admin/question-reports');
+    if (!res.ok) throw new Error('Failed');
+    const { reports } = await res.json();
+    allReports = reports || [];
+    renderReports(filterReports());
+  } catch {
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Failed to load reports.</td></tr>';
+  }
+}
+
+async function handleDismissReport (event) {
+  const btn = event.target;
+  const idx = parseInt(btn.dataset.rowIndex, 10);
+  const report = visibleReports[idx];
+  if (!report) return;
+  if (!confirm('Dismiss this report?')) return;
+  btn.disabled = true;
+  btn.textContent = 'Dismissing...';
+
+  let url;
+  if (report.source === 'collection' && report._id) {
+    url = '/api/admin/question-reports/' + encodeURIComponent(report._id);
+  } else {
+    url = '/api/admin/question-reports?' + new URLSearchParams({
+      questionID: report.questionID || '',
+      reason: report.reason || '',
+      description: report.description || ''
+    });
+  }
+
+  const res = await fetch(url, { method: 'DELETE' });
+  if (res.ok) {
+    allReports = allReports.filter(r => !(
+      String(r.questionID) === String(report.questionID) &&
+      r.reason === report.reason &&
+      (r.description || '') === (report.description || '')
+    ));
+    renderReports(filterReports());
+  } else {
+    alert('Failed to dismiss report.');
+    btn.disabled = false;
+    btn.textContent = 'Dismiss';
+  }
+}
+
+document.getElementById('reports-tab').addEventListener('shown.bs.tab', () => {
+  if (!reportsLoaded) loadReports();
+});
+
+document.getElementById('reload-reports').addEventListener('click', loadReports);
+document.getElementById('reports-reason-filter').addEventListener('change', () => renderReports(filterReports()));
+document.getElementById('search-reports').addEventListener('input', () => renderReports(filterReports()));

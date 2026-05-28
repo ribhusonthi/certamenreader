@@ -1,5 +1,6 @@
 import star from '../../auth/star.js';
 import { getBonusPartLabel } from '../../utilities/index.js';
+import { formatAnswerline } from '../../utilities/strings.js';
 
 const bonuses = await star.getStarredBonuses();
 const bonusList = document.getElementById('bonus-list');
@@ -10,7 +11,7 @@ for (const bonus of bonuses) {
     cardBody += `
             <hr></hr>
             <p>${getBonusPartLabel(bonus, i)} ${bonus.parts[i]}</p>
-            <div>ANSWER: ${bonus.answers[i]}</div>
+            <div>ANSWER: ${formatAnswerline(bonus.answers[i])}</div>
         `;
   }
 

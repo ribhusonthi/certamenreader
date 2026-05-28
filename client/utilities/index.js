@@ -1,6 +1,6 @@
 import star from '../auth/star.js';
 import api from '../api/index.js';
-import { removeParentheses } from './strings.js';
+import { formatAnswerline, removeParentheses } from './strings.js';
 
 const CERTAMEN_CATEGORIES = ['Language', 'Literature', 'Culture', 'History', 'Mythology'];
 
@@ -65,7 +65,7 @@ const createBonusCard = (function () {
                 ${getBonusPartLabel(bonus, i)} ${parts[i]}
                 ${i + 1 === bonusLength ? `<a class="user-select-none" href="#" id="report-question-${_id}" data-bs-toggle="modal" data-bs-target="#report-question-modal">Report Question</a>` : ''}
             </p>
-            <div>ANSWER: ${answers[i]}</div>`;
+            <div>ANSWER: ${formatAnswerline(answers[i])}</div>`;
     }
 
     // append a card containing the question to the history element
@@ -246,7 +246,7 @@ function addCardAdminControls (cardBody, tossup, questionCounterId) {
           const qDisplay = cardBody.querySelector('.card-question-text');
           const aDisplay = cardBody.querySelector('.card-answer-text');
           if (qDisplay) qDisplay.innerHTML = newQ;
-          if (aDisplay) aDisplay.innerHTML = 'ANSWER: ' + newA;
+          if (aDisplay) aDisplay.innerHTML = 'ANSWER: ' + formatAnswerline(newA);
           const header = cardBody.parentElement.querySelector('.card-header-clickable');
           if (header) header.innerHTML = newA.replace(/<[^>]*>/g, '').replace(/\(.*?\)/g, '').trim();
           editArea.remove();
@@ -319,7 +319,7 @@ const createTossupCard = (function () {
                     <span class="card-question-text">${question}</span>
                     <a class="user-select-none" href="#" id="report-question-${_id}" data-bs-toggle="modal" data-bs-target="#report-question-modal">Report Question</a>
                     <hr></hr>
-                    <div class="card-answer-text">ANSWER: ${answer}</div>
+                    <div class="card-answer-text">ANSWER: ${formatAnswerline(answer)}</div>
                 </div>
                 <div class="card-footer">
                     <small class="text-muted">${set.name} / ${category} / ${subcategory} ${alternateSubcategory ? '(' + alternateSubcategory + ')' : ''}</small>

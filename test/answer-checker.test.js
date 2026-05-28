@@ -51,8 +51,41 @@ mocha.describe('answer-checker', () => {
     mocha.it('rejects a sentence with a wrong content word', () => {
       rejects(lat, 'si pueri fortius pugnavissent vicissemus');
     });
-    mocha.it('rejects out-of-order content words', () => {
-      rejects(lat, 'vicissemus si milites fortius pugnavissent');
+    mocha.it('accepts out-of-order content words for Latin', () => {
+      // Latin uses case morphology, not word order, to mark grammatical role,
+      // so reordering content words preserves meaning.
+      accepts(lat, 'vicissemus si milites fortius pugnavissent');
+    });
+  });
+
+  mocha.describe('Certamen translation answerlines', () => {
+    // Curly-brace alternative blocks {A / B // C} appear in Latin translation
+    // answers, often with (Prefix)Word optional verbal prefixes and an
+    // [Accept Equivalents] directive at the end.
+    const line = 'Patriam {(Prō)Tegere / Dēfendere / Cūstōdīre / Tuērī / Servāre} Melius (Est) {Quam (Ex)Fugere // (Ex)Fugiendō} [Accept Equivalents]';
+
+    mocha.it('accepts the canonical word order', () => {
+      accepts(line, 'patriam defendere melius est quam fugere');
+    });
+    mocha.it('accepts reordered Latin word order', () => {
+      accepts(line, 'melius est patriam defendere quam fugere');
+    });
+    mocha.it('accepts any verb alternative inside the braces', () => {
+      accepts(line, 'patriam tegere melius est quam fugere');
+      accepts(line, 'patriam protegere melius est quam fugere');
+      accepts(line, 'patriam custodire melius est quam fugere');
+      accepts(line, 'patriam tueri melius est quam fugere');
+      accepts(line, 'patriam servare melius est quam fugere');
+    });
+    mocha.it('accepts the (Ex)Fugiendō branch on the // side', () => {
+      accepts(line, 'patriam defendere melius est fugiendo');
+      accepts(line, 'patriam defendere melius est exfugiendo');
+    });
+    mocha.it('rejects a clearly wrong word in the slot', () => {
+      rejects(line, 'patriam amare melius est quam fugere');
+    });
+    mocha.it('rejects too few words', () => {
+      rejects(line, 'defendere fugere');
     });
   });
 

@@ -6,6 +6,7 @@ import { createTossupCard } from '../utilities/index.js';
 import CategoryManager from '../utilities/category-manager.js';
 import { insertTokensIntoHTML } from '../utilities/insert-tokens-into-html.js';
 import { initSetSelector } from '../utilities/set-selector.js';
+import { formatAnswerline } from '../utilities/strings.js';
 
 const CERTAMEN_CATEGORIES = ['Language', 'Literature', 'Culture', 'History', 'Mythology'];
 let userIsAdmin = false;
@@ -800,7 +801,7 @@ function readQuestion () {
 async function revealQuestion () {
   const t = tossups[questionNumber - 1];
   document.getElementById('question').innerHTML = insertTokensIntoHTML(t.question, t.question_sanitized, [[buzzpointIndex]], [' (#) ']);
-  document.getElementById('answer').innerHTML = 'ANSWER: ' + t.answer;
+  document.getElementById('answer').innerHTML = 'ANSWER: ' + formatAnswerline(t.answer);
 
   document.getElementById('buzz').disabled = true;
   document.getElementById('buzz').textContent = 'Buzz';
@@ -943,7 +944,7 @@ function revealBonusAnswer (wasCorrect) {
 
   const answer = currentBonus.answers[currentBonusPart];
   const answerEl = document.getElementById('bonus-answer');
-  answerEl.innerHTML = `ANSWER: <strong>${answer}</strong>`;
+  answerEl.innerHTML = `ANSWER: <strong>${formatAnswerline(answer)}</strong>`;
   if (wasCorrect !== undefined) {
     answerEl.innerHTML += wasCorrect
       ? ' <span class="badge bg-success">Correct</span>'
@@ -975,7 +976,7 @@ function markBonusPart (wasCorrect) {
   }
   const answerEl = document.getElementById('bonus-answer');
   const answer = currentBonus.answers[currentBonusPart];
-  answerEl.innerHTML = `ANSWER: <strong>${answer}</strong>` + (wasCorrect
+  answerEl.innerHTML = `ANSWER: <strong>${formatAnswerline(answer)}</strong>` + (wasCorrect
     ? ' <span class="badge bg-success">Correct</span>'
     : ' <span class="badge bg-danger">Incorrect</span>');
 
@@ -1214,7 +1215,7 @@ function enterEditMode (tossup) {
         tossup.answer_sanitized = newAnswerSanitized;
 
         document.getElementById('question').innerHTML = insertTokensIntoHTML(tossup.question, tossup.question_sanitized, [[buzzpointIndex]], [' (#) ']);
-        document.getElementById('answer').innerHTML = 'ANSWER: ' + tossup.answer;
+        document.getElementById('answer').innerHTML = 'ANSWER: ' + formatAnswerline(tossup.answer);
 
         exitEdit();
         showAdminToast('Question saved');
