@@ -11,7 +11,7 @@ import {
   createTossupCard,
   rangeToArray
 } from '../utilities/index.js';
-import { escapeHTML } from '../utilities/strings.js';
+import { escapeHTML, formatAnswerline } from '../utilities/strings.js';
 const defaults = {
   alternateSubcategories: [],
   categories: [],
@@ -315,7 +315,11 @@ socket.onmessage = function (event) {
 
     case 'reveal-answer': {
       document.getElementById('question').innerHTML = data.question;
-      document.getElementById('answer').innerHTML = 'ANSWER: ' + data.answer;
+      // Stash the raw answer so the history card round-trip (socketOnNext)
+      // can hand the un-formatted form to createTossupCard.
+      const answerEl = document.getElementById('answer');
+      answerEl.dataset.rawAnswer = data.answer;
+      answerEl.innerHTML = 'ANSWER: ' + formatAnswerline(data.answer);
       document.getElementById('pause').disabled = true;
       showNextButton();
       break;
@@ -740,9 +744,8 @@ const socketOnNext = (message) => {
   }
 
   tossup.question = document.getElementById('question').innerHTML;
-  tossup.answer = document
-    .getElementById('answer')
-    .innerHTML.replace('ANSWER: ', '');
+  const answerEl = document.getElementById('answer');
+  tossup.answer = answerEl.dataset.rawAnswer ?? answerEl.innerHTML.replace('ANSWER: ', '');
 
   createTossupCard(tossup);
 

@@ -1,3 +1,4 @@
+import listQuestionReportsRouter from './list-question-reports.js';
 import listReportsRouter from './list-reports.js';
 import updateSubcategoryRouter from './update-subcategory.js';
 import updateTossupRouter from './update-tossup.js';
@@ -27,6 +28,7 @@ router.use(async (req, res, next) => {
 });
 
 router.use('/list-reports', listReportsRouter);
+router.use('/question-reports', listQuestionReportsRouter);
 router.use('/update-subcategory', updateSubcategoryRouter);
 router.use('/update-tossup', updateTossupRouter);
 
