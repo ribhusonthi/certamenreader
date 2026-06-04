@@ -1,4 +1,5 @@
 import { bonuses, tossups } from './collections.js';
+import { embeddedSetFilter } from './owner-visibility-filter.js';
 
 import { DIFFICULTIES } from '../../constants.js';
 
@@ -53,9 +54,11 @@ function mergeTwoSortedArrays (array1, array2, keyFunction, combineFunction) {
  * @param {number} [limit=50] The maximum number of answers to return. Defaults to 50.
  * @returns {Promise<{ answer: string, count: number }[]>} The frequency list.
  */
-async function getFrequencyList (subcategory, difficulties = DIFFICULTIES, limit = 50, questionType = 'all') {
+async function getFrequencyList (subcategory, difficulties = DIFFICULTIES, limit = 50, questionType = 'all', viewerId = null) {
   const tossupAggregation = [
-    { $match: { subcategory, difficulty: { $in: difficulties } } },
+    // Owner-visibility: public (standard) sets, plus the viewer's own uploads,
+    // so private answers never leak into the shared frequency aggregate.
+    { $match: { subcategory, difficulty: { $in: difficulties }, $and: [embeddedSetFilter(viewerId)] } },
     {
       $addFields: {
         // This is a regex that matches everything before the first open parenthesis or bracket.

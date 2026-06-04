@@ -1,6 +1,7 @@
 import { tossups } from './collections.js';
 
 import { DIFFICULTIES, DEFAULT_MIN_YEAR, DEFAULT_MAX_YEAR } from '../../constants.js';
+import { embeddedSetFilter } from './owner-visibility-filter.js';
 
 // eslint-disable-next-line no-unused-vars
 import * as types from '../../types.js';
@@ -31,7 +32,7 @@ async function getRandomTossups ({
   maxYear = DEFAULT_MAX_YEAR,
   powermarkOnly = false,
   standardOnly = false
-} = {}) {
+} = {}, viewerId = null) {
   const aggregation = [
     { $match: { 'set.year': { $gte: minYear, $lte: maxYear } } },
     { $sample: { size: number } },
@@ -67,6 +68,11 @@ async function getRandomTossups ({
   if (standardOnly) {
     aggregation[0].$match['set.standard'] = true;
   }
+
+  // Owner-visibility: public (standard) sets, plus the viewer's own uploads.
+  // viewerId defaults to null, so non-HTTP callers (rooms, ranked) get
+  // standard-only and never leak a user's private uploads into a shared pool.
+  aggregation[0].$match.$and = [...(aggregation[0].$match.$and || []), embeddedSetFilter(viewerId)];
 
   return await tossups.aggregate(aggregation).toArray();
 }

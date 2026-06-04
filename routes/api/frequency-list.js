@@ -1,4 +1,5 @@
 import getFrequencyList from '../../database/certamenreader/get-frequency-list.js';
+import getViewerId from '../../server/get-viewer-id.js';
 
 import { Router } from 'express';
 
@@ -42,7 +43,8 @@ router.use('/', async (req, res) => {
 
   const { difficulties, limit, questionType, subcategory } = req.query;
 
-  const frequencyList = await getFrequencyList(subcategory, difficulties, limit, questionType);
+  const viewerId = await getViewerId(req);
+  const frequencyList = await getFrequencyList(subcategory, difficulties, limit, questionType, viewerId);
   res.json({ frequencyList });
 });
 

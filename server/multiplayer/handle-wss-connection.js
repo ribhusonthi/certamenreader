@@ -2,6 +2,7 @@ import hasValidCharacters from '../moderation/has-valid-characters.js';
 import isAppropriateString from '../moderation/is-appropriate-string.js';
 import { createAndReturnRoom } from './TossupRoom.js';
 import { getRankedConnection } from '../ranked/matchmaking.js';
+import getAuthedUsername from '../get-authed-username.js';
 
 import getRandomName from '../../get-random-name.js';
 
@@ -75,7 +76,12 @@ export default function handleWssConnection (ws, req) {
     }));
   }
 
-  room.connection(ws, userId, username);
+  // Resolve a SERVER-TRUSTED identity from the signed session cookie on the
+  // upgrade request. The userId/username query params are client-supplied and
+  // spoofable, so authorizing set-name selection of private (uploaded) sets
+  // must use this. Null for anonymous sockets — they can still play public sets.
+  const authedUsername = getAuthedUsername(req);
+  room.connection(ws, userId, username, authedUsername);
 
   ws.on('error', (err) => {
     if (err instanceof RangeError) {

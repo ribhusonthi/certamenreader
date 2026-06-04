@@ -1,4 +1,6 @@
-import { packets } from '../../database/certamenreader/collections.js';
+import { packets, sets } from '../../database/certamenreader/collections.js';
+import { setDocFilter } from '../../database/certamenreader/owner-visibility-filter.js';
+import getViewerId from '../../server/get-viewer-id.js';
 
 import { Router } from 'express';
 
@@ -7,6 +9,15 @@ const router = Router();
 router.get('/', async (req, res) => {
   const setName = req.query.setName;
   if (!setName) {
+    res.json({ packets: [] });
+    return;
+  }
+
+  // Only list packets for a set the viewer may see (public or their own upload).
+  const viewerId = await getViewerId(req);
+  const visibleSet = await sets.findOne({ name: setName, ...setDocFilter(viewerId) });
+  if (!visibleSet) {
+    res.header('Access-Control-Allow-Origin', '*');
     res.json({ packets: [] });
     return;
   }

@@ -1,4 +1,5 @@
 import getRandomBonuses from '../../database/certamenreader/get-random-bonuses.js';
+import getViewerId from '../../server/get-viewer-id.js';
 
 import { Router } from 'express';
 const router = Router();
@@ -35,7 +36,8 @@ router.get('/', async (req, res) => {
 
   req.query.standardOnly = (req.query.standardOnly === 'true');
 
-  const bonuses = await getRandomBonuses(req.query);
+  const viewerId = await getViewerId(req);
+  const bonuses = await getRandomBonuses(req.query, viewerId);
 
   if (bonuses.length === 0) {
     res.status(404);

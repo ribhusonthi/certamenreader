@@ -1,4 +1,5 @@
 import getPacket from '../../database/certamenreader/get-packet.js';
+import getViewerId from '../../server/get-viewer-id.js';
 
 import { Router } from 'express';
 
@@ -8,7 +9,8 @@ router.get('/', async (req, res) => {
   const setName = req.query.setName;
   const packetNumber = parseInt(req.query.packetNumber);
   const modaq = req.query.modaq === 'true';
-  const packet = await getPacket({ setName, packetNumber, modaq });
+  const viewerId = await getViewerId(req);
+  const packet = await getPacket({ setName, packetNumber, modaq }, viewerId);
   if (packet.tossups.length === 0 && packet.bonuses.length === 0) {
     res.statusCode = 404;
   }

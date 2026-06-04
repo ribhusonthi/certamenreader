@@ -2,6 +2,7 @@ import { bonuses, tossups } from './collections.js';
 
 import { OKCYAN, ENDC, OKGREEN } from '../../bcolors.js';
 import { DEFAULT_QUERY_RETURN_LENGTH, MAX_QUERY_RETURN_LENGTH } from '../../constants.js';
+import { embeddedSetFilter } from './owner-visibility-filter.js';
 // eslint-disable-next-line no-unused-vars
 import * as types from '../../types.js';
 
@@ -138,13 +139,15 @@ function validateOptions ({
  * @param {number} [options.tossupPagination=1] - The page number of the tossup pagination.
  * @returns {Promise<{tossups: {count: Number, questionArray: types.Tossup[]}, bonuses: {count: Number, questionArray: types.Bonus[]}}>} The retrieved questions.
  */
-async function getQuery (options = {}) {
+async function getQuery (options = {}, viewerId = null) {
   if (options.verbose) {
     console.time('getQuery');
   }
 
   // throws error if invalid options
   options = validateOptions(options);
+  // Restrict results to sets the viewer may see (public + their own uploads).
+  options.viewerId = viewerId;
 
   let tossupQuery = null;
   if (['tossup', 'all'].includes(options.questionType)) {
@@ -254,7 +257,7 @@ async function getBonusQuery (options) {
   }
 }
 
-function buildQueryAggregation ({ query, difficulties, categories, subcategories, alternateSubcategories, setName, setNames, maxReturnLength, randomize, minYear, maxYear, isEmpty, powermarkOnly }) {
+function buildQueryAggregation ({ query, difficulties, categories, subcategories, alternateSubcategories, setName, setNames, maxReturnLength, randomize, minYear, maxYear, isEmpty, powermarkOnly, viewerId }) {
   if (isEmpty) {
     delete query.$or;
   }
@@ -290,6 +293,10 @@ function buildQueryAggregation ({ query, difficulties, categories, subcategories
   if (powermarkOnly) {
     query.question_sanitized = { $regex: '\\(\\*\\)' };
   }
+
+  // Owner-visibility: public (standard) sets, plus the viewer's own uploads.
+  // Composed via $and so it never clobbers the word-search $and / other fields.
+  query.$and = [...(query.$and || []), embeddedSetFilter(viewerId)];
 
   const aggregation = [
     { $match: query },

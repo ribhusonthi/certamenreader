@@ -9,6 +9,7 @@ import getRandomTossups from '../../database/certamenreader/get-random-tossups.j
 import getSet from '../../database/certamenreader/get-set.js';
 import getSetList from '../../database/certamenreader/get-set-list.js';
 import getNumPackets from '../../database/certamenreader/get-num-packets.js';
+import getUserId from '../../database/account-info/get-user-id.js';
 
 import { insertTokensIntoHTML } from '../../client/utilities/insert-tokens-into-html.js';
 
@@ -123,16 +124,26 @@ export default class TossupRoom {
     this.DEAD_TIME_LIMIT = 20; // time to buzz after question is read
     this.ANSWER_TIME_LIMIT = 20; // time to give answer after buzzing
 
-    getSetList().then(({ setList }) => {
-      this.setList = setList;
-    });
+    // Per-connection SERVER-TRUSTED usernames (from the signed session cookie),
+    // keyed by userId. Used only to authorize set-name selection of private
+    // (uploaded) sets. Deliberately NOT stored on `this.players`, which is
+    // serialized to every client.
+    this.authedUsernames = {};
+
+    // viewerId of the player who last selected the room's set(s), captured after
+    // the set-name ownership gate passes. Used so the random-mode reload of a
+    // multi-set selection can serve the owner's authorized private sets to the
+    // whole room (single-set selection goes through getSet, which is unfiltered
+    // post-gate). Null in pure random mode => standard-only.
+    this.setSelectorViewerId = null;
   }
 
-  connection (socket, userId, username) {
+  connection (socket, userId, username, authedUsername = null) {
     const isNew = !(userId in this.players);
     if (isNew) {
       this.createPlayer(userId);
     }
+    this.authedUsernames[userId] = authedUsername ?? null;
     username = this.players[userId].updateUsername(username);
     this.players[userId].isOnline = true;
 
@@ -418,17 +429,25 @@ export default class TossupRoom {
         });
         break;
 
-      case 'set-name':
+      case 'set-name': {
         if (typeof message.value !== 'string') {
           return;
         }
         message.setNames = normalizeSetNames(message.setNames || message.value);
-        // Allow empty selection to clear set names (switches to random mode)
-        if (
-          message.setNames.some((name) => !this.setList || !this.setList.includes(name))
-        ) {
+        // Authorize against the SELECTING player's own visible sets: public
+        // (standard) sets plus that player's uploads. A non-owner therefore
+        // cannot select someone else's private set, and an empty selection
+        // (clearing to random mode) is always allowed. Once an owner selects
+        // their set the room serves it to everyone, so the gate lives only here.
+        const authedUsername = this.authedUsernames?.[userId] ?? null;
+        const viewerId = authedUsername ? await getUserId(authedUsername) : null;
+        const { setList: allowedSetNames } = await getSetList(viewerId);
+        if (message.setNames.some((name) => !allowedSetNames.includes(name))) {
           return;
         }
+        // Remember the authorized selector so a multi-set (random-path) reload
+        // can still serve their own private sets to the room.
+        this.setSelectorViewerId = viewerId;
 
         message.value = message.setNames.length === 1 ? message.setNames[0] : '';
         message.packetNumbers = message.value ? (message.packetNumbers || []) : [];
@@ -450,6 +469,7 @@ export default class TossupRoom {
           [message.value, message.setNames, message.packetNumbers]
         );
         break;
+      }
 
       case 'toggle-lock':
         if (this.settings.public) {
@@ -639,7 +659,7 @@ export default class TossupRoom {
       });
     } else {
       console.log('Query: ', this.query);
-      getRandomTossups({ ...this.query, number: 20 }).then((tossups) => {
+      getRandomTossups({ ...this.query, number: 20 }, this.query.setNames?.length ? this.setSelectorViewerId : null).then((tossups) => {
         this.randomQuestionCache = tossups;
       });
     }
@@ -664,7 +684,7 @@ export default class TossupRoom {
     } else {
       if (this.randomQuestionCache.length === 0) {
         console.log('Query: ', this.query);
-        this.randomQuestionCache = await getRandomTossups({ ...this.query, number: 20 });
+        this.randomQuestionCache = await getRandomTossups({ ...this.query, number: 20 }, this.query.setNames?.length ? this.setSelectorViewerId : null);
         if (this.randomQuestionCache.length === 0) {
           this.tossup = {};
           this.sendSocketMessage({

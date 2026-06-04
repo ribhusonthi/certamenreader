@@ -1,11 +1,13 @@
 import getNumPackets from '../../database/certamenreader/get-num-packets.js';
+import getViewerId from '../../server/get-viewer-id.js';
 
 import { Router } from 'express';
 
 const router = Router();
 
 router.get('/', async (req, res) => {
-  const numPackets = await getNumPackets(req.query.setName);
+  const viewerId = await getViewerId(req);
+  const numPackets = await getNumPackets(req.query.setName, viewerId);
   if (numPackets === 0) {
     res.statusCode = 404;
   }

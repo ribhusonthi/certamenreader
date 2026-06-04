@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import getTossup from '../../database/certamenreader/get-tossup.js';
+import getViewerId from '../../server/get-viewer-id.js';
+import { isSetVisible } from '../../database/certamenreader/owner-visibility-filter.js';
 import { ObjectId } from 'mongodb';
 
 const router = Router();
@@ -17,7 +19,8 @@ router.get('/', async (req, res) => {
     return;
   }
   const tossup = await getTossup(oid);
-  if (tossup === null) {
+  const viewerId = await getViewerId(req);
+  if (tossup === null || !isSetVisible(tossup.set, viewerId)) {
     res.status(404).send(`Tossup with ID ${req.query.id} was not found`);
     return;
   }

@@ -1,5 +1,6 @@
 import { DEFAULT_QUERY_RETURN_LENGTH, MAX_QUERY_RETURN_LENGTH } from '../../constants.js';
 import getQuery from '../../database/certamenreader/get-query.js';
+import getViewerId from '../../server/get-viewer-id.js';
 
 import { Router } from 'express';
 const router = Router();
@@ -81,7 +82,8 @@ router.get('/', async (req, res) => {
   req.query.maxYear = isNaN(req.query.maxYear) ? undefined : parseInt(req.query.maxYear);
 
   try {
-    const queryResult = await getQuery(req.query);
+    const viewerId = await getViewerId(req);
+    const queryResult = await getQuery(req.query, viewerId);
     res.header('Access-Control-Allow-Origin', '*');
     res.json(queryResult);
   } catch (error) {

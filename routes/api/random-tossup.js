@@ -1,4 +1,5 @@
 import getRandomTossups from '../../database/certamenreader/get-random-tossups.js';
+import getViewerId from '../../server/get-viewer-id.js';
 
 import { Router } from 'express';
 const router = Router();
@@ -49,7 +50,8 @@ router.get('/', async (req, res) => {
   req.query.powermarkOnly = (req.query.powermarkOnly === 'true');
   req.query.standardOnly = (req.query.standardOnly === 'true');
 
-  const tossups = await getRandomTossups(req.query);
+  const viewerId = await getViewerId(req);
+  const tossups = await getRandomTossups(req.query, viewerId);
 
   if (tossups.length === 0) {
     res.status(404);

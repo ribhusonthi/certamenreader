@@ -1,6 +1,7 @@
 import { bonuses } from './collections.js';
 
 import { DIFFICULTIES, CATEGORIES, SUBCATEGORIES_FLATTENED, DEFAULT_MIN_YEAR, DEFAULT_MAX_YEAR } from '../../constants.js';
+import { embeddedSetFilter } from './owner-visibility-filter.js';
 
 // eslint-disable-next-line no-unused-vars
 import * as types from '../../types.js';
@@ -29,7 +30,7 @@ async function getRandomBonuses ({
   maxYear = DEFAULT_MAX_YEAR,
   bonusLength,
   standardOnly = false
-} = {}) {
+} = {}, viewerId = null) {
   const aggregation = [
     { $match: { 'set.year': { $gte: minYear, $lte: maxYear } } },
     { $sample: { size: number } },
@@ -61,6 +62,10 @@ async function getRandomBonuses ({
   if (standardOnly) {
     aggregation[0].$match['set.standard'] = true;
   }
+
+  // Owner-visibility: public (standard) sets, plus the viewer's own uploads.
+  // viewerId defaults to null, so non-HTTP callers get standard-only.
+  aggregation[0].$match.$and = [...(aggregation[0].$match.$and || []), embeddedSetFilter(viewerId)];
 
   return await bonuses.aggregate(aggregation).toArray();
 }

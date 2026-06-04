@@ -1,4 +1,5 @@
 import { bonuses, packets, tossups } from './collections.js';
+import { embeddedSetFilter } from './owner-visibility-filter.js';
 
 // eslint-disable-next-line no-unused-vars
 import * as types from '../../types.js';
@@ -45,10 +46,15 @@ function modaqifyBonus (bonus) {
  * @param {boolean} [options.modaq=false] - Whether to output in a result compatible with MODAQ.
  * @returns {Promise<{tossups: types.Tossup[], bonuses: types.Bonus[]}>} The retrieved packet of questions.
  */
-async function getPacket ({ setName, packetNumber, questionTypes = ['tossups', 'bonuses'], modaq = false }) {
+async function getPacket ({ setName, packetNumber, questionTypes = ['tossups', 'bonuses'], modaq = false }, viewerId = null) {
   if (!setName || isNaN(packetNumber) || packetNumber < 1) {
     return { tossups: [], bonuses: [] };
   }
+
+  // Owner-visibility: packets don't embed standard/owner, but tossups/bonuses
+  // do — so we gate the question reads themselves. A non-owner asking for a
+  // private set's packet gets empty arrays (and the route 404s).
+  const visibility = embeddedSetFilter(viewerId);
 
   const packet = await packets.findOne({ 'set.name': setName, number: packetNumber });
 
@@ -58,14 +64,14 @@ async function getPacket ({ setName, packetNumber, questionTypes = ['tossups', '
   }
 
   const tossupResult = questionTypes.includes('tossups')
-    ? tossups.find({ 'packet._id': packet._id }, {
+    ? tossups.find({ 'packet._id': packet._id, $and: [visibility] }, {
       sort: { number: 1 },
       project: { reports: 0 }
     }).toArray()
     : null;
 
   const bonusResult = questionTypes.includes('bonuses')
-    ? bonuses.find({ 'packet._id': packet._id }, {
+    ? bonuses.find({ 'packet._id': packet._id, $and: [visibility] }, {
       sort: { number: 1 },
       project: { reports: 0 }
     }).toArray()

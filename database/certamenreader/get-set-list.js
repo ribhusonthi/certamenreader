@@ -1,13 +1,17 @@
 import { sets } from './collections.js';
+import { setDocFilter } from './owner-visibility-filter.js';
 
 /**
+ * @param {import('mongodb').ObjectId|null|undefined} [viewerId] - the viewer's
+ *   stable users._id. Returns public (standard) sets plus that user's own
+ *   uploads. null => public sets only; undefined => no restriction (internal).
  * @returns {Promise<{setList: string[], setMeta: Object<string,{createdAt:string}>}>}
  *   setList is the array of set names (legacy shape). setMeta is keyed by
  *   set name and currently carries createdAt so the UI can tag recent sets.
  */
-async function getSetList () {
+async function getSetList (viewerId = null) {
   const rows = await sets.find(
-    {},
+    setDocFilter(viewerId),
     { projection: { _id: 0, year: 1, name: 1, createdAt: 1 }, sort: { year: -1, name: 1 } }
   ).toArray();
   const setList = rows.map(set => set.name);

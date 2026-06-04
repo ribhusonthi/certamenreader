@@ -3,6 +3,7 @@ import { parseQuestionText } from '../server/parser.js';
 import { certamenreader } from '../database/databases.js';
 import { tossups as tossupsCollection, bonuses as bonusesCollection, sets as setsCollection, packets as packetsCollection } from '../database/certamenreader/collections.js';
 import { users } from '../database/account-info/collections.js';
+import getUserId from '../database/account-info/get-user-id.js';
 
 import { Router } from 'express';
 import multer from 'multer';
@@ -118,13 +119,21 @@ router.post('/api/upload', upload.single('file'), async (req, res) => {
       });
     }
 
-    // Insert the set into the database
+    // Insert the set into the database. Scope it to the uploader via their
+    // stable users._id so only they can see/play it (owner-visibility-filter.js).
+    const ownerId = await getUserId(req.username);
+    if (!ownerId) {
+      // Without a stable owner id the set would be invisible to everyone
+      // (including the uploader), so refuse rather than persist owner: null.
+      return res.status(500).json({ error: 'Could not resolve your account; please sign in again and retry.' });
+    }
     const now = new Date();
     const setDoc = {
       name: set.name,
       year: set.year,
       difficulty: set.difficulty,
       standard: false,
+      owner: ownerId,
       createdAt: now,
       updatedAt: now
     };
@@ -153,7 +162,7 @@ router.post('/api/upload', upload.single('file'), async (req, res) => {
     }
 
     // Insert tossups with embedded set and packet objects (matching standard format)
-    const setEmbed = { _id: setId, name: set.name, year: set.year, standard: false };
+    const setEmbed = { _id: setId, name: set.name, year: set.year, standard: false, owner: ownerId };
     const tossupDocs = tossups.map(t => ({
       question: t.question,
       answer: t.answer,
@@ -220,6 +229,7 @@ router.post('/api/upload', upload.single('file'), async (req, res) => {
       setName: set.name,
       setId: setId.toString(),
       username: req.username,
+      ownerId,
       uploaderName,
       fileName: req.file.originalname,
       fileType: req.file.originalname.toLowerCase().split('.').pop(),
