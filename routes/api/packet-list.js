@@ -1,4 +1,6 @@
 import { packets } from '../../database/certamenreader/collections.js';
+import { canAccessSet } from '../../database/certamenreader/set-privacy.js';
+import { getVerifiedUsername } from '../../server/authentication.js';
 
 import { Router } from 'express';
 
@@ -11,12 +13,18 @@ router.get('/', async (req, res) => {
     return;
   }
 
+  res.header('Access-Control-Allow-Origin', '*');
+  if (!(await canAccessSet(setName, getVerifiedUsername(req.session)))) {
+    res.statusCode = 404;
+    res.json({ packets: [] });
+    return;
+  }
+
   const packetList = await packets.find(
     { 'set.name': setName },
     { projection: { _id: 0, name: 1, number: 1 }, sort: { number: 1 } }
   ).toArray();
 
-  res.header('Access-Control-Allow-Origin', '*');
   res.json({ packets: packetList });
 });
 

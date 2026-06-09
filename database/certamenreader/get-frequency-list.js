@@ -55,7 +55,8 @@ function mergeTwoSortedArrays (array1, array2, keyFunction, combineFunction) {
  */
 async function getFrequencyList (subcategory, difficulties = DIFFICULTIES, limit = 50, questionType = 'all') {
   const tossupAggregation = [
-    { $match: { subcategory, difficulty: { $in: difficulties } } },
+    // Private uploads never contribute to the public frequency list.
+    { $match: { subcategory, difficulty: { $in: difficulties }, 'set.private': { $ne: true } } },
     {
       $addFields: {
         // This is a regex that matches everything before the first open parenthesis or bracket.

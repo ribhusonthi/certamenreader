@@ -1,4 +1,5 @@
 import { bonuses } from './collections.js';
+import { questionPrivacyFilter } from './set-privacy.js';
 
 import { DIFFICULTIES, CATEGORIES, SUBCATEGORIES_FLATTENED, DEFAULT_MIN_YEAR, DEFAULT_MAX_YEAR } from '../../constants.js';
 
@@ -17,6 +18,7 @@ import * as types from '../../types.js';
  * @param {number} [object.maxYear=2025] - the maximum year to select from. Default: 2025.
  * @param {number} [object.bonusLength] - if not null or undefined, only return bonuses with number of parts equal to `bonusLength`.
  * @param {boolean} [object.standardOnly=false]
+ * @param {string | null} [object.username=null] - verified requester; private uploads are only sampled for their owner.
  * @returns {Promise<types.Bonus[]>}
  */
 async function getRandomBonuses ({
@@ -28,10 +30,13 @@ async function getRandomBonuses ({
   minYear = DEFAULT_MIN_YEAR,
   maxYear = DEFAULT_MAX_YEAR,
   bonusLength,
-  standardOnly = false
+  standardOnly = false,
+  username = null
 } = {}) {
+  // The privacy clause lives in $and so it can't collide with the sibling
+  // filter keys assigned below.
   const aggregation = [
-    { $match: { 'set.year': { $gte: minYear, $lte: maxYear } } },
+    { $match: { 'set.year': { $gte: minYear, $lte: maxYear }, $and: [questionPrivacyFilter(username)] } },
     { $sample: { size: number } },
     { $project: { reports: 0 } }
   ];

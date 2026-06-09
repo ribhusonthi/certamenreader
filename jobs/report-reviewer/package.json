@@ -1,0 +1,18 @@
+{
+  "name": "certamen-report-reviewer",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "Nightly Cloud Run Job: reviews newly-reported certamen questions with Vertex AI Gemini and DMs a digest to the admin via certamen-bot.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@google/genai": "^1.0.0",
+    "mongodb": "^4.17.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

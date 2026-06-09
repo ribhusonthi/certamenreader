@@ -9825,6 +9825,15 @@ a.list-group-item:hover {
   width: 70%;
 }
 
+@media (hover: hover) and (min-width: 992px) {
+  .nav-multiplayer:hover > .dropdown-menu {
+    display: block;
+    margin-top: 0;
+  }
+  .nav-multiplayer > .dropdown-menu {
+    margin-top: 0;
+  }
+}
 .form-control:focus {
   box-shadow: 0 0 0 0.25rem rgba(152, 114, 218, 0.3) !important;
   border-color: #9872da !important;
@@ -10958,6 +10967,13 @@ body {
   font-weight: 600;
 }
 
+.ed-mini-chip[data-private=true] {
+  color: var(--power);
+  border-color: color-mix(in oklab, var(--power) 55%, transparent);
+  background: color-mix(in oklab, var(--power) 12%, transparent);
+  font-weight: 600;
+}
+
 /* In-modal packet picker */
 .ed-modal-packets {
   display: flex;
@@ -11720,6 +11736,124 @@ body:not(.account-nav-ready) #login-link {
   font-family: var(--font-serif);
   font-size: 2rem;
   line-height: 1;
+}
+
+/* --- Team mode --- */
+.team-strip {
+  display: grid;
+  grid-template-columns: repeat(var(--teams, 2), minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.team-tile {
+  --team-color: var(--accent);
+  padding: 0.7rem 0.9rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--team-color);
+  border-radius: var(--radius);
+  transition: opacity 0.15s ease, box-shadow 0.15s ease;
+}
+
+.team-tile[data-mine=true] {
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--team-color) 55%, transparent), 0 0 14px color-mix(in oklab, var(--team-color) 25%, transparent);
+}
+
+.team-tile[data-locked=true] {
+  opacity: 0.5;
+  filter: grayscale(0.4);
+}
+
+.team-tile .team-name {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--team-color);
+}
+
+.team-tile .team-score {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.team-tile .team-members {
+  font-size: 0.8rem;
+  color: var(--ink-dim);
+  margin-top: 0.2rem;
+}
+
+.team-tile .team-locked-label {
+  display: none;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--incorrect);
+  margin-left: 0.4rem;
+}
+
+.team-tile[data-locked=true] .team-locked-label {
+  display: inline;
+}
+
+.team-colors-0 {
+  --team-color: var(--c-mythology);
+}
+
+.team-colors-1 {
+  --team-color: var(--c-language);
+}
+
+.team-colors-2 {
+  --team-color: var(--c-roman-history);
+}
+
+.team-colors-3 {
+  --team-color: var(--c-culture);
+}
+
+.team-switch {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.team-sub {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+  letter-spacing: 0.04em;
+  margin: 0.5rem 0 0;
+}
+
+.team-status {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.team-log {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--ink-dim);
+  margin: 0;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.team-log li {
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.team-log li:last-child {
+  border-bottom: none;
 }
 
 .ranked {

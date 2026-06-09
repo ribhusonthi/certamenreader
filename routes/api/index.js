@@ -17,6 +17,7 @@ import randomNameRouter from './random-name.js';
 import randomTossupRouter from './random-tossup.js';
 import rankedRouter from './ranked.js';
 import reportQuestionRouter from './report-question.js';
+import schoolsRouter from './schools.js';
 import setListRouter from './set-list.js';
 import tossupByIdRouter from './tossup-by-id.js';
 
@@ -63,6 +64,7 @@ router.use('/random-name', randomNameRouter);
 router.use('/random-tossup', randomTossupRouter);
 router.use('/ranked', rankedRouter);
 router.use('/report-question', reportQuestionRouter);
+router.use('/schools', schoolsRouter);
 router.use('/set-list', setListRouter);
 router.use('/tossup-by-id', tossupByIdRouter);
 

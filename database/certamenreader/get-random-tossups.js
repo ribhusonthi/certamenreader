@@ -1,4 +1,5 @@
 import { tossups } from './collections.js';
+import { questionPrivacyFilter } from './set-privacy.js';
 
 import { DIFFICULTIES, DEFAULT_MIN_YEAR, DEFAULT_MAX_YEAR } from '../../constants.js';
 
@@ -17,6 +18,7 @@ import * as types from '../../types.js';
  * @param {number} [object.maxYear=2025]
  * @param {boolean} [object.powermarkOnly=false]
  * @param {boolean} [object.standardOnly=false]
+ * @param {string | null} [object.username=null] - verified requester; private uploads are only sampled for their owner.
  * @returns {Promise<types.Tossup[]>}
  */
 async function getRandomTossups ({
@@ -30,10 +32,13 @@ async function getRandomTossups ({
   minYear = DEFAULT_MIN_YEAR,
   maxYear = DEFAULT_MAX_YEAR,
   powermarkOnly = false,
-  standardOnly = false
+  standardOnly = false,
+  username = null
 } = {}) {
+  // The privacy clause lives in $and so it can't collide with the sibling
+  // filter keys assigned below.
   const aggregation = [
-    { $match: { 'set.year': { $gte: minYear, $lte: maxYear } } },
+    { $match: { 'set.year': { $gte: minYear, $lte: maxYear }, $and: [questionPrivacyFilter(username)] } },
     { $sample: { size: number } },
     { $project: { reports: 0 } }
   ];

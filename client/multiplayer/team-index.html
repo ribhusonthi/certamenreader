@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Team Mode — Certamen Reader</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/apple-touch-icon.png" rel="apple-touch-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
+    <link type="image/x-icon" href="/favicon.ico" rel="icon">
+
+    <link href="/bootstrap/light.css" rel="stylesheet">
+    <link href="/bootstrap/dark.css" rel="stylesheet" id="custom-css">
+    <script type="module" src="/apply-theme.js"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-dark navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
+        <div class="container-fluid">
+            <a class="navbar-brand brand-editorial ms-1 py-0" id="logo" href="/">
+                <span class="brand-mark"><img src="/buzzer-icon.png" alt=""></span><span class="brand-word">Certamen<b>Reader</b></span>
+            </a>
+            <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/singleplayer">Singleplayer</a>
+                    </li>
+                    <li class="nav-item dropdown nav-multiplayer">
+                        <a class="nav-link active" href="/multiplayer">Multiplayer</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/multiplayer">Solo</a></li>
+                            <li><a class="dropdown-item" href="/multiplayer/team">Team Mode</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/ranked">Ranked</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/db">Database</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/leaderboards">Leaderboards</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/login" id="login-link">Log in</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mp">
+        <div class="mp-hdr">
+            <div>
+                <h1>Team Rooms</h1>
+                <p>Play Certamen as a team. Once any teammate buzzes, your whole team is locked out of that question — other teams can still attempt it. Join a public team room or create your own.</p>
+            </div>
+            <form id="form" class="d-flex gap-2 align-items-end flex-wrap">
+                <div>
+                    <label class="form-label mb-1" for="new-room-name">Room name</label>
+                    <input class="form-control" id="new-room-name" type="text" style="min-width: 200px;">
+                </div>
+                <div>
+                    <label class="form-label mb-1" for="team-count">Teams</label>
+                    <select class="form-select" id="team-count">
+                        <option value="2" selected>2 teams</option>
+                        <option value="3">3 teams</option>
+                        <option value="4">4 teams</option>
+                    </select>
+                </div>
+                <div class="form-check form-switch m-0 ms-2 mb-1">
+                    <input class="form-check-input" id="private-room-checkbox" type="checkbox" role="switch">
+                    <label class="form-check-label" for="private-room-checkbox">Private</label>
+                </div>
+                <button class="btn btn-primary" type="submit">Create / Join</button>
+            </form>
+        </div>
+
+        <div class="mp-rooms" id="room-list"></div>
+    </div>
+
+    <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/script.js"></script>
+
+    <script type="module" src="/multiplayer/team-index.js"></script>
+</body>
+
+</html>

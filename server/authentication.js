@@ -8,10 +8,19 @@ import jsonwebtoken from 'jsonwebtoken';
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 
+import crypto from 'crypto';
+
 const { sign, verify } = jsonwebtoken;
 
 const baseURL = process.env.BASE_URL ?? (process.env.NODE_ENV === 'production' ? 'https://www.certamenreader.org' : 'http://localhost:3000');
 const secret = process.env.SECRET ? process.env.SECRET : 'secret';
+
+/**
+ * Signing keys for the cookie-session cookie. Shared with the cookieSession
+ * middleware in index.js so websocket upgrade requests (which bypass express)
+ * can verify the same cookie.
+ */
+const sessionKeys = [process.env.SECRET_KEY_1 ?? 'secretKey1', process.env.SECRET_KEY_2 ?? 'secretKey2'];
 
 /**
  * Checks that the token is valid and stores the correct username.
@@ -42,6 +51,75 @@ function validateUsername (username) {
   if (username.length < 3 || username.length > 24) return false;
   if (username.includes('@')) return false;
   return hasValidCharacters(username) && isAppropriateString(username);
+}
+
+/**
+ * @param {object} session - an express req.session.
+ * @returns {String | null} the session's username if its token verifies, else null.
+ */
+function getVerifiedUsername (session) {
+  const { username, token } = session ?? {};
+  if (!username || !token) {
+    return null;
+  }
+  return checkToken(username, token) ? username : null;
+}
+
+/**
+ * Mirrors Keygrip's HMAC-SHA1 / url-safe-base64 signature, which is what
+ * cookie-session uses to sign its cookie.
+ */
+function keygripSign (data, key) {
+  return crypto
+    .createHmac('sha1', key)
+    .update(data)
+    .digest('base64')
+    .replace(/\/|\+|=/g, (c) => ({ '/': '_', '+': '-', '=': '' }[c]));
+}
+
+/**
+ * Extracts and verifies the session from a raw Cookie header. Websocket
+ * upgrade requests never pass through the cookieSession middleware, so this is
+ * how the multiplayer server gets an authenticated username (the username sent
+ * in the websocket query string is client-controlled and must not be trusted
+ * for authorization).
+ * @param {String | undefined} cookieHeader - req.headers.cookie from the upgrade request.
+ * @returns {String | null} the verified username, or null.
+ */
+function getVerifiedUsernameFromCookie (cookieHeader) {
+  if (!cookieHeader) {
+    return null;
+  }
+
+  const cookies = {};
+  for (const part of cookieHeader.split(';')) {
+    const i = part.indexOf('=');
+    if (i === -1) continue;
+    cookies[part.slice(0, i).trim()] = part.slice(i + 1).trim();
+  }
+
+  const value = cookies.session;
+  const signature = cookies['session.sig'];
+  if (!value || !signature) {
+    return null;
+  }
+
+  const data = `session=${value}`;
+  const signatureBuffer = Buffer.from(signature);
+  const valid = sessionKeys.some((key) => {
+    const expected = Buffer.from(keygripSign(data, key));
+    return expected.length === signatureBuffer.length && crypto.timingSafeEqual(expected, signatureBuffer);
+  });
+  if (!valid) {
+    return null;
+  }
+
+  try {
+    const session = JSON.parse(Buffer.from(decodeURIComponent(value), 'base64').toString('utf8'));
+    return getVerifiedUsername(session);
+  } catch {
+    return null;
+  }
 }
 
 // Configure Passport Google OAuth strategy
@@ -78,5 +156,8 @@ passport.use(new GoogleStrategy({
 export {
   checkToken,
   generateToken,
-  validateUsername
+  validateUsername,
+  getVerifiedUsername,
+  getVerifiedUsernameFromCookie,
+  sessionKeys
 };

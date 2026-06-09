@@ -55,13 +55,15 @@ function parseDifficultyValue (setName) {
  *                                        Used to populate the in-modal packet picker.
  * @param {Function} [opts.isNew]         (setName) => boolean. Returns true when a set
  *                                        should be tagged "new" in the modal list.
+ * @param {Function} [opts.isPrivate]     (setName) => boolean. Returns true when a set
+ *                                        is the signed-in user's own private upload.
  * @param {Object}   opts.on              Callbacks fired immediately when a control changes.
  *                                        { onSetChange(setName, setNames), onSetNamesChange(setNames),
  *                                          onPacketsChange(numbers),
  *                                          onDifficultiesChange(list),
  *                                          onYearRangeChange(minYear, maxYear) }
  */
-export function initSetSelector ({ sets, state, on, fetchPackets, isNew }) {
+export function initSetSelector ({ sets, state, on, fetchPackets, isNew, isPrivate }) {
   const modal = document.getElementById('set-modal');
   if (!modal) return { setState () {}, refreshOpener () {} };
 
@@ -211,10 +213,11 @@ export function initSetSelector ({ sets, state, on, fetchPackets, isNew }) {
       const yr = parseYear(name);
       const tournament = parseTournament(name);
       const newTag = isNew?.(name) ? '<span class="ed-mini-chip" data-new="true">New</span>' : '';
+      const privateTag = isPrivate?.(name) ? '<span class="ed-mini-chip" data-private="true">Private</span>' : '';
       btn.innerHTML = `
         <span class="ed-set-row-main">
           <span class="ed-set-row-title">${escapeHtml(tournament)}</span>
-          <span class="ed-set-row-meta">${newTag}${dv ? `<span class="ed-mini-chip" data-d="${dv}">${DIFFICULTY_LABELS[dv]}</span>` : ''}${yr != null ? `<span class="ed-mini-chip">${yr}</span>` : ''}</span>
+          <span class="ed-set-row-meta">${privateTag}${newTag}${dv ? `<span class="ed-mini-chip" data-d="${dv}">${DIFFICULTY_LABELS[dv]}</span>` : ''}${yr != null ? `<span class="ed-mini-chip">${yr}</span>` : ''}</span>
         </span>
         <span class="ed-set-row-full">${escapeHtml(name)}</span>
       `;

@@ -1602,6 +1602,7 @@ categoryManager.loadCategoryModal();
 initSetSelector({
   sets: api.getSetList(),
   isNew: api.isSetNew,
+  isPrivate: api.isSetPrivate,
   state: {
     setName: query.setName || '',
     setNames: selectedSetNames(),

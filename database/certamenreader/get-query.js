@@ -1,4 +1,5 @@
 import { bonuses, tossups } from './collections.js';
+import { questionPrivacyFilter } from './set-privacy.js';
 
 import { OKCYAN, ENDC, OKGREEN } from '../../bcolors.js';
 import { DEFAULT_QUERY_RETURN_LENGTH, MAX_QUERY_RETURN_LENGTH } from '../../constants.js';
@@ -60,7 +61,8 @@ function validateOptions ({
   bonusPagination = 1,
   minYear,
   maxYear,
-  verbose = false
+  verbose = false,
+  username = null
 }) {
   let words;
 
@@ -114,7 +116,7 @@ function validateOptions ({
     setNames = undefined;
   }
 
-  return { queryString, difficulties, setName, setNames, searchType, questionType, categories, subcategories, alternateSubcategories, maxReturnLength, randomize, regex, exactPhrase, powermarkOnly, tossupPagination, bonusPagination, minYear, maxYear, verbose, words };
+  return { queryString, difficulties, setName, setNames, searchType, questionType, categories, subcategories, alternateSubcategories, maxReturnLength, randomize, regex, exactPhrase, powermarkOnly, tossupPagination, bonusPagination, minYear, maxYear, verbose, words, username };
 }
 
 /**
@@ -254,10 +256,14 @@ async function getBonusQuery (options) {
   }
 }
 
-function buildQueryAggregation ({ query, difficulties, categories, subcategories, alternateSubcategories, setName, setNames, maxReturnLength, randomize, minYear, maxYear, isEmpty, powermarkOnly }) {
+function buildQueryAggregation ({ query, difficulties, categories, subcategories, alternateSubcategories, setName, setNames, maxReturnLength, randomize, minYear, maxYear, isEmpty, powermarkOnly, username }) {
   if (isEmpty) {
     delete query.$or;
   }
+
+  // Hide private uploads from everyone except their owner. Goes in $and so it
+  // can't collide with the search-word clauses.
+  query.$and = [...(query.$and ?? []), questionPrivacyFilter(username)];
 
   if (difficulties) {
     query.difficulty = { $in: difficulties };

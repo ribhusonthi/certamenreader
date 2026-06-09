@@ -5,7 +5,7 @@ import { WEBSOCKET_MAX_PAYLOAD, COOKIE_MAX_AGE } from './constants.js';
 import indexRouter from './routes/index.js';
 import handleWssConnection from './server/multiplayer/handle-wss-connection.js';
 
-import { checkToken } from './server/authentication.js';
+import { checkToken, generateToken, sessionKeys } from './server/authentication.js';
 import passport from 'passport';
 
 import cookieSession from 'cookie-session';
@@ -45,7 +45,7 @@ app.use(express.json());
 
 app.use(cookieSession({
   name: 'session',
-  keys: [process.env.SECRET_KEY_1 ?? 'secretKey1', process.env.SECRET_KEY_2 ?? 'secretKey2'],
+  keys: sessionKeys,
   maxAge: COOKIE_MAX_AGE,
   httpOnly: true,
   sameSite: 'lax',
@@ -96,7 +96,16 @@ function hasBotSecret (req) {
 app.use((req, res, next) => {
   // Local-dev bypass: only active when LOCAL_DEV_BYPASS_AUTH=true is set in
   // the (gitignored) .env. Inert in production where the env var is unset.
+  // Rather than just skipping this gate, stamp a real signed session for the
+  // dev user — downstream routes (profile, upload, stars, stats, …) all call
+  // checkToken(req.session.username, req.session.token) themselves and would
+  // otherwise bounce to the login page.
   if (process.env.LOCAL_DEV_BYPASS_AUTH === 'true') {
+    const devUsername = process.env.DEV_USERNAME || 'local@dev';
+    if (req.session.username !== devUsername || !checkToken(devUsername, req.session.token)) {
+      req.session.username = devUsername;
+      req.session.token = generateToken(devUsername);
+    }
     return next();
   }
 

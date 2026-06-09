@@ -1,7 +1,9 @@
 import hasValidCharacters from '../moderation/has-valid-characters.js';
 import isAppropriateString from '../moderation/is-appropriate-string.js';
 import { createAndReturnRoom } from './TossupRoom.js';
+import { createAndReturnTeamRoom } from './TeamTossupRoom.js';
 import { getRankedConnection } from '../ranked/matchmaking.js';
+import { getVerifiedUsernameFromCookie } from '../authentication.js';
 
 import getRandomName from '../../get-random-name.js';
 
@@ -18,8 +20,16 @@ export default function handleWssConnection (ws, req) {
   const isPrivate = parsedUrl.searchParams.get('private') === 'true';
   const roomName = parsedUrl.searchParams.get('roomName');
   const rankedTicket = parsedUrl.searchParams.get('rankedTicket');
+  const mode = parsedUrl.searchParams.get('mode');
+  const teamCount = parseInt(parsedUrl.searchParams.get('teamCount') ?? '2', 10);
+  const schoolId = parsedUrl.searchParams.get('schoolId') || null;
   let userId = parsedUrl.searchParams.get('userId') ?? 'unknown';
   let username = parsedUrl.searchParams.get('username') ?? getRandomName();
+
+  // The query-string username is display-only and client-controlled. For
+  // authorization (e.g. selecting a private uploaded set) we verify the
+  // session cookie on the upgrade request instead.
+  const verifiedUsername = getVerifiedUsernameFromCookie(req.headers.cookie);
 
   userId = (userId === 'unknown') ? uuid.v4() : userId;
 
@@ -57,7 +67,16 @@ export default function handleWssConnection (ws, req) {
     return false;
   }
 
-  const room = createAndReturnRoom(roomName, isPrivate);
+  const room = mode === 'team'
+    ? createAndReturnTeamRoom(roomName, teamCount, [], isPrivate)
+    : createAndReturnRoom(roomName, isPrivate);
+
+  // Record the joining player's school so TeamTossupRoom.pickTeamForPlayer
+  // can use it for auto-assign. Safe no-op on solo rooms.
+  if (room.playerSchool) {
+    room.playerSchool[userId] = schoolId;
+  }
+
   if (room.settings.lock === true) {
     ws.send(JSON.stringify({
       type: 'error',
@@ -75,7 +94,7 @@ export default function handleWssConnection (ws, req) {
     }));
   }
 
-  room.connection(ws, userId, username);
+  room.connection(ws, userId, username, verifiedUsername);
 
   ws.on('error', (err) => {
     if (err instanceof RangeError) {

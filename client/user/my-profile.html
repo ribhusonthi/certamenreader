@@ -31,8 +31,12 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/singleplayer">Singleplayer</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item dropdown nav-multiplayer">
                         <a class="nav-link" href="/multiplayer">Multiplayer</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/multiplayer">Solo</a></li>
+                            <li><a class="dropdown-item" href="/multiplayer/team">Team Mode</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/ranked">Ranked</a>
@@ -85,6 +89,25 @@
                 <div class="d-flex gap-2 flex-wrap mt-3">
                     <button class="btn btn-primary" id="logout" type="button">Logout</button>
                     <a class="btn btn-outline-secondary d-none" id="admin-link" href="/admin">Admin Console</a>
+                </div>
+            </section>
+
+            <section class="settings-card">
+                <h4>School</h4>
+                <div class="settings-hint mb-2">
+                    Shown next to your name in team-mode rooms. Auto-grouping uses this when you join a scrimmage.
+                    Admins manage the school list; if yours is missing, ask one to add it.
+                </div>
+                <div class="position-relative" style="max-width: 32rem;">
+                    <input type="text" class="form-control" id="school-input"
+                        placeholder="Search for your school..." autocomplete="off">
+                    <div id="school-suggestions" class="list-group position-absolute w-100 d-none"
+                        style="z-index: 20; max-height: 14rem; overflow-y: auto;"></div>
+                </div>
+                <div class="mt-2 d-flex gap-2 align-items-center flex-wrap">
+                    <span id="school-current" class="text-muted">No school set.</span>
+                    <button class="btn btn-sm btn-outline-secondary d-none" id="school-clear" type="button">Clear</button>
+                    <span class="ms-auto small text-success d-none" id="school-saved">Saved</span>
                 </div>
             </section>
 

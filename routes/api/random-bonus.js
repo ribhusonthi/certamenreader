@@ -1,4 +1,5 @@
 import getRandomBonuses from '../../database/certamenreader/get-random-bonuses.js';
+import { getVerifiedUsername } from '../../server/authentication.js';
 
 import { Router } from 'express';
 const router = Router();
@@ -34,6 +35,10 @@ router.get('/', async (req, res) => {
   req.query.number = isNaN(req.query.number) ? undefined : parseInt(req.query.number);
 
   req.query.standardOnly = (req.query.standardOnly === 'true');
+
+  // Always derive the requester from the session — never from the query
+  // string — so private uploads stay invisible to everyone but their owner.
+  req.query.username = getVerifiedUsername(req.session);
 
   const bonuses = await getRandomBonuses(req.query);
 

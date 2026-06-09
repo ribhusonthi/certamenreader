@@ -12,10 +12,15 @@ function getPageSecurely (htmlFile) {
       return;
     }
 
-    const user = await getUser(req.session.username);
-    if (htmlFile !== 'setup-username.html' && user?.usernameSet !== true) {
-      res.redirect('/user/setup-username');
-      return;
+    // Local-dev bypass: the dev user has no row in the users collection, so
+    // the usernameSet check would bounce every profile page to setup-username.
+    // Inert in production where the env var is unset.
+    if (process.env.LOCAL_DEV_BYPASS_AUTH !== 'true') {
+      const user = await getUser(req.session.username);
+      if (htmlFile !== 'setup-username.html' && user?.usernameSet !== true) {
+        res.redirect('/user/setup-username');
+        return;
+      }
     }
 
     res.sendFile(htmlFile, { root: './client/user' });

@@ -8,6 +8,7 @@ const tossupStars = accountInfo.collection('tossup-stars');
 const users = accountInfo.collection('users');
 const rankedRatings = accountInfo.collection('ranked-ratings');
 const rankedMatches = accountInfo.collection('ranked-matches');
+const schools = accountInfo.collection('schools');
 
 // Stores short-lived tokens used by `!link` in the Discord bot.
 // Documents: { token, username, expiresAt, createdAt }
@@ -29,6 +30,11 @@ rankedRatings.createIndex({ username: 1, mode: 1 }, { unique: true }).catch(() =
 rankedRatings.createIndex({ mode: 1, rating: -1 }).catch(() => {});
 rankedMatches.createIndex({ mode: 1, createdAt: -1 }).catch(() => {});
 rankedMatches.createIndex({ players: 1, createdAt: -1 }).catch(() => {});
+// Case-insensitive uniqueness on (name, state) so we don't end up with
+// duplicates like "Walton" / "walton" / "WALTON HS". Profile dropdown
+// dedupes display by this same key.
+schools.createIndex({ name: 1, state: 1 }, { unique: true, collation: { locale: 'en', strength: 2 } }).catch(() => {});
+schools.createIndex({ state: 1, name: 1 }).catch(() => {});
 
 const usernameToId = {};
 const idToUsername = {};
@@ -40,6 +46,7 @@ export {
   discordLinkTokens,
   rankedMatches,
   rankedRatings,
+  schools,
   tossupData,
   tossupStars,
   users,

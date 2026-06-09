@@ -92,6 +92,18 @@ router.post('/api/upload', upload.single('file'), async (req, res) => {
       return res.status(400).json({ error: 'A valid year is required.' });
     }
 
+    // Set names are the lookup key everywhere (queries, packets, multiplayer
+    // selection), so an upload reusing an existing name would pollute or
+    // impersonate that set. Reject up front — including the uploader's own
+    // earlier sets; re-uploads need a new name.
+    const existingSet = await setsCollection.findOne(
+      { name: setName.trim() },
+      { projection: { _id: 1 } }
+    );
+    if (existingSet) {
+      return res.status(400).json({ error: 'A set with this name already exists. Please choose a different set name.' });
+    }
+
     // Extract text from file
     let text;
     try {
@@ -118,13 +130,16 @@ router.post('/api/upload', upload.single('file'), async (req, res) => {
       });
     }
 
-    // Insert the set into the database
+    // Insert the set into the database. Uploaded sets are private: only the
+    // uploader can see them, query them, or pick them for multiplayer play.
     const now = new Date();
     const setDoc = {
       name: set.name,
       year: set.year,
       difficulty: set.difficulty,
       standard: false,
+      private: true,
+      owner: req.username,
       createdAt: now,
       updatedAt: now
     };
@@ -146,14 +161,16 @@ router.post('/api/upload', upload.single('file'), async (req, res) => {
       const packetDoc = {
         name: pkt.name,
         number: pkt.number,
-        set: { _id: setId, name: set.name, year: set.year }
+        set: { _id: setId, name: set.name, year: set.year, private: true, owner: req.username }
       };
       const packetResult = await packetsCollection.insertOne(packetDoc);
       packetIdMap[pkt.number] = packetResult.insertedId;
     }
 
-    // Insert tossups with embedded set and packet objects (matching standard format)
-    const setEmbed = { _id: setId, name: set.name, year: set.year, standard: false };
+    // Insert tossups with embedded set and packet objects (matching standard
+    // format). private/owner are embedded so question-level queries can filter
+    // without a join.
+    const setEmbed = { _id: setId, name: set.name, year: set.year, standard: false, private: true, owner: req.username };
     const tossupDocs = tossups.map(t => ({
       question: t.question,
       answer: t.answer,

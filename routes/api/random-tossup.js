@@ -1,4 +1,5 @@
 import getRandomTossups from '../../database/certamenreader/get-random-tossups.js';
+import { getVerifiedUsername } from '../../server/authentication.js';
 
 import { Router } from 'express';
 const router = Router();
@@ -48,6 +49,10 @@ router.get('/', async (req, res) => {
   req.query.setNames = parseStringList(req.query.setNames);
   req.query.powermarkOnly = (req.query.powermarkOnly === 'true');
   req.query.standardOnly = (req.query.standardOnly === 'true');
+
+  // Always derive the requester from the session — never from the query
+  // string — so private uploads stay invisible to everyone but their owner.
+  req.query.username = getVerifiedUsername(req.session);
 
   const tossups = await getRandomTossups(req.query);
 

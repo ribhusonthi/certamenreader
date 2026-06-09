@@ -31,6 +31,15 @@ export default class api {
   }
 
   /**
+   * @param {string} setName
+   * @returns {boolean} true if the named set is a private upload of the
+   *   signed-in user (the API only lists private sets to their owner).
+   */
+  static isSetPrivate (setName) {
+    return api.SET_META?.[setName]?.private === true;
+  }
+
+  /**
      * @param {string} answerline
      * @param {string} givenAnswer
      * @returns {Promise<{

@@ -1,4 +1,5 @@
 import { tossupData } from '../collections.js';
+import { tossups } from '../../certamenreader/collections.js';
 import getUserId from '../get-user-id.js';
 import { computePP } from '../../../lib/performance-points.js';
 
@@ -31,11 +32,20 @@ async function recordTossupData (username, data) {
   // are still recorded (so stats reflect reality) but score 0 PP, otherwise
   // the leaderboard would just reward whoever loops the same questions.
   const tossupObjectId = new ObjectId(tossup._id);
+  // Private (user-uploaded) sets never award PP — the uploader knows the
+  // questions, and the leaderboard should only reflect the shared corpus.
+  // Checked against the database copy of the tossup, not the client-supplied
+  // object, so it can't be spoofed.
+  const tossupDoc = await tossups.findOne(
+    { _id: tossupObjectId },
+    { projection: { 'set.private': 1 } }
+  );
+  const isPrivateSet = tossupDoc?.set?.private === true;
   const alreadyScored = await tossupData.findOne(
     { user_id: userId, tossup_id: tossupObjectId, pp: { $gt: 0 } },
     { projection: { _id: 1 } }
   );
-  newData.pp = alreadyScored
+  newData.pp = (alreadyScored || isPrivateSet)
     ? 0
     : computePP({
       isCorrect: !!data.isCorrect,
@@ -44,6 +54,7 @@ async function recordTossupData (username, data) {
       packetName: tossup.packet?.name || tossup.packetName
     });
   if (alreadyScored) newData.replay = true;
+  if (isPrivateSet) newData.privateSet = true;
 
   // Always carry these forward so leaderboard / profile rendering can hydrate
   // a "best buzzes" list without joining back to the questions collection.

@@ -1,5 +1,6 @@
 import getUser from '../../database/account-info/get-user.js';
 import isAdmin from '../../database/account-info/is-admin.js';
+import { schools } from '../../database/account-info/collections.js';
 import { checkToken } from '../../server/authentication.js';
 
 import { Router } from 'express';
@@ -25,7 +26,14 @@ router.get('/', async (req, res) => {
 
   const user = await getUser(username);
   const admin = await isAdmin(username);
-  res.json({ user: { ...user, admin, needsUsername: user?.usernameSet !== true } });
+  let school = null;
+  if (user?.school_id) {
+    school = await schools.findOne(
+      { _id: user.school_id },
+      { projection: { name: 1, state: 1 } }
+    );
+  }
+  res.json({ user: { ...user, admin, school, needsUsername: user?.usernameSet !== true } });
 });
 
 export default router;

@@ -9,6 +9,7 @@ import getRandomTossups from '../../database/certamenreader/get-random-tossups.j
 import getSet from '../../database/certamenreader/get-set.js';
 import getSetList from '../../database/certamenreader/get-set-list.js';
 import getNumPackets from '../../database/certamenreader/get-num-packets.js';
+import { isPrivateSetOwner } from '../../database/certamenreader/set-privacy.js';
 
 import { insertTokensIntoHTML } from '../../client/utilities/insert-tokens-into-html.js';
 
@@ -65,6 +66,13 @@ export default class TossupRoom {
      */
     this.players = {};
     this.sockets = {};
+    /**
+     * @type {Object.<string, string | null>}
+     * userId → username verified from the session cookie at connection time.
+     * Used for authorization (private uploaded sets); the display username in
+     * this.players is client-controlled and must not be trusted for that.
+     */
+    this.verifiedUsernames = {};
 
     this.timeoutID = null;
     /**
@@ -128,11 +136,12 @@ export default class TossupRoom {
     });
   }
 
-  connection (socket, userId, username) {
+  connection (socket, userId, username, verifiedUsername = null) {
     const isNew = !(userId in this.players);
     if (isNew) {
       this.createPlayer(userId);
     }
+    this.verifiedUsernames[userId] = verifiedUsername;
     username = this.players[userId].updateUsername(username);
     this.players[userId].isOnline = true;
 
@@ -418,16 +427,19 @@ export default class TossupRoom {
         });
         break;
 
-      case 'set-name':
+      case 'set-name': {
         if (typeof message.value !== 'string') {
           return;
         }
         message.setNames = normalizeSetNames(message.setNames || message.value);
-        // Allow empty selection to clear set names (switches to random mode)
-        if (
-          message.setNames.some((name) => !this.setList || !this.setList.includes(name))
-        ) {
-          return;
+        // Allow empty selection to clear set names (switches to random mode).
+        // Names outside the public set list are only allowed when this player
+        // is the verified owner of that private uploaded set.
+        for (const name of message.setNames) {
+          if (this.setList?.includes(name)) continue;
+          if (!(await isPrivateSetOwner(name, this.verifiedUsernames[userId]))) {
+            return;
+          }
         }
 
         message.value = message.setNames.length === 1 ? message.setNames[0] : '';
@@ -450,6 +462,7 @@ export default class TossupRoom {
           [message.value, message.setNames, message.packetNumbers]
         );
         break;
+      }
 
       case 'toggle-lock':
         if (this.settings.public) {

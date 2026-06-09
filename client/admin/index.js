@@ -490,6 +490,154 @@ document.getElementById('view-boni-btn').addEventListener('click', function () {
   }
 });
 
+// ── Schools Tab ─────────────────────────────────────────────────────────────
+
+const US_STATES = [
+  ['AL', 'Alabama'], ['AK', 'Alaska'], ['AZ', 'Arizona'], ['AR', 'Arkansas'],
+  ['CA', 'California'], ['CO', 'Colorado'], ['CT', 'Connecticut'], ['DE', 'Delaware'],
+  ['DC', 'District of Columbia'], ['FL', 'Florida'], ['GA', 'Georgia'], ['HI', 'Hawaii'],
+  ['ID', 'Idaho'], ['IL', 'Illinois'], ['IN', 'Indiana'], ['IA', 'Iowa'],
+  ['KS', 'Kansas'], ['KY', 'Kentucky'], ['LA', 'Louisiana'], ['ME', 'Maine'],
+  ['MD', 'Maryland'], ['MA', 'Massachusetts'], ['MI', 'Michigan'], ['MN', 'Minnesota'],
+  ['MS', 'Mississippi'], ['MO', 'Missouri'], ['MT', 'Montana'], ['NE', 'Nebraska'],
+  ['NV', 'Nevada'], ['NH', 'New Hampshire'], ['NJ', 'New Jersey'], ['NM', 'New Mexico'],
+  ['NY', 'New York'], ['NC', 'North Carolina'], ['ND', 'North Dakota'], ['OH', 'Ohio'],
+  ['OK', 'Oklahoma'], ['OR', 'Oregon'], ['PA', 'Pennsylvania'], ['RI', 'Rhode Island'],
+  ['SC', 'South Carolina'], ['SD', 'South Dakota'], ['TN', 'Tennessee'], ['TX', 'Texas'],
+  ['UT', 'Utah'], ['VT', 'Vermont'], ['VA', 'Virginia'], ['WA', 'Washington'],
+  ['WV', 'West Virginia'], ['WI', 'Wisconsin'], ['WY', 'Wyoming']
+];
+
+let allSchools = [];
+let schoolsLoaded = false;
+
+function populateStateDropdown () {
+  const sel = document.getElementById('new-school-state');
+  if (!sel || sel.options.length > 1) return;
+  for (const [code, name] of US_STATES) {
+    const opt = document.createElement('option');
+    opt.value = code;
+    opt.textContent = `${code} — ${name}`;
+    sel.appendChild(opt);
+  }
+}
+
+function renderSchools (list) {
+  const tbody = document.getElementById('schools-tbody');
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center">No schools yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(s => {
+    const added = s.createdAt ? new Date(s.createdAt).toLocaleDateString() : '';
+    return `<tr>
+      <td>${escapeHtml(s.name)}</td>
+      <td><code>${escapeHtml(s.state)}</code></td>
+      <td>${added}</td>
+      <td>
+        <button class="btn btn-sm btn-outline-danger delete-school-btn"
+                data-school-id="${s._id}"
+                data-school-name="${escapeAttr(s.name)}">Delete</button>
+      </td>
+    </tr>`;
+  }).join('');
+  document.querySelectorAll('.delete-school-btn').forEach(btn => {
+    btn.addEventListener('click', handleDeleteSchool);
+  });
+}
+
+function filterSchools (query) {
+  if (!query) return allSchools;
+  const q = query.toLowerCase();
+  return allSchools.filter(s =>
+    (s.name || '').toLowerCase().includes(q) ||
+    (s.state || '').toLowerCase().includes(q)
+  );
+}
+
+async function loadSchools () {
+  if (schoolsLoaded) return;
+  schoolsLoaded = true;
+  populateStateDropdown();
+  try {
+    const response = await fetch('/admin/api/schools');
+    if (!response.ok) throw new Error('Failed');
+    const { schools } = await response.json();
+    allSchools = schools;
+    renderSchools(allSchools);
+  } catch {
+    document.getElementById('schools-tbody').innerHTML =
+      '<tr><td colspan="4" class="text-center text-danger">Failed to load schools.</td></tr>';
+  }
+}
+
+async function handleDeleteSchool (event) {
+  const btn = event.target;
+  const schoolId = btn.dataset.schoolId;
+  const schoolName = btn.dataset.schoolName;
+  if (!confirm(`Delete "${schoolName}"? Any users currently assigned to this school will be unassigned.`)) {
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Deleting...';
+  const response = await fetch(`/admin/api/schools/${schoolId}`, { method: 'DELETE' });
+  if (response.ok) {
+    allSchools = allSchools.filter(s => s._id !== schoolId);
+    renderSchools(filterSchools(document.getElementById('search-schools').value));
+  } else {
+    alert('Failed to delete school.');
+    btn.disabled = false;
+    btn.textContent = 'Delete';
+  }
+}
+
+document.getElementById('schools-tab').addEventListener('shown.bs.tab', () => {
+  loadSchools();
+});
+
+document.getElementById('search-schools').addEventListener('input', (e) => {
+  renderSchools(filterSchools(e.target.value));
+});
+
+document.getElementById('add-school-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const nameInput = document.getElementById('new-school-name');
+  const stateInput = document.getElementById('new-school-state');
+  const err = document.getElementById('add-school-error');
+  err.classList.add('d-none');
+  err.textContent = '';
+
+  const name = nameInput.value.trim();
+  const state = stateInput.value;
+  if (!name || !state) {
+    err.textContent = 'Name and state are required.';
+    err.classList.remove('d-none');
+    return;
+  }
+
+  const response = await fetch('/admin/api/schools', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, state })
+  });
+
+  if (response.ok) {
+    const { _id } = await response.json();
+    allSchools.push({ _id, name, state, createdAt: new Date().toISOString() });
+    allSchools.sort((a, b) => (a.state || '').localeCompare(b.state || '') || (a.name || '').localeCompare(b.name || ''));
+    renderSchools(filterSchools(document.getElementById('search-schools').value));
+    nameInput.value = '';
+    stateInput.value = '';
+    return;
+  }
+
+  const body = await response.json().catch(() => ({}));
+  err.textContent = body.error === 'duplicate'
+    ? 'That school already exists for that state.'
+    : (body.error === 'invalid_state' ? 'Pick a valid state.' : 'Could not add school.');
+  err.classList.remove('d-none');
+});
+
 // ── Question Reports tab ────────────────────────────────────────────────────
 
 let allReports = [];

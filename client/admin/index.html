@@ -31,8 +31,12 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/singleplayer">Singleplayer</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item dropdown nav-multiplayer">
                         <a class="nav-link" href="/multiplayer">Multiplayer</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/multiplayer">Solo</a></li>
+                            <li><a class="dropdown-item" href="/multiplayer/team">Team Mode</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/ranked">Ranked</a>
@@ -76,6 +80,10 @@
                     type="button" role="tab" aria-controls="uploads-panel" aria-selected="false">Uploads</button>
             </li>
             <li class="nav-item" role="presentation">
+                <button class="nav-link" id="schools-tab" data-bs-toggle="tab" data-bs-target="#schools-panel"
+                    type="button" role="tab" aria-controls="schools-panel" aria-selected="false">Schools</button>
+            </li>
+            <li class="nav-item" role="presentation">
                 <button class="nav-link" id="reports-tab" data-bs-toggle="tab" data-bs-target="#reports-panel"
                     type="button" role="tab" aria-controls="reports-panel" aria-selected="false">Reports</button>
             </li>
@@ -108,6 +116,97 @@
                             <tr>
                                 <td colspan="9" class="text-center">Loading users...</td>
                             </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Schools Tab -->
+            <div class="tab-pane fade" id="schools-panel" role="tabpanel" aria-labelledby="schools-tab">
+                <form id="add-school-form" class="row g-2 mb-3 align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label mb-1" for="new-school-name">School name</label>
+                        <input type="text" class="form-control" id="new-school-name" required maxlength="120"
+                            placeholder="e.g. Walton High School">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label mb-1" for="new-school-state">State</label>
+                        <select class="form-select" id="new-school-state" required>
+                            <option value="">-- state --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">Add school</button>
+                    </div>
+                    <div class="col-12">
+                        <small class="text-danger d-none" id="add-school-error"></small>
+                    </div>
+                </form>
+
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="search-schools"
+                        placeholder="Search schools by name or state...">
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="schools-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>State</th>
+                                <th>Added</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="schools-tbody">
+                            <tr>
+                                <td colspan="4" class="text-center">Loading schools...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Reports Tab -->
+            <div class="tab-pane fade" id="reports-panel" role="tabpanel" aria-labelledby="reports-tab">
+                <div class="row g-2 mb-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label mb-1" for="reports-reason-filter">Reason</label>
+                        <select class="form-select" id="reports-reason-filter">
+                            <option value="">All reasons</option>
+                            <option value="wrong-category">Wrong category</option>
+                            <option value="wrong-difficulty">Wrong difficulty</option>
+                            <option value="wrong-round">Wrong round</option>
+                            <option value="wrong-answer">Wrong answer</option>
+                            <option value="text-error">Text error</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label mb-1" for="search-reports">Search</label>
+                        <input type="text" class="form-control" id="search-reports"
+                            placeholder="Filter by question, answer, or description...">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-outline-secondary w-100" id="reload-reports">Refresh</button>
+                    </div>
+                </div>
+
+                <div class="text-muted mb-2 small" id="reports-summary"></div>
+
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="reports-table">
+                        <thead>
+                            <tr>
+                                <th style="width:7rem">Reason</th>
+                                <th>Question</th>
+                                <th>Answer</th>
+                                <th>Description</th>
+                                <th style="width:9rem">Reported</th>
+                                <th style="width:6rem"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="reports-tbody">
+                            <tr><td colspan="6" class="text-center">Loading reports...</td></tr>
                         </tbody>
                     </table>
                 </div>

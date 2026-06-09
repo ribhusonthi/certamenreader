@@ -4,6 +4,7 @@ import { certamenreader } from '../../database/databases.js';
 import { tossups as tossupsCollection, sets as setsCollection, packets as packetsCollection } from '../../database/certamenreader/collections.js';
 
 import usersRouter from './users.js';
+import schoolsRouter from './schools.js';
 
 import { Router } from 'express';
 
@@ -11,6 +12,13 @@ const router = Router();
 const uploads = certamenreader.collection('uploads');
 
 router.use(async (req, res, next) => {
+  // Local-dev bypass: the dev user isn't in the users collection, so the
+  // isAdmin lookup below would bounce it. get-profile already reports the dev
+  // user as admin. Inert in production where the env var is unset.
+  if (process.env.LOCAL_DEV_BYPASS_AUTH === 'true') {
+    return next();
+  }
+
   const { username, token } = req.session;
 
   if (!checkToken(username, token)) {
@@ -34,6 +42,7 @@ router.get('/category-reports', (_req, res) => {
 });
 
 router.use('/api/users', usersRouter);
+router.use('/api/schools', schoolsRouter);
 
 // Get all uploads
 router.get('/api/uploads', async (_req, res) => {

@@ -89,6 +89,69 @@ mocha.describe('answer-checker', () => {
     });
   });
 
+  mocha.describe('number / word equivalence', () => {
+    mocha.it('accepts spaced number words for a digit answer', () => {
+      accepts('25', 'twenty five');
+      accepts('25', 'twenty-five');
+      accepts('25', '25');
+    });
+    mocha.it('accepts digits for a number-word answer', () => {
+      accepts('twenty-five', '25');
+      accepts('twenty five', '25');
+    });
+    mocha.it('handles single-word numbers both directions', () => {
+      accepts('16', 'sixteen');
+      accepts('sixteen', '16');
+    });
+    mocha.it('handles numbers embedded in a longer answer', () => {
+      accepts('25 hours', 'twenty five hours');
+      accepts('twenty-five hours', '25 hours');
+    });
+    mocha.it('handles large numbers (commas + hundreds)', () => {
+      accepts('1999', 'one thousand nine hundred ninety nine');
+    });
+    mocha.it('does not accept the wrong number', () => {
+      rejects('25', 'twenty six');
+      rejects('25', '52');
+    });
+  });
+
+  mocha.describe('Latin / Greek transliteration variants', () => {
+    mocha.it('accepts k↔c variants', () => {
+      accepts('Heracles', 'Herakles');
+      accepts('Herakles', 'Heracles');
+      accepts('Cerberus', 'Kerberos');
+      accepts('Cronus', 'Kronos');
+      accepts('Circe', 'Kirke');
+    });
+    mocha.it('accepts ae/oe ↔ e', () => {
+      accepts('Caesar', 'Cesar');
+      accepts('Oedipus', 'Edipus');
+    });
+    mocha.it('accepts y ↔ i', () => {
+      accepts('Dionysus', 'Dionisus');
+      accepts('Lycurgus', 'Licurgus');
+    });
+    mocha.it('accepts Latin i↔j and u↔v orthography', () => {
+      accepts('Iulius', 'Julius');
+      accepts('Jupiter', 'Iuppiter');
+    });
+    mocha.it('accepts Greek -os ↔ Latin -us endings', () => {
+      accepts('Cronus', 'Cronos');
+      accepts('Herodotus', 'Herodotos');
+    });
+    mocha.it('accepts doubled ↔ single consonants', () => {
+      accepts('Hippolytus', 'Hipolytus');
+      accepts('Achilles', 'Achiles');
+    });
+    mocha.it('still rejects genuinely different names (no over-merge)', () => {
+      rejects('Marius', 'Marcus');
+      rejects('Romulus', 'Remus');
+      rejects('Cato', 'Caesar');
+      rejects('Hector', 'Helenus');
+    });
+  });
+
   mocha.describe('short Latin answers — strict on form', () => {
     mocha.it('accepts an exact short Latin answer', () => {
       accepts('Caesar', 'Caesar');

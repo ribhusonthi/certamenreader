@@ -1,5 +1,6 @@
 import { DEFAULT_QUERY_RETURN_LENGTH, MAX_QUERY_RETURN_LENGTH } from '../../constants.js';
 import getQuery from '../../database/certamenreader/get-query.js';
+import { getVerifiedUsername } from '../../server/authentication.js';
 
 import { Router } from 'express';
 const router = Router();
@@ -79,6 +80,10 @@ router.get('/', async (req, res) => {
 
   req.query.minYear = isNaN(req.query.minYear) ? undefined : parseInt(req.query.minYear);
   req.query.maxYear = isNaN(req.query.maxYear) ? undefined : parseInt(req.query.maxYear);
+
+  // Always derive the requester from the session — never from the query
+  // string — so private uploads stay invisible to everyone but their owner.
+  req.query.username = getVerifiedUsername(req.session);
 
   try {
     const queryResult = await getQuery(req.query);
