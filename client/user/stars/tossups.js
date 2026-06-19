@@ -1,4 +1,6 @@
 import star from '../../auth/star.js';
+import api from '../../api/index.js';
+import { getBonusPartLabel } from '../../utilities/index.js';
 import { formatAnswerline } from '../../utilities/strings.js';
 
 const tossups = await star.getStarredTossups();
@@ -22,6 +24,10 @@ for (const tossup of tossups) {
                     <span>${tossup.question}</span>&nbsp;
                     <hr></hr>
                     <div><b>ANSWER:</b> ${formatAnswerline(tossup.formatted_answer ?? tossup.answer)}</div>
+                    <div class="mt-3">
+                        <button class="btn btn-sm btn-outline-secondary" id="show-boni-${tossup._id}">Show boni</button>
+                        <div class="mt-2 d-none" id="bonus-for-${tossup._id}"></div>
+                    </div>
                 </div>
                 <div class="card-footer">
                     <small class="text-muted">${tossup.packet.name ? 'Packet ' + tossup.packet.name : '&nbsp;'}</small>
@@ -50,5 +56,63 @@ for (const tossup of tossups) {
                 </svg>`;
       this.classList.toggle('selected');
     }
+  });
+}
+
+function renderBonus (bonus) {
+  if (!bonus || !bonus.parts || bonus.parts.length === 0) {
+    return '<div class="text-muted">No bonus is linked to this tossup.</div>';
+  }
+
+  let cardBody = '';
+  for (let i = 0; i < bonus.parts.length; i++) {
+    cardBody += `
+            <hr></hr>
+            <p>${getBonusPartLabel(bonus, i)} ${bonus.parts[i]}</p>
+            <div>ANSWER: ${formatAnswerline(bonus.answers[i])}</div>
+        `;
+  }
+
+  return `
+        <div class="card">
+            <div class="card-body">
+                <p>${bonus.leadin ?? ''}</p>
+                ${cardBody}
+            </div>
+        </div>
+    `;
+}
+
+for (const tossup of tossups) {
+  const button = document.getElementById(`show-boni-${tossup._id}`);
+  const container = document.getElementById(`bonus-for-${tossup._id}`);
+  let loaded = false;
+
+  button.addEventListener('click', async function () {
+    // Toggle visibility once the bonus has already been fetched.
+    if (loaded) {
+      container.classList.toggle('d-none');
+      button.textContent = container.classList.contains('d-none') ? 'Show boni' : 'Hide boni';
+      return;
+    }
+
+    button.disabled = true;
+    container.classList.remove('d-none');
+    container.innerHTML = '<div class="text-muted">Loading…</div>';
+
+    try {
+      const bonus = await api.getBonusForTossup(
+        tossup.set?.name,
+        tossup.packet?.number,
+        tossup.questionNumber ?? tossup.number
+      );
+      container.innerHTML = renderBonus(bonus);
+    } catch (_error) {
+      container.innerHTML = '<div class="text-danger">There was an error loading the bonus.</div>';
+    }
+
+    loaded = true;
+    button.disabled = false;
+    button.textContent = 'Hide boni';
   });
 }
