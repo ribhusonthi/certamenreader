@@ -6,7 +6,10 @@ const DEFAULT_MAX_YEAR = 2025;
 
 const DIFFICULTIES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-const CATEGORIES = ['Language', 'Literature', 'Culture', 'History', 'Mythology'];
+// The categories questions are actually tagged with — see the categories
+// assigned in server/parser.js. Keep in sync with CERTAMEN_CATEGORIES in
+// client/utilities/index.js and ALLOWED_CATEGORIES in routes/auth/leaderboard.js.
+const CATEGORIES = ['Mythology', 'Roman History', 'Latin Literature', 'Language', 'Culture'];
 const SUBCATEGORY_TO_CATEGORY = {
   'American Literature': 'Literature',
   'British Literature': 'Literature',

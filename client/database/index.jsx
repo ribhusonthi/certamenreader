@@ -3,23 +3,11 @@ import { downloadQuestionsAsText, downloadBonusesAsCSV, downloadTossupsAsCSV, do
 
 import account from '../accounts.js';
 import api from '../api/index.js';
-import CategoryManager from '../utilities/category-manager.js';
 import { attachDropdownChecklist, getDropdownValues } from '../utilities/dropdown-checklist.js';
-import { getBonusPartLabel } from '../utilities/index.js';
+import { CERTAMEN_CATEGORIES, getBonusPartLabel } from '../utilities/index.js';
 import { insertTokensIntoHTML } from '../utilities/insert-tokens-into-html.js';
 
 const paginationShiftLength = window.screen.width > 992 ? 10 : 5;
-
-const CATEGORY_BUTTONS = [
-  ['Mythology', 'primary']];
-
-const SUBCATEGORY_BUTTONS = [];
-
-const ALTERNATE_SUBCATEGORY_BUTTONS = [
-
-];
-
-const categoryManager = new CategoryManager();
 
 async function readQueryResponse (response) {
   if (response.status === 401) {
@@ -341,77 +329,31 @@ function BonusCard ({ bonus, highlightedBonus, hideAnswerlines, showCardFooter, 
   );
 }
 
-function CategoryButton ({ category, color }) {
-  function handleClick () {
-    categoryManager.updateCategory(category);
-    categoryManager.loadCategoryModal();
-  }
+/**
+ * Category chips, matching the chip row in the singleplayer/multiplayer readers.
+ * An empty selection means "every category".
+ */
+function CategorySelect ({ categories, onToggle, onToggleAll }) {
+  const allSelected = categories.length === CERTAMEN_CATEGORIES.length;
 
   return (
-    <div>
-      <input type='checkbox' className='btn-check' autoComplete='off' id={category} onClick={handleClick} />
-      <label className={`btn btn-outline-${color} w-100 rounded-0 my-1`} htmlFor={category}>{category}<br /></label>
-    </div>
-  );
-}
-
-function SubcategoryButton ({ subcategory, color, hidden = false }) {
-  function handleClick () {
-    categoryManager.updateSubcategory(subcategory);
-    categoryManager.loadCategoryModal();
-  }
-
-  return (
-    <div>
-      <input type='checkbox' className='btn-check' autoComplete='off' id={subcategory} onClick={handleClick} />
-      <label className={`btn btn-outline-${color} w-100 rounded-0 my-1 ${hidden && 'd-none'}`} htmlFor={subcategory}>{subcategory}<br /></label>
-    </div>
-  );
-}
-
-function AlternateSubcategoryButton ({ subcategory, color, hidden = false }) {
-  function handleClick () {
-    categoryManager.updateAlternateSubcategory(subcategory);
-    categoryManager.loadCategoryModal();
-  }
-
-  return (
-    <div>
-      <input type='checkbox' className='btn-check' autoComplete='off' id={subcategory} onClick={handleClick} />
-      <label className={`btn btn-outline-${color} w-100 rounded-0 my-1 ${hidden && 'd-none'}`} htmlFor={subcategory}>{subcategory}<br /></label>
-    </div>
-  );
-}
-
-function CategoryModal () {
-  return (
-    <div className='modal modal-lg' id='category-modal' tabIndex='-1'>
-      <div className='modal-dialog modal-dialog-scrollable'>
-        <div className='modal-content'>
-          <div className='modal-header'>
-            <h5 className='modal-title'>Select Category</h5>
-            <button type='button' className='btn-close' data-bs-dismiss='modal' aria-label='Close' />
-          </div>
-          <div className='modal-body'>
-            <div className='row'>
-              <div className='col-4' id='categories'>
-                <h5 className='text-center'>Category</h5>
-                {CATEGORY_BUTTONS.map((element) => <CategoryButton key={element[0]} category={element[0]} color={element[1]} />)}
-              </div>
-              <div className='col-4' id='subcategories'>
-                <h5 className='text-center'>Round</h5>
-                <div className='text-muted text-center' id='subcategory-info-text'>
-                  You must select Category before you can select a Subcategory.
-                </div>
-                {SUBCATEGORY_BUTTONS.map((element) => <SubcategoryButton key={element[0]} subcategory={element[0]} color={element[1]} hidden />)}
-              </div>
-              <div className='col-4' id='alternate-subcategories'>
-                {/* <h5 className='text-center'>Alternate <span className='d-none d-lg-inline'>Subcategory</span></h5> */}
-                {ALTERNATE_SUBCATEGORY_BUTTONS.map((element) => <AlternateSubcategoryButton key={element[0]} subcategory={element[0]} color={element[1]} hidden />)}
-              </div>
-            </div>
-          </div>
-        </div>
+    <div className='db-cat-select'>
+      <div className='db-cat-hdr'>
+        <span>Categories</span>
+        <a className='db-cat-toggle-all clickable' id='category-toggle-all' onClick={onToggleAll}>
+          {allSelected ? 'clear all' : 'toggle all'}
+        </a>
+      </div>
+      <div className='db-cat-row' id='category-chips'>
+        {CERTAMEN_CATEGORIES.map((category) => (
+          <button
+            key={category} type='button' className='cat-chip' data-cat={category}
+            data-on={categories.includes(category) ? 'true' : 'false'}
+            onClick={() => { onToggle(category); }}
+          >
+            {category}
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -425,6 +367,7 @@ function QueryForm () {
   const [tossupCount, setTossupCount] = React.useState(0);
   const [bonusCount, setBonusCount] = React.useState(0);
 
+  const [categories, setCategories] = React.useState([]);
   const [difficulties, setDifficulties] = React.useState([]);
   const [maxReturnLength, setMaxReturnLength] = React.useState('');
   const [queryString, setQueryString] = React.useState('');
@@ -453,6 +396,16 @@ function QueryForm () {
   const [queryTime, setQueryTime] = React.useState(0);
 
   const fontSize = window.localStorage.getItem('database-font-size') === 'true' ? (window.localStorage.getItem('font-size') ?? 16) : 16;
+
+  function toggleCategory (category) {
+    setCategories(categories.includes(category)
+      ? categories.filter(a => a !== category)
+      : categories.concat([category]));
+  }
+
+  function toggleAllCategories () {
+    setCategories(categories.length === CERTAMEN_CATEGORIES.length ? [] : [...CERTAMEN_CATEGORIES]);
+  }
 
   function arrayBetween (start, end) {
     return Array(end - start).fill().map((_, idx) => start + idx);
@@ -539,7 +492,7 @@ function QueryForm () {
 
     const params = new URLSearchParams({
       queryString,
-      ...categoryManager.export(),
+      categories,
       difficulties,
       maxReturnLength,
       questionType,
@@ -696,7 +649,6 @@ function QueryForm () {
 
   return (
     <div>
-      <CategoryModal />
       <form className='mt-4 mb-5' onSubmit={event => { handleSubmit(event); }}>
         <div className='input-group input-group-lg mb-3 shadow'>
           <input type='text' className='form-control' id='query' placeholder='Query' value={queryString} onChange={event => { setQueryString(event.target.value); }} />
@@ -731,15 +683,15 @@ function QueryForm () {
             <input type='number' className='form-control' id='max-return-length' placeholder='# to Display' value={maxReturnLength} onChange={event => { setMaxReturnLength(event.target.value); }} />
           </div>
           <div className='input-group col-12 col-xl-6 mb-2'>
-            <button type='button' className='db-set-picker' id='db-set-picker' data-bs-toggle='modal' data-bs-target='#set-modal'>
+            <button type='button' className='db-set-picker db-set-picker-full' id='db-set-picker' data-bs-toggle='modal' data-bs-target='#set-modal'>
               <span className='db-set-picker-label' id='db-set-picker-label'>Any set</span>
               <span className='db-set-picker-cta'>Change</span>
             </button>
             <input type='hidden' id='set-name' />
             <input type='hidden' id='set-names' />
-            <button type='button' className='btn btn-danger' id='category-select-button' data-bs-toggle='modal' data-bs-target='#category-modal'>Category</button>
           </div>
         </div>
+        <CategorySelect categories={categories} onToggle={toggleCategory} onToggleAll={toggleAllCategories} />
         <div className='row'>
           <div className='col-6 col-md-3 mb-2'>
             <select className='form-select' id='search-type' value={searchType} onChange={event => { setSearchType(event.target.value); }}>

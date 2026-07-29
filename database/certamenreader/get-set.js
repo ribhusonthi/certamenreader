@@ -1,6 +1,5 @@
 import { tossups, bonuses } from './collections.js';
 
-import { CATEGORIES, SUBCATEGORIES_FLATTENED } from '../../constants.js';
 // eslint-disable-next-line no-unused-vars
 import * as types from '../../types.js';
 
@@ -18,16 +17,23 @@ import * as types from '../../types.js';
 async function getSet ({ setName, packetNumbers, categories, subcategories, questionType = 'tossup', reverse = false }) {
   if (!setName) return [];
 
-  if (!categories || categories.length === 0) categories = CATEGORIES;
-  if (!subcategories || subcategories.length === 0) subcategories = SUBCATEGORIES_FLATTENED;
   if (!questionType) questionType = 'tossup';
 
+  // An empty (or absent) list means "no filter" — the same convention
+  // getRandomTossups and getRandomBonuses use. Filtering against a fixed list
+  // instead would drop questions whose category or subcategory isn't on it.
   const filter = {
     'set.name': setName,
-    category: { $in: categories },
-    subcategory: { $in: subcategories },
     'packet.number': { $in: packetNumbers }
   };
+
+  if (categories?.length) {
+    filter.category = { $in: categories };
+  }
+
+  if (subcategories?.length) {
+    filter.subcategory = { $in: subcategories };
+  }
 
   const options = {
     sort: { 'packet.number': reverse ? -1 : 1, number: reverse ? -1 : 1 },

@@ -2,13 +2,12 @@ import account from '../accounts.js';
 import questionStats from '../auth/question-stats.js';
 import api from '../api/index.js';
 import audio from '../audio/index.js';
-import { createTossupCard } from '../utilities/index.js';
+import { CERTAMEN_CATEGORIES, createTossupCard } from '../utilities/index.js';
 import CategoryManager from '../utilities/category-manager.js';
 import { insertTokensIntoHTML } from '../utilities/insert-tokens-into-html.js';
 import { initSetSelector } from '../utilities/set-selector.js';
 import { formatAnswerline } from '../utilities/strings.js';
 
-const CERTAMEN_CATEGORIES = ['Language', 'Literature', 'Culture', 'History', 'Mythology'];
 let userIsAdmin = false;
 
 function categoryClassName (category) {

@@ -2,15 +2,10 @@ import { stringifyBonus, stringifyTossup } from './stringify.js';
 import { downloadQuestionsAsText, downloadBonusesAsCSV, downloadTossupsAsCSV, downloadQuestionsAsJSON } from './download.js';
 import account from '../accounts.js';
 import api from '../api/index.js';
-import CategoryManager from '../utilities/category-manager.js';
 import { attachDropdownChecklist, getDropdownValues } from '../utilities/dropdown-checklist.js';
-import { getBonusPartLabel } from '../utilities/index.js';
+import { CERTAMEN_CATEGORIES, getBonusPartLabel } from '../utilities/index.js';
 import { insertTokensIntoHTML } from '../utilities/insert-tokens-into-html.js';
 const paginationShiftLength = window.screen.width > 992 ? 10 : 5;
-const CATEGORY_BUTTONS = [['Mythology', 'primary']];
-const SUBCATEGORY_BUTTONS = [];
-const ALTERNATE_SUBCATEGORY_BUTTONS = [];
-const categoryManager = new CategoryManager();
 async function readQueryResponse(response) {
   if (response.status === 401) {
     window.location.href = '/user/login?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
@@ -363,118 +358,38 @@ function BonusCard({
     "data-bs-target": "#report-question-modal"
   }, "Report Question")))));
 }
-function CategoryButton({
-  category,
-  color
+
+/**
+ * Category chips, matching the chip row in the singleplayer/multiplayer readers.
+ * An empty selection means "every category".
+ */
+function CategorySelect({
+  categories,
+  onToggle,
+  onToggleAll
 }) {
-  function handleClick() {
-    categoryManager.updateCategory(category);
-    categoryManager.loadCategoryModal();
-  }
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
-    type: "checkbox",
-    className: "btn-check",
-    autoComplete: "off",
-    id: category,
-    onClick: handleClick
-  }), /*#__PURE__*/React.createElement("label", {
-    className: `btn btn-outline-${color} w-100 rounded-0 my-1`,
-    htmlFor: category
-  }, category, /*#__PURE__*/React.createElement("br", null)));
-}
-function SubcategoryButton({
-  subcategory,
-  color,
-  hidden = false
-}) {
-  function handleClick() {
-    categoryManager.updateSubcategory(subcategory);
-    categoryManager.loadCategoryModal();
-  }
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
-    type: "checkbox",
-    className: "btn-check",
-    autoComplete: "off",
-    id: subcategory,
-    onClick: handleClick
-  }), /*#__PURE__*/React.createElement("label", {
-    className: `btn btn-outline-${color} w-100 rounded-0 my-1 ${hidden && 'd-none'}`,
-    htmlFor: subcategory
-  }, subcategory, /*#__PURE__*/React.createElement("br", null)));
-}
-function AlternateSubcategoryButton({
-  subcategory,
-  color,
-  hidden = false
-}) {
-  function handleClick() {
-    categoryManager.updateAlternateSubcategory(subcategory);
-    categoryManager.loadCategoryModal();
-  }
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
-    type: "checkbox",
-    className: "btn-check",
-    autoComplete: "off",
-    id: subcategory,
-    onClick: handleClick
-  }), /*#__PURE__*/React.createElement("label", {
-    className: `btn btn-outline-${color} w-100 rounded-0 my-1 ${hidden && 'd-none'}`,
-    htmlFor: subcategory
-  }, subcategory, /*#__PURE__*/React.createElement("br", null)));
-}
-function CategoryModal() {
+  const allSelected = categories.length === CERTAMEN_CATEGORIES.length;
   return /*#__PURE__*/React.createElement("div", {
-    className: "modal modal-lg",
-    id: "category-modal",
-    tabIndex: "-1"
+    className: "db-cat-select"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-dialog modal-dialog-scrollable"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-content"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-header"
-  }, /*#__PURE__*/React.createElement("h5", {
-    className: "modal-title"
-  }, "Select Category"), /*#__PURE__*/React.createElement("button", {
+    className: "db-cat-hdr"
+  }, /*#__PURE__*/React.createElement("span", null, "Categories"), /*#__PURE__*/React.createElement("a", {
+    className: "db-cat-toggle-all clickable",
+    id: "category-toggle-all",
+    onClick: onToggleAll
+  }, allSelected ? 'clear all' : 'toggle all')), /*#__PURE__*/React.createElement("div", {
+    className: "db-cat-row",
+    id: "category-chips"
+  }, CERTAMEN_CATEGORIES.map(category => /*#__PURE__*/React.createElement("button", {
+    key: category,
     type: "button",
-    className: "btn-close",
-    "data-bs-dismiss": "modal",
-    "aria-label": "Close"
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "modal-body"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "row"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "col-4",
-    id: "categories"
-  }, /*#__PURE__*/React.createElement("h5", {
-    className: "text-center"
-  }, "Category"), CATEGORY_BUTTONS.map(element => /*#__PURE__*/React.createElement(CategoryButton, {
-    key: element[0],
-    category: element[0],
-    color: element[1]
-  }))), /*#__PURE__*/React.createElement("div", {
-    className: "col-4",
-    id: "subcategories"
-  }, /*#__PURE__*/React.createElement("h5", {
-    className: "text-center"
-  }, "Round"), /*#__PURE__*/React.createElement("div", {
-    className: "text-muted text-center",
-    id: "subcategory-info-text"
-  }, "You must select Category before you can select a Subcategory."), SUBCATEGORY_BUTTONS.map(element => /*#__PURE__*/React.createElement(SubcategoryButton, {
-    key: element[0],
-    subcategory: element[0],
-    color: element[1],
-    hidden: true
-  }))), /*#__PURE__*/React.createElement("div", {
-    className: "col-4",
-    id: "alternate-subcategories"
-  }, ALTERNATE_SUBCATEGORY_BUTTONS.map(element => /*#__PURE__*/React.createElement(AlternateSubcategoryButton, {
-    key: element[0],
-    subcategory: element[0],
-    color: element[1],
-    hidden: true
-  }))))))));
+    className: "cat-chip",
+    "data-cat": category,
+    "data-on": categories.includes(category) ? 'true' : 'false',
+    onClick: () => {
+      onToggle(category);
+    }
+  }, category))));
 }
 function QueryForm() {
   const [tossups, setTossups] = React.useState([]);
@@ -483,6 +398,7 @@ function QueryForm() {
   const [highlightedBonuses, setHighlightedBonuses] = React.useState([]);
   const [tossupCount, setTossupCount] = React.useState(0);
   const [bonusCount, setBonusCount] = React.useState(0);
+  const [categories, setCategories] = React.useState([]);
   const [difficulties, setDifficulties] = React.useState([]);
   const [maxReturnLength, setMaxReturnLength] = React.useState('');
   const [queryString, setQueryString] = React.useState('');
@@ -506,6 +422,12 @@ function QueryForm() {
   const [bonusPaginationShift, setBonusPaginationShift] = React.useState(0);
   const [queryTime, setQueryTime] = React.useState(0);
   const fontSize = window.localStorage.getItem('database-font-size') === 'true' ? window.localStorage.getItem('font-size') ?? 16 : 16;
+  function toggleCategory(category) {
+    setCategories(categories.includes(category) ? categories.filter(a => a !== category) : categories.concat([category]));
+  }
+  function toggleAllCategories() {
+    setCategories(categories.length === CERTAMEN_CATEGORIES.length ? [] : [...CERTAMEN_CATEGORIES]);
+  }
   function arrayBetween(start, end) {
     return Array(end - start).fill().map((_, idx) => start + idx);
   }
@@ -578,7 +500,7 @@ function QueryForm() {
     }
     const params = new URLSearchParams({
       queryString,
-      ...categoryManager.export(),
+      categories,
       difficulties,
       maxReturnLength,
       questionType,
@@ -677,7 +599,7 @@ function QueryForm() {
   }
   const tossupCards = [];
   for (let i = 0; i < highlightedTossups.length; i++) {
-    tossupCards.push(/*#__PURE__*/React.createElement(TossupCard, {
+    tossupCards.push( /*#__PURE__*/React.createElement(TossupCard, {
       key: i,
       tossup: tossups[i],
       highlightedTossup: highlightedTossups[i],
@@ -688,7 +610,7 @@ function QueryForm() {
   }
   const bonusCards = [];
   for (let i = 0; i < highlightedBonuses.length; i++) {
-    bonusCards.push(/*#__PURE__*/React.createElement(BonusCard, {
+    bonusCards.push( /*#__PURE__*/React.createElement(BonusCard, {
       key: i,
       bonus: bonuses[i],
       highlightedBonus: highlightedBonuses[i],
@@ -756,7 +678,7 @@ function QueryForm() {
 
     // The set picker now lives in #set-modal; it's populated by set-selector.js.
   }, []);
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(CategoryModal, null), /*#__PURE__*/React.createElement("form", {
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("form", {
     className: "mt-4 mb-5",
     onSubmit: event => {
       handleSubmit(event);
@@ -826,7 +748,7 @@ function QueryForm() {
     className: "input-group col-12 col-xl-6 mb-2"
   }, /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "db-set-picker",
+    className: "db-set-picker db-set-picker-full",
     id: "db-set-picker",
     "data-bs-toggle": "modal",
     "data-bs-target": "#set-modal"
@@ -841,13 +763,11 @@ function QueryForm() {
   }), /*#__PURE__*/React.createElement("input", {
     type: "hidden",
     id: "set-names"
-  }), /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    className: "btn btn-danger",
-    id: "category-select-button",
-    "data-bs-toggle": "modal",
-    "data-bs-target": "#category-modal"
-  }, "Category"))), /*#__PURE__*/React.createElement("div", {
+  }))), /*#__PURE__*/React.createElement(CategorySelect, {
+    categories: categories,
+    onToggle: toggleCategory,
+    onToggleAll: toggleAllCategories
+  }), /*#__PURE__*/React.createElement("div", {
     className: "row"
   }, /*#__PURE__*/React.createElement("div", {
     className: "col-6 col-md-3 mb-2"
@@ -1169,4 +1089,4 @@ function QueryForm() {
   })));
 }
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(/*#__PURE__*/React.createElement(QueryForm, null));
+root.render( /*#__PURE__*/React.createElement(QueryForm, null));

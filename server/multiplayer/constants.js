@@ -37,15 +37,17 @@ export const PERMANENT_ROOMS = [
     subcategories: [],
     difficulties: [4, 5, 6, 7, 8, 9, 10]
   },
+  // Room names travel in the URL path and are validated by hasValidCharacters,
+  // so they use hyphens even though the categories they select have spaces.
   {
-    name: 'Literature',
-    categories: ['Literature'],
+    name: 'Latin-Literature',
+    categories: ['Latin Literature'],
     subcategories: [],
     difficulties: [4, 5, 6, 7, 8, 9, 10]
   },
   {
-    name: 'History',
-    categories: ['History'],
+    name: 'Roman-History',
+    categories: ['Roman History'],
     subcategories: [],
     difficulties: [4, 5, 6, 7, 8, 9, 10]
   },

@@ -1,3 +1,5 @@
+import { CATEGORIES } from '../../constants.js';
+
 const RANKED_QUESTION_COUNT = 10;
 const RANKED_DEFAULT_RATING = 1000;
 const RANKED_PLACEMENT_GAMES = 5;
@@ -8,8 +10,9 @@ const RANKED_MODES = {
   all: {
     id: 'all',
     label: 'All Categories',
-    categories: ['Language', 'Literature', 'Culture', 'History', 'Mythology'],
-    distribution: ['Language', 'Literature', 'Culture', 'History', 'Mythology', 'Language', 'Literature', 'Culture', 'History', 'Mythology']
+    categories: CATEGORIES,
+    // Even split across the categories, RANKED_QUESTION_COUNT questions long.
+    distribution: Array.from({ length: RANKED_QUESTION_COUNT }, (_, i) => CATEGORIES[i % CATEGORIES.length])
   },
   language: {
     id: 'language',
@@ -17,11 +20,13 @@ const RANKED_MODES = {
     categories: ['Language'],
     distribution: Array(RANKED_QUESTION_COUNT).fill('Language')
   },
+  // The `id`s are persisted in rankedRatings.mode, so they stay as-is even
+  // though the categories they select were renamed.
   literature: {
     id: 'literature',
-    label: 'Literature',
-    categories: ['Literature'],
-    distribution: Array(RANKED_QUESTION_COUNT).fill('Literature')
+    label: 'Latin Literature',
+    categories: ['Latin Literature'],
+    distribution: Array(RANKED_QUESTION_COUNT).fill('Latin Literature')
   },
   culture: {
     id: 'culture',
@@ -31,9 +36,9 @@ const RANKED_MODES = {
   },
   history: {
     id: 'history',
-    label: 'History',
-    categories: ['History'],
-    distribution: Array(RANKED_QUESTION_COUNT).fill('History')
+    label: 'Roman History',
+    categories: ['Roman History'],
+    distribution: Array(RANKED_QUESTION_COUNT).fill('Roman History')
   },
   mythology: {
     id: 'mythology',

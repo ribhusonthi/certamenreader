@@ -2,7 +2,10 @@ import star from '../auth/star.js';
 import api from '../api/index.js';
 import { formatAnswerline, removeParentheses } from './strings.js';
 
-const CERTAMEN_CATEGORIES = ['Language', 'Literature', 'Culture', 'History', 'Mythology'];
+// The categories questions are actually tagged with. Keep in sync with
+// ALLOWED_CATEGORIES in routes/auth/leaderboard.js and the categories
+// server/parser.js assigns.
+const CERTAMEN_CATEGORIES = ['Mythology', 'Roman History', 'Latin Literature', 'Language', 'Culture'];
 
 // Constants and functions useful for certamen packet reading.
 
@@ -416,6 +419,7 @@ function rangeToArray (string, max = 0) {
 
 export {
   arrayToRange,
+  CERTAMEN_CATEGORIES,
   createBonusCard,
   createTossupCard,
   getBonusPartLabel,

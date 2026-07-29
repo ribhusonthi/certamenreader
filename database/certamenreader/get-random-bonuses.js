@@ -1,7 +1,7 @@
 import { bonuses } from './collections.js';
 import { questionPrivacyFilter } from './set-privacy.js';
 
-import { DIFFICULTIES, CATEGORIES, SUBCATEGORIES_FLATTENED, DEFAULT_MIN_YEAR, DEFAULT_MAX_YEAR } from '../../constants.js';
+import { DIFFICULTIES, DEFAULT_MIN_YEAR, DEFAULT_MAX_YEAR } from '../../constants.js';
 
 // eslint-disable-next-line no-unused-vars
 import * as types from '../../types.js';
@@ -23,8 +23,8 @@ import * as types from '../../types.js';
  */
 async function getRandomBonuses ({
   difficulties = DIFFICULTIES,
-  categories = CATEGORIES,
-  subcategories = SUBCATEGORIES_FLATTENED,
+  categories,
+  subcategories,
   alternateSubcategories = [],
   number = 1,
   minYear = DEFAULT_MIN_YEAR,
