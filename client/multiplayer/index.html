@@ -10,16 +10,21 @@
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
     <link type="image/x-icon" href="/favicon.ico" rel="icon">
 
-    <link href="/bootstrap/light.css" rel="stylesheet">
-    <link href="/bootstrap/dark.css" rel="stylesheet" id="custom-css">
+    <!-- Load only the active theme's stylesheet. light.css and dark.css are
+         ~348 KB each and near-identical, so linking both doubled the CSS
+         payload to render one of them. Injected synchronously here so it
+         still blocks paint — no flash of unstyled content. -->
+    <script>(function(){var t=localStorage.getItem('color-theme');if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.dataset.colorTheme=t;var l=document.createElement('link');l.id='custom-css';l.rel='stylesheet';l.href='/bootstrap/'+t+'.css';document.head.appendChild(l)})()</script>
+    <noscript><link id="custom-css" rel="stylesheet" href="/bootstrap/light.css"></noscript>
     <script type="module" src="/apply-theme.js"></script>
 </head>
 
 <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <nav class="navbar navbar-dark navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
         <div class="container-fluid">
             <a class="navbar-brand brand-editorial ms-1 py-0" id="logo" href="/">
-                <span class="brand-mark"><img src="/buzzer-icon.png" alt=""></span><span class="brand-word">Certamen<b>Reader</b></span>
+                <span class="brand-mark"><img src="/buzzer-icon.png" alt="" width="373" height="669" decoding="async"></span><span class="brand-word">Certamen<b>Reader</b></span>
             </a>
             <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,15 +65,18 @@
             </div>
         </div>
     </nav>
-
-    <div class="mp">
+    <main id="main-content" class="mp">
         <div class="mp-hdr">
             <div>
-                <h1>Rooms</h1>
+                <span class="ed-eyebrow">Multiplayer</span>
+                <h1>Play a <em>room</em></h1>
                 <p>Play Certamen real-time against other players. Join a public room or create your own — share the URL to invite friends.</p>
             </div>
-            <form id="form" class="d-flex gap-2 align-items-center flex-wrap">
-                <input class="form-control" id="new-room-name" type="text" style="min-width: 200px;">
+            <form id="form" class="mp-create-form">
+                <div class="mp-create-field">
+                    <label class="mp-create-label" for="new-room-name">Room name</label>
+                    <input class="form-control" id="new-room-name" type="text" autocomplete="off">
+                </div>
                 <div class="form-check form-switch m-0">
                     <input class="form-check-input" id="private-room-checkbox" type="checkbox" role="switch">
                     <label class="form-check-label" for="private-room-checkbox">Private</label>
@@ -78,7 +86,7 @@
         </div>
 
         <div class="mp-rooms" id="room-list"></div>
-    </div>
+    </main>
 
     <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
     <script type="module" src="/script.js"></script>

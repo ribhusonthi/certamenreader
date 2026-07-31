@@ -1,4 +1,5 @@
 import { applyColorTheme, preferredColorTheme } from '../apply-theme.js';
+import { READER_TOGGLES, getToggle, setToggle, onSettingsChange } from '../utilities/reader-settings.js';
 
 if (window.localStorage.getItem('font-size')) {
   document.getElementById('font-size').value = window.localStorage.getItem('font-size');
@@ -134,3 +135,40 @@ revokeAnkiToken.addEventListener('click', async function () {
 });
 
 loadAnkiTokenStatus();
+
+// ── Reading section ──────────────────────────────────────────────────────
+// The reader's gameplay settings were only reachable from the reader's own
+// sidebar, so this page claimed to be "site preferences" while omitting most
+// of them. Rendered from the shared descriptor list so the home card and this
+// page can't drift apart.
+const readerSettingsEl = document.getElementById('reader-settings');
+if (readerSettingsEl) {
+  const render = () => {
+    const typeToAnswer = getToggle(READER_TOGGLES.find(t => t.key === 'typeToAnswer'));
+    readerSettingsEl.innerHTML = READER_TOGGLES.map((t, i) => {
+      const on = getToggle(t);
+      const disabled = t.requires && !typeToAnswer;
+      const hint = disabled ? 'Requires “Type to answer”.' : t.hint;
+      return `
+        <button type="button" class="toggle-row reader-toggle" data-i="${i}"
+                role="switch" aria-checked="${on}" ${disabled ? 'disabled aria-disabled="true"' : ''}>
+          <div>
+            <span class="settings-label">${t.label}</span>
+            <div class="settings-hint">${hint}</div>
+          </div>
+          <span class="toggle-switch" aria-hidden="true"></span>
+        </button>`;
+    }).join('');
+  };
+
+  readerSettingsEl.addEventListener('click', (event) => {
+    const btn = event.target.closest('.reader-toggle');
+    if (!btn || btn.disabled) return;
+    const toggle = READER_TOGGLES[Number(btn.dataset.i)];
+    setToggle(toggle, !getToggle(toggle));
+    render();
+  });
+
+  onSettingsChange(render);
+  render();
+}

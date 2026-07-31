@@ -10,10 +10,12 @@
         "start": "node index.js",
         "sass": "sass scss/light.scss client/bootstrap/light.css && sass scss/dark.scss client/bootstrap/dark.css",
         "lint": "npx semistandard --fix",
-        "test:all": "npm test"
+        "test:all": "npm test",
+        "seed:demo": "node scripts/seed-demo.js"
     },
     "dependencies": {
         "bootstrap": "5.2.3",
+        "compression": "^1.8.1",
         "cookie-session": "^2.0.0",
         "cors": "^2.8.5",
         "damerau-levenshtein-js": "^1.1.8",

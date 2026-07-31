@@ -4,9 +4,10 @@
 // 2. Include any default variable overrides here
 @import "./dark-variables.scss";
 
-kbd {
-    background-color: $gray-600 !important;
-}
+// A global `kbd { background-color: $gray-600 !important }` used to live here.
+// The !important beat every considered keycap style in custom.scss, so the
+// shortcut keys rendered as mid-grey blobs with light grey glyphs on top and
+// were unreadable. Keycaps are now themed once, in custom.scss.
 
 .form-switch .form-check-input {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%28108, 117, 125, 1%29'/%3e%3c/svg%3e") !important;
@@ -34,16 +35,24 @@ kbd {
     color-scheme: dark;
 }
 
-// Dark mode glowing enhancements
+// The navbar sits on the page as a surface, not a light source — a hairline
+// border (set on .navbar.bg-custom in custom.scss) reads as cleaner than the
+// 25px coloured bloom that used to be here.
 .bg-custom {
-    box-shadow: 0 4px 25px rgba($custom, 0.4);
+    box-shadow: none;
 }
 
-a:not(.btn):not(.nav-link):not(.dropdown-item) {
-    text-shadow: 0 0 8px rgba($link-color, 0.4);
-    transition: text-shadow 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    
+// Links previously carried a permanent neon text-shadow that thickened on
+// hover. It smeared glyph edges and hurt legibility in a product where most
+// of the screen is text. Underline on hover is the readable signal.
+a:not(.btn):not(.nav-link):not(.dropdown-item):not(.navbar-brand) {
+    text-decoration-color: rgba($link-color, 0.4);
+    text-underline-offset: 0.18em;
+    transition: color var(--dur-1, 120ms) var(--ease-standard, ease),
+                text-decoration-color var(--dur-1, 120ms) var(--ease-standard, ease);
+
     &:hover {
-        text-shadow: 0 0 15px rgba($link-color, 0.7);
+        text-decoration: underline;
+        text-decoration-color: currentColor;
     }
 }

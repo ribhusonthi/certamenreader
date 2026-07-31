@@ -8,6 +8,7 @@ import handleWssConnection from './server/multiplayer/handle-wss-connection.js';
 import { checkToken, generateToken, sessionKeys } from './server/authentication.js';
 import passport from 'passport';
 
+import compression from 'compression';
 import cookieSession from 'cookie-session';
 import express from 'express';
 import { createServer } from 'http';
@@ -40,6 +41,28 @@ app.use((req, res, next) => {
 // See https://masteringjs.io/tutorials/express/query-parameters
 // for why we use 'simple'
 app.set('query parser', 'simple');
+
+// Static-asset caching. Everything was served with `Cache-Control: max-age=0`,
+// so every navigation re-validated every asset — a round trip per file even
+// when nothing changed. Filenames aren't content-hashed, so long immutable
+// caching would strand users on stale CSS after a deploy; these values cut
+// the round trips while still picking changes up quickly. ETags still make
+// any revalidation a cheap 304.
+app.use((req, res, next) => {
+  if (/\.(?:png|jpe?g|gif|svg|ico|woff2?|mp3|wav)$/i.test(req.path)) {
+    res.setHeader('Cache-Control', 'public, max-age=604800'); // 7 days
+  } else if (/\.(?:css|js)$/i.test(req.path)) {
+    res.setHeader('Cache-Control', 'public, max-age=300, must-revalidate');
+  } else if (/\.html$/i.test(req.path) || req.path === '/') {
+    res.setHeader('Cache-Control', 'no-cache');
+  }
+  next();
+});
+
+// gzip every text response. The compiled stylesheets are ~348 KB each and
+// were being served uncompressed — compression takes them to ~55 KB, which
+// is the single largest win available on a phone.
+app.use(compression());
 
 app.use(express.json());
 
@@ -76,6 +99,8 @@ function isAuthExempt (path) {
     path === '/' ||
     path === '/user/login' ||
     path === '/waltoncertamen' ||
+    // Internal design review — reviewers on a local dev build have no account.
+    path === '/review' ||
     path === '/api/set-list' ||
     path.startsWith('/auth/') ||
     path.startsWith('/api/anki') ||

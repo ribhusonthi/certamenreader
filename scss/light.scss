@@ -5,7 +5,7 @@
 @import "./light-variables.scss";
 
 .timer {
-    background: linear-gradient(#ddd, #eee);
+    background: none;
     font-size: 250%;
 }
 
@@ -25,34 +25,66 @@
 :root {
     color-scheme: light;
 
-    --accent-l: 0.56;
-    --accent-c: 0.15;
-    --accent-glow: oklch(var(--accent-l) var(--accent-c) var(--accent-h) / 0.22);
+    /* Light theme is the violet itself; dark uses its lighter tint. */
+    --accent: #6355d4;
+    --accent-soft: #edeaf5;
+    --accent-glow: rgba(99, 85, 212, 0.16);
+    --accent-ink: #ffffff;
+    --accent-line: #c9c2ec;
 
-    --ed-bg: oklch(0.985 0.008 85);
-    --ed-bg-raised: oklch(1 0 0);
-    --ed-bg-card: oklch(0.995 0.004 85);
-    --ed-bg-sunken: oklch(0.955 0.010 85);
+    --focus-ring: #6355d4;
 
-    --ed-border: oklch(0.82 0.014 80);
-    --ed-border-soft: oklch(0.88 0.012 80 / 0.75);
+    /* Warm paper ground from the Figma palette. Never pure white. */
+    --ed-bg: #f5f2ed;
+    --ed-bg-raised: #ffffff;
+    --ed-bg-card: #ffffff;
+    --ed-bg-sunken: #ede9e3;
 
-    --ed-ink: oklch(0.22 0.018 55);
-    --ed-ink-dim: oklch(0.36 0.018 55);
-    --ed-ink-muted: oklch(0.52 0.016 55);
-    --ed-ink-faint: oklch(0.68 0.014 55);
+    --ed-border: #dbd7d0;
+    --ed-border-soft: #e8e4dd;
+    --ed-border-strong: #bfbab1;
 
-    --c-mythology: oklch(0.44 0.16 330);
-    --c-roman-history: oklch(0.43 0.13 155);
-    --c-latin-literature: oklch(0.50 0.14 85);
-    --c-language: oklch(0.40 0.14 245);
-    --c-culture: oklch(0.46 0.16 45);
+    /* --ed-ink is Figma's foreground verbatim. The muted/faint steps are
+       darkened from Figma's #6b6760, which measures 4.41:1 against
+       --ed-bg-sunken — the darkest surface these labels land on, and just
+       under the 4.5:1 AA floor. #5d594f measures 5.4:1 there and 5.9:1 on
+       the page ground. Hue unchanged. AA is the ratio the accessibility
+       laws actually reference (EAA, EN 301 549, Section 508). */
+    --ed-ink: #1a1c24;
+    --ed-ink-dim: #474956;
+    --ed-ink-muted: #5d594f;
+    --ed-ink-faint: #625e55;
 
-    --correct: oklch(0.46 0.15 150);
-    --incorrect: oklch(0.50 0.20 25);
-    --power: oklch(0.55 0.15 85);
+    --ahead: #a8a49c;
+    --track: #8a8781;
+
+    /* Category hues from the Figma palette, tuned for the light ground.
+       Note these reassign two of the five: history moves green → red,
+       literature gold → green.
+
+       Roman History is crimson rather than Figma's #dc2626, which was
+       byte-identical to the error red below — a Roman History chip and a
+       wrong answer were the same colour. Rose keeps "history is red" while
+       staying distinct from --incorrect and from --c-culture's orange. */
+    --c-mythology: #7c3aed;
+    --c-roman-history: #9f1239;
+    /* Figma's #059669 measures 3.8:1 as chip text and as a filled chip with
+       white ink. Darkened one step to clear AA; hue unchanged. */
+    --c-latin-literature: #047857;
+    --c-language: #0369a1;
+    --c-culture: #c2410c;
+
+    /* Ink for text sitting ON a filled category chip. The light hues are
+       dark enough that white is the readable choice here. */
+    --cat-chip-ink: #ffffff;
+
+    /* Figma's light --state-correct is #16a34a, which is 3.1:1 as text on
+       the card ground. One step darker clears AA; hue unchanged. */
+    --correct: #15803d;
+    --incorrect: #dc2626;
+    --power: #b45309;
 }
 
 .bg-custom {
-    box-shadow: 0 3px 18px oklch(0.56 0.15 287 / 0.16);
+    box-shadow: none;
 }

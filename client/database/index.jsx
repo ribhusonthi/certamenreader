@@ -699,12 +699,14 @@ function QueryForm () {
       <CategoryModal />
       <form className='mt-4 mb-5' onSubmit={event => { handleSubmit(event); }}>
         <div className='input-group input-group-lg mb-3 shadow'>
-          <input type='text' className='form-control' id='query' placeholder='Query' value={queryString} onChange={event => { setQueryString(event.target.value); }} />
-          <button type='submit' className='btn btn-info btn-lg px-4'>Search</button>
+          <label className='visually-hidden' htmlFor='query'>Search questions</label>
+          <input type='text' className='form-control' id='query' placeholder='Search questions…' value={queryString} onChange={event => { setQueryString(event.target.value); }} />
+          <button type='submit' className='btn btn-primary btn-lg px-4'>Search</button>
           <button id='randomize' className='btn btn-success btn-lg px-4' onClick={event => { handleSubmit(event, true); }}>Random</button>
         </div>
         <div className='row opacity-75'>
           <div className='col-6 col-xl-3 mb-2'>
+            <label className='db-field-label' htmlFor='dropdownMenu1'>Difficulty</label>
             <div className='dropdown-checklist btn-group w-100'>
               <button
                 className='btn btn-default text-start w-100' id='dropdownMenu1' data-bs-toggle='dropdown'
@@ -712,7 +714,7 @@ function QueryForm () {
               >
                 Level
               </button>
-              <button className='btn btn-default dropdown-toggle dropdown-toggle-split' data-bs-toggle='dropdown' type='button' />
+              <button className='btn btn-default dropdown-toggle dropdown-toggle-split' data-bs-toggle='dropdown' type='button' aria-label='Choose difficulty levels' />
               <ul className='dropdown-menu checkbox-menu allow-focus' id='difficulties' aria-labelledby='dropdownMenu1'>
                 <li><label><input type='checkbox' value='1' /> ● Novice</label></li>
                 {/* <li><label><input type='checkbox' value='2' /> 2: Easy High School</label></li>
@@ -728,7 +730,8 @@ function QueryForm () {
             </div>
           </div>
           <div className='col-6 col-xl-3 mb-2'>
-            <input type='number' className='form-control' id='max-return-length' placeholder='# to Display' value={maxReturnLength} onChange={event => { setMaxReturnLength(event.target.value); }} />
+            <label className='db-field-label' htmlFor='max-return-length'>Results to show</label>
+            <input type='number' className='form-control' id='max-return-length' placeholder='25' value={maxReturnLength} onChange={event => { setMaxReturnLength(event.target.value); }} />
           </div>
           <div className='input-group col-12 col-xl-6 mb-2'>
             <button type='button' className='db-set-picker' id='db-set-picker' data-bs-toggle='modal' data-bs-target='#set-modal'>
@@ -742,6 +745,7 @@ function QueryForm () {
         </div>
         <div className='row'>
           <div className='col-6 col-md-3 mb-2'>
+            <label className='db-field-label' htmlFor='search-type'>Search in</label>
             <select className='form-select' id='search-type' value={searchType} onChange={event => { setSearchType(event.target.value); }}>
               <option value='all'>All text</option>
               <option value='question'>Question</option>
@@ -749,6 +753,7 @@ function QueryForm () {
             </select>
           </div>
           <div className='col-6 col-md-3 mb-2'>
+            <label className='db-field-label' htmlFor='question-type'>Question type</label>
             <select className='form-select' id='question-type' value={questionType} onChange={event => { setQuestionType(event.target.value); }}>
               <option value='all'>All questions</option>
               <option value='tossup'>Tossups</option>
@@ -756,10 +761,12 @@ function QueryForm () {
             </select>
           </div>
           <div className='col-6 col-md-3 mb-2'>
-            <input type='number' className='form-control' id='min-year' placeholder='Min Year' value={minYear} onChange={event => { setMinYear(event.target.value); }} />
+            <label className='db-field-label' htmlFor='min-year'>From year</label>
+            <input type='number' className='form-control' id='min-year' placeholder='2010' value={minYear} onChange={event => { setMinYear(event.target.value); }} />
           </div>
           <div className='col-6 col-md-3 mb-2'>
-            <input type='number' className='form-control' id='max-year' placeholder='Max Year' value={maxYear} onChange={event => { setMaxYear(event.target.value); }} />
+            <label className='db-field-label' htmlFor='max-year'>To year</label>
+            <input type='number' className='form-control' id='max-year' placeholder='2026' value={maxYear} onChange={event => { setMaxYear(event.target.value); }} />
           </div>
         </div>
         <div className='row'>

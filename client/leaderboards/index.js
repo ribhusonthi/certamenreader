@@ -53,8 +53,12 @@ if (tabsEl) {
   tabsEl.addEventListener('click', (e) => {
     const tab = e.target.closest('.lb-tab');
     if (!tab) return;
-    tabsEl.querySelectorAll('.lb-tab').forEach(t => t.removeAttribute('data-active'));
+    tabsEl.querySelectorAll('.lb-tab').forEach(t => {
+      t.removeAttribute('data-active');
+      t.setAttribute('aria-selected', 'false');
+    });
     tab.setAttribute('data-active', 'true');
+    tab.setAttribute('aria-selected', 'true');
     load(tab.dataset.cat);
   });
 }

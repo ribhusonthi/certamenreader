@@ -763,18 +763,21 @@ function QueryForm() {
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: "input-group input-group-lg mb-3 shadow"
-  }, /*#__PURE__*/React.createElement("input", {
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "visually-hidden",
+    htmlFor: "query"
+  }, "Search questions"), /*#__PURE__*/React.createElement("input", {
     type: "text",
     className: "form-control",
     id: "query",
-    placeholder: "Query",
+    placeholder: "Search questions\u2026",
     value: queryString,
     onChange: event => {
       setQueryString(event.target.value);
     }
   }), /*#__PURE__*/React.createElement("button", {
     type: "submit",
-    className: "btn btn-info btn-lg px-4"
+    className: "btn btn-primary btn-lg px-4"
   }, "Search"), /*#__PURE__*/React.createElement("button", {
     id: "randomize",
     className: "btn btn-success btn-lg px-4",
@@ -785,7 +788,10 @@ function QueryForm() {
     className: "row opacity-75"
   }, /*#__PURE__*/React.createElement("div", {
     className: "col-6 col-xl-3 mb-2"
-  }, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "db-field-label",
+    htmlFor: "dropdownMenu1"
+  }, "Difficulty"), /*#__PURE__*/React.createElement("div", {
     className: "dropdown-checklist btn-group w-100"
   }, /*#__PURE__*/React.createElement("button", {
     className: "btn btn-default text-start w-100",
@@ -797,7 +803,8 @@ function QueryForm() {
   }, "Level"), /*#__PURE__*/React.createElement("button", {
     className: "btn btn-default dropdown-toggle dropdown-toggle-split",
     "data-bs-toggle": "dropdown",
-    type: "button"
+    type: "button",
+    "aria-label": "Choose difficulty levels"
   }), /*#__PURE__*/React.createElement("ul", {
     className: "dropdown-menu checkbox-menu allow-focus",
     id: "difficulties",
@@ -813,11 +820,14 @@ function QueryForm() {
     value: "10"
   }), " \u25CF\u25CF\u25CF Advanced"))))), /*#__PURE__*/React.createElement("div", {
     className: "col-6 col-xl-3 mb-2"
-  }, /*#__PURE__*/React.createElement("input", {
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "db-field-label",
+    htmlFor: "max-return-length"
+  }, "Results to show"), /*#__PURE__*/React.createElement("input", {
     type: "number",
     className: "form-control",
     id: "max-return-length",
-    placeholder: "# to Display",
+    placeholder: "25",
     value: maxReturnLength,
     onChange: event => {
       setMaxReturnLength(event.target.value);
@@ -851,7 +861,10 @@ function QueryForm() {
     className: "row"
   }, /*#__PURE__*/React.createElement("div", {
     className: "col-6 col-md-3 mb-2"
-  }, /*#__PURE__*/React.createElement("select", {
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "db-field-label",
+    htmlFor: "search-type"
+  }, "Search in"), /*#__PURE__*/React.createElement("select", {
     className: "form-select",
     id: "search-type",
     value: searchType,
@@ -866,7 +879,10 @@ function QueryForm() {
     value: "answer"
   }, "Answer"))), /*#__PURE__*/React.createElement("div", {
     className: "col-6 col-md-3 mb-2"
-  }, /*#__PURE__*/React.createElement("select", {
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "db-field-label",
+    htmlFor: "question-type"
+  }, "Question type"), /*#__PURE__*/React.createElement("select", {
     className: "form-select",
     id: "question-type",
     value: questionType,
@@ -881,22 +897,28 @@ function QueryForm() {
     value: "bonus"
   }, "Bonuses"))), /*#__PURE__*/React.createElement("div", {
     className: "col-6 col-md-3 mb-2"
-  }, /*#__PURE__*/React.createElement("input", {
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "db-field-label",
+    htmlFor: "min-year"
+  }, "From year"), /*#__PURE__*/React.createElement("input", {
     type: "number",
     className: "form-control",
     id: "min-year",
-    placeholder: "Min Year",
+    placeholder: "2010",
     value: minYear,
     onChange: event => {
       setMinYear(event.target.value);
     }
   })), /*#__PURE__*/React.createElement("div", {
     className: "col-6 col-md-3 mb-2"
-  }, /*#__PURE__*/React.createElement("input", {
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "db-field-label",
+    htmlFor: "max-year"
+  }, "To year"), /*#__PURE__*/React.createElement("input", {
     type: "number",
     className: "form-control",
     id: "max-year",
-    placeholder: "Max Year",
+    placeholder: "2026",
     value: maxYear,
     onChange: event => {
       setMaxYear(event.target.value);

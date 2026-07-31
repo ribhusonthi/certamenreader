@@ -1,14 +1,16 @@
-$font-family-sans-serif: 'Aller', Helvetica, sans-serif;
-$font-family-base: 'Aller', Helvetica, sans-serif;
+$font-family-sans-serif: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+$font-family-base: $font-family-sans-serif;
 
-$custom: #9872da;
+$custom: #6355d4;
 
 $dropdown-checklist-border-color: var(--bs-gray-400);
 
-$logo-prefix-color: #FFD700;
-$logo-suffix-color: #000000;
+$logo-prefix-color: #6355d4;
+$logo-suffix-color: #1a1c24;
 
-$link-color: #FFD700;
+// Was #FFD700 — gold on a near-white page measured about 1.4:1 and was
+// effectively invisible. This is the light-mode accent, which clears AA.
+$link-color: #5546c4;
 
 $slider-background: #dee2e6; // gray-300
 

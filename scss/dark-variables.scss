@@ -2,17 +2,17 @@
 // And code structure taken from https://github.com/ForEvolve/bootstrap-dark/blob/master/scss/_dark-variables.scss
 
 // $body-bg:     #21262c;
-$font-family-sans-serif: 'Inter Tight', -apple-system, 'Aller', Helvetica, sans-serif;
-$font-family-base: 'Inter Tight', -apple-system, 'Aller', Helvetica, sans-serif;
+$font-family-sans-serif: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+$font-family-base: $font-family-sans-serif;
 
-$body-bg:     #191511;
-$body-color:  #ece6db;
+$body-bg:     #0d0f14;
+$body-color:  #e4e2dc;
 
-$custom: #b995ec;
+$custom: #8b7cf8;
 
-$link-color: #b995ec;
-$logo-prefix-color: #b995ec;
-$logo-suffix-color: #ece6db;
+$link-color: #8b7cf8;
+$logo-prefix-color: #8b7cf8;
+$logo-suffix-color: #e4e2dc;
 
 /* ##### */
 

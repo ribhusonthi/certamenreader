@@ -16,16 +16,21 @@
         integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
     <script type="module" src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"
         integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>
-    <link href="/bootstrap/light.css" rel="stylesheet">
-    <link id="custom-css" href="/bootstrap/dark.css" rel="stylesheet">
+    <!-- Load only the active theme's stylesheet. light.css and dark.css are
+         ~348 KB each and near-identical, so linking both doubled the CSS
+         payload to render one of them. Injected synchronously here so it
+         still blocks paint — no flash of unstyled content. -->
+    <script>(function(){var t=localStorage.getItem('color-theme');if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.dataset.colorTheme=t;var l=document.createElement('link');l.id='custom-css';l.rel='stylesheet';l.href='/bootstrap/'+t+'.css';document.head.appendChild(l)})()</script>
+    <noscript><link id="custom-css" rel="stylesheet" href="/bootstrap/light.css"></noscript>
     <script type="module" src="/apply-theme.js"></script>
 </head>
 
 <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <nav class="navbar navbar-dark navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
         <div class="container-fluid">
             <a class="navbar-brand brand-editorial ms-1 py-0" id="logo" href="/">
-                <span class="brand-mark"><img src="/buzzer-icon.png" alt=""></span><span class="brand-word">Certamen<b>Reader</b></span>
+                <span class="brand-mark"><img src="/buzzer-icon.png" alt="" width="373" height="669" decoding="async"></span><span class="brand-word">Certamen<b>Reader</b></span>
             </a>
             <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,7 +77,6 @@
             </div>
         </div>
     </nav>
-
     <div class="toast-container position-fixed top-0 end-0 p-3">
         <div id="star-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-header">
@@ -116,7 +120,7 @@
                             <span class="chip" id="set-card-packets" hidden></span>
                         </div>
                     </div>
-                    <input class="form-control my-1 d-none" id="packet-number" type="text" placeholder="Packet Numbers">
+                    <input class="form-control my-1 d-none" id="packet-number" type="text" placeholder="e.g. 1, 3-5" aria-label="Packet numbers" inputmode="numeric">
                 </div>
 
                 <div class="sb-sec">
@@ -133,7 +137,7 @@
 
                 <div class="sb-sec">
                     <div class="sb-sec-hdr"><span>Categories</span>
-                        <a class="link" id="category-toggle-all">toggle all</a>
+                        <a class="link" id="category-toggle-all">Toggle All</a>
                     </div>
                     <div class="cat-grid" id="category-chips">
                         <button type="button" class="cat-chip" data-cat="Mythology" data-checkbox-id="Mythology">Mythology</button>
@@ -142,10 +146,10 @@
                         <button type="button" class="cat-chip" data-cat="Language" data-checkbox-id="language">Language</button>
                         <button type="button" class="cat-chip" data-cat="Culture" data-checkbox-id="culture">Culture</button>
                     </div>
-                    <div class="d-flex gap-2 mt-1">
-                        <a class="link" data-bs-target="#category-modal" data-bs-toggle="modal" style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--accent); cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em;">More filters →</a>
+                    <div class="d-flex gap-2 mt-1 sb-actions">
+                        <a class="link sb-action sb-action-accent" data-bs-target="#category-modal" data-bs-toggle="modal">More Filters →</a>
                         <span style="flex:1"></span>
-                        <a class="link" id="clear-stats" style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-muted); cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em;">Clear stats</a>
+                        <a class="link sb-action" id="clear-stats">Clear Stats</a>
                     </div>
                 </div>
 
@@ -192,7 +196,7 @@
             </div>
         </aside>
 
-        <main class="reader-main">
+        <main class="reader-main" id="main-content">
             <div class="reader-hdr">
                 <div class="reader-hdr-meta" id="question-metadata">
                     <span id="set-name-info-hdr">No set selected</span>
@@ -213,8 +217,8 @@
 
             <div class="d-flex flex-wrap gap-2 align-items-center">
                 <button class="btn btn-primary" id="next" data-bs-placement="top" data-bs-toggle="tooltip" type="button"
-                    title="Shortcut: n or s key">Start<span class="kbd-hint">Space</span></button>
-                <button class="btn btn-outline-warning d-lg-none" id="toggle-options" type="button" disabled>Options</button>
+                    title="Shortcut: s or n key">Start<span class="kbd-hint">S</span></button>
+                <button class="btn btn-outline-secondary d-lg-none" id="toggle-options" type="button" disabled>Options</button>
             </div>
 
             <div class="celerity" id="celerity-meter">
@@ -335,7 +339,7 @@
 
                     <div class="ed-modal-section-hdr ed-modal-packets-hdr" id="set-modal-packets-hdr" hidden>
                         <span>Packets</span>
-                        <button id="set-modal-packets-all" type="button" class="ed-link">Toggle all</button>
+                        <button id="set-modal-packets-all" type="button" class="ed-link">Toggle All</button>
                     </div>
                     <div class="ed-modal-packets" id="set-modal-packets" hidden></div>
                 </div>

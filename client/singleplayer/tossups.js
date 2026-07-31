@@ -806,7 +806,7 @@ async function revealQuestion () {
   document.getElementById('buzz').disabled = true;
   document.getElementById('buzz').textContent = 'Buzz';
   document.getElementById('next').disabled = false;
-  document.getElementById('next').textContent = 'Next';
+  document.getElementById('next').innerHTML = 'Next<span class="kbd-hint">N</span>';
 
   if (t._id) {
     document.getElementById('question-report-prompt').classList.remove('d-none');

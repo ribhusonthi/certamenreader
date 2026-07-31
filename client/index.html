@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Certamen Reader</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A text-based certamen question reader — play on your own or join a multiplayer room.">
+
+    <link href="/apple-touch-icon.png" rel="apple-touch-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
+    <link type="image/x-icon" href="/favicon.ico" rel="icon">
+
+    <!-- Load only the active theme's stylesheet. light.css and dark.css are
+         ~348 KB each and near-identical, so linking both doubled the CSS
+         payload to render one of them. Injected synchronously here so it
+         still blocks paint — no flash of unstyled content. -->
+    <script>(function(){var t=localStorage.getItem('color-theme');if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.dataset.colorTheme=t;var l=document.createElement('link');l.id='custom-css';l.rel='stylesheet';l.href='/bootstrap/'+t+'.css';document.head.appendChild(l)})()</script>
+    <noscript><link id="custom-css" rel="stylesheet" href="/bootstrap/light.css"></noscript>
+    <script type="module" src="/apply-theme.js"></script>
+</head>
+
+<body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <nav class="navbar navbar-dark navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
+        <div class="container-fluid">
+            <a class="navbar-brand brand-editorial ms-1 py-0" id="logo" href="/">
+                <span class="brand-mark"><img src="/buzzer-icon.png" alt="" width="373" height="669" decoding="async"></span>
+                <span class="brand-word">Certamen<b>Reader</b></span>
+            </a>
+            <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/singleplayer">Singleplayer</a>
+                    </li>
+                    <li class="nav-item dropdown nav-multiplayer">
+                        <a class="nav-link" href="/multiplayer">Multiplayer</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/multiplayer">Solo</a></li>
+                            <li><a class="dropdown-item" href="/multiplayer/team">Team Mode</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/ranked">Ranked</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/db">Database</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/leaderboards">Leaderboards</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/login" id="login-link">Log in</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main id="main-content" class="land">
+        <section class="land-hero">
+            <div class="land-copy">
+                <span class="land-badge"><span class="land-badge-dot" aria-hidden="true"></span>Now in beta — free to use</span>
+
+                <h1 class="land-title">
+                    Practice Certamen.<br>
+                    <em>Read faster.</em><br>
+                    Win more.
+                </h1>
+
+                <p class="land-lede">
+                    CertamenReader streams Latin quiz-bowl questions word by word.
+                    Buzz in at the right moment, type your answer, and train the
+                    instinct that wins tournaments.
+                </p>
+
+                <!-- The site is locked behind auth (see isAuthExempt in index.js),
+                     so both CTAs route through the login page. The global
+                     middleware appends ?redirect=, so signing in lands the user
+                     where they were headed rather than back here. -->
+                <div class="land-cta">
+                    <a class="land-btn land-btn-primary" href="/singleplayer/tossups">
+                        Start practicing
+                    </a>
+                    <a class="land-btn land-btn-ghost" href="/db">Browse questions</a>
+                </div>
+
+                <dl class="land-stats">
+                    <div class="land-stat">
+                        <dd class="land-stat-v" id="land-questions">—</dd>
+                        <dt class="land-stat-l">Questions</dt>
+                    </div>
+                    <div class="land-stat">
+                        <dd class="land-stat-v" id="land-players">—</dd>
+                        <dt class="land-stat-l">Active players</dt>
+                    </div>
+                    <div class="land-stat">
+                        <dd class="land-stat-v" id="land-tournaments">—</dd>
+                        <dt class="land-stat-l">Tournaments</dt>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- Live demo of the reader. Decorative: it shows what the product
+                 does rather than being playable, so it is hidden from the
+                 accessibility tree and the copy above carries the meaning. -->
+            <aside class="land-demo" aria-hidden="true">
+                <div class="land-demo-hdr">
+                    <span class="land-demo-cat">Mythology</span>
+                    <span class="land-demo-meta">2024 NJCL · Packet 3 · Q7</span>
+                    <span class="land-demo-wpm">▶ 340 wpm</span>
+                </div>
+                <div class="land-demo-body">
+                    <p class="land-demo-q"><span id="land-demo-text"></span><span class="land-demo-caret"></span></p>
+                </div>
+                <div class="land-demo-foot">
+                    <div class="land-demo-celrow">
+                        <span class="land-demo-cel">Celerity</span>
+                        <span class="land-demo-read"><span id="land-demo-pct">0</span>% read</span>
+                    </div>
+                    <div class="land-demo-bar"><span id="land-demo-fill"></span></div>
+                    <div class="land-demo-buzz">Buzz in</div>
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/script.js"></script>
+    <script type="module" src="/landing.js"></script>
+</body>
+
+</html>

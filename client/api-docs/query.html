@@ -10,19 +10,13 @@
     <link href="/apple-touch-icon.png" rel="apple-touch-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
     <link type="image/x-icon" href="/favicon.ico" rel="icon">
-    <link href="/bootstrap/dark.css" rel="stylesheet">
-    <script>
-        if (window.localStorage.getItem('color-theme') === 'dark') {
-            document.querySelector('link[rel="stylesheet"]').setAttribute('href', "/bootstrap/dark.css");
-        } else if (window.localStorage.getItem('color-theme') === 'light') {
-            document.querySelector('link[rel="stylesheet"]').setAttribute('href', "/bootstrap/light.css");
-        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            // Get OS preferred color scheme
-            document.querySelector('link[rel="stylesheet"]').setAttribute('href', "/bootstrap/dark.css");
-        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-            document.querySelector('link[rel="stylesheet"]').setAttribute('href', "/bootstrap/light.css");
-        }
-    </script>
+    <!-- Same single-stylesheet injection as every other page. The previous
+         version linked dark.css then rewrote the href after parsing, so the
+         preload scanner could fetch both files; and it selected the sheet
+         positionally, which breaks if another stylesheet is ever added. -->
+    <script>(function(){var t=localStorage.getItem('color-theme');if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.dataset.colorTheme=t;var l=document.createElement('link');l.id='custom-css';l.rel='stylesheet';l.href='/bootstrap/'+t+'.css';document.head.appendChild(l)})()</script>
+    <noscript><link id="custom-css" rel="stylesheet" href="/bootstrap/light.css"></noscript>
+    <script type="module" src="/apply-theme.js"></script>
 </head>
 
 <body>

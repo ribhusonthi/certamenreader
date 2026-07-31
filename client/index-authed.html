@@ -5,22 +5,27 @@
     <title>Certamen Reader</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="A text-based packet reader for certamen practice — solo or with friends.">
+    <meta name="description" content="A text-based certamen question reader — play on your own or join a multiplayer room.">
 
     <link href="/apple-touch-icon.png" rel="apple-touch-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
     <link type="image/x-icon" href="/favicon.ico" rel="icon">
 
-    <link href="/bootstrap/light.css" rel="stylesheet">
-    <link href="/bootstrap/dark.css" rel="stylesheet" id="custom-css">
+    <!-- Load only the active theme's stylesheet. light.css and dark.css are
+         ~348 KB each and near-identical, so linking both doubled the CSS
+         payload to render one of them. Injected synchronously here so it
+         still blocks paint — no flash of unstyled content. -->
+    <script>(function(){var t=localStorage.getItem('color-theme');if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.dataset.colorTheme=t;var l=document.createElement('link');l.id='custom-css';l.rel='stylesheet';l.href='/bootstrap/'+t+'.css';document.head.appendChild(l)})()</script>
+    <noscript><link id="custom-css" rel="stylesheet" href="/bootstrap/light.css"></noscript>
     <script type="module" src="/apply-theme.js"></script>
 </head>
 
 <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <nav class="navbar navbar-dark navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
         <div class="container-fluid">
             <a class="navbar-brand brand-editorial ms-1 py-0" id="logo" href="/">
-                <span class="brand-mark"><img src="/buzzer-icon.png" alt=""></span>
+                <span class="brand-mark"><img src="/buzzer-icon.png" alt="" width="373" height="669" decoding="async"></span>
                 <span class="brand-word">Certamen<b>Reader</b></span>
             </a>
             <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
@@ -62,109 +67,158 @@
             </div>
         </div>
     </nav>
-
-    <div class="home">
-        <!-- Hero -->
-        <section class="home-hero">
-            <div class="home-hero-left">
-                <h1 class="home-title">
-                    A text-based packet reader<br/>for <em>certamen</em> practice.
-                </h1>
-                <p class="home-lede">
-                    Solo or with friends. Buzz on a tossup, type your answer, 
-                    and track celerity against other people on the 
-                    ranked leaderboard.
-                </p>
-                <div class="home-cta">
-                    <a class="btn btn-primary" href="/singleplayer/tossups">
-                        Start reading
-                    </a>
-                    <a class="btn btn-outline-light btn-ghost" href="/multiplayer">Join a room</a>
-                    <a class="btn btn-outline-light btn-ghost" href="/ranked">Play ranked</a>
-                    <a class="btn btn-outline-light btn-ghost" href="/upload">Upload a packet</a>
-                </div>
+    <main id="main-content" class="dash">
+        <!-- Header -->
+        <header class="dash-head">
+            <div>
+                <h1 class="dash-title">Welcome back<span id="dash-username"></span>.</h1>
+                <p class="dash-sub" id="dash-sub">Your reading at a glance.</p>
             </div>
-            <!-- <aside class="home-hero-right">
-                <div style="display: flex; align-items: baseline;">
-                    <div class="home-set-eyebrow">Current set</div>
-                    <a class="home-set-change" href="/singleplayer/tossups">change</a>
-                </div>
-                <div class="home-set-title" id="home-set-title">No set selected</div>
-                <div class="home-set-meta" id="home-set-meta">
-                    <span class="chip chip-active">All levels</span>
-                    <span class="chip">2010–2025</span>
-                </div>
-                <div class="home-set-stats">
-                    <div class="home-set-stat">
-                        <div class="l">Accuracy</div>
-                        <div class="v" id="home-stat-accuracy">—<small>%</small></div>
+            <div class="dash-head-cta">
+                <a class="btn btn-primary" href="/singleplayer/tossups">Continue reading</a>
+                <a class="btn btn-outline-light btn-ghost" href="/multiplayer">Join a room</a>
+            </div>
+        </header>
+
+        <!-- Stat tiles. Populated from /auth/user-stats/tossup and
+             /auth/user-stats/tossup-graph; they render as em-dashes until
+             those resolve, and stay that way for a user with no buzzes. -->
+        <section class="dash-tiles" id="dash-tiles" aria-label="Your statistics">
+            <div class="dash-tile" data-tile="heard">
+                <div class="dash-tile-row">
+                    <div>
+                        <div class="dash-tile-lbl">Questions read</div>
+                        <div class="dash-tile-val" id="tile-heard">—</div>
                     </div>
-                    <div class="home-set-stat">
-                        <div class="l">Seen</div>
-                        <div class="v" id="home-stat-seen">0</div>
-                    </div>
-                    <div class="home-set-stat">
-                        <div class="l">Celerity</div>
-                        <div class="v" id="home-stat-celerity">—</div>
-                    </div>
+                    <svg class="dash-spark" id="spark-heard" viewBox="0 0 120 36" aria-hidden="true"></svg>
                 </div>
-            </aside> -->
+                <div class="dash-tile-sub" id="tile-heard-sub"></div>
+            </div>
+            <div class="dash-tile" data-tile="accuracy">
+                <div class="dash-tile-row">
+                    <div>
+                        <div class="dash-tile-lbl">Accuracy</div>
+                        <div class="dash-tile-val" id="tile-accuracy">—</div>
+                    </div>
+                    <svg class="dash-spark" id="spark-accuracy" viewBox="0 0 120 36" aria-hidden="true"></svg>
+                </div>
+                <div class="dash-tile-sub" id="tile-accuracy-sub"></div>
+            </div>
+            <div class="dash-tile" data-tile="celerity">
+                <div class="dash-tile-row">
+                    <div>
+                        <div class="dash-tile-lbl">Avg celerity</div>
+                        <div class="dash-tile-val" id="tile-celerity">—</div>
+                    </div>
+                    <svg class="dash-spark" id="spark-celerity" viewBox="0 0 120 36" aria-hidden="true"></svg>
+                </div>
+                <div class="dash-tile-sub" id="tile-celerity-sub"></div>
+            </div>
+            <div class="dash-tile" data-tile="pp">
+                <div class="dash-tile-row">
+                    <div>
+                        <div class="dash-tile-lbl">Performance points</div>
+                        <div class="dash-tile-val" id="tile-pp">—</div>
+                    </div>
+                    <svg class="dash-spark" id="spark-pp" viewBox="0 0 120 36" aria-hidden="true"></svg>
+                </div>
+                <div class="dash-tile-sub" id="tile-pp-sub"></div>
+            </div>
         </section>
 
-        <!-- Two-column grid: Packets & Categories + Settings & Shortcuts -->
-        <div class="home-grid">
-            <div class="home-card">
-                <div class="home-card-hdr"><span>Sets</span><a href="/db">browse all →</a></div>
-                <div class="home-sets" id="home-sets">
-                    <div class="home-sets-empty">Loading sets…</div>
-                </div>
-                <div class="home-card-hdr" style="margin-top: 1.1rem;"><span>Categories</span></div>
-                <div class="cat-grid">
-                    <button type="button" class="cat-chip" data-cat="Mythology" data-on="true">Mythology</button>
-                    <button type="button" class="cat-chip" data-cat="Roman History" data-on="true">Roman History</button>
-                    <button type="button" class="cat-chip" data-cat="Latin Literature" data-on="true">Latin Literature</button>
-                    <button type="button" class="cat-chip" data-cat="Language" data-on="true">Language</button>
-                    <button type="button" class="cat-chip" data-cat="Culture" data-on="true">Culture</button>
-                </div>
+        <div class="dash-cols">
+            <!-- Left column -->
+            <div class="dash-col">
+                <section class="dash-card">
+                    <div class="dash-card-hdr"><span>Recent activity</span><a href="/user/stats/tossups">Full history →</a></div>
+                    <div id="home-recent">
+                        <div class="empty-state">
+                            <span>No recent activity yet — start reading to see your last tossups here.</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="dash-card dash-card-pad">
+                    <div class="dash-card-hdr dash-card-hdr-flush">
+                        <span>Category breakdown</span><a href="/user/stats/tossups">Detail →</a>
+                    </div>
+                    <div id="dash-cats">
+                        <div class="empty-state"><span>Loading your category stats…</span></div>
+                    </div>
+                </section>
+
+                <section class="dash-card">
+                    <div class="dash-card-hdr"><span>Sets</span><a href="/db">Browse all →</a></div>
+                    <div class="home-sets" id="home-sets">
+                        <div class="home-sets-empty">Loading sets…</div>
+                    </div>
+                </section>
             </div>
 
-            <div class="home-card">
-                <div class="home-card-hdr"><span>Settings</span><a href="/singleplayer/tossups">edit →</a></div>
-                <div class="home-settings-grid">
-                    <div class="home-setting-row"><span>Tossup timer</span><span class="state">off</span></div>
-                    <div class="home-setting-row"><span>Standard formats</span><span class="state">off</span></div>
-                    <div class="home-setting-row"><span>Show history</span><span class="state" data-on="true">on</span></div>
-                    <div class="home-setting-row"><span>Type to answer</span><span class="state" data-on="true">on</span></div>
-                    <div class="home-setting-row"><span>Allow rebuzzes</span><span class="state">off</span></div>
-                    <div class="home-setting-row"><span>Read boni</span><span class="state" data-on="true">on</span></div>
-                    <div class="home-setting-row"><span>Boni on drops</span><span class="state">off</span></div>
-                </div>
-                <div class="home-card-hdr" style="margin-top: 1.1rem;"><span>Shortcuts</span></div>
-                <div class="home-shortcuts">
-                    <div class="home-shortcut"><span>Buzz</span><kbd>Space</kbd></div>
-                    <div class="home-shortcut"><span>Next tossup</span><kbd>N</kbd></div>
-                    <div class="home-shortcut"><span>Pause</span><kbd>P</kbd></div>
-                    <div class="home-shortcut"><span>Star</span><kbd>T</kbd></div>
-                    <div class="home-shortcut"><span>Show last</span><kbd>K</kbd></div>
-                    <div class="home-shortcut"><span>Copy id</span><kbd>Y</kbd></div>
-                </div>
+            <!-- Right column -->
+            <div class="dash-col">
+                <section class="dash-card dash-card-pad">
+                    <div class="dash-card-hdr dash-card-hdr-flush"><span>Quick start</span></div>
+                    <a class="dash-qa dash-qa-primary" href="/singleplayer/tossups">
+                        <span class="t">Singleplayer</span>
+                        <span class="s">Read a packet on your own</span>
+                    </a>
+                    <a class="dash-qa" href="/multiplayer">
+                        <span class="t">Join a room</span>
+                        <span class="s" id="qa-rooms">Play against other people</span>
+                    </a>
+                    <a class="dash-qa" href="/ranked">
+                        <span class="t">Find a ranked match</span>
+                        <span class="s">Climb the leaderboard</span>
+                    </a>
+                </section>
+
+                <section class="dash-card">
+                    <div class="dash-card-hdr"><span>Leaderboard top 5</span><a href="/leaderboards">Full →</a></div>
+                    <div id="dash-leaderboard">
+                        <div class="empty-state"><span>Loading…</span></div>
+                    </div>
+                </section>
+
+                <section class="dash-card dash-card-pad">
+                    <div class="dash-card-hdr dash-card-hdr-flush"><span>Categories</span></div>
+                    <div class="cat-grid">
+                        <button type="button" class="cat-chip" data-cat="Mythology" data-on="true">Mythology</button>
+                        <button type="button" class="cat-chip" data-cat="Roman History" data-on="true">Roman History</button>
+                        <button type="button" class="cat-chip" data-cat="Latin Literature" data-on="true">Latin Literature</button>
+                        <button type="button" class="cat-chip" data-cat="Language" data-on="true">Language</button>
+                        <button type="button" class="cat-chip" data-cat="Culture" data-on="true">Culture</button>
+                    </div>
+                </section>
+
+                <section class="dash-card dash-card-pad">
+                    <div class="dash-card-hdr dash-card-hdr-flush"><span>Settings</span><a href="/settings">Edit →</a></div>
+                    <!-- Rendered from client/utilities/reader-settings.js so these
+                         reflect (and change) your real settings. -->
+                    <div class="home-settings-grid" id="home-settings"></div>
+                    <div class="dash-card-hdr dash-card-hdr-flush" style="margin-top: 1.1rem;"><span>Shortcuts</span></div>
+                    <div class="home-shortcuts">
+                        <div class="home-shortcut"><span>Buzz</span><kbd>Space</kbd></div>
+                        <div class="home-shortcut"><span>Next tossup</span><kbd>N</kbd></div>
+                        <div class="home-shortcut"><span>Pause</span><kbd>P</kbd></div>
+                        <div class="home-shortcut"><span>Star</span><kbd>T</kbd></div>
+                        <div class="home-shortcut"><span>Show last</span><kbd>K</kbd></div>
+                        <div class="home-shortcut"><span>Copy id</span><kbd>Y</kbd></div>
+                    </div>
+                </section>
+
+                <section class="dash-cta">
+                    <div class="dash-cta-t">Contribute questions</div>
+                    <p class="dash-cta-d">Upload a packet PDF or DOCX and help grow the database.</p>
+                    <a class="btn btn-primary" href="/upload">Upload now</a>
+                </section>
             </div>
         </div>
 
-        <!-- Recent activity -->
-        <div class="home-card">
-            <div class="home-card-hdr"><span>Recent activity</span><a href="/user/stats">full history →</a></div>
-            <div id="home-recent">
-                <div class="home-recent-row" style="color: var(--ink-faint); font-style: italic; font-family: var(--font-serif); grid-template-columns: 1fr; justify-items: center; padding: 1rem 0;">
-                    <span>No recent activity yet — start reading to see your last tossups here.</span>
-                </div>
-            </div>
+        <div style="text-align: center; margin-top: 1.25rem;">
+            <a class="ed-discord" href="https://discord.gg/US9udtNvKf" target="_blank" rel="noopener noreferrer"><svg class="ed-discord-mark" viewBox="0 0 127.14 96.36" aria-hidden="true" focusable="false"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/></svg><span>Join the official Certamen Reader Discord</span></a>
         </div>
-
-        <div style="text-align: center; margin-top: 0.5rem;">
-            <a class="ed-discord" href="https://discord.gg/US9udtNvKf">Join the <b>official Certamen Reader discord</b></a>
-        </div>
-    </div>
+    </main>
 
     <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
     <script type="module" src="/script.js"></script>

@@ -1,8 +1,10 @@
 @charset "UTF-8";
-@import url("https://fonts.cdnfonts.com/css/aller");
-@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap");
 .timer {
-  background: linear-gradient(#ddd, #eee);
+  background: none;
   font-size: 250%;
 }
 
@@ -50,10 +52,10 @@
   --bs-black-rgb: 0, 0, 0;
   --bs-body-color-rgb: 33, 37, 41;
   --bs-body-bg-rgb: 255, 255, 255;
-  --bs-font-sans-serif: "Aller", Helvetica, sans-serif;
+  --bs-font-sans-serif: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif;
   --bs-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
-  --bs-body-font-family: Aller, Helvetica, sans-serif;
+  --bs-body-font-family: DM Sans, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, sans-serif;
   --bs-body-font-size: 1rem;
   --bs-body-font-weight: 400;
   --bs-body-line-height: 1.5;
@@ -69,8 +71,8 @@
   --bs-border-radius-xl: 1rem;
   --bs-border-radius-2xl: 2rem;
   --bs-border-radius-pill: 50rem;
-  --bs-link-color: #FFD700;
-  --bs-link-hover-color: #ccac00;
+  --bs-link-color: #5546c4;
+  --bs-link-hover-color: rgb(68, 56, 156.8);
   --bs-code-color: #d63384;
   --bs-highlight-bg: rgb(255, 242.6, 205.4);
 }
@@ -4415,7 +4417,7 @@ textarea.form-control-lg {
   z-index: var(--bs-popover-zindex);
   display: block;
   max-width: var(--bs-popover-max-width);
-  font-family: "Inter Tight", -apple-system, "Aller", Helvetica, sans-serif;
+  font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif;
   font-style: normal;
   font-weight: 400;
   line-height: 1.5;
@@ -5323,7 +5325,7 @@ progress {
   display: block;
   padding: var(--bs-tooltip-arrow-height);
   margin: var(--bs-tooltip-margin);
-  font-family: "Inter Tight", -apple-system, "Aller", Helvetica, sans-serif;
+  font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif;
   font-style: normal;
   font-weight: 400;
   line-height: 1.5;
@@ -9465,7 +9467,7 @@ progress {
   }
 }
 .bg-custom {
-  background-color: #9872da;
+  background-color: #6355d4;
 }
 
 .buttons {
@@ -9502,11 +9504,11 @@ code {
 }
 
 .logo-prefix {
-  color: #FFD700;
+  color: #6355d4;
 }
 
 .logo-suffix {
-  color: #000000;
+  color: #1a1c24;
 }
 
 .room-history {
@@ -9606,6 +9608,350 @@ a.list-group-item:hover {
   background: transparent;
 }
 
+.c-card, .about-card, .home-card, .set-card, .ed-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: var(--s-5);
+  box-shadow: var(--shadow-1);
+}
+
+.c-card--flush {
+  padding: 0;
+}
+
+.c-card--sunken {
+  background: var(--bg-sunken);
+  box-shadow: none;
+}
+
+.c-head, .home-card-hdr, .sb-sec-hdr {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  margin: 0 0 var(--s-4);
+  padding-bottom: var(--s-2);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: var(--lh-snug);
+  color: var(--ink);
+}
+
+.c-head__action {
+  font-family: var(--font-sans);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--accent);
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.c-head__action:hover,
+.c-head__action:focus-visible {
+  text-decoration: underline;
+  color: var(--accent);
+}
+
+.c-head--compact, .sb-sec-hdr {
+  font-size: 1rem;
+  margin-bottom: var(--s-3);
+}
+
+.c-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: var(--s-2) 0;
+  border-bottom: 1px solid var(--rule-soft, var(--border-soft));
+  color: var(--ink-dim);
+  font-size: var(--t-md);
+}
+
+.c-row:last-child {
+  border-bottom: 0;
+}
+
+.c-row__label {
+  min-width: 0;
+}
+
+.c-row__hint {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--t-sm);
+  line-height: 1.45;
+  color: var(--ink-muted);
+}
+
+.c-row__value {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--t-sm);
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.c-row__value[data-on=true] {
+  color: var(--accent);
+}
+
+.c-row--stack {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.4rem;
+}
+
+.c-row__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s-3);
+}
+
+label.c-row {
+  cursor: pointer;
+}
+
+label.c-row input[type=checkbox]:checked ~ .c-switch {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+label.c-row input[type=checkbox]:checked ~ .c-switch::after {
+  transform: translateX(13px);
+  background: var(--accent-ink);
+}
+
+label.c-row input[type=checkbox]:focus-visible ~ .c-switch {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.c-row .btn {
+  flex: none;
+  white-space: nowrap;
+}
+
+button.c-row {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--rule-soft, var(--border-soft));
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-standard);
+}
+
+button.c-row:hover:not(:disabled) {
+  color: var(--ink);
+}
+
+button.c-row:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.c-switch {
+  position: relative;
+  flex: none;
+  width: 30px;
+  height: 17px;
+  border-radius: var(--r-pill);
+  background: var(--bg-sunken);
+  border: 1px solid var(--border-strong);
+  transition: background-color var(--dur-2) var(--ease-standard), border-color var(--dur-2) var(--ease-standard);
+}
+
+.c-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--ink-muted);
+  transition: transform var(--dur-2) var(--ease-out), background-color var(--dur-2) var(--ease-standard);
+}
+
+[aria-checked=true] > .c-switch,
+.c-switch[aria-checked=true] {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+[aria-checked=true] > .c-switch::after,
+.c-switch[aria-checked=true]::after {
+  transform: translateX(13px);
+  background: var(--accent-ink);
+}
+
+@media (max-width: 767.98px), (pointer: coarse) {
+  .c-switch::before {
+    content: "";
+    position: absolute;
+    inset: -14px;
+  }
+  button.c-row, .c-row {
+    min-height: var(--tap);
+  }
+}
+.c-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.c-field__label {
+  font-family: var(--font-sans);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--ink-muted);
+}
+
+.c-field__hint {
+  font-size: var(--t-sm);
+  color: var(--ink-muted);
+  line-height: 1.45;
+}
+
+.c-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--r-xs);
+  border: 1px solid var(--border);
+  background: var(--bg-sunken);
+  color: var(--ink-dim);
+  font-family: var(--font-sans);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.c-chip[style*="--chip-hue"] {
+  color: var(--chip-hue);
+  border-color: color-mix(in oklab, var(--chip-hue) 45%, transparent);
+  background: color-mix(in oklab, var(--chip-hue) 12%, transparent);
+}
+
+.c-chip__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--chip-hue, currentColor);
+}
+
+.c-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.c-table thead th {
+  text-align: left;
+  padding: 0 0 var(--s-2);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-sans);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.c-table tbody td {
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--rule-soft, var(--border-soft));
+  vertical-align: baseline;
+  font-size: var(--t-md);
+}
+
+.c-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.c-table .num {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.c-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--s-6) var(--s-4);
+  color: var(--ink-muted);
+  font-size: var(--t-md);
+  line-height: var(--lh-body);
+}
+
+.c-page-head, .lb-hdr, .db-hdr {
+  padding-bottom: var(--s-4);
+  margin-bottom: var(--s-5);
+  border-bottom: 1px solid var(--border);
+}
+
+.c-page-head__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-sans);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.c-page-head__eyebrow::before {
+  content: "";
+  width: 18px;
+  height: 1px;
+  background: currentColor;
+}
+
+.c-page-head h1, .lb-hdr h1, .db-hdr h1, .c-page-head .h1, .lb-hdr .h1, .db-hdr .h1 {
+  margin: var(--s-2) 0 0;
+  font-family: var(--font-serif);
+  font-size: var(--t-3xl);
+  font-weight: 600;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.c-page-head h1 em, .lb-hdr h1 em, .db-hdr h1 em, .c-page-head .h1 em, .lb-hdr .h1 em, .db-hdr .h1 em {
+  font-style: normal;
+  color: var(--accent);
+}
+
+.c-page-head p, .lb-hdr p, .db-hdr p {
+  margin: var(--s-2) 0 0;
+  font-family: var(--font-sans);
+  font-size: var(--t-lg);
+  line-height: var(--lh-body);
+  color: var(--ink-muted);
+  /* NOT 68ch: `ch` is the advance of the "0" glyph, which in a proportional
+     face is far wider than an average lowercase letter — 68ch measured out
+     at ~93 actual characters. 52ch lands in the 65-75 range that keeps the
+     eye from losing its place on the return sweep. */
+  max-width: 52ch;
+}
+
 .ui-slider {
   background-color: #dee2e6;
   height: 8px;
@@ -9661,145 +10007,310 @@ a.list-group-item:hover {
   background-color: #b8b8ff;
 }
 
-/* --- osu! aesthetic UI overrides --- */
-.btn, .nav-link, .dropdown-item, .card, .form-control, .form-check-input, .list-group-item {
-  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+/* ================================================================
+   Control & interaction system
+   ----------------------------------------------------------------
+   Replaces the old "osu! aesthetic" layer. That layer lifted every
+   button 2px on hover and wrapped each one in a saturated coloured
+   glow, which is the single biggest reason the site read as amateur:
+   the whole page twitched under the cursor and no two controls
+   agreed on a shadow. Here every control shares one motion scale,
+   one elevation scale, and one focus ring, and state changes are
+   expressed with colour rather than movement.
+
+   Semantic hues (success = green, danger = red, warning = amber) are
+   preserved — only their rendering is disciplined. Category and
+   difficulty colours are NOT touched here; they live in the token
+   block further down and keep their existing hue assignments.
+   ================================================================ */
+:root {
+  /* Motion — micro-interactions 120-180ms, larger moves up to 260ms.
+     Exit is deliberately shorter than enter so dismissal feels crisp. */
+  --dur-1: 120ms;
+  --dur-2: 180ms;
+  --dur-3: 260ms;
+  --dur-exit: 140ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  /* Neutral elevation scale. One ramp for the whole product so a
+     card, a dropdown and a modal read as three distinct heights. */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.16);
+  --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.18), 0 1px 2px rgba(0, 0, 0, 0.12);
+  --shadow-3: 0 8px 24px rgba(0, 0, 0, 0.22), 0 2px 6px rgba(0, 0, 0, 0.14);
+  --shadow-4: 0 18px 48px rgba(0, 0, 0, 0.30), 0 4px 12px rgba(0, 0, 0, 0.18);
+  /* Radii */
+  --r-xs: 4px;
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --r-pill: 999px;
+  /* Layer order — every fixed/floating surface picks from this list
+     instead of inventing its own number. */
+  --z-base: 0;
+  --z-sticky: 10;
+  --z-nav: 20;
+  --z-dropdown: 40;
+  --z-overlay: 100;
+  --z-modal: 200;
+  --z-toast: 300;
+  /* Minimum comfortable hit area. */
+  --tap: 44px;
 }
 
+/* Transition only the properties that actually change — `transition: all`
+   made every layout recalculation animate, which is what made scrolling
+   and resizing feel sticky. */
+.btn,
+.nav-link,
+.dropdown-item,
+.form-control,
+.form-select,
+.form-check-input,
+.list-group-item {
+  transition: color var(--dur-1) var(--ease-standard), background-color var(--dur-1) var(--ease-standard), border-color var(--dur-1) var(--ease-standard), box-shadow var(--dur-1) var(--ease-standard), opacity var(--dur-1) var(--ease-standard);
+}
+
+.card {
+  transition: border-color var(--dur-2) var(--ease-standard), box-shadow var(--dur-2) var(--ease-standard);
+}
+
+/* --- Buttons --------------------------------------------------- */
 .btn {
-  border-radius: 8px !important;
-  font-weight: 600 !important;
-  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  --bs-btn-border-radius: var(--r-md);
+  border-radius: var(--r-md);
+  font-weight: 550;
+  letter-spacing: -0.005em;
+  /* Keeps the label from shifting between weights/states. */
+  font-variant-numeric: tabular-nums;
 }
 
-.btn:hover:not(:disabled) {
-  transform: translateY(-2px) !important;
+/* Press feedback: a scale nudge is composited, so it gives immediate
+   tactile response without reflowing anything around it. No hover lift —
+   hover changes colour only, which keeps the page still. */
+.btn:active:not(:disabled):not(.disabled) {
+  transform: scale(0.985);
+  transition-duration: var(--dur-1);
 }
 
-.btn:active:not(:disabled) {
-  transform: translateY(0) scale(0.97) !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+.btn:disabled,
+.btn.disabled {
+  opacity: 0.45;
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
-.btn:disabled {
-  opacity: 0.6 !important;
-  box-shadow: none !important;
-}
-
-.btn-primary, .btn-outline-primary {
-  --bs-btn-bg: #00416a; /* Tyrian/Imperial Blue */
-  --bs-btn-border-color: #00416a;
-  --bs-btn-hover-bg: #003050;
-  --bs-btn-hover-border-color: #003050;
-  --bs-btn-active-bg: #0a6bb3;
-  --bs-btn-active-border-color: #0a6bb3;
+/* Solid variants: flat by default, one step of elevation on hover.
+   Hover/active tints are derived from the base colour so any future
+   palette change stays internally consistent. */
+.btn-success {
+  --bs-btn-bg: #2f7d54;
+  --bs-btn-border-color: #2f7d54;
   --bs-btn-color: #fff;
+  --bs-btn-hover-bg: rgb(38.638372093, 102.761627907, 69.0558139535);
+  --bs-btn-hover-border-color: rgb(34.4575581395, 91.6424418605, 61.5837209302);
   --bs-btn-hover-color: #fff;
+  --bs-btn-active-bg: rgb(30.276744186, 80.523255814, 54.111627907);
+  --bs-btn-active-border-color: rgb(27.4895348837, 73.1104651163, 49.1302325581);
   --bs-btn-active-color: #fff;
-  box-shadow: 0 4px 15px rgba(0, 65, 106, 0.3) !important;
+  --bs-btn-disabled-bg: #2f7d54;
+  --bs-btn-disabled-border-color: #2f7d54;
+  --bs-btn-disabled-color: #fff;
+  box-shadow: none;
+}
+.btn-success:hover:not(:disabled):not(.disabled) {
+  box-shadow: var(--shadow-2);
 }
 
-.btn-primary:hover:not(:disabled), .btn-outline-primary:hover:not(:disabled) {
-  box-shadow: 0 6px 20px rgba(0, 65, 106, 0.5) !important;
-}
-
-.btn-success, .btn-outline-success {
-  --bs-btn-bg: #2E8B57; /* Roman Green */
-  --bs-btn-border-color: #2E8B57;
-  --bs-btn-hover-bg: #216640;
-  --bs-btn-hover-border-color: #216640;
-  --bs-btn-active-bg: #3cb371;
-  --bs-btn-active-border-color: #3cb371;
+.btn-danger {
+  --bs-btn-bg: #b23a34;
+  --bs-btn-border-color: #b23a34;
   --bs-btn-color: #fff;
+  --bs-btn-hover-bg: rgb(154.3182608696, 50.2834782609, 45.0817391304);
+  --bs-btn-hover-border-color: rgb(142.4773913043, 46.4252173913, 41.6226086957);
   --bs-btn-hover-color: #fff;
+  --bs-btn-active-bg: rgb(130.6365217391, 42.5669565217, 38.1634782609);
+  --bs-btn-active-border-color: rgb(122.7426086957, 39.9947826087, 35.8573913043);
   --bs-btn-active-color: #fff;
-  box-shadow: 0 4px 15px rgba(46, 139, 87, 0.3) !important;
+  --bs-btn-disabled-bg: #b23a34;
+  --bs-btn-disabled-border-color: #b23a34;
+  --bs-btn-disabled-color: #fff;
+  box-shadow: none;
+}
+.btn-danger:hover:not(:disabled):not(.disabled) {
+  box-shadow: var(--shadow-2);
 }
 
-.btn-success:hover:not(:disabled), .btn-outline-success:hover:not(:disabled) {
-  box-shadow: 0 6px 20px rgba(46, 139, 87, 0.5) !important;
+.btn-warning {
+  --bs-btn-bg: #c99a2e;
+  --bs-btn-border-color: #c99a2e;
+  --bs-btn-color: #1a1408;
+  --bs-btn-hover-bg: rgb(176.0987854251, 134.9214574899, 40.3012145749);
+  --bs-btn-hover-border-color: rgb(163.6481781377, 125.3821862348, 37.4518218623);
+  --bs-btn-hover-color: #1a1408;
+  --bs-btn-active-bg: rgb(151.1975708502, 115.8429149798, 34.6024291498);
+  --bs-btn-active-border-color: rgb(142.8971659919, 109.4834008097, 32.7028340081);
+  --bs-btn-active-color: #1a1408;
+  --bs-btn-disabled-bg: #c99a2e;
+  --bs-btn-disabled-border-color: #c99a2e;
+  --bs-btn-disabled-color: #1a1408;
+  box-shadow: none;
+}
+.btn-warning:hover:not(:disabled):not(.disabled) {
+  box-shadow: var(--shadow-2);
 }
 
-.btn-danger, .btn-outline-danger {
-  --bs-btn-bg: #C80815; /* Pompeian Red */
-  --bs-btn-border-color: #C80815;
-  --bs-btn-hover-bg: #92060f;
-  --bs-btn-hover-border-color: #92060f;
-  --bs-btn-active-bg: #ef2533;
-  --bs-btn-active-border-color: #ef2533;
+.btn-info {
+  --bs-btn-bg: #6b4f9e;
+  --bs-btn-border-color: #6b4f9e;
   --bs-btn-color: #fff;
+  --bs-btn-hover-bg: rgb(93.1848101266, 68.8, 137.6);
+  --bs-btn-hover-border-color: rgb(86.2772151899, 63.7, 127.4);
   --bs-btn-hover-color: #fff;
+  --bs-btn-active-bg: rgb(79.3696202532, 58.6, 117.2);
+  --bs-btn-active-border-color: rgb(74.764556962, 55.2, 110.4);
   --bs-btn-active-color: #fff;
-  box-shadow: 0 4px 15px rgba(200, 8, 21, 0.3) !important;
+  --bs-btn-disabled-bg: #6b4f9e;
+  --bs-btn-disabled-border-color: #6b4f9e;
+  --bs-btn-disabled-color: #fff;
+  box-shadow: none;
+}
+.btn-info:hover:not(:disabled):not(.disabled) {
+  box-shadow: var(--shadow-2);
 }
 
-.btn-danger:hover:not(:disabled), .btn-outline-danger:hover:not(:disabled) {
-  box-shadow: 0 6px 20px rgba(200, 8, 21, 0.5) !important;
-}
-
-.btn-warning, .btn-outline-warning {
-  --bs-btn-bg: #D4AF37; /* Imperial Gold */
-  --bs-btn-border-color: #D4AF37;
-  --bs-btn-hover-bg: #aa8c2c;
-  --bs-btn-hover-border-color: #aa8c2c;
-  --bs-btn-active-bg: #f0cd5a;
-  --bs-btn-active-border-color: #f0cd5a;
-  --bs-btn-color: #000;
-  --bs-btn-hover-color: #000;
-  --bs-btn-active-color: #000;
-  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3) !important;
-}
-
-.btn-warning:hover:not(:disabled), .btn-outline-warning:hover:not(:disabled) {
-  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5) !important;
-}
-
-.btn-info, .btn-outline-info {
-  --bs-btn-bg: #66023C; /* Tyrian Purple */
-  --bs-btn-border-color: #66023C;
-  --bs-btn-hover-bg: #4a012c;
-  --bs-btn-hover-border-color: #4a012c;
-  --bs-btn-active-bg: #a8054f;
-  --bs-btn-active-border-color: #a8054f;
-  --bs-btn-color: #fff;
-  --bs-btn-hover-color: #fff;
-  --bs-btn-active-color: #fff;
-  box-shadow: 0 4px 15px rgba(102, 2, 60, 0.3) !important;
-}
-
-.btn-info:hover:not(:disabled), .btn-outline-info:hover:not(:disabled) {
-  box-shadow: 0 6px 20px rgba(102, 2, 60, 0.5) !important;
-}
-
-.btn-check:checked + .btn {
-  color: var(--bs-btn-active-color) !important;
-  background-color: var(--bs-btn-active-bg) !important;
-  border-color: var(--bs-btn-active-border-color) !important;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6), 0 6px 20px rgba(0, 0, 0, 0.35) !important;
-  filter: brightness(1.1);
-}
-
+/* The primary action is the brand accent everywhere. The home CTA and the
+   database Search button were already overridden to accent purple locally,
+   while Bootstrap's blue leaked through on Multiplayer, Upload and the
+   profile pages — so "the main button" was two different colours depending
+   on which page you were standing on. Driving both from --accent also means
+   they track the light/dark theme instead of being frozen hex. */
+.btn-primary,
 .btn-custom {
-  --bs-btn-bg: #66023C; /* Tyrian Purple */
-  --bs-btn-border-color: #66023C;
-  --bs-btn-hover-bg: #4a012c;
-  --bs-btn-hover-border-color: #4a012c;
-  --bs-btn-color: #fff;
-  --bs-btn-hover-color: #fff;
-  box-shadow: 0 4px 15px rgba(102, 2, 60, 0.3) !important;
+  --bs-btn-bg: var(--accent);
+  --bs-btn-border-color: var(--accent);
+  --bs-btn-color: var(--accent-ink);
+  --bs-btn-hover-bg: color-mix(in oklab, var(--accent) 90%, var(--ink));
+  --bs-btn-hover-border-color: color-mix(in oklab, var(--accent) 90%, var(--ink));
+  --bs-btn-hover-color: var(--accent-ink);
+  --bs-btn-active-bg: color-mix(in oklab, var(--accent) 82%, var(--ink));
+  --bs-btn-active-border-color: color-mix(in oklab, var(--accent) 82%, var(--ink));
+  --bs-btn-active-color: var(--accent-ink);
+  --bs-btn-disabled-bg: var(--accent);
+  --bs-btn-disabled-border-color: var(--accent);
+  --bs-btn-disabled-color: var(--accent-ink);
+  box-shadow: none;
+}
+.btn-primary:hover:not(:disabled):not(.disabled),
+.btn-custom:hover:not(:disabled):not(.disabled) {
+  box-shadow: var(--shadow-2);
 }
 
-.btn-custom:hover:not(:disabled) {
-  box-shadow: 0 6px 20px rgba(102, 2, 60, 0.5) !important;
+/* Outline variants stay outline until hover — previously they inherited
+   the solid fill and the two were indistinguishable. */
+/* Neutral ghost — the default for secondary controls like "Options",
+   "Cancel" or a sidebar toggle, which carry no semantic colour. */
+.btn-outline-secondary {
+  --bs-btn-color: var(--ink-dim);
+  --bs-btn-border-color: var(--border-strong);
+  --bs-btn-bg: transparent;
+  --bs-btn-hover-bg: var(--bg-raised);
+  --bs-btn-hover-border-color: var(--ink-muted);
+  --bs-btn-hover-color: var(--ink);
+  --bs-btn-active-bg: var(--bg-raised);
+  --bs-btn-active-border-color: var(--ink-muted);
+  --bs-btn-active-color: var(--ink);
+  --bs-btn-disabled-color: var(--ink-muted);
+  --bs-btn-disabled-border-color: var(--border);
+  box-shadow: none;
 }
 
+.btn-outline-primary {
+  --bs-btn-color: #6f9ad6;
+  --bs-btn-border-color: rgba(111, 154, 214, 0.55);
+  --bs-btn-bg: transparent;
+  --bs-btn-hover-bg: rgba(111, 154, 214, 0.12);
+  --bs-btn-hover-border-color: #6f9ad6;
+  --bs-btn-hover-color: #6f9ad6;
+  --bs-btn-active-bg: rgba(111, 154, 214, 0.2);
+  --bs-btn-active-border-color: #6f9ad6;
+  --bs-btn-active-color: #6f9ad6;
+  box-shadow: none;
+}
+
+.btn-outline-success {
+  --bs-btn-color: #57ac7d;
+  --bs-btn-border-color: rgba(87, 172, 125, 0.55);
+  --bs-btn-bg: transparent;
+  --bs-btn-hover-bg: rgba(87, 172, 125, 0.12);
+  --bs-btn-hover-border-color: #57ac7d;
+  --bs-btn-hover-color: #57ac7d;
+  --bs-btn-active-bg: rgba(87, 172, 125, 0.2);
+  --bs-btn-active-border-color: #57ac7d;
+  --bs-btn-active-color: #57ac7d;
+  box-shadow: none;
+}
+
+.btn-outline-danger {
+  --bs-btn-color: #d9736c;
+  --bs-btn-border-color: rgba(217, 115, 108, 0.55);
+  --bs-btn-bg: transparent;
+  --bs-btn-hover-bg: rgba(217, 115, 108, 0.12);
+  --bs-btn-hover-border-color: #d9736c;
+  --bs-btn-hover-color: #d9736c;
+  --bs-btn-active-bg: rgba(217, 115, 108, 0.2);
+  --bs-btn-active-border-color: #d9736c;
+  --bs-btn-active-color: #d9736c;
+  box-shadow: none;
+}
+
+.btn-outline-warning {
+  --bs-btn-color: #d9b158;
+  --bs-btn-border-color: rgba(217, 177, 88, 0.55);
+  --bs-btn-bg: transparent;
+  --bs-btn-hover-bg: rgba(217, 177, 88, 0.12);
+  --bs-btn-hover-border-color: #d9b158;
+  --bs-btn-hover-color: #d9b158;
+  --bs-btn-active-bg: rgba(217, 177, 88, 0.2);
+  --bs-btn-active-border-color: #d9b158;
+  --bs-btn-active-color: #d9b158;
+  box-shadow: none;
+}
+
+.btn-outline-info {
+  --bs-btn-color: #a48bd6;
+  --bs-btn-border-color: rgba(164, 139, 214, 0.55);
+  --bs-btn-bg: transparent;
+  --bs-btn-hover-bg: rgba(164, 139, 214, 0.12);
+  --bs-btn-hover-border-color: #a48bd6;
+  --bs-btn-hover-color: #a48bd6;
+  --bs-btn-active-bg: rgba(164, 139, 214, 0.2);
+  --bs-btn-active-border-color: #a48bd6;
+  --bs-btn-active-color: #a48bd6;
+  box-shadow: none;
+}
+
+/* Toggle buttons (category filters, difficulty chips, format switches).
+   The old rule stacked a white 2px ring plus brightness(1.1) on top of
+   the fill, which blew out the category hues. A single inset ring keeps
+   the chip's own colour legible while still reading as "on". */
+.btn-check:checked + .btn {
+  color: var(--bs-btn-active-color);
+  background-color: var(--bs-btn-active-bg);
+  border-color: var(--bs-btn-active-border-color);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+
+.btn-check:focus-visible + .btn {
+  outline: 2px solid var(--focus-ring, #9c7cf0);
+  outline-offset: 2px;
+}
+
+/* --- Navbar ---------------------------------------------------- */
 .navbar {
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-.bg-custom {
-  background-color: rgba(152, 114, 218, 0.85) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .navbar-nav .nav-link {
@@ -9807,24 +10318,9 @@ a.list-group-item:hover {
   font-weight: 500;
 }
 
-.navbar-nav .nav-link::after {
-  content: "";
-  position: absolute;
-  width: 0;
-  height: 3px;
-  bottom: 2px;
-  left: 50%;
-  background-color: #fff;
-  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  transform: translateX(-50%);
-  border-radius: 2px;
-}
-
-.navbar-nav .nav-link:hover::after,
-.navbar-nav .nav-link.active::after {
-  width: 70%;
-}
-
+/* Hover-to-open dropdown for the Multiplayer parent. Only kicks in on
+// pointer-capable devices; mobile / touch users still tap the parent link to
+// land on /multiplayer directly. */
 @media (hover: hover) and (min-width: 992px) {
   .nav-multiplayer:hover > .dropdown-menu {
     display: block;
@@ -9834,21 +10330,296 @@ a.list-group-item:hover {
     margin-top: 0;
   }
 }
-.form-control:focus {
-  box-shadow: 0 0 0 0.25rem rgba(152, 114, 218, 0.3) !important;
-  border-color: #9872da !important;
+/* --- Form controls --------------------------------------------- */
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--accent, #6355d4);
+  box-shadow: 0 0 0 3px var(--accent-soft, rgba(99, 85, 212, 0.22));
 }
 
 .form-check-input:checked {
-  background-color: #9872da !important;
-  border-color: #9872da !important;
+  background-color: var(--accent, #6355d4);
+  border-color: var(--accent, #6355d4);
 }
 
 .form-check-input:focus {
-  box-shadow: 0 0 0 0.25rem rgba(152, 114, 218, 0.3) !important;
+  border-color: var(--accent, #6355d4);
+  box-shadow: 0 0 0 3px var(--accent-soft, rgba(99, 85, 212, 0.22));
 }
 
-/* --- End osu! aesthetic --- */
+/* The Reading section renders its rows as <button> so they're keyboard
+   operable; .toggle-row was written for a <label>, so reset button chrome
+   and drive the switch off aria-checked rather than a hidden checkbox. */
+button.toggle-row.reader-toggle {
+  width: 100%;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+button.toggle-row.reader-toggle:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--r-md);
+}
+
+button.toggle-row.reader-toggle:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.reader-toggle[aria-checked=true] .toggle-switch {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.reader-toggle[aria-checked=true] .toggle-switch::after {
+  transform: translateX(14px);
+  background: var(--accent);
+}
+
+@media (pointer: coarse) {
+  button.toggle-row.reader-toggle {
+    min-height: var(--tap);
+  }
+}
+/* --- Database filter labels --------------------------------------
+   The filter panel was placeholder-only: once you typed, the field's meaning
+   was gone, and screen readers got nothing at all. Labels are small and
+   quiet so the panel stays dense. */
+.db-field-label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-family: var(--font-sans);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--ink-muted);
+}
+
+/* Mobile ergonomics for the database page. It is the only screen that never
+   got a responsive pass: its controls were 14.4px (so iOS zoomed the viewport
+   on every focus) and several sat under the 44px touch minimum. */
+@media (max-width: 767.98px), (pointer: coarse) {
+  .db-page .form-control,
+  .db-page .form-select,
+  .db-page .btn,
+  .db-page .db-set-picker,
+  .db-page .dropdown-checklist .btn,
+  .db-page #category-select-button,
+  .navbar-toggler {
+    min-height: var(--tap);
+  }
+  /* The checklist rows inside the difficulty dropdown are labels wrapping a
+     checkbox — the whole row should be tappable, not just the box. */
+  .db-page .checkbox-menu label,
+  .dropdown-checklist .checkbox-menu label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: var(--tap);
+    padding: 0 0.5rem;
+    width: 100%;
+  }
+  .db-page .form-check.form-switch {
+    min-height: var(--tap);
+    display: flex;
+    align-items: center;
+  }
+  /* The switch row's label is the real target — make the whole row tappable
+     rather than requiring a hit on the 18px control itself. */
+  .db-page .form-check.form-switch .form-check-label {
+    padding: 0.5rem 0;
+    flex: 1;
+  }
+  .db-page .form-check.form-switch .form-check-input {
+    width: 2.2rem;
+    height: 1.25rem;
+  }
+}
+/* --- Theme toggle ------------------------------------------------
+   Injected into the navbar by apply-theme.js on every page, so light/dark
+   is one click away instead of being buried in Settings. */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin-right: 0.5rem;
+  align-self: center;
+  flex: none;
+  padding: 0;
+  background: transparent;
+  color: var(--ink-dim);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-standard), border-color var(--dur-1) var(--ease-standard), background-color var(--dur-1) var(--ease-standard);
+}
+
+.theme-toggle svg {
+  width: 17px;
+  height: 17px;
+  display: block;
+}
+
+.theme-toggle:hover {
+  color: var(--ink);
+  border-color: var(--border-strong);
+  background: var(--bg-raised);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Comfortable target on touch without inflating the desktop navbar. */
+@media (pointer: coarse) {
+  .theme-toggle {
+    width: 44px;
+    height: 44px;
+  }
+  .theme-toggle svg {
+    width: 19px;
+    height: 19px;
+  }
+}
+/* --- Keycaps ----------------------------------------------------
+   One keycap treatment for the whole product. This app is keyboard-first —
+   space to buzz, N for next, T to star — so these have to be legible at a
+   glance, not decorative. Sunken fill + a heavier bottom border reads as a
+   physical key, and the glyph sits on the full-strength ink tier. */
+kbd,
+.shortcut-list kbd,
+.home-shortcut kbd,
+.buzz-bar-fixed .buzz-bar-hint kbd {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  padding: 0.1rem 0.4rem;
+  min-width: 1.5rem;
+  display: inline-block;
+  text-align: center;
+  background: var(--bg-sunken);
+  color: var(--ink);
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 2px;
+  border-radius: var(--r-xs);
+  box-shadow: none;
+  text-shadow: none;
+}
+
+/* --- Empty states -----------------------------------------------
+   One treatment for "there is nothing here yet" across the product. These
+   used to be serif italic in faint ink, set via inline styles on several
+   pages — which meant they were both the least readable text on screen and
+   the only thing on it. */
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--s-5) var(--s-4);
+  color: var(--ink-muted);
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-size: var(--t-md);
+  line-height: var(--lh-body);
+}
+
+/* ================================================================
+   Accessibility baseline
+   ================================================================ */
+/* One focus ring for the entire product. `:focus-visible` means mouse
+   users never see it but keyboard users always do — the previous code
+   had no focus styling at all beyond Bootstrap's default on inputs,
+   so tabbing through the reader was untrackable. */
+:where(a, button, .btn, [role=button], input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus-ring, #9c7cf0);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
+}
+
+/* Skip link — first tab stop on every page. */
+.skip-link {
+  position: absolute;
+  left: 0.5rem;
+  top: -3rem;
+  z-index: var(--z-toast);
+  padding: 0.6rem 1rem;
+  border-radius: var(--r-md);
+  background: var(--accent, #6355d4);
+  /* Was a hardcoded #fff, which was correct when the accent was a dark
+     purple. The dark theme's accent is now a light mint, so white-on-mint
+     measured 1.76:1 — on the one control that exists solely for keyboard
+     and screen-reader users, and the first tab stop on every page.
+     --accent-ink is the theme-aware text colour for an accent fill. */
+  color: var(--accent-ink);
+  font-weight: 600;
+  transition: top var(--dur-2) var(--ease-out);
+}
+
+.skip-link:focus {
+  top: 0.5rem;
+}
+
+/* Comfortable hit areas on touch, without changing desktop density. */
+@media (pointer: coarse) {
+  .btn,
+  .nav-link,
+  .dropdown-item,
+  .form-control,
+  .form-select {
+    min-height: var(--tap);
+  }
+  .form-check-input {
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+}
+/* iOS zooms the page when a focused input's font-size is under 16px. */
+@media (max-width: 575.98px) {
+  .form-control,
+  .form-select,
+  input[type=text],
+  input[type=search],
+  input[type=email],
+  input[type=number] {
+    font-size: 16px;
+  }
+}
+/* The tool-density scale is tuned for a desktop window. On a phone the same
+   13px chrome is genuinely hard to read, so the scale relaxes: reading
+   surfaces go back to 16px and the dense tiers step up a notch. This is a
+   token override, so every rule using the scale follows automatically. */
+@media (max-width: 767.98px) {
+  :root {
+    --t-xs: 0.75rem; /* 12px */
+    --t-sm: 0.8125rem; /* 13px */
+    --t-base: 0.875rem; /* 14px */
+    --t-md: 0.9375rem; /* 15px */
+    --t-lg: 1rem; /* 16px — body copy */
+    --t-xl: 1.1875rem; /* 19px — question text */
+    --lh-body: 1.6;
+    --lh-reading: 1.65;
+  }
+}
+/* Honour the OS "reduce motion" setting. Transitions collapse to
+   near-zero rather than 0 so state changes still fire transitionend. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6, .navbar-brand {
   font-family: inherit !important;
 }
@@ -9967,7 +10738,7 @@ h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6, .navbar-brand {
 .buzz-bar-fixed #answer-input::placeholder,
 .buzz-bar-fixed .buzz-answer-input::placeholder {
   color: var(--ink-faint);
-  font-style: italic;
+  font-style: normal;
 }
 
 .buzz-bar-fixed #answer-input-group .btn,
@@ -9981,15 +10752,15 @@ h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6, .navbar-brand {
   border-radius: 0 8px 8px 0 !important;
   background: var(--accent) !important;
   border: 1px solid var(--accent) !important;
-  color: oklch(10% 0 0deg) !important;
+  color: var(--accent-ink) !important;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
   transform: none !important;
   --bs-btn-bg: var(--accent);
   --bs-btn-border-color: var(--accent);
   --bs-btn-hover-bg: var(--accent);
   --bs-btn-hover-border-color: var(--accent);
-  --bs-btn-color: oklch(10% 0 0deg);
-  --bs-btn-hover-color: oklch(10% 0 0deg);
+  --bs-btn-color: var(--accent-ink);
+  --bs-btn-hover-color: var(--accent-ink);
 }
 
 .buzz-bar-fixed #answer-input-group .btn:hover:not(:disabled),
@@ -10133,8 +10904,8 @@ h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6, .navbar-brand {
 
 /* --- Bonus section (tossup+boni flow) --- */
 .bonus-section-card {
-  background-color: rgba(152, 114, 218, 0.04);
-  border-color: rgba(152, 114, 218, 0.2) !important;
+  background-color: rgba(99, 85, 212, 0.04);
+  border-color: rgba(99, 85, 212, 0.2) !important;
 }
 
 #bonus-question {
@@ -10183,33 +10954,99 @@ h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6, .navbar-brand {
    Design tokens ported from the CertamenReader redesign prototype
    ================================================================ */
 :root {
-  --accent-h: 287;
-  --accent-c: 0.13;
-  --accent-l: 0.70;
-  --accent: oklch(var(--accent-l) var(--accent-c) var(--accent-h));
-  --accent-soft: oklch(var(--accent-l) var(--accent-c) var(--accent-h) / 0.14);
-  --accent-glow: oklch(var(--accent-l) var(--accent-c) var(--accent-h) / 0.35);
-  --ed-bg: oklch(0.18 0.010 40);
-  --ed-bg-raised: oklch(0.22 0.012 40);
-  --ed-bg-card: oklch(0.245 0.014 40);
-  --ed-bg-sunken: oklch(0.15 0.008 40);
-  --ed-border: oklch(0.33 0.012 40);
-  --ed-border-soft: oklch(0.28 0.010 40 / 0.7);
-  --ed-ink: oklch(0.94 0.010 80);
-  --ed-ink-dim: oklch(0.76 0.012 70);
-  --ed-ink-muted: oklch(0.58 0.010 60);
-  --ed-ink-faint: oklch(0.42 0.008 60);
-  --c-mythology: oklch(0.60 0.15 330);
-  --c-roman-history: oklch(0.62 0.13 155);
-  --c-latin-literature: oklch(0.72 0.14 85);
-  --c-language: oklch(0.55 0.14 245);
-  --c-culture: oklch(0.64 0.15 45);
-  --correct: oklch(0.68 0.16 150);
-  --incorrect: oklch(0.62 0.20 25);
-  --power: oklch(0.78 0.16 85);
-  --font-serif: 'Source Serif 4', Georgia, serif;
-  --font-sans: 'Inter Tight', -apple-system, 'Aller', Helvetica, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* ── Accent: violet, from the Figma design proposal. This replaces the
+     previous verdigris. Dark uses the lighter tint; light.scss overrides. */
+  --accent: #8b7cf8;
+  --accent-soft: #1e2130;
+  --accent-glow: rgba(139, 124, 248, 0.22);
+  --accent-ink: #0d0f14;
+  --accent-line: #33305a;
+  --focus-ring: #8b7cf8;
+  /* ── Dark surfaces: cool blue-grey. Neutrals carry the accent hue so the
+     greys aren't flat. */
+  --ed-bg: #0d0f14;
+  --ed-bg-raised: #141720;
+  --ed-bg-card: #141720;
+  --ed-bg-sunken: #090b0f;
+  --ed-border: #252a3a;
+  --ed-border-soft: #1c2030;
+  --ed-border-strong: #39405a;
+  /* Ink ramp. --ed-ink is Figma's foreground verbatim. --ed-ink-muted is
+     lifted from Figma's #7a7b8a, which measured 4.28:1 against --ed-bg-card
+     and is used for nearly every small label in the app — just under the
+     4.5:1 AA floor. #9a9bab measures 6.1:1. Hue unchanged. */
+  --ed-ink: #e4e2dc;
+  --ed-ink-dim: #c2c0bb;
+  --ed-ink-muted: #9a9bab;
+  --ed-ink-faint: #8b8c9c;
+  /* Unread question text — recessive against body ink but still legible. */
+  --ahead: #6d6f7e;
+  /* Range-slider track. 3:1 is the WCAG minimum for a meaningful non-text
+     UI element; it must stay visible against --ed-bg-sunken. */
+  --track: #4a4d5c;
+  /* Category hues from the Figma palette. Note these reassign two of the
+     five: history moves green → red, literature gold → green.
+
+     Roman History is crimson rather than Figma's #f87171. That value sits
+     one JND from --incorrect (#ef4444), so a Roman History chip read as an
+     error state — and in the light theme Figma's history red and its error
+     red were the same hex. Rose keeps Figma's "history is red" decision
+     while staying legibly distinct from the alert colour and from
+     --c-culture's orange. */
+  --c-mythology: #a78bfa;
+  --c-roman-history: #fb7185;
+  --c-latin-literature: #34d399;
+  --c-language: #38bdf8;
+  --c-culture: #fb923c;
+  /* Ink for text sitting ON a filled category chip. Figma hardcoded white
+     in both themes; on --c-latin-literature that is 1.9:1. The dark hues
+     are light, so chip text must be dark. */
+  --cat-chip-ink: #0d0f14;
+  --correct: #22c55e;
+  --incorrect: #ef4444;
+  --power: #f59e0b;
+  /* ── Type. Lora for the question (the one thing you read); Fraunces for
+     headings, where its optical-size axis does the work; DM Sans for
+     chrome. Mono is data only — numbers, metadata, keycaps. */
+  /* --font-serif is the reading face (question prose); --font-display is
+     the heading face. They were the same family before, so every existing
+     --font-serif call site keeps working and headings opt in to Fraunces. */
+  --font-serif: 'Lora', Georgia, 'Times New Roman', serif;
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* Mobile-first scale; the desktop media query below steps it up. */
+  --t-xs: 0.6875rem; /* 11px */
+  --t-sm: 0.75rem; /* 12px */
+  --t-base: 0.8125rem; /* 13px */
+  --t-md: 0.875rem; /* 14px */
+  --t-lg: 1rem; /* 16px */
+  --t-xl: 1.25rem; /* 20px — question text on mobile */
+  --t-2xl: 1.375rem; /* 22px */
+  --t-3xl: 1.75rem; /* 28px */
+  --lh-tight: 1.15;
+  --lh-snug: 1.3;
+  --lh-body: 1.55;
+  --lh-reading: 1.58;
+  --tracking-tight: -0.021em;
+  --tracking-snug: -0.011em;
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4rem;
+  /* Small, unequal radii read as instrumentation. A uniform 16px on
+     everything is a documented AI-design signature. */
+  --r-xs: 2px;
+  --r-sm: 3px;
+  --r-md: 3px;
+  --r-lg: 5px;
+  --r-xl: 6px;
+  /* Reading measure — caps line length at roughly 65 characters. */
+  --measure: 66ch;
   /* Aliases so design-prototype CSS using unprefixed tokens works here */
   --bg: var(--ed-bg);
   --bg-raised: var(--ed-bg-raised);
@@ -10217,6 +11054,7 @@ h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6, .navbar-brand {
   --bg-sunken: var(--ed-bg-sunken);
   --border: var(--ed-border);
   --border-soft: var(--ed-border-soft);
+  --border-strong: var(--ed-border-strong);
   --ink: var(--ed-ink);
   --ink-dim: var(--ed-ink-dim);
   --ink-muted: var(--ed-ink-muted);
@@ -10227,12 +11065,21 @@ h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6, .navbar-brand {
   --pad-y: 2rem;
 }
 
+/* Desktop steps the reading size up; mobile is the base, not the fallback. */
+@media (min-width: 1080px) {
+  :root {
+    --t-xl: 1.375rem; /* 22px question text */
+    --lh-reading: 1.55;
+    --measure: 62ch;
+  }
+}
 body {
   background: var(--ed-bg) !important;
   color: var(--ed-ink);
   font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  font-feature-settings: "ss01", "cv11";
+  /* Deliberately NOT antialiased: on macOS it renders light serif strokes
+     thinner, which is the opposite of what Lora needs. */
+  font-synthesis: none;
 }
 
 .serif {
@@ -10248,12 +11095,18 @@ body {
 }
 
 /* --- Navbar chrome --- */
+/* Solid, not translucent. The blurred 90%-opacity bar let page content ghost
+   through as you scrolled, which read as unfinished; and --border-soft gave it
+   no bottom edge at all. A shorter bar on its own raised surface with a real
+   hairline reads as app chrome. */
 .navbar.bg-custom {
-  background-color: color-mix(in oklab, var(--ed-bg) 90%, transparent) !important;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--ed-border-soft);
-  min-height: 60px;
+  background-color: var(--ed-bg-raised) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom: 1px solid var(--ed-border);
+  min-height: 52px;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .navbar.bg-custom .nav-link {
@@ -10297,26 +11150,37 @@ body {
 .navbar-brand.brand-editorial {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  font-family: var(--font-sans);
-  font-size: 1.05rem;
-  letter-spacing: -0.005em;
-  padding-right: 1.1rem;
-  border-right: 1px solid var(--ed-border-soft);
-  margin-right: 0.5rem;
-  color: var(--ed-ink-dim) !important;
+  gap: 0.55rem;
+  /* Fraunces, not the reading serif. The wordmark is the one place a
+     display face earns its keep: high stroke contrast at small sizes is
+     what makes it read as a mark rather than as running text. */
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  letter-spacing: var(--tracking-snug);
+  padding-right: 0.9rem;
+  border-right: 1px solid var(--ed-border);
+  margin-right: 0.4rem;
+  color: var(--ed-ink) !important;
 }
 
+/* The buzzer. It is the object the whole game turns on — you win certamen by
+   getting to it first — so it stays literal rather than being abstracted into
+   a monogram. The PNG is transparent, so the plate behind it is themed and
+   the icon reads correctly in both light and dark.
+
+   The buzzer art is 373x669 (a tall handset), so the plate is portrait too;
+   forcing it into a square left it floating in dead space. */
 .navbar-brand.brand-editorial .brand-mark {
-  width: 28px;
-  height: 28px;
+  width: 20px;
+  height: 30px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
-  padding: 2px;
-  background: color-mix(in oklab, var(--accent) 10%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--accent) 25%, transparent), 0 0 14px var(--accent-glow);
+  border-radius: var(--r-sm);
+  padding: 3px 2px;
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--accent-line);
+  flex: none;
 }
 
 .navbar-brand.brand-editorial .brand-mark img {
@@ -10326,10 +11190,24 @@ body {
   display: block;
 }
 
+/* Dark mode: the buzzer's body is light grey and its button red, both of
+   which sit fine on the dark plate. Light mode needs a touch more separation
+   between the grey handset and the pale ground. */
+:root[data-color-theme=light] .navbar-brand.brand-editorial .brand-mark,
+.navbar-brand.brand-editorial .brand-mark {
+  background: var(--accent-soft);
+}
+
+/* Both halves sit at 700 so the mark reads as one bold word, as in the
+   reference. The two-tone colour still separates "Certamen" from "Reader",
+   which is the existing brand identity — weight is no longer doing that job.
+   Tracking is pulled in slightly: Fraunces sets wider than Lora at the same
+   size, and the wordmark needs to stay compact next to the nav links. */
 .navbar-brand.brand-editorial .brand-word {
-  font-weight: 400;
-  color: var(--ed-ink-dim);
-  letter-spacing: -0.01em;
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.015em;
   line-height: 1;
 }
 
@@ -10341,9 +11219,10 @@ body {
 /* --- Cards --- */
 .card {
   background: var(--ed-bg-card) !important;
-  border: 1px solid var(--ed-border-soft) !important;
-  border-radius: 10px !important;
+  border: 1px solid var(--ed-border) !important;
+  border-radius: var(--r-lg) !important;
   color: var(--ed-ink);
+  box-shadow: var(--shadow-1);
 }
 
 .card.shadow-sm {
@@ -10388,14 +11267,15 @@ body {
 }
 
 .ed-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: var(--accent);
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
+  font-weight: 600;
 }
 
 .ed-eyebrow::before {
@@ -10418,7 +11298,6 @@ body {
 }
 
 .ed-title em {
-  font-style: italic;
   color: var(--accent);
   font-weight: 400;
 }
@@ -10462,28 +11341,27 @@ body {
 
 /* --- Editorial card (replaces .feature) --- */
 .ed-card {
-  background: var(--ed-bg-card);
-  border: 1px solid var(--ed-border-soft);
-  border-radius: 12px;
-  padding: 1.4rem 1.5rem;
   height: 100%;
-  transition: border-color 0.15s ease, transform 0.15s ease;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+  transition: border-color var(--dur-2) var(--ease-standard), box-shadow var(--dur-2) var(--ease-standard);
 }
 
+/* Elevation instead of movement — a grid of cards that each jump 2px as the
+   cursor crosses them makes the whole page feel unsettled. */
 .ed-card:hover {
   border-color: color-mix(in oklab, var(--accent) 55%, transparent);
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
 }
 
 .ed-card-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: var(--ed-ink-muted);
+  font-weight: 600;
 }
 
 .ed-card h3, .ed-card .h3, .ed-card .ed-card-title {
@@ -10538,7 +11416,7 @@ body {
 
 .feature:hover {
   border-color: color-mix(in oklab, var(--accent) 55%, transparent);
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
 }
 
 .feature h3, .feature .h3 {
@@ -10631,12 +11509,19 @@ body {
 .tossup-text,
 .high-contrast-question-text {
   font-family: var(--font-serif);
-  font-size: 1.3rem;
-  line-height: 1.7;
+  /* 500, never 400: Garamond's regular cut reads thin on screen. */
+  font-weight: 500;
+  font-size: var(--t-xl);
+  line-height: var(--lh-reading);
   color: var(--ed-ink);
-  font-weight: 400;
-  letter-spacing: -0.003em;
+  letter-spacing: 0.003em;
+  max-width: var(--measure);
   text-wrap: pretty;
+}
+
+#question b, #question strong,
+.tossup-text b, .tossup-text strong {
+  font-weight: 700;
 }
 
 /* --- Modal polish --- */
@@ -10674,7 +11559,6 @@ body {
 }
 
 .ed-modal .modal-title em {
-  font-style: italic;
   color: var(--accent);
   font-weight: 400;
 }
@@ -10723,11 +11607,12 @@ body {
 }
 
 .ed-form-row > label {
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: var(--ink-muted);
+  font-weight: 600;
 }
 
 .ed-input,
@@ -10805,15 +11690,16 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: var(--ink-muted);
   border-top: 1px solid var(--border-soft);
   padding-top: 0.9rem;
   margin-top: 0.6rem;
   margin-bottom: 0.5rem;
+  font-weight: 600;
 }
 
 .ed-link {
@@ -10835,7 +11721,7 @@ body {
 .ed-modal-current {
   font-family: var(--font-mono);
   font-size: 0.72rem;
-  color: var(--ink-faint);
+  color: var(--ink-muted);
   margin-top: 0.5rem;
 }
 
@@ -10856,9 +11742,8 @@ body {
 }
 
 .ed-set-empty {
-  font-family: var(--font-serif);
-  font-style: italic;
-  color: var(--ink-faint);
+  font-style: normal;
+  color: var(--ink-muted);
   padding: 0.8rem 0;
   text-align: center;
 }
@@ -10995,30 +11880,56 @@ body {
   background: var(--ed-bg-sunken) !important;
 }
 
-/* --- Discord pill link on home --- */
+/* --- Discord link ------------------------------------------------
+   Was a two-tone label ("Join the" dim + the rest bold) with no icon, which
+   read as unfinished rather than deliberate. Now one weight, the official
+   Discord mark, and Discord's own blurple on hover — the brand colour shows
+   up only on interaction so it never competes with the verdigris accent. */
 .ed-discord {
+  --discord: #5865f2;
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.55rem 1rem;
-  border-radius: 999px;
+  gap: 0.6rem;
+  padding: 0.6rem 1.15rem;
+  border-radius: var(--r-pill, 999px);
   border: 1px solid var(--ed-border);
   background: var(--ed-bg-raised);
   color: var(--ed-ink-dim);
-  font-size: 0.92rem;
-  transition: border-color 0.15s ease, color 0.15s ease;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: -0.003em;
+  text-decoration: none;
+  transition: border-color var(--dur-1) var(--ease-standard), color var(--dur-1) var(--ease-standard), background-color var(--dur-1) var(--ease-standard);
 }
 
-.ed-discord:hover {
-  border-color: var(--accent);
+.ed-discord-mark {
+  width: 20px;
+  height: 16px;
+  flex: none;
+  fill: currentColor;
+  transition: fill var(--dur-1) var(--ease-standard);
+}
+
+.ed-discord:hover,
+.ed-discord:focus-visible {
   color: var(--ed-ink);
+  border-color: var(--discord);
+  background: var(--ed-bg-card);
+  text-decoration: none;
 }
 
-.ed-discord b {
-  color: var(--ed-ink);
-  font-weight: 600;
+.ed-discord:hover .ed-discord-mark,
+.ed-discord:focus-visible .ed-discord-mark {
+  fill: var(--discord);
 }
 
+/* Comfortable target on touch. */
+@media (pointer: coarse) {
+  .ed-discord {
+    min-height: var(--tap, 44px);
+  }
+}
 /* --- About page section eyebrow heading --- */
 .ed-section-title {
   font-family: var(--font-serif);
@@ -11249,7 +12160,7 @@ body:not(.account-nav-ready) #login-link {
   background: var(--bg-card);
   border: 1px solid var(--border-soft);
   border-radius: var(--radius);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 0.72rem;
   color: var(--ink-muted);
   margin: 0.75rem 0;
@@ -11286,13 +12197,18 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .celerity .label {
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.65rem;
-  color: var(--ink-faint);
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--ink-muted);
 }
 
+/* The readout keeps mono + tabular figures so the number doesn't jitter as
+   celerity ticks. This is the distinction throughout: mono for data that
+   changes in place, sans for everything you read. */
 .celerity .value {
+  font-family: var(--font-mono);
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
@@ -11354,11 +12270,12 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .hist-stat .l {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
   color: var(--ink-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-weight: 600;
 }
 
 .hist-stat[data-accent=correct] .v {
@@ -11378,12 +12295,13 @@ body:not(.account-nav-ready) #login-link {
   grid-template-columns: 40px 110px 1fr 110px 60px;
   gap: 1rem;
   padding: 0 0.4rem 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  color: var(--ink-faint);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  text-transform: none;
+  letter-spacing: 0.01em;
   border-bottom: 1px solid var(--border-soft);
+  font-weight: 600;
 }
 
 .hist-row {
@@ -11491,7 +12409,7 @@ body:not(.account-nav-ready) #login-link {
 .hist-row .result .sub {
   font-family: var(--font-mono);
   font-size: 0.65rem;
-  color: var(--ink-faint);
+  color: var(--ink-muted);
   margin-top: 3px;
 }
 
@@ -11524,18 +12442,59 @@ body:not(.account-nav-ready) #login-link {
   flex-wrap: wrap;
 }
 
+/* Matches the eyebrow + serif title used on About / Database / Leaderboards,
+   so page headers are recognisably the same object across the site. */
 .mp-hdr h1, .mp-hdr .h1 {
   font-family: var(--font-serif);
-  font-size: 1.8rem;
-  font-weight: 600;
-  margin: 0;
-  letter-spacing: -0.01em;
+  font-size: var(--t-2xl);
+  font-weight: 500;
+  margin: 0.15rem 0 0;
+  letter-spacing: -0.02em;
+  line-height: var(--lh-tight);
+}
+
+.mp-hdr h1 em, .mp-hdr .h1 em {
+  color: var(--accent);
+  font-weight: 400;
 }
 
 .mp-hdr p {
-  margin: 4px 0 0;
+  font-family: var(--font-sans);
+  margin: 0.4rem 0 0;
   color: var(--ink-muted);
-  font-size: 0.88rem;
+  font-size: var(--t-lg);
+  max-width: 60ch;
+  line-height: var(--lh-body);
+}
+
+/* Room-creation form: the name field previously had no label at all, so once
+   the generated placeholder name was replaced there was nothing saying what
+   the box was for. */
+.mp-create-form {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+
+.mp-create-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 220px;
+}
+
+.mp-create-label {
+  font-family: var(--font-sans);
+  font-size: var(--t-xs);
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+
+.mp-create-form .form-check {
+  padding-bottom: 0.5rem;
 }
 
 .mp-tabs {
@@ -11576,7 +12535,7 @@ body:not(.account-nav-ready) #login-link {
   border-radius: var(--radius-lg);
   padding: 1.1rem;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: border-color var(--dur-1) var(--ease-standard), box-shadow var(--dur-1) var(--ease-standard);
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
@@ -11611,10 +12570,11 @@ body:not(.account-nav-ready) #login-link {
 
 .mp-room:hover {
   border-color: var(--room-color);
-  transform: translateY(-2px);
   color: inherit;
   text-decoration: none;
-  box-shadow: 0 12px 28px color-mix(in oklab, var(--room-color) 20%, transparent);
+  /* Keeps the room's category tint in the shadow so the colour coding still
+     reads on hover, but without shifting the card out of the grid. */
+  box-shadow: 0 8px 20px color-mix(in oklab, var(--room-color) 18%, transparent), var(--shadow-2);
 }
 
 .mp-room-hdr {
@@ -11633,12 +12593,13 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .mp-room-status {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  text-transform: none;
+  letter-spacing: 0.01em;
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
+  font-weight: 600;
 }
 
 .mp-room-status[data-status=reading] {
@@ -11701,7 +12662,7 @@ body:not(.account-nav-ready) #login-link {
   justify-content: center;
   font-size: 0.65rem;
   font-weight: 600;
-  color: oklch(10% 0 0deg);
+  color: var(--accent-ink);
   margin-left: -6px;
 }
 
@@ -11766,11 +12727,12 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .team-tile .team-name {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  text-transform: none;
+  letter-spacing: 0.01em;
   color: var(--team-color);
+  font-weight: 600;
 }
 
 .team-tile .team-score {
@@ -11788,12 +12750,13 @@ body:not(.account-nav-ready) #login-link {
 
 .team-tile .team-locked-label {
   display: none;
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  text-transform: none;
+  letter-spacing: 0.01em;
   color: var(--incorrect);
   margin-left: 0.4rem;
+  font-weight: 600;
 }
 
 .team-tile[data-locked=true] .team-locked-label {
@@ -11831,11 +12794,12 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .team-status {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
   color: var(--ink-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-weight: 600;
 }
 
 .team-log {
@@ -11883,10 +12847,11 @@ body:not(.account-nav-ready) #login-link {
 
 .ranked-stat span {
   color: var(--ink-muted);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  font-weight: 600;
 }
 
 .ranked-stat strong {
@@ -11960,10 +12925,11 @@ body:not(.account-nav-ready) #login-link {
 
 .ranked-panel-hdr span {
   color: var(--accent);
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  font-weight: 600;
 }
 
 .ranked-leaderboard-list {
@@ -12038,11 +13004,12 @@ body:not(.account-nav-ready) #login-link {
 
 .up-hdr h1, .up-hdr .h1 {
   font-family: var(--font-serif);
-  font-size: 2rem;
-  font-weight: 500;
-  letter-spacing: -0.02em;
+  font-size: var(--t-3xl);
+  font-weight: 680;
+  letter-spacing: var(--tracking-tight);
   margin: 0 0 0.3rem;
   color: var(--ink);
+  line-height: var(--lh-tight);
 }
 
 .up-hdr p {
@@ -12053,15 +13020,16 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .up-step {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: var(--ink-muted);
   margin-bottom: 0.8rem;
   display: flex;
   align-items: center;
   gap: 0.55rem;
+  font-weight: 600;
 }
 
 .up-step .n {
@@ -12205,7 +13173,7 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .up-check small, .up-check .small {
-  color: var(--ink-faint);
+  color: var(--ink-muted);
   margin-left: auto;
   font-family: var(--font-mono);
   font-size: 0.7rem;
@@ -12224,11 +13192,12 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .up-row label {
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: var(--ink-muted);
+  font-weight: 600;
 }
 
 .up-row input[type=text], .up-row textarea, .up-row select {
@@ -12319,9 +13288,8 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .up-preview-empty {
-  color: var(--ink-faint);
-  font-family: var(--font-serif);
-  font-style: italic;
+  color: var(--ink-muted);
+  font-style: normal;
   padding: 2rem 0;
   text-align: center;
 }
@@ -12356,21 +13324,33 @@ body:not(.account-nav-ready) #login-link {
   align-items: start;
 }
 
+/* Height of the fixed buzz bar. Both scroll containers subtract it so their
+   last rows can actually be reached — previously the sidebar's Shortcuts
+   section and the tail of the reader column sat permanently underneath it. */
+:root {
+  --buzz-bar-h: 104px;
+}
+
 .reader-wrap > .sidebar-col {
   grid-column: 2;
   grid-row: 1;
   border-left: 1px solid var(--border-soft);
   background: var(--bg-sunken);
-  min-height: calc(100vh - 80px);
+  /* Fill the viewport so the sunken panel doesn't stop short and leave a
+     seam of page background below it. */
+  min-height: calc(100dvh - 56px);
   position: sticky;
   top: 56px;
-  max-height: calc(100vh - 56px);
+  max-height: calc(100dvh - 56px);
   overflow-y: auto;
+  scrollbar-gutter: stable;
+  padding-bottom: var(--buzz-bar-h);
 }
 
 .reader-wrap > .reader-main {
   grid-column: 1;
   grid-row: 1;
+  padding-bottom: var(--buzz-bar-h);
 }
 
 @media (max-width: 991.98px) {
@@ -12406,29 +13386,63 @@ body:not(.account-nav-ready) #login-link {
   gap: 0.65rem;
 }
 
+/* Same treatment in the reader sidebar so "Categories", "Settings" and
+   "Shortcuts" are findable at a glance while a question is streaming. */
+/* Same object as every other section header; only the margin differs because
+   the sidebar packs sections tighter than a page panel does. */
 .sb-sec-hdr {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  color: var(--ink-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+  margin-bottom: 0;
+  padding-bottom: 0.45rem;
 }
 
 .sb-sec-hdr a, .sb-sec-hdr .link {
   color: var(--accent);
-  font-size: 0.7rem;
+  font-family: var(--font-sans);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
   cursor: pointer;
   text-decoration: none;
 }
 
+.sb-sec-hdr a:hover, .sb-sec-hdr .link:hover {
+  text-decoration: underline;
+}
+
+/* These two carried their mono/uppercase styling as inline attributes in
+   tossups.html, so no stylesheet change could reach them. Now classed. */
+.sb-actions {
+  align-items: baseline;
+}
+
+.sb-action {
+  font-family: var(--font-sans);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--ink-muted);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.sb-action:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+.sb-action-accent {
+  color: var(--accent);
+}
+
+.sb-action-accent:hover {
+  color: var(--accent);
+}
+
 .set-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
   padding: 0.8rem 0.9rem;
+  box-shadow: none;
 }
 
 .set-card-title {
@@ -12446,10 +13460,11 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .chip {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-family: var(--font-sans);
+  font-size: var(--t-xs);
+  font-weight: 500;
   padding: 0.15rem 0.5rem;
-  border-radius: 4px;
+  border-radius: var(--r-xs);
   background: var(--bg-sunken);
   color: var(--ink-dim);
   border: 1px solid var(--border-soft);
@@ -12494,9 +13509,9 @@ body:not(.account-nav-ready) #login-link {
 .slider-row .slider-label {
   display: flex;
   justify-content: space-between;
-  font-size: 0.82rem;
-  color: var(--ink-dim);
-  font-family: var(--font-mono);
+  font-size: var(--t-base);
+  color: var(--ink-muted);
+  font-family: var(--font-sans);
 }
 
 .slider-row .slider-label .v {
@@ -12513,8 +13528,8 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .sidebar input[type=range]::-webkit-slider-runnable-track {
-  height: 3px;
-  background: var(--bg-sunken);
+  height: 4px;
+  background: var(--track);
   border-radius: 2px;
 }
 
@@ -12524,15 +13539,16 @@ body:not(.account-nav-ready) #login-link {
   height: 14px;
   border-radius: 50%;
   background: var(--accent);
-  margin-top: -5.5px;
-  box-shadow: 0 0 10px var(--accent-glow);
+  margin-top: -5px;
+  /* Ring rather than a glow, so the thumb stays legible on the track. */
+  box-shadow: 0 0 0 2px var(--bg-sunken);
   cursor: pointer;
   border: none;
 }
 
 .sidebar input[type=range]::-moz-range-track {
-  height: 3px;
-  background: var(--bg-sunken);
+  height: 4px;
+  background: var(--track);
   border-radius: 2px;
 }
 
@@ -12694,7 +13710,7 @@ body:not(.account-nav-ready) #login-link {
   border: 1px solid var(--border);
   position: relative;
   flex-shrink: 0;
-  transition: all 0.15s ease;
+  transition: background-color var(--dur-1) var(--ease-standard), border-color var(--dur-1) var(--ease-standard);
 }
 
 .toggle-switch::after {
@@ -12706,7 +13722,9 @@ body:not(.account-nav-ready) #login-link {
   height: 14px;
   border-radius: 50%;
   background: var(--ink-muted);
-  transition: all 0.18s cubic-bezier(0.3, 0.7, 0.3, 1.3);
+  /* transform + background only: animating `all` here also animated `left`,
+     which is a layout property and forced a reflow on every toggle. */
+  transition: transform var(--dur-2) var(--ease-out), background-color var(--dur-2) var(--ease-standard);
 }
 
 .toggle-row[data-on=true] .toggle-switch,
@@ -12717,14 +13735,13 @@ body:not(.account-nav-ready) #login-link {
 
 .toggle-row[data-on=true] .toggle-switch::after,
 .toggle-row input[type=checkbox]:checked ~ .toggle-switch::after {
-  left: 15px;
+  transform: translateX(14px);
   background: var(--accent);
-  box-shadow: 0 0 8px var(--accent-glow);
 }
 
 .shortcut-list {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-family: var(--font-sans);
+  font-size: var(--t-base);
   color: var(--ink-muted);
   display: flex;
   flex-direction: column;
@@ -12739,14 +13756,9 @@ body:not(.account-nav-ready) #login-link {
   align-items: center;
 }
 
+/* Keycap visuals come from the shared `kbd` rule near the top of this file. */
 .shortcut-list kbd {
-  font-family: var(--font-mono);
-  background: var(--bg-sunken);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  color: var(--ink-dim);
   font-size: 0.68rem;
-  padding: 0.05rem 0.35rem;
 }
 
 /* ============================================================
@@ -12773,15 +13785,16 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .reader-hdr-meta {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
   color: var(--ink-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  text-transform: none;
+  letter-spacing: 0.01em;
   display: flex;
   gap: 0.8rem;
   align-items: center;
   flex-wrap: wrap;
+  font-weight: 600;
 }
 
 .reader-hdr-meta .dot {
@@ -12801,25 +13814,26 @@ body:not(.account-nav-ready) #login-link {
 /* Stats strip */
 .statline-grid {
   display: flex;
-  gap: 1.8rem;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
+  gap: 1.5rem;
+  font-family: var(--font-sans);
+  font-size: var(--t-base);
   color: var(--ink-muted);
   align-items: baseline;
   flex-wrap: wrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .statline-grid .v {
   color: var(--ink);
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: var(--t-lg);
+  font-weight: 650;
   display: block;
 }
 
 .statline-grid .l {
-  font-size: 0.62rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-size: var(--t-sm);
+  text-transform: none;
+  letter-spacing: 0.01em;
 }
 
 /* Resolve block (answer reveal) */
@@ -12968,14 +13982,28 @@ body:not(.account-nav-ready) #login-link {
   padding: 1rem 1.1rem 1.1rem;
 }
 
-/* Enhance buzz-bar-fixed to match editorial vibe */
+/* Enhance buzz-bar-fixed to match editorial vibe.
+   The bar was pinned to a hard 92px while its contents (a 3.4rem-tall buzz
+   button plus an absolutely-positioned hint line) needed more than that, so
+   the hint was sliced off by the viewport edge. It now sizes to its content
+   and stacks the hint in normal flow, with the safe-area inset respected for
+   iOS home-indicator devices. */
 .buzz-bar-fixed {
-  background: color-mix(in oklab, var(--bg) 80%, transparent) !important;
+  background: color-mix(in oklab, var(--bg) 88%, transparent) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
   border-top: 1px solid var(--border-soft) !important;
-  height: 92px;
-  padding: 0 2rem !important;
+  height: auto;
+  min-height: var(--buzz-bar-h);
+  z-index: var(--z-overlay);
+  padding: 0.75rem 2rem calc(0.6rem + env(safe-area-inset-bottom, 0px)) !important;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  row-gap: 0.4rem;
+  column-gap: 1rem;
 }
 
 .buzz-bar-fixed::before {
@@ -12989,27 +14017,33 @@ body:not(.account-nav-ready) #login-link {
   pointer-events: none;
 }
 
+/* The bar belongs to the reader column, but was pinned left:0/right:0 across
+   the whole viewport, so it laid a band of page background over the bottom of
+   the sidebar and made the sunken panel look like it stopped short. Stopping
+   at the sidebar edge keeps that column continuous and puts the bar directly
+   under the question it acts on. */
+@media (min-width: 992px) {
+  .reader-wrap ~ .buzz-bar-fixed,
+  body:has(.reader-wrap) .buzz-bar-fixed {
+    right: 300px;
+  }
+}
 .buzz-bar-fixed .buzz-bar-hint {
-  position: absolute;
-  bottom: 6px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  color: var(--ink-faint);
-  letter-spacing: 0.06em;
+  position: static;
+  transform: none;
+  font-family: var(--font-sans);
+  font-size: var(--t-sm);
+  /* Was --ink-faint at 2.2:1; these are real instructions, not decoration. */
+  color: var(--ink-muted);
+  letter-spacing: 0.01em;
   white-space: nowrap;
+  /* Own line, below the controls. */
+  flex: 0 0 100%;
+  order: 2;
+  text-align: center;
 }
 
 .buzz-bar-fixed .buzz-bar-hint kbd {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  background: var(--bg-raised);
-  border: 1px solid var(--border);
-  border-bottom-width: 2px;
-  padding: 1px 5px;
-  border-radius: 3px;
-  color: var(--ink-dim);
   margin: 0 2px;
 }
 
@@ -13027,93 +14061,109 @@ body:not(.account-nav-ready) #login-link {
   --bs-btn-border-color: var(--accent);
   --bs-btn-hover-bg: var(--accent);
   --bs-btn-hover-border-color: var(--accent);
-  --bs-btn-color: oklch(10% 0 0deg);
-  --bs-btn-hover-color: oklch(10% 0 0deg);
+  --bs-btn-color: var(--accent-ink);
+  --bs-btn-hover-color: var(--accent-ink);
   background: var(--accent) !important;
   border: 1px solid var(--accent) !important;
-  color: oklch(10% 0 0deg) !important;
-  border-radius: 8px !important;
+  color: var(--accent-ink) !important;
+  border-radius: var(--r-md) !important;
   position: relative;
-  box-shadow: 0 4px 24px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-  transition: transform 0.08s ease, box-shadow 0.15s ease !important;
+  box-shadow: var(--shadow-2) !important;
+  transition: background-color var(--dur-1) var(--ease-standard), box-shadow var(--dur-1) var(--ease-standard), transform var(--dur-1) var(--ease-standard) !important;
 }
 
-#buzz.btn-buzz::before,
-.btn-buzz::before {
-  content: "";
-  position: absolute;
-  inset: -4px;
-  border-radius: 10px;
-  border: 1.5px solid var(--accent);
-  opacity: 0.5;
-  pointer-events: none;
-  animation: buzzRing 2s ease-out infinite;
-}
-
-@keyframes buzzRing {
-  0% {
-    transform: scale(1);
-    opacity: 0.6;
-  }
-  100% {
-    transform: scale(1.08);
-    opacity: 0;
-  }
-}
+/* A 2s ring pulsed around this button forever. It drew the eye away from the
+   question the whole time you were reading it, and it rendered as a stray
+   rectangle over the bar. Buzzing is the one thing nobody needs prompting to
+   do, so the button just sits there now. */
 #buzz.btn-buzz:hover:not(:disabled),
 .btn-buzz:hover:not(:disabled) {
-  transform: translateY(-1px) !important;
-  box-shadow: 0 6px 32px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  background: color-mix(in oklab, var(--accent) 90%, var(--ink)) !important;
+  box-shadow: var(--shadow-3) !important;
 }
 
 #buzz.btn-buzz:active:not(:disabled),
 .btn-buzz:active:not(:disabled) {
-  transform: translateY(1px) scale(0.98) !important;
+  transform: scale(0.98) !important;
+  box-shadow: var(--shadow-1) !important;
 }
 
 #buzz.btn-buzz:disabled,
 .btn-buzz:disabled {
-  opacity: 0.3 !important;
+  opacity: 0.4 !important;
   box-shadow: none !important;
   cursor: not-allowed;
 }
 
-#buzz.btn-buzz:disabled::before,
-.btn-buzz:disabled::before {
-  display: none;
-}
-
-/* Start / Pause / Resume button in the reader header — clean editorial chrome */
+/* Start / Skip / Next button in the reader header.
+   This shares one element across two very different roles. While a question
+   is streaming the primary action is BUZZ, so a second filled accent button
+   labelled "Skip" sat next to it competing for the eye — two primaries on
+   one screen. It is a ghost button by default and only takes the filled
+   treatment when the buzzer is inactive, i.e. when "Start" really is the
+   one thing to do on the page. */
 .reader-main .btn.btn-primary#next,
 .reader-main .btn#next {
   font-family: var(--font-sans);
   font-size: 0.92rem;
   font-weight: 600;
   padding: 0.55rem 1.1rem !important;
-  border-radius: 6px !important;
-  background: var(--accent) !important;
-  border: 1px solid var(--accent) !important;
-  color: oklch(12% 0 0deg) !important;
-  box-shadow: 0 0 0 transparent !important;
+  border-radius: var(--r-sm) !important;
+  background: transparent !important;
+  border: 1px solid var(--border-strong, var(--border)) !important;
+  color: var(--ink-dim) !important;
+  box-shadow: none !important;
   letter-spacing: 0 !important;
-  transform: none !important;
-  transition: box-shadow 0.15s ease, background 0.15s ease !important;
+  transition: color var(--dur-1) var(--ease-standard), background-color var(--dur-1) var(--ease-standard), border-color var(--dur-1) var(--ease-standard) !important;
 }
 
-.reader-main .btn.btn-primary#next:hover:not(:disabled),
 .reader-main .btn#next:hover:not(:disabled) {
-  box-shadow: 0 0 20px var(--accent-glow) !important;
-  transform: none !important;
+  background: var(--bg-raised) !important;
+  border-color: var(--ink-muted) !important;
+  color: var(--ink) !important;
+}
+
+body:has(#buzz:disabled) .reader-main .btn.btn-primary#next,
+body:has(#buzz:disabled) .reader-main .btn#next {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent-ink) !important;
+}
+
+body:has(#buzz:disabled) .reader-main .btn#next:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--accent) 90%, var(--ink)) !important;
+  border-color: color-mix(in oklab, var(--accent) 90%, var(--ink)) !important;
+  color: var(--accent-ink) !important;
+  box-shadow: var(--shadow-2) !important;
 }
 
 /* Subtle keybind hint next to the Start button */
+/* Shortcut chip inside a button.
+   This used --ink-muted, a page-level ink token, while sitting on an
+   accent-filled button — measured Lc 10.2 (dark) and -14.1 (light), i.e.
+   invisible. It now inherits the button's own label colour, so it stays
+   legible whatever that button is filled with, and is de-emphasised by
+   opacity and weight rather than by a hard-coded grey. */
 .kbd-hint {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  color: var(--ink-faint);
-  margin-left: 0.4rem;
-  padding-left: 0.5rem;
-  border-left: 1px solid var(--border);
+  font-size: 0.68rem;
+  font-weight: 500;
+  line-height: 1;
+  color: inherit;
+  opacity: 0.75;
+  margin-left: 0.5rem;
+  padding: 2px 5px;
+  min-width: 1.35em;
+  display: inline-block;
+  text-align: center;
+  border: 1px solid currentColor;
+  border-radius: var(--r-xs);
+  vertical-align: baseline;
+}
+
+.btn:disabled .kbd-hint,
+.btn.disabled .kbd-hint {
+  opacity: 0.5;
 }
 
 /* Pause button in the fixed buzz bar — editorial ghost style */
@@ -13165,39 +14215,55 @@ body:not(.account-nav-ready) #login-link {
 /* ============================================================
    Home / landing screen (authed)
    ============================================================ */
+/* Tool density: content starts near the top instead of after a full screen
+   of display type. */
 .home {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  padding: 2rem 2.25rem 3rem;
-  max-width: 1180px;
+  gap: var(--s-5);
+  padding: var(--s-5) var(--s-6) var(--s-7);
+  max-width: 1240px;
   margin: 0 auto;
   width: 100%;
 }
 
+/* The "current set" aside is commented out of the markup, but the grid still
+   reserved 0.9fr for it — so the hero rendered into the left 60% with a dead
+   column beside it, which is why the lede wrapped after ~45 characters. The
+   second track now only exists when the aside is actually present. */
 .home-hero {
   display: grid;
-  grid-template-columns: 1.3fr 0.9fr;
-  gap: 2rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-6);
   align-items: stretch;
 }
 
+.home-hero:has(> .home-hero-right) {
+  grid-template-columns: 1.3fr 0.9fr;
+}
+
+@media (max-width: 900px) {
+  .home-hero:has(> .home-hero-right) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 .home-hero-left {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.9rem;
+  gap: var(--s-3);
 }
 
 .home-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: var(--accent);
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
+  font-weight: 600;
 }
 
 .home-eyebrow::before {
@@ -13208,29 +14274,32 @@ body:not(.account-nav-ready) #login-link {
   display: inline-block;
 }
 
+/* Was clamped up to 48px of serif display type. A practice tool wants a page
+   title, not a magazine cover — this is a heading you read once and then stop
+   noticing. */
 .home-title {
   font-family: var(--font-serif);
-  font-size: clamp(2.2rem, 4vw, 3.4rem);
-  line-height: 1.02;
-  font-weight: 500;
-  letter-spacing: -0.025em;
+  font-size: clamp(1.75rem, 2.6vw, 2.25rem);
+  line-height: var(--lh-tight);
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
   color: var(--ink);
   margin: 0;
-  text-wrap: pretty;
+  max-width: 26ch;
+  text-wrap: balance;
 }
 
 .home-title em {
-  font-style: italic;
   color: var(--accent);
   font-weight: 400;
 }
 
 .home-lede {
-  font-family: var(--font-serif);
-  color: var(--ink-dim);
-  font-size: 1.05rem;
-  line-height: 1.55;
-  max-width: 54ch;
+  font-family: var(--font-sans);
+  color: var(--ink-muted);
+  font-size: var(--t-lg);
+  line-height: var(--lh-body);
+  max-width: 62ch;
   text-wrap: pretty;
 }
 
@@ -13241,20 +14310,23 @@ body:not(.account-nav-ready) #login-link {
   flex-wrap: wrap;
 }
 
+/* One primary CTA per screen: "Start reading" is filled, everything beside it
+   is a ghost button. Hover darkens the fill and adds a single step of
+   elevation instead of the previous 20px accent bloom. */
 .home-cta .btn-primary {
   padding: 0.75rem 1.35rem !important;
   font-size: 0.95rem !important;
   font-weight: 600 !important;
   background: var(--accent) !important;
   border-color: var(--accent) !important;
-  color: oklch(12% 0 0deg) !important;
-  box-shadow: 0 0 0 transparent !important;
-  transform: none !important;
+  color: var(--accent-ink) !important;
+  box-shadow: none !important;
 }
 
 .home-cta .btn-primary:hover:not(:disabled) {
-  box-shadow: 0 0 20px var(--accent-glow) !important;
-  transform: none !important;
+  background: color-mix(in oklab, var(--accent) 88%, var(--ink)) !important;
+  border-color: color-mix(in oklab, var(--accent) 88%, var(--ink)) !important;
+  box-shadow: var(--shadow-2) !important;
 }
 
 .home-cta .btn-ghost,
@@ -13299,11 +14371,12 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .home-set-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: var(--ink-muted);
+  font-weight: 600;
 }
 
 .home-set-change {
@@ -13342,11 +14415,12 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .home-set-stat .l {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--ink-muted);
+  font-weight: 600;
 }
 
 .home-set-stat .v {
@@ -13370,27 +14444,19 @@ body:not(.account-nav-ready) #login-link {
   gap: 1.25rem;
 }
 
-.home-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-soft);
-  border-radius: 10px;
-  padding: 1.1rem 1.2rem 1.2rem;
-}
-
-.home-card-hdr {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-muted);
-  margin-bottom: 0.8rem;
-}
-
+/* --border-soft measured 1.33:1 against the card fill — an edge you cannot
+   actually see. Since fill lightness can't separate surfaces in this range
+   (0.18 -> 0.11 page only moves card/page from 1.16:1 to 1.26:1), the border
+   has to do the work. A visible edge plus a resting shadow is what makes a
+   panel read as a panel. */
+/* Section headers used to be 11px muted mono — so faint that the panels read
+   as one undifferentiated field of boxes. Real weight, full-ink colour and a
+   rule underneath make the page scannable. Set in the serif so headings
+   share the wordmark's voice rather than being body sans at a larger size. */
+/* These are real navigation links ("browse all →", "edit →"), so they sit on
+   the AA ink tier rather than the decorative faint tier. */
 .home-card-hdr a {
-  color: var(--ink-faint);
+  color: var(--ink-muted);
   cursor: pointer;
   text-transform: none;
   font-size: 0.74rem;
@@ -13398,7 +14464,8 @@ body:not(.account-nav-ready) #login-link {
   text-decoration: none;
 }
 
-.home-card-hdr a:hover {
+.home-card-hdr a:hover,
+.home-card-hdr a:focus-visible {
   color: var(--accent);
 }
 
@@ -13420,9 +14487,8 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .home-sets-empty {
-  color: var(--ink-faint);
-  font-family: var(--font-serif);
-  font-style: italic;
+  color: var(--ink-muted);
+  font-style: normal;
   font-size: 0.88rem;
   padding: 0.6rem 0;
 }
@@ -13540,13 +14606,7 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .home-shortcut kbd {
-  font-family: var(--font-mono);
   font-size: 0.7rem;
-  padding: 2px 6px;
-  background: var(--bg-raised);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  color: var(--ink-muted);
 }
 
 .home-settings-grid {
@@ -13555,32 +14615,86 @@ body:not(.account-nav-ready) #login-link {
   gap: 0.3rem 1.1rem;
 }
 
+/* Quick toggles. These were read-only ON/OFF labels that always showed the
+   same hard-coded values; they are now real switches bound to the reader's
+   settings, so the row has to behave like a control. */
 .home-setting-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.38rem 0;
+  gap: var(--s-3);
+  width: 100%;
+  padding: 0.42rem 0;
+  border: 0;
   border-bottom: 1px dashed var(--border-soft);
+  background: none;
+  text-align: left;
+  font-family: inherit;
   font-size: 0.85rem;
   color: var(--ink-dim);
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease-standard);
 }
 
 .home-setting-row:last-child {
   border-bottom: none;
 }
 
-.home-setting-row .state {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  color: var(--ink-muted);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+.home-setting-row:hover:not(:disabled) {
+  color: var(--ink);
 }
 
-.home-setting-row .state[data-on=true] {
-  color: var(--accent);
+.home-setting-row:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
 }
 
+.home-setting-row:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.home-setting-switch {
+  position: relative;
+  flex: none;
+  width: 30px;
+  height: 17px;
+  border-radius: 999px;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border-strong);
+  transition: background-color var(--dur-2) var(--ease-standard), border-color var(--dur-2) var(--ease-standard);
+}
+
+.home-setting-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--ink-muted);
+  /* translate, not `left` — `left` is a layout property and forces reflow. */
+  transition: transform var(--dur-2) var(--ease-out), background-color var(--dur-2) var(--ease-standard);
+}
+
+.home-setting-row[aria-checked=true] .home-setting-switch {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.home-setting-row[aria-checked=true] .home-setting-switch::after {
+  transform: translateX(13px);
+  background: var(--accent-ink);
+}
+
+/* Comfortable target on touch. */
+@media (pointer: coarse) {
+  .home-setting-row {
+    min-height: var(--tap);
+  }
+}
 .home-recent-row {
   display: grid;
   grid-template-columns: 120px 1fr auto;
@@ -13596,11 +14710,12 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .home-recent-row .cat {
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: var(--ink-muted);
+  font-weight: 600;
 }
 
 .home-recent-row .q {
@@ -13665,43 +14780,40 @@ body:not(.account-nav-ready) #login-link {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  border-bottom: 1px solid var(--border-soft);
-  padding-bottom: 1rem;
-  margin-bottom: 1.5rem;
   gap: 1rem;
   flex-wrap: wrap;
 }
 
 .db-hdr h1, .db-hdr .h1 {
   font-family: var(--font-serif);
-  font-size: clamp(1.9rem, 3vw, 2.4rem);
-  font-weight: 500;
-  letter-spacing: -0.02em;
+  font-size: var(--t-3xl);
+  font-weight: 680;
+  letter-spacing: var(--tracking-tight);
   margin: 0 0 0.3rem;
   color: var(--ink);
+  line-height: var(--lh-tight);
 }
 
 .db-hdr h1 em, .db-hdr .h1 em {
-  font-style: italic;
   color: var(--accent);
   font-weight: 400;
 }
 
 .db-hdr p {
+  font-family: var(--font-sans);
   margin: 0;
   color: var(--ink-muted);
-  font-family: var(--font-serif);
-  font-size: 1rem;
-  line-height: 1.55;
+  font-size: var(--t-lg);
+  line-height: var(--lh-body);
   max-width: 60ch;
 }
 
 .db-hint {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  color: var(--ink-faint);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  letter-spacing: 0.01em;
+  text-transform: none;
   padding: 0.4rem 0;
   border-top: 1px dashed var(--border-soft);
   border-bottom: 1px dashed var(--border-soft);
@@ -13709,6 +14821,7 @@ body:not(.account-nav-ready) #login-link {
   display: flex;
   flex-wrap: wrap;
   gap: 1.2rem;
+  font-weight: 600;
 }
 
 .db-hint b {
@@ -13726,19 +14839,33 @@ body:not(.account-nav-ready) #login-link {
     unaffected; we don't touch the JSX, just restyle Bootstrap
     classes the React tree already emits.)
    ============================================================ */
-/* Search bar (big input + Search + Random) */
+/* Search bar (big input + Search + Random)
+
+   The 1px accent outline lives on the group, not on the children. It used to
+   sit on .form-control, which made the edge asymmetric: on the left you saw
+   the input's border plus the 3px ring, while on the right the button's
+   border was accent-on-accent — invisible against its own fill — so that
+   side showed only the ring. Bordering the container draws one continuous
+   stroke the whole way round, and overflow:hidden keeps the children inside
+   the radius. */
 .db-page .input-group.input-group-lg {
+  border: 1px solid var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft), 0 4px 24px var(--accent-glow);
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 1.2rem !important;
 }
 
+/* Bootstrap pulls every non-first child left by one border-width so adjacent
+   borders collapse. With the borders gone that just misaligns the fills. */
+.db-page .input-group.input-group-lg > :not(:first-child) {
+  margin-left: 0 !important;
+}
+
 .db-page .input-group.input-group-lg .form-control {
   background: var(--bg-raised) !important;
-  border: 1px solid var(--accent) !important;
-  border-right: none !important;
-  border-radius: 8px 0 0 8px !important;
+  border: none !important;
+  border-radius: 0 !important;
   color: var(--ink) !important;
   font-family: var(--font-serif);
   font-size: 1.05rem !important;
@@ -13748,7 +14875,7 @@ body:not(.account-nav-ready) #login-link {
 
 .db-page .input-group.input-group-lg .form-control::placeholder {
   color: var(--ink-faint);
-  font-style: italic;
+  font-style: normal;
 }
 
 .db-page .input-group.input-group-lg .btn,
@@ -13761,16 +14888,16 @@ body:not(.account-nav-ready) #login-link {
   padding: 0.85rem 1.5rem !important;
   border-radius: 0 !important;
   background: var(--accent) !important;
-  border: 1px solid var(--accent) !important;
-  color: oklch(10% 0 0deg) !important;
+  border: none !important;
+  color: var(--accent-ink) !important;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
   transform: none !important;
   --bs-btn-bg: var(--accent);
   --bs-btn-border-color: var(--accent);
   --bs-btn-hover-bg: var(--accent);
   --bs-btn-hover-border-color: var(--accent);
-  --bs-btn-color: oklch(10% 0 0deg);
-  --bs-btn-hover-color: oklch(10% 0 0deg);
+  --bs-btn-color: var(--accent-ink);
+  --bs-btn-hover-color: var(--accent-ink);
 }
 
 .db-page .input-group.input-group-lg .btn:hover:not(:disabled),
@@ -13797,6 +14924,15 @@ body:not(.account-nav-ready) #login-link {
 }
 
 /* Filter row inputs / selects — editorial fields */
+:root {
+  --db-field-size: 0.9rem;
+}
+
+@media (max-width: 767.98px) {
+  :root {
+    --db-field-size: 16px;
+  }
+}
 .db-page .form-control,
 .db-page .form-select {
   background: var(--bg-sunken) !important;
@@ -13804,7 +14940,9 @@ body:not(.account-nav-ready) #login-link {
   border-radius: 6px !important;
   color: var(--ink) !important;
   font-family: var(--font-sans);
-  font-size: 0.9rem !important;
+  /* Token rather than a literal so the mobile step-up below can win without
+     another !important. Under 16px, iOS zooms the viewport on focus. */
+  font-size: var(--db-field-size) !important;
   padding: 0.55rem 0.7rem !important;
   box-shadow: none !important;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -13818,7 +14956,7 @@ body:not(.account-nav-ready) #login-link {
 
 .db-page .form-control::placeholder {
   color: var(--ink-faint);
-  font-style: italic;
+  font-style: normal;
 }
 
 .db-page .opacity-75 {
@@ -13932,7 +15070,9 @@ body:not(.account-nav-ready) #login-link {
   height: 14px;
   border-radius: 50%;
   background: var(--ink-muted);
-  transition: all 0.18s cubic-bezier(0.3, 0.7, 0.3, 1.3);
+  /* transform + background only: animating `all` here also animated `left`,
+     which is a layout property and forced a reflow on every toggle. */
+  transition: transform var(--dur-2) var(--ease-out), background-color var(--dur-2) var(--ease-standard);
 }
 
 .db-page .form-check.form-switch .form-check-input:checked {
@@ -13941,9 +15081,8 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .db-page .form-check.form-switch .form-check-input:checked::after {
-  left: 15px;
+  transform: translateX(14px);
   background: var(--accent);
-  box-shadow: 0 0 8px var(--accent-glow);
 }
 
 .db-page .form-check.form-switch .form-check-input:disabled {
@@ -13967,10 +15106,10 @@ body:not(.account-nav-ready) #login-link {
 /* "Download this page" link cluster */
 .db-page .float-end b {
   color: var(--ink-muted);
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
   font-weight: 500;
 }
 
@@ -14107,7 +15246,7 @@ body:not(.account-nav-ready) #login-link {
 .db-page .pagination .page-item.active .page-link {
   background: var(--accent) !important;
   border-color: var(--accent) !important;
-  color: oklch(10% 0 0deg) !important;
+  color: var(--accent-ink) !important;
 }
 
 /* Spinner */
@@ -14155,14 +15294,15 @@ body:not(.account-nav-ready) #login-link {
 }
 
 #category-modal h5.text-center, #category-modal .text-center.h5 {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: var(--ink-muted);
   border-bottom: 1px solid var(--border-soft);
   padding-bottom: 0.4rem;
   margin-bottom: 0.6rem;
+  font-weight: 600;
 }
 
 /* Set-name picker (replaces the old free-text input + datalist).
@@ -14203,17 +15343,18 @@ body:not(.account-nav-ready) #login-link {
 
 .db-page .db-set-picker-label.is-empty {
   color: var(--ink-faint);
-  font-style: italic;
+  font-style: normal;
   font-weight: 400;
 }
 
 .db-page .db-set-picker-cta {
   color: var(--accent);
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
   flex-shrink: 0;
+  font-weight: 600;
 }
 
 /* ============================================================
@@ -14235,25 +15376,24 @@ body:not(.account-nav-ready) #login-link {
 
 .about-hero h1, .about-hero .h1 {
   font-family: var(--font-serif);
-  font-size: clamp(2.2rem, 4vw, 3.2rem);
-  line-height: 1.05;
-  font-weight: 500;
-  letter-spacing: -0.025em;
+  font-size: var(--t-3xl);
+  line-height: var(--lh-tight);
+  font-weight: 680;
+  letter-spacing: var(--tracking-tight);
   color: var(--ink);
   margin: 0.5rem 0 0.4rem;
 }
 
 .about-hero h1 em, .about-hero .h1 em {
-  font-style: italic;
   color: var(--accent);
   font-weight: 400;
 }
 
 .about-lede {
-  font-family: var(--font-serif);
-  font-size: 1.15rem;
-  line-height: 1.6;
-  color: var(--ink-dim);
+  font-family: var(--font-sans);
+  font-size: var(--t-lg);
+  line-height: var(--lh-body);
+  color: var(--ink-muted);
   max-width: 62ch;
   margin: 0;
 }
@@ -14270,16 +15410,12 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .about-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-soft);
-  border-radius: 10px;
-  padding: 1.25rem 1.4rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
 }
 
-.about-card h4, .about-card .h4 {
+.about-card h2, .about-card .h2 {
   font-family: var(--font-serif);
   font-size: 1.15rem;
   font-weight: 600;
@@ -14291,7 +15427,7 @@ body:not(.account-nav-ready) #login-link {
   gap: 0.55rem;
 }
 
-.about-card h4::before, .about-card .h4::before {
+.about-card h2::before, .about-card .h2::before {
   content: "";
   display: inline-block;
   width: 4px;
@@ -14323,11 +15459,15 @@ body:not(.account-nav-ready) #login-link {
   margin-bottom: 0;
 }
 
+/* Sub-headings inside a card are interface copy, not a reading surface —
+   the serif is reserved for question text, the wordmark and section titles.
+   These sat in Garamond while the answers beneath them were sans, so each
+   pair mixed two families for no reason. */
 .about-card .about-q {
   color: var(--ink);
+  font-family: var(--font-sans);
   font-weight: 600;
-  font-family: var(--font-serif);
-  font-size: 1.02rem;
+  font-size: var(--t-lg);
   margin-bottom: 0.2rem;
 }
 
@@ -14345,33 +15485,28 @@ body:not(.account-nav-ready) #login-link {
   padding: 2rem 2.25rem 4rem;
 }
 
-.lb-hdr {
-  border-bottom: 1px solid var(--border-soft);
-  padding-bottom: 1rem;
-  margin-bottom: 1.2rem;
-}
-
 .lb-hdr h1, .lb-hdr .h1 {
   font-family: var(--font-serif);
-  font-size: clamp(1.9rem, 3vw, 2.6rem);
-  font-weight: 500;
-  letter-spacing: -0.02em;
+  font-size: var(--t-3xl);
+  font-weight: 680;
+  letter-spacing: var(--tracking-tight);
   margin: 0.4rem 0 0.3rem;
   color: var(--ink);
+  line-height: var(--lh-tight);
 }
 
 .lb-hdr h1 em, .lb-hdr .h1 em {
-  font-style: italic;
+  font-style: normal;
   color: var(--accent);
-  font-weight: 400;
+  font-weight: 680;
 }
 
 .lb-hdr p {
+  font-family: var(--font-sans);
   margin: 0;
   color: var(--ink-muted);
-  font-family: var(--font-serif);
-  font-size: 1rem;
-  line-height: 1.55;
+  font-size: var(--t-lg);
+  line-height: var(--lh-body);
   max-width: 64ch;
 }
 
@@ -14486,12 +15621,13 @@ body:not(.account-nav-ready) #login-link {
   grid-template-columns: 60px 1fr 90px 110px 130px;
   gap: 1rem;
   padding: 0 0.6rem 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  color: var(--ink-faint);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  text-transform: none;
+  letter-spacing: 0.01em;
   border-bottom: 1px solid var(--border-soft);
+  font-weight: 600;
 }
 
 .lb-list-hdr .num {
@@ -14622,9 +15758,8 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .lb-empty {
-  color: var(--ink-faint);
-  font-family: var(--font-serif);
-  font-style: italic;
+  color: var(--ink-muted);
+  font-style: normal;
   text-align: center;
   padding: 2rem 0;
 }
@@ -14697,11 +15832,12 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .profile-joined {
-  font-family: var(--font-mono);
-  color: var(--ink-faint);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  color: var(--ink-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  font-weight: 600;
 }
 
 .profile-back {
@@ -14747,12 +15883,13 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .profile-stat .l {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: var(--ink-muted);
   margin-top: 4px;
+  font-weight: 600;
 }
 
 .profile-stat[data-accent=pp] .v {
@@ -14767,18 +15904,19 @@ body:not(.account-nav-ready) #login-link {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: var(--ink-muted);
   border-bottom: 1px solid var(--border-soft);
   padding-bottom: 0.5rem;
   margin-bottom: 0.6rem;
+  font-weight: 600;
 }
 
 .profile-section-hdr .profile-section-sub {
-  color: var(--ink-faint);
+  color: var(--ink-muted);
   letter-spacing: 0;
   text-transform: none;
   font-size: 0.74rem;
@@ -14810,16 +15948,17 @@ body:not(.account-nav-ready) #login-link {
 }
 
 .profile-buzz-meta {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
   color: var(--ink-muted);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.55rem;
   margin-bottom: 0.35rem;
+  font-weight: 600;
 }
 
 .profile-buzz-meta .dot {
@@ -14876,7 +16015,7 @@ body:not(.account-nav-ready) #login-link {
 .profile-buzz-sub {
   font-family: var(--font-mono);
   font-size: 0.68rem;
-  color: var(--ink-faint);
+  color: var(--ink-muted);
   letter-spacing: 0.05em;
 }
 
@@ -14954,19 +16093,20 @@ body:not(.account-nav-ready) #login-link {
 
 .settings-hdr h1, .settings-hdr .h1 {
   font-family: var(--font-serif);
-  font-size: clamp(1.9rem, 3vw, 2.4rem);
-  font-weight: 500;
-  letter-spacing: -0.02em;
+  font-size: var(--t-3xl);
+  font-weight: 680;
+  letter-spacing: var(--tracking-tight);
   margin: 0.4rem 0 0.3rem;
   color: var(--ink);
+  line-height: var(--lh-tight);
 }
 
 .settings-hdr p {
+  font-family: var(--font-sans);
   margin: 0;
   color: var(--ink-muted);
-  font-family: var(--font-serif);
-  font-size: 1rem;
-  line-height: 1.55;
+  font-size: var(--t-lg);
+  line-height: var(--lh-body);
 }
 
 .settings-grid {
@@ -14985,13 +16125,14 @@ body:not(.account-nav-ready) #login-link {
   gap: 0.8rem;
 }
 
-.settings-card h4, .settings-card .h4 {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+.settings-card h2, .settings-card .h2 {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: var(--ink-muted);
   margin: 0 0 0.2rem;
+  font-weight: 600;
 }
 
 .settings-row {
@@ -15009,13 +16150,15 @@ body:not(.account-nav-ready) #login-link {
   border-bottom: none;
 }
 
-.settings-row .settings-hint {
+/* Was scoped to .settings-row, so a hint used anywhere else on the page
+   inherited the card's font size and rendered oversized. */
+.settings-hint {
   display: block;
-  color: var(--ink-faint);
+  color: var(--ink-muted);
   font-size: 0.78rem;
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   margin-top: 2px;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .settings-row .settings-label {
@@ -15051,10 +16194,11 @@ body:not(.account-nav-ready) #login-link {
 
 .username-form label {
   color: var(--ink);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  font-weight: 600;
 }
 
 .username-form input {
@@ -15091,10 +16235,11 @@ body:not(.account-nav-ready) #login-link {
 
 .admin-page thead {
   color: var(--ink);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  font-weight: 600;
 }
 
 .admin-page code {
@@ -15162,33 +16307,994 @@ body:not(.account-nav-ready) #login-link {
     grid-template-columns: 1fr;
   }
 }
+/* ── Mobile text-entry sizing (last word, deliberately) ──────────────────
+   iOS zooms the viewport whenever a focused text-entry control renders below
+   16px. The rule has to sit at the end of the file because several page
+   scopes set font-size with !important; matching that here is the only way
+   to win without adding more specificity elsewhere.
+   Checkboxes and radios are excluded — they never trigger the zoom. */
+@media (max-width: 767.98px) {
+  input:not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=range]),
+  select,
+  textarea,
+  .form-control,
+  .form-select {
+    font-size: 16px !important;
+  }
+}
+/* Small icon affordances (copy id, collapse, star) were 16px tall. The glyph
+   stays the same size; the tappable box around it grows. */
+@media (max-width: 767.98px), (pointer: coarse) {
+  .clickable,
+  .db-page .card-header-clickable {
+    min-height: var(--tap);
+    display: inline-flex;
+    align-items: center;
+  }
+}
+/* ── Reading measure ────────────────────────────────────────────────────
+   A few intro paragraphs ran to ~119 characters per line on a wide screen.
+   Long measures make the eye lose its place on the return sweep. */
+.settings-hdr p,
+.db-hdr p,
+.lb-hdr p,
+.mp-hdr p,
+.about-lede,
+.home-lede {
+  max-width: 52ch;
+}
+
+/* ── Visually hidden ────────────────────────────────────────────────────
+   This build imports only selected Bootstrap partials and `helpers` is not
+   among them, so `.visually-hidden` did not exist — a label using it rendered
+   in full, overlapping the search field. Defining it here rather than pulling
+   in the whole helpers partial. */
+.visually-hidden,
+.visually-hidden-focusable:not(:focus):not(:focus-within) {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* ── Database search bar on mobile ──────────────────────────────────────
+   query + Search + Random share one Bootstrap input-group, which keeps them
+   on a single row at any width. At 390px that squeezed the text field to
+   74px — about six characters — making the page's primary control unusable.
+   Stack the field above its buttons and let the buttons share the row. */
+@media (max-width: 575.98px) {
+  /* Stacked, the controls are separate rounded blocks with a gap between
+     them, so a single outline around the group would enclose that gap.
+     Hand the border back to the field and let each control define its own
+     shape. */
+  .db-page .input-group.input-group-lg {
+    flex-wrap: wrap;
+    row-gap: var(--s-2);
+    border: none;
+    overflow: visible;
+    box-shadow: none;
+  }
+  .db-page .input-group.input-group-lg > #query {
+    flex: 0 0 100%;
+    width: 100%;
+    border: 1px solid var(--accent) !important;
+    border-radius: var(--r-md) !important;
+  }
+  .db-page .input-group.input-group-lg > .btn {
+    flex: 1 1 0;
+    border-radius: var(--r-md) !important;
+  }
+}
+/* ══════════════════════════════════════════════════════════════════════
+   Dashboard (signed-in home)
+
+   Typography, spacing and radii are the Figma design proposal's literal
+   values, not this file's --t-/--s-/--r- scales. The scales are close but
+   not identical (--r-lg is 5px where Figma's cards are 10px; --tracking-tight
+   is -0.021em where Figma's h1 is -0.025em), and the brief was to match
+   Figma exactly. Colour still comes from tokens so the page follows the
+   theme.
+
+   Figma's section headers are mono eyebrows — 11px, uppercase, 0.07em
+   tracking — NOT the serif .c-head used elsewhere in this file.
+   ══════════════════════════════════════════════════════════════════════ */
+.dash {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+  font-family: var(--font-sans);
+}
+
+/* ── Header ── */
+.dash-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.dash-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  color: var(--ink);
+  margin: 0 0 4px;
+}
+
+.dash-sub {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--ink-muted);
+}
+
+.dash-sub strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.dash-head-cta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Bootstrap's .btn sizing would win otherwise. */
+.dash-head-cta .btn {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  border-radius: 7px;
+  padding: 10px 20px;
+  font-weight: 700;
+}
+
+.dash-head-cta .btn-outline-light,
+.dash-head-cta .btn-ghost {
+  padding: 10px 16px;
+  font-weight: 400;
+  border: 1px solid var(--border);
+  color: var(--ink);
+  background: none;
+}
+
+.dash-head-cta .btn-outline-light:hover,
+.dash-head-cta .btn-ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── Stat tiles ── */
+.dash-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.dash-tile {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.dash-tile-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.dash-tile-lbl {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  margin-bottom: 6px;
+}
+
+.dash-tile-val {
+  font-family: var(--font-mono);
+  font-size: 1.625rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.dash-tile-sub {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  min-height: 1.1em;
+}
+
+.dash-tile-sub[data-trend=up] {
+  color: var(--correct);
+}
+
+.dash-tile-sub[data-trend=down] {
+  color: var(--incorrect);
+}
+
+.dash-spark {
+  width: 120px;
+  height: 36px;
+  flex-shrink: 0;
+  display: block;
+}
+
+/* ── Two-column body ── */
+.dash-cols {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.dash-cols > .dash-col:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dash-cols > .dash-col:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dash-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.dash-card-pad {
+  padding: 16px;
+}
+
+/* Mono eyebrow — Figma's section-header treatment. */
+.dash-card-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink-muted);
+}
+
+/* Inside a padded card the eyebrow carries no rule and no gutter. */
+.dash-card-pad > .dash-card-hdr-flush {
+  padding: 0;
+  border-bottom: none;
+  margin-bottom: 10px;
+}
+
+.dash-card-hdr a {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.dash-card-hdr a:hover,
+.dash-card-hdr a:focus-visible {
+  text-decoration: underline;
+}
+
+/* ── Category breakdown ── */
+.dash-card-pad > .dash-card-hdr-flush + #dash-cats {
+  margin-top: 4px;
+}
+
+.dash-cat {
+  margin-bottom: 12px;
+}
+
+.dash-cat:last-child {
+  margin-bottom: 0;
+}
+
+.dash-cat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 5px;
+}
+
+.dash-cat-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.dash-cat-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dash-cat-nums {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+.dash-cat-acc {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--ink);
+  min-width: 36px;
+  text-align: right;
+}
+
+.dash-bar {
+  height: 5px;
+  background: var(--bg-sunken);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.dash-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  transition: width 500ms ease;
+}
+
+/* ── Quick actions ── */
+.dash-qa {
+  display: block;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  padding: 9px 12px;
+  margin-bottom: 6px;
+  text-decoration: none;
+}
+
+.dash-qa:last-child {
+  margin-bottom: 0;
+}
+
+.dash-qa .t {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.dash-qa .s {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+.dash-qa:hover {
+  background: var(--bg-sunken);
+}
+
+.dash-qa-primary {
+  background: var(--accent-soft);
+  border-color: var(--accent-line);
+}
+
+.dash-qa-primary .t {
+  color: var(--accent);
+}
+
+.dash-qa-primary:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+/* ── Leaderboard rows ── */
+.dash-lb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-left: 2px solid transparent;
+  text-decoration: none;
+}
+
+.dash-lb + .dash-lb {
+  border-top: 1px solid var(--border-soft);
+}
+
+.dash-lb:hover {
+  background: var(--bg-sunken);
+}
+
+.dash-lb-rank {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--ink-muted);
+  min-width: 16px;
+}
+
+.dash-lb-rank[data-top=true] {
+  color: var(--power);
+  font-weight: 700;
+}
+
+.dash-lb-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-lb-name {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-lb-sub {
+  display: block;
+  font-size: 0.6875rem;
+  color: var(--ink-muted);
+}
+
+.dash-lb-pp {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.dash-lb[data-me=true] {
+  background: var(--accent-soft);
+  border-left-color: var(--accent);
+}
+
+.dash-lb[data-me=true] .dash-lb-name {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ── Upload CTA ── */
+.dash-cta {
+  border: 1px solid var(--accent-line);
+  border-radius: 10px;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--accent-soft), var(--bg-card));
+}
+
+.dash-cta-t {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.dash-cta-d {
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+  line-height: 1.5;
+  margin: 0 0 10px;
+}
+
+.dash-cta .btn {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: 5px;
+  padding: 7px 14px;
+}
+
+/* Rows that keep their existing component styling still need a gutter
+   inside a flush card. */
+.dash-card > #home-recent,
+.dash-card > .home-sets {
+  padding: 12px 16px;
+}
+
+.dash-card > #home-recent .empty-state,
+.dash-card > .home-sets .home-sets-empty {
+  margin: 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1080px) {
+  .dash-tiles {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dash-cols {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 640px) {
+  .dash {
+    padding: 24px 16px 40px;
+  }
+  .dash-tiles {
+    grid-template-columns: 1fr;
+  }
+  .dash-title {
+    font-size: 1.625rem;
+  }
+  .dash-head-cta {
+    width: 100%;
+  }
+  .dash-head-cta .btn {
+    flex: 1 1 0;
+  }
+  /* The sparkline is decoration; the number is the content. */
+  .dash-spark {
+    display: none;
+  }
+}
+/* ── Recent activity rows (Figma's "Recent sessions") ──────────────────── */
+.dash-session {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  text-decoration: none;
+}
+
+.dash-session + .dash-session {
+  border-top: 1px solid var(--border-soft);
+}
+
+.dash-session:hover {
+  background: var(--bg-sunken);
+}
+
+.dash-session-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-session-name {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.dash-session-meta {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+.dash-session-metric {
+  text-align: right;
+}
+
+.dash-session-metric .v {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.dash-session-metric .l {
+  display: block;
+  font-size: 0.6875rem;
+  color: var(--ink-muted);
+}
+
+/* Sign-up reassurance under the landing CTAs. */
+.home-note {
+  margin: 0.75rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Landing page (signed-out home) — client/index.html
+   Ported from the Figma landing design. Colour comes from tokens so the
+   page follows the theme; sizing is literal to match the mockup.
+   ══════════════════════════════════════════════════════════════════════ */
+.land {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 64px 24px 80px;
+  font-family: var(--font-sans);
+}
+
+.land-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 56px;
+  align-items: center;
+}
+
+/* ── Beta badge ── */
+.land-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 16px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-raised);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+
+.land-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--correct);
+  flex-shrink: 0;
+}
+
+/* ── Headline ── */
+/* Fraunces 700 — the heaviest cut the design loads, and visibly heavier than
+   the 600 used for dashboard headings. Tracking is the design system's
+   display value (-0.025em), not an invented one. Optical sizing is left on
+   auto, as in the proposal: nothing there sets font-variation-settings, so
+   opsz resolves from the rendered size and gives the display cut at this
+   scale. */
+.land-title {
+  margin: 28px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5.2vw, 4rem);
+  font-weight: 700;
+  line-height: 1.06;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+}
+
+.land-title em {
+  font-style: normal;
+  color: var(--accent);
+}
+
+.land-lede {
+  margin: 28px 0 0;
+  max-width: 44ch;
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: var(--ink-muted);
+}
+
+/* ── CTAs ── */
+.land-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 36px;
+}
+
+.land-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 28px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
+}
+
+.land-btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.land-btn-primary:hover,
+.land-btn-primary:focus-visible {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.land-btn-ghost {
+  background: none;
+  border-color: var(--border-strong);
+  color: var(--ink);
+}
+
+.land-btn-ghost:hover,
+.land-btn-ghost:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── Stat strip ── */
+.land-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 44px;
+  margin: 56px 0 0;
+}
+
+.land-stat {
+  margin: 0;
+}
+
+.land-stat-v {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.land-stat-l {
+  margin-top: 8px;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--ink-muted);
+}
+
+/* ── Reader demo card ── */
+.land-demo {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
+}
+
+.land-demo-hdr {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.land-demo-cat {
+  padding: 4px 10px;
+  border-radius: 5px;
+  background: var(--accent);
+  color: var(--cat-chip-ink, var(--accent-ink));
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.land-demo-meta {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+}
+
+.land-demo-wpm {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--correct);
+  white-space: nowrap;
+}
+
+.land-demo-body {
+  padding: 28px 24px 8px;
+}
+
+.land-demo-q {
+  margin: 0;
+  min-height: 9.5em;
+  font-family: var(--font-serif);
+  font-size: 1.3125rem;
+  line-height: 1.75;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.land-demo-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  margin-left: 3px;
+  border-radius: 1px;
+  background: var(--accent);
+  vertical-align: text-bottom;
+  animation: land-blink 1s steps(2, start) infinite;
+}
+
+@keyframes land-blink {
+  50% {
+    opacity: 0;
+  }
+}
+.land-demo-foot {
+  padding: 8px 24px 24px;
+}
+
+.land-demo-celrow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.land-demo-cel {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-muted);
+}
+
+.land-demo-read {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--accent);
+}
+
+.land-demo-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--bg-sunken);
+  overflow: hidden;
+}
+
+.land-demo-bar > span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.land-demo-buzz {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1080px) {
+  .land {
+    padding: 44px 24px 64px;
+  }
+  .land-hero {
+    grid-template-columns: 1fr;
+    gap: 44px;
+  }
+  .land-lede {
+    max-width: 56ch;
+  }
+}
+@media (max-width: 640px) {
+  .land {
+    padding: 32px 16px 48px;
+  }
+  .land-stats {
+    gap: 28px;
+    margin-top: 40px;
+  }
+  .land-stat-v {
+    font-size: 1.625rem;
+  }
+  .land-cta .land-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+  .land-demo-q {
+    font-size: 1.125rem;
+    min-height: 11em;
+  }
+  .land-demo-body {
+    padding: 20px 18px 8px;
+  }
+  .land-demo-foot {
+    padding: 8px 18px 20px;
+  }
+}
+/* The streaming demo is motion for its own sake; honour the OS setting by
+   showing the question complete and still. */
+@media (prefers-reduced-motion: reduce) {
+  .land-demo-caret {
+    animation: none;
+  }
+}
 :root {
   color-scheme: light;
-  --accent-l: 0.56;
-  --accent-c: 0.15;
-  --accent-glow: oklch(var(--accent-l) var(--accent-c) var(--accent-h) / 0.22);
-  --ed-bg: oklch(0.985 0.008 85);
-  --ed-bg-raised: oklch(1 0 0);
-  --ed-bg-card: oklch(0.995 0.004 85);
-  --ed-bg-sunken: oklch(0.955 0.010 85);
-  --ed-border: oklch(0.82 0.014 80);
-  --ed-border-soft: oklch(0.88 0.012 80 / 0.75);
-  --ed-ink: oklch(0.22 0.018 55);
-  --ed-ink-dim: oklch(0.36 0.018 55);
-  --ed-ink-muted: oklch(0.52 0.016 55);
-  --ed-ink-faint: oklch(0.68 0.014 55);
-  --c-mythology: oklch(0.44 0.16 330);
-  --c-roman-history: oklch(0.43 0.13 155);
-  --c-latin-literature: oklch(0.50 0.14 85);
-  --c-language: oklch(0.40 0.14 245);
-  --c-culture: oklch(0.46 0.16 45);
-  --correct: oklch(0.46 0.15 150);
-  --incorrect: oklch(0.50 0.20 25);
-  --power: oklch(0.55 0.15 85);
+  /* Light theme is the violet itself; dark uses its lighter tint. */
+  --accent: #6355d4;
+  --accent-soft: #edeaf5;
+  --accent-glow: rgba(99, 85, 212, 0.16);
+  --accent-ink: #ffffff;
+  --accent-line: #c9c2ec;
+  --focus-ring: #6355d4;
+  /* Warm paper ground from the Figma palette. Never pure white. */
+  --ed-bg: #f5f2ed;
+  --ed-bg-raised: #ffffff;
+  --ed-bg-card: #ffffff;
+  --ed-bg-sunken: #ede9e3;
+  --ed-border: #dbd7d0;
+  --ed-border-soft: #e8e4dd;
+  --ed-border-strong: #bfbab1;
+  /* --ed-ink is Figma's foreground verbatim. The muted/faint steps are
+     darkened from Figma's #6b6760, which measures 4.41:1 against
+     --ed-bg-sunken — the darkest surface these labels land on, and just
+     under the 4.5:1 AA floor. #5d594f measures 5.4:1 there and 5.9:1 on
+     the page ground. Hue unchanged. AA is the ratio the accessibility
+     laws actually reference (EAA, EN 301 549, Section 508). */
+  --ed-ink: #1a1c24;
+  --ed-ink-dim: #474956;
+  --ed-ink-muted: #5d594f;
+  --ed-ink-faint: #625e55;
+  --ahead: #a8a49c;
+  --track: #8a8781;
+  /* Category hues from the Figma palette, tuned for the light ground.
+     Note these reassign two of the five: history moves green → red,
+     literature gold → green.
+
+     Roman History is crimson rather than Figma's #dc2626, which was
+     byte-identical to the error red below — a Roman History chip and a
+     wrong answer were the same colour. Rose keeps "history is red" while
+     staying distinct from --incorrect and from --c-culture's orange. */
+  --c-mythology: #7c3aed;
+  --c-roman-history: #9f1239;
+  /* Figma's #059669 measures 3.8:1 as chip text and as a filled chip with
+     white ink. Darkened one step to clear AA; hue unchanged. */
+  --c-latin-literature: #047857;
+  --c-language: #0369a1;
+  --c-culture: #c2410c;
+  /* Ink for text sitting ON a filled category chip. The light hues are
+     dark enough that white is the readable choice here. */
+  --cat-chip-ink: #ffffff;
+  /* Figma's light --state-correct is #16a34a, which is 3.1:1 as text on
+     the card ground. One step darker clears AA; hue unchanged. */
+  --correct: #15803d;
+  --incorrect: #dc2626;
+  --power: #b45309;
 }
 
 .bg-custom {
-  box-shadow: 0 3px 18px oklch(56% 0.15 287deg / 0.16);
+  box-shadow: none;
 }
 
 /*# sourceMappingURL=light.css.map */

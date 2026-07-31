@@ -11,16 +11,21 @@
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
     <link type="image/x-icon" href="/favicon.ico" rel="icon">
 
-    <link href="/bootstrap/light.css" rel="stylesheet">
-    <link href="/bootstrap/dark.css" rel="stylesheet" id="custom-css">
+    <!-- Load only the active theme's stylesheet. light.css and dark.css are
+         ~348 KB each and near-identical, so linking both doubled the CSS
+         payload to render one of them. Injected synchronously here so it
+         still blocks paint — no flash of unstyled content. -->
+    <script>(function(){var t=localStorage.getItem('color-theme');if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.dataset.colorTheme=t;var l=document.createElement('link');l.id='custom-css';l.rel='stylesheet';l.href='/bootstrap/'+t+'.css';document.head.appendChild(l)})()</script>
+    <noscript><link id="custom-css" rel="stylesheet" href="/bootstrap/light.css"></noscript>
     <script type="module" src="/apply-theme.js"></script>
 </head>
 
 <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <nav class="navbar navbar-dark navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
         <div class="container-fluid">
             <a class="navbar-brand brand-editorial ms-1 py-0" id="logo" href="/">
-                <span class="brand-mark"><img src="/buzzer-icon.png" alt=""></span><span class="brand-word">Certamen<b>Reader</b></span>
+                <span class="brand-mark"><img src="/buzzer-icon.png" alt="" width="373" height="669" decoding="async"></span><span class="brand-word">Certamen<b>Reader</b></span>
             </a>
             <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,66 +69,69 @@
             </div>
         </div>
     </nav>
-
-    <div class="settings-page">
-        <header class="settings-hdr">
-            <span class="ed-eyebrow">Settings</span>
+    <main id="main-content" class="settings-page">
+        <header class="c-page-head">
+            <span class="c-page-head__eyebrow">Settings</span>
             <h1>Site preferences</h1>
-            <p>Adjust the theme, reader font, and sound effects.</p>
+            <p>Everything in one place — appearance, how the reader behaves, sound, and Anki syncing.</p>
         </header>
 
         <div class="settings-grid">
-            <section class="settings-card">
-                <h4>Appearance</h4>
+            <section class="c-card">
+                <h2 class="c-head">Appearance</h2>
 
-                <div class="settings-row">
-                    <div>
-                        <div class="settings-label">Color theme</div>
-                        <div class="settings-hint">Defaults to your system setting. <a id="reset-color-theme" href="#" style="color: var(--accent);">reset to system</a>.</div>
-                    </div>
-                    <a id="toggle-color-theme" href="#" class="btn btn-outline-light btn-ghost" style="background: transparent; border: 1px solid var(--border); color: var(--ink-dim); padding: 0.45rem 0.85rem;">Toggle light / dark</a>
+                <div class="c-row">
+                    <span class="c-row__label">Color theme
+                        <span class="c-row__hint">Defaults to your system setting. <a id="reset-color-theme" href="#">reset to system</a>.</span>
+                    </span>
+                    <a id="toggle-color-theme" href="#" class="btn btn-outline-secondary">Toggle light / dark</a>
                 </div>
 
-                <div class="settings-row" style="flex-direction: column; align-items: stretch; gap: 0.4rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                        <span class="settings-label">Reader font size</span>
-                        <span style="font-family: var(--font-mono); color: var(--ink); font-size: 0.85rem;"><span id="font-size-display">16</span>px</span>
+                <div class="c-row c-row--stack">
+                    <div class="c-row__head">
+                        <span class="c-field__label" id="font-size-label">Reader font size</span>
+                        <span class="c-row__value"><span id="font-size-display">16</span>px</span>
                     </div>
-                    <input class="form-range" id="font-size" type="range" value="16" min="10" max="30" step="1">
-                    <div class="settings-hint">Used for question text in the singleplayer and multiplayer readers.</div>
+                    <input class="form-range" id="font-size" type="range" value="16" min="10" max="30" step="1" aria-labelledby="font-size-label" aria-valuemin="10" aria-valuemax="30">
+                    <span class="c-row__hint">Used for question text in the singleplayer and multiplayer readers.</span>
                 </div>
 
-                <label class="toggle-row" data-on="false">
-                    <div>
-                        <span class="settings-label">Apply font setting to database</span>
-                        <div class="settings-hint">Use the reader font size on Database cards too.</div>
-                    </div>
+                <label class="c-row">
+                    <span class="c-row__label">Apply font setting to database<span class="c-row__hint">Use the reader font size on Database cards too.</span></span>
                     <input class="form-check-input d-none" id="toggle-database-font-size" type="checkbox" role="switch">
-                    <span class="toggle-switch"></span>
+                    <span class="c-switch"></span>
                 </label>
 
-                <label class="toggle-row" data-on="false">
-                    <div>
-                        <span class="settings-label">High contrast question text</span>
-                        <div class="settings-hint">Renders questions in Times New Roman with a box around them.</div>
-                    </div>
+                <label class="c-row">
+                    <span class="c-row__label">High contrast question text<span class="c-row__hint">Renders questions in Times New Roman with a box around them.</span></span>
                     <input class="form-check-input d-none" id="toggle-high-contrast-question-text" type="checkbox" role="switch">
-                    <span class="toggle-switch"></span>
+                    <span class="c-switch"></span>
                 </label>
             </section>
 
-            <section class="settings-card">
-                <h4>Gameplay</h4>
-                <label class="toggle-row" data-on="false">
-                    <div>
-                        <span class="settings-label">Play sound effects</span>
-                        <div class="settings-hint">Buzz in, correct, and neg sounds.</div>
-                    </div>
+            <section class="c-card">
+                <h2 class="c-head">Reading</h2>
+                <p class="c-field__hint" style="margin: -0.2rem 0 0.9rem;">
+                    How the singleplayer reader behaves. These are the same
+                    controls as the reader sidebar and the home page.
+                </p>
+                <!-- Rendered from client/utilities/reader-settings.js so this
+                     page, the home card and the reader stay in agreement. -->
+                <div id="reader-settings"></div>
+            </section>
+
+            <section class="c-card">
+                <h2 class="c-head">Sound</h2>
+                <label class="c-row">
+                    <span class="c-row__label">Play sound effects<span class="c-row__hint">Buzz in, correct, and neg sounds.</span></span>
                     <input class="form-check-input d-none" id="toggle-sound-effects" type="checkbox" role="switch">
-                    <span class="toggle-switch"></span>
+                    <span class="c-switch"></span>
                 </label>
 
-                <h4 style="margin-top: 0.8rem;">Anki tracking</h4>
+            </section>
+
+            <section class="c-card">
+                <h2 class="c-head">Anki tracking</h2>
                 <div class="up-row">
                     <label>Sync token</label>
                     <div class="settings-hint" id="anki-token-status">Checking token status...</div>
@@ -136,7 +144,7 @@
                 </div>
             </section>
         </div>
-    </div>
+    </main>
 
     <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
     <script type="module" src="/script.js"></script>
@@ -145,8 +153,8 @@
     <script>
       // Keep the editorial toggle switches in sync with the underlying checkboxes
       (function () {
-        document.querySelectorAll('.toggle-row input[type="checkbox"]').forEach(cb => {
-          const row = cb.closest('.toggle-row');
+        document.querySelectorAll('.toggle-row input[type="checkbox"], .c-row input[type="checkbox"]').forEach(cb => {
+          const row = cb.closest('.toggle-row, .c-row');
           if (!row) return;
           const update = () => row.setAttribute('data-on', cb.checked ? 'true' : 'false');
           update();

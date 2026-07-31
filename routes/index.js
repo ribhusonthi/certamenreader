@@ -19,11 +19,14 @@ import { checkToken } from '../server/authentication.js';
 import { Router } from 'express';
 const router = Router();
 
-// The home page is the same for everyone — signed-in users see their data
-// load in, guests see the same layout but every interactive tab/CTA bounces
-// them through the global auth middleware to the login screen.
-router.get('/', (_req, res) => {
-  res.sendFile('index-authed.html', { root: './client' });
+// The home page splits by session. Guests get index.html — a landing page
+// explaining what certamen is and what the site does. Signed-in users get
+// index-authed.html, the dashboard, whose panels are all personal data that
+// would render as empty states for a guest anyway.
+router.get('/', (req, res) => {
+  const signedIn = process.env.LOCAL_DEV_BYPASS_AUTH === 'true' ||
+    (req.session && checkToken(req.session.username, req.session.token));
+  res.sendFile(signedIn ? 'index-authed.html' : 'index.html', { root: './client' });
 });
 
 router.get('/react(-dom)?/umd/*.js', (req, res) => {
@@ -96,6 +99,14 @@ router.get('/tossups', (req, res) => {
 
 router.get('/users', (req, res) => {
   res.redirect(`/user${req.url}`);
+});
+
+// Internal design review, served so colleagues reviewing a local dev build can
+// read it without a claude.ai link. Exempt from the auth gate (see
+// isAuthExempt in index.js) because reviewers won't have accounts. Contains no
+// credentials — it is the same document published at claude.ai/code/artifacts.
+router.get('/review', (_req, res) => {
+  res.sendFile('review.html', { root: './client' });
 });
 
 router.get('/waltoncertamen', (req, res) => {
