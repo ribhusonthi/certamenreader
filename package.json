@@ -11,7 +11,7 @@
         "sass": "sass scss/light.scss client/bootstrap/light.css && sass scss/dark.scss client/bootstrap/dark.css",
         "lint": "npx semistandard --fix",
         "test:all": "npm test",
-        "seed:demo": "node scripts/seed-demo.js"
+        "seed:demo": "node tools/seed-demo.js"
     },
     "dependencies": {
         "bootstrap": "5.2.3",
