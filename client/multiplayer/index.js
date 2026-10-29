@@ -8,8 +8,8 @@ const ROOM_THEMES = {
   Advanced: 'literature',
   Mythology: 'mythology',
   Language: 'language',
-  Literature: 'literature',
-  History: 'history',
+  'Latin-Literature': 'literature',
+  'Roman-History': 'history',
   Culture: 'culture'
 };
 
