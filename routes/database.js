@@ -20,9 +20,9 @@ router.get('/sets', (req, res) => {
   res.sendFile('sets.html', { root: './client/database' });
 });
 
-// Source Check: ask a question, get an answer cited to textbook pages.
+// Source Check has its own tab now (/source-check); keep old links working.
 router.get('/sources', (req, res) => {
-  res.sendFile('sources.html', { root: './client/database' });
+  res.redirect('/source-check');
 });
 
 export default router;

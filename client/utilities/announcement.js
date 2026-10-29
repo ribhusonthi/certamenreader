@@ -6,7 +6,7 @@
 const ANNOUNCEMENT_ID = 'whats-new-2026-10';
 
 const ITEMS = [
-  ['Source Check', 'Ask a question or paste a tossup, and get an answer cited to the page of the NJCL source books it came from.', '/db/sources'],
+  ['Source Check', 'Ask a question or paste a tossup, and get an answer cited to the page of the NJCL source books it came from.', '/source-check'],
   ['Your home page is your profile', 'Your stats, recent activity and starred questions are all now in the home page.', '/'],
   ['A Database menu', 'You can now browse sets and view whole sets in a pdf rendered form.', '/db'],
   ['Log in with email', 'Accounts no longer need Google: you can also sign in with an email and password.', null]];
@@ -56,7 +56,7 @@ export function showAnnouncementOnce (user) {
           <div class="modal-body"><ul class="whats-new-list">${items}</ul></div>
           <div class="modal-footer">
             <button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">Got it</button>
-            <a class="btn btn-primary" href="/db/sources">Try Source Check</a>
+            <a class="btn btn-primary" href="/source-check">Try Source Check</a>
           </div>
         </div>
       </div>

@@ -34,7 +34,7 @@ function initials (name) {
 // Sections that need an account (everything else in the navbar is public).
 // Signed-out visitors see them grayed out with a hover note; the link itself
 // still works and lands on the log-in page, which returns them here.
-const MEMBERS_ONLY = ['/multiplayer', '/db'];
+const MEMBERS_ONLY = ['/multiplayer', '/db', '/source-check'];
 
 function lockMembersOnlyNav () {
   document.querySelectorAll('#navbar .navbar-nav .nav-item > .nav-link').forEach((link, i) => {
