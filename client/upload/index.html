@@ -43,11 +43,13 @@
                             <li><a class="dropdown-item" href="/multiplayer/team">Team Mode</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/ranked">Ranked</a>
-                    </li>
-                    <li class="nav-item">
+                    <li class="nav-item dropdown nav-database">
                         <a class="nav-link" href="/db">Database</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/db">Search questions</a></li>
+                            <li><a class="dropdown-item" href="/db/sets">Browse sets</a></li>
+                            <li><a class="dropdown-item" href="/db/sources">Source check</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/leaderboards">Leaderboards</a>
@@ -71,7 +73,7 @@
         <div class="up-hdr">
             <div>
                 <h1>Upload a packet</h1>
-                <p>Drop a <b>.docx</b>, <b>.pdf</b>, or <b>.txt</b> file — the parser splits tossups and bonuses automatically and detects power marks. Review on the right before publishing.</p>
+                <p>Upload a <b>.docx</b>, <b>.pdf</b>, or <b>.txt</b> file. You can review the questions on the right before publishing.</p>
             </div>
         </div>
 
@@ -130,7 +132,7 @@ DOWRY</code></pre>
         <div class="up-card" style="align-self: start;">
             <div class="up-step" id="preview-step"><span class="n">4</span> Preview <small id="preview-count" style="margin-left: auto; color: var(--ink-faint); font-family: var(--font-mono); letter-spacing: 0; text-transform: none; font-size: 0.7rem;">waiting for file</small></div>
             <div id="preview-section">
-                <div id="preview-content" class="up-preview-empty">A sample of your parsed questions will show here once you preview a file.</div>
+                <div id="preview-content" class="up-preview-empty">A sample of your parsed questions will show here once you upload a file.</div>
             </div>
             <div id="result-section" class="d-none mt-3">
                 <div class="alert" id="result-alert" role="alert"></div>

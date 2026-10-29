@@ -1,7 +1,8 @@
 import { bonuses } from './collections.js';
 import { questionPrivacyFilter } from './set-privacy.js';
 
-import { DIFFICULTIES, CATEGORIES, SUBCATEGORIES_FLATTENED, DEFAULT_MIN_YEAR, DEFAULT_MAX_YEAR } from '../../constants.js';
+import { DIFFICULTIES, DEFAULT_MIN_YEAR, DEFAULT_MAX_YEAR } from '../../constants.js';
+import { roundsFilter } from '../../client/utilities/rounds.js';
 
 // eslint-disable-next-line no-unused-vars
 import * as types from '../../types.js';
@@ -13,6 +14,7 @@ import * as types from '../../types.js';
  * @param {string[]} object.categories - an array of allowed categories. Pass a 0-length array, null, or undefined to select any category.
  * @param {string[]} object.subcategories - an array of allowed subcategories. Pass a 0-length array, null, or undefined to select any subcategory.
  * @param {string[]} object.alternateSubcategories - an array of allowed alternate subcategories. Pass a 0-length array, null, or undefined to select any alternate subcategory.
+ * @param {string[]} [object.rounds] - an array of allowed rounds (see ROUNDS). Pass a 0-length array, null, or undefined to select any round.
  * @param {number} [object.number=1] - how many random bonuses to return. Default: 1.
  * @param {number} [object.minYear=2010] - the minimum year to select from. Default: 2010.
  * @param {number} [object.maxYear=2025] - the maximum year to select from. Default: 2025.
@@ -23,9 +25,10 @@ import * as types from '../../types.js';
  */
 async function getRandomBonuses ({
   difficulties = DIFFICULTIES,
-  categories = CATEGORIES,
-  subcategories = SUBCATEGORIES_FLATTENED,
+  categories,
+  subcategories,
   alternateSubcategories = [],
+  rounds,
   number = 1,
   minYear = DEFAULT_MIN_YEAR,
   maxYear = DEFAULT_MAX_YEAR,
@@ -55,6 +58,11 @@ async function getRandomBonuses ({
 
   if (subcategories?.length) {
     aggregation[0].$match.subcategory = { $in: subcategories };
+  }
+
+  const roundCondition = roundsFilter(rounds);
+  if (roundCondition) {
+    aggregation[0].$match['packet.name'] = roundCondition;
   }
 
   if (bonusLength && !isNaN(bonusLength)) {

@@ -43,11 +43,13 @@
                             <li><a class="dropdown-item" href="/multiplayer/team">Team Mode</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/ranked">Ranked</a>
-                    </li>
-                    <li class="nav-item">
+                    <li class="nav-item dropdown nav-database">
                         <a class="nav-link active" href="/db" aria-current="page">Database</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/db">Search questions</a></li>
+                            <li><a class="dropdown-item" href="/db/sets">Browse sets</a></li>
+                            <li><a class="dropdown-item" href="/db/sources">Source check</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/leaderboards">Leaderboards</a>
@@ -77,15 +79,14 @@
             <div>
                 <span class="ed-eyebrow">Database</span>
                 <h1>Search the <em>question</em> database</h1>
-                <p>Every question ever read — filter by set, category, difficulty, or text. Starred and recently-seen questions surface at the top.</p>
             </div>
         </header>
 
-        <div class="db-hint">
-            <span><b>Card footer</b> opens per-question stats</span>
-            <span><b>Left of header</b> copies the question to your clipboard</span>
-            <span><b>Right of header</b> collapses the question</span>
-        </div>
+        <nav class="db-tabs" aria-label="Database views">
+            <a class="db-tab" href="/db" aria-current="page">Search</a>
+            <a class="db-tab" href="/db/sets">Browse sets</a>
+        </nav>
+
 
         <div id="root"></div>
     </div>

@@ -39,13 +39,13 @@ export const PERMANENT_ROOMS = [
   },
   {
     name: 'Literature',
-    categories: ['Literature'],
+    categories: ['Latin Literature'],
     subcategories: [],
     difficulties: [4, 5, 6, 7, 8, 9, 10]
   },
   {
     name: 'History',
-    categories: ['History'],
+    categories: ['Roman History'],
     subcategories: [],
     difficulties: [4, 5, 6, 7, 8, 9, 10]
   },

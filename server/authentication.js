@@ -3,6 +3,7 @@ import createUser from '../database/account-info/create-user.js';
 import { users } from '../database/account-info/collections.js';
 import hasValidCharacters from './moderation/has-valid-characters.js';
 import isAppropriateString from './moderation/is-appropriate-string.js';
+import { emailKey } from './email-address.js';
 
 import jsonwebtoken from 'jsonwebtoken';
 import passport from 'passport';
@@ -136,15 +137,32 @@ passport.use(new GoogleStrategy({
 
     let user = await getUserByGoogleId(googleId);
 
-    if (!user) {
-      const result = await createUser(googleId, email, name, photo);
-      user = { _id: result.insertedId, googleId, username: email, email, name, photo, usernameSet: false, admin: false };
-    } else {
+    if (user) {
       await users.updateOne(
         { _id: user._id },
         { $set: { email, name, photo, verifiedEmail: true, lastGoogleLoginAt: new Date() } }
       );
+      // Backfill the duplicate-check key for accounts made before it existed.
+      // Best effort: an older duplicate holding the same key must not break sign-in.
+      if (!user.emailKey) {
+        await users.updateOne({ _id: user._id }, { $set: { emailKey: emailKey(email) } }).catch(() => {});
+      }
       user = { ...user, email, name, photo, verifiedEmail: true };
+    } else {
+      // An email/password account with this address becomes the same account
+      // rather than a duplicate. Google has verified the address, so it counts
+      // as verified here too.
+      const existing = await users.findOne({ emailKey: emailKey(email) });
+      if (existing) {
+        await users.updateOne(
+          { _id: existing._id },
+          { $set: { googleId, photo, verifiedEmail: true, lastGoogleLoginAt: new Date() }, $unset: { verifyTokenHash: '', verifyTokenExpires: '' } }
+        );
+        user = { ...existing, googleId, photo, verifiedEmail: true };
+      } else {
+        const result = await createUser(googleId, email, name, photo);
+        user = { _id: result.insertedId, googleId, username: email, email, name, photo, usernameSet: false, admin: false };
+      }
     }
 
     done(null, user);
@@ -154,6 +172,7 @@ passport.use(new GoogleStrategy({
 }));
 
 export {
+  baseURL,
   checkToken,
   generateToken,
   validateUsername,

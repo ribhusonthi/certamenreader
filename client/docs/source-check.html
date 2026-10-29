@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>How Source Check works · Certamen Reader</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="How Certamen Reader's Source Check turns the NJCL source books into page-cited answers.">
+
+    <link href="/apple-touch-icon.png" rel="apple-touch-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
+    <link type="image/x-icon" href="/favicon.ico" rel="icon">
+
+    <script>(function(){var t=localStorage.getItem('color-theme');if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.dataset.colorTheme=t;var l=document.createElement('link');l.id='custom-css';l.rel='stylesheet';l.href='/bootstrap/'+t+'.css';document.head.appendChild(l)})()</script>
+    <noscript><link id="custom-css" rel="stylesheet" href="/bootstrap/light.css"></noscript>
+    <script type="module" src="/apply-theme.js"></script>
+</head>
+
+<body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <nav class="navbar navbar-dark navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
+        <div class="container-fluid">
+            <a class="navbar-brand brand-editorial ms-1 py-0" id="logo" href="/">
+                <span class="brand-mark"><img src="/buzzer-icon.png" alt="" width="373" height="669" decoding="async"></span><span class="brand-word">Certamen<b>Reader</b></span>
+            </a>
+            <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/singleplayer">Singleplayer</a>
+                    </li>
+                    <li class="nav-item dropdown nav-multiplayer">
+                        <a class="nav-link" href="/multiplayer">Multiplayer</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/multiplayer">Solo</a></li>
+                            <li><a class="dropdown-item" href="/multiplayer/team">Team Mode</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown nav-database">
+                        <a class="nav-link" href="/db">Database</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/db">Search questions</a></li>
+                            <li><a class="dropdown-item" href="/db/sets">Browse sets</a></li>
+                            <li><a class="dropdown-item" href="/db/sources">Source check</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/leaderboards">Leaderboards</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/login" id="login-link">Log in</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="docs-layout">
+        <aside class="docs-side" aria-label="Documentation">
+            <div class="docs-side-group">
+                <div class="docs-side-label">Source Check</div>
+                <nav class="docs-toc" id="docs-toc">
+                    <a href="#overview">Overview</a>
+                    <a href="#sources">The sources</a>
+                    <a href="#pipeline">Pipeline at a glance</a>
+                    <a href="#extraction">1. Extracting pages</a>
+                    <a href="#indexing">2. Building the index</a>
+                    <a href="#retrieval">3. Finding passages</a>
+                    <a href="#answering">4. Writing the answer</a>
+                    <a href="#myths">Alternate versions of myths</a>
+                    <a href="#architecture">How it runs on the site</a>
+                    <a href="#copyright">Copyright</a>
+                    <a href="#limits">Limits and costs</a>
+                </nav>
+            </div>
+            <a class="docs-side-cta" href="/db/sources">Open Source Check →</a>
+        </aside>
+
+        <main class="docs-main" id="main-content">
+            <article class="docs-article">
+                <div class="docs-crumbs"><a href="/docs">Docs</a><span aria-hidden="true">/</span>Source Check</div>
+                <h1>How Source Check works</h1>
+                <p class="docs-lede">Source Check answers certamen questions from the books the NJCL lists as sources, and cites the printed page every claim comes from. This page explains how it is built, from the PDFs to the answer on your screen.</p>
+
+                <h2 id="overview">Overview</h2>
+                <p>You ask a question, or paste a tossup with its answer. Source Check searches the textbooks for the passages that bear on it, then has a language model write an answer that may use <em>only</em> those passages. Every claim carries a citation marker like <span class="docs-cite">[1, 2]</span>. Clicking one shows the exact sentence it came from, with the book and page.</p>
+                <p>When you paste a tossup, the answer starts with a verdict (<b>Supported</b>, <b>Contradicted</b>, <b>Partly supported</b> or <b>Not found in the sources</b>) and then checks each clue separately.</p>
+                <div class="docs-callout">
+                    <b>The rule that matters most:</b> if the passages don't answer the question, Source Check says so instead of answering from the model's own memory. A cited answer you can check beats a confident one you can't.
+                </div>
+
+                <h2 id="sources">The sources</h2>
+                <p>The library is the set of books the NJCL lists for certamen (<a href="https://docs.google.com/document/d/1fmB0yTtgaL7oMy-7TV8eghDDeOPIc5XjrqngNXg3EB4/edit?tab=t.0" target="_blank" rel="noopener">see the NJCL source list</a>): thirteen books covering Roman history, mythology, Latin literature and daily life, about 7,000 pages in all.</p>
+                <div class="docs-table-wrap">
+                    <table class="docs-table">
+                        <thead><tr><th>Area</th><th>Books</th></tr></thead>
+                        <tbody>
+                            <tr><td>Mythology</td><td>Grimal; March; Tripp; Morford &amp; Lenardon</td></tr>
+                            <tr><td>History</td><td>Cary &amp; Scullard; Ward, Heichelheim &amp; Yeo; Scarre, <i>Chronicle of the Roman Emperors</i>; Matyszak, <i>Chronicle of the Roman Republic</i></td></tr>
+                            <tr><td>Literature</td><td>Conte; Hadas</td></tr>
+                            <tr><td>Life &amp; culture</td><td>Adkins &amp; Adkins; Johnston, <i>The Private Life of the Romans</i>; Claridge, <i>Rome</i> (Oxford Archaeological Guide)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2 id="pipeline">Pipeline at a glance</h2>
+                <ol class="docs-pipeline">
+                    <li><span class="docs-step-n">1</span><b>Extract</b><span>PDFs → text, one record per printed page</span></li>
+                    <li><span class="docs-step-n">2</span><b>Index</b><span>pages → passages, embeddings and a keyword index</span></li>
+                    <li><span class="docs-step-n">3</span><b>Retrieve</b><span>question → the 12 most relevant passages</span></li>
+                    <li><span class="docs-step-n">4</span><b>Answer</b><span>passages → a cited answer, quotes checked</span></li>
+                </ol>
+                <p>Steps 1 and 2 run once, offline, whenever the books change. Steps 3 and 4 run for every question.</p>
+
+                <h2 id="extraction">1. Extracting pages</h2>
+                <p>The obvious approach, converting each PDF to one long text file, throws away the one thing a citation needs: the page. So the text is pulled out <strong>one page at a time</strong>, and each page keeps the number printed on it in the book. That number is often not the PDF's page index. Grimal's page 298 is the 307th page of the PDF, because of the front matter.</p>
+                <p>Printed page numbers come from two places:</p>
+                <ul>
+                    <li><b>Embedded page labels.</b> Ten of the thirteen PDFs carry the book's own numbering, which the extractor reads directly.</li>
+                    <li><b>The page headers.</b> For the other three, the number is read from the running header or footer. The scans' text layers often drop digits ("105" comes out as "5"), so each page's number is decided by a vote of the pages around it rather than trusted on its own.</li>
+                </ul>
+                <p>Pages without a usable text layer are run through OCR (Tesseract). <i>Chronicle of the Roman Republic</i> was OCR'd from scratch: half of it had no text at all. The extractor also strips running heads and page numbers, rejoins words hyphenated across lines, and keeps two-column dictionary pages in reading order.</p>
+                <p>Each page becomes one JSON record:</p>
+<pre class="docs-code"><code>{
+  "source_id": "grimal",
+  "cite": "Grimal, Dictionary of Classical Mythology",
+  "pdf_page": 307,
+  "page": "298",
+  "ocr": false,
+  "text": "Myceneus  The hero who founded the city of Mycene and gave it his name. …"
+}</code></pre>
+
+                <h2 id="indexing">2. Building the index</h2>
+                <p>Pages are split into passages of about 250 words. A passage never crosses a page boundary, so every search hit maps to exactly one page. The three mythology dictionaries use smaller passages (about 100 words), roughly one entry each; otherwise a short entry gets lost among its neighbours on the page.</p>
+                <p>Each passage is stored twice:</p>
+                <ul>
+                    <li>as an <b>embedding</b>, a 768-number vector from Google's <code>gemini-embedding-001</code> that captures what the passage means, and</li>
+                    <li>in a <b>keyword index</b> (SQLite FTS5, ranked with BM25) for exact words and names.</li>
+                </ul>
+                <p>The finished index is a single SQLite file: 23,855 passages, about 127 MB. There's no database server to run.</p>
+
+                <h2 id="retrieval">3. Finding passages</h2>
+                <p>Certamen questions hinge on exact names (<i>Myceneus</i>, <i>lex Hortensia</i>, <i>Brixia</i>), and that's where meaning-based search is weakest. So retrieval combines several searches:</p>
+                <ol>
+                    <li><b>Query rewriting.</b> A quick model call turns the question into two or three search queries and adds alternate spellings: Mycenae/Mycene, Heracles/Hercules, Odysseus/Ulysses. In a conversation it also resolves follow-ups like "who was his father?"</li>
+                    <li><b>Meaning search.</b> Each query is embedded and compared against every passage.</li>
+                    <li><b>Keyword search.</b> All the words together, plus a separate search for each <em>rare</em> word. Otherwise a page that repeats "Latin", "author" and "born" outranks the one page that says "Brescia".</li>
+                    <li><b>Stem matching.</b> A word with almost no exact hits is also searched by its stem, so <i>contubernalis</i> finds <i>contubernium</i>, <i>contubernia</i>, and OCR slips like <i>contubernah</i>.</li>
+                </ol>
+                <p>The ranked lists are merged with <b>reciprocal rank fusion</b>: a passage scores well if it ranks high in any list, and better if it shows up in several. Hits on rare words count double.</p>
+<pre class="docs-code"><code>score(passage) = Σ over lists  weight / (60 + rank in that list)</code></pre>
+                <p>The top 12 passages go on to the next step.</p>
+
+                <h2 id="answering">4. Writing the answer</h2>
+                <p>Gemini 3.8 Flash receives the numbered passages and the question, with instructions to use nothing else. It doesn't write citation numbers itself. It returns the answer as a list of claims, and for each claim the exact sentence, word for word, from the passage that supports it.</p>
+<pre class="docs-code"><code>{ "segments": [
+    { "text": "Commodus was born on 31 August 161.",
+      "sources": [ { "passage": 3, "quote": "Born 31 August 161 at Lanuvium" } ] }
+] }</code></pre>
+                <p>The server then checks every quote against the passage text. Matching ignores spacing, punctuation and case. A quote that isn't really there is replaced by the closest matching sentence and flagged as such. Finally the server numbers the citations in order and attaches the book and page to each. Because the numbering happens in code, a marker can't point at the wrong sentence.</p>
+
+                <h2 id="myths">Alternate versions of myths</h2>
+                <p>Myths come in versions, and certamen questions usually follow the standard one. Before the model reads a passage, the server marks wording that signals a variant ("some say", "another version", "according to some", "in a later version") and wording that signals the usual account ("the usual version", "most authors").</p>
+                <p>The answer gives the standard version first and lists the others under <b>Alternate versions</b>, quoting each source's own framing. A tossup whose clue matches only a variant is marked <b>Supported (alternate version only)</b>. For example, Paris killing Achilles from behind a statue in the temple of Thymbraean Apollo is a later version tied to Polyxena; the standard version is an arrow guided by Apollo at the Scaean Gate.</p>
+
+                <h2 id="architecture">How it runs on the site</h2>
+                <div class="docs-arch" role="img" aria-label="Browser to certamenreader server to the sources service to Vertex AI">
+                    <div class="docs-arch-box"><b>Your browser</b><span>/db/sources</span></div>
+                    <div class="docs-arch-arrow" aria-hidden="true">→</div>
+                    <div class="docs-arch-box"><b>certamenreader</b><span>/api/sources/ask · sign-in, rate limit</span></div>
+                    <div class="docs-arch-arrow" aria-hidden="true">→</div>
+                    <div class="docs-arch-box"><b>Sources service</b><span>Python on Cloud Run · the index</span></div>
+                    <div class="docs-arch-arrow" aria-hidden="true">→</div>
+                    <div class="docs-arch-box"><b>Vertex AI</b><span>Gemini 3.8 Flash · embeddings</span></div>
+                </div>
+                <p>The textbooks and their index live in a separate Cloud Run service. The site's server is the only thing that can call it, using a shared secret. The site's code is on GitHub but the books are not: the index ships inside the sources service's container image, which is built directly from local files.</p>
+                <p>On the site, Source Check is for signed-in users, with a limit of 60 questions per hour each.</p>
+
+                <h2 id="copyright">Copyright</h2>
+                <p>Most of these books are under copyright, so Source Check is built to quote them, not republish them. It shows only the cited sentence plus one sentence on each side, with the book and page, so you can check a claim. It never serves whole passages or the PDFs, and it is limited to signed-in users so it can't be used to copy a book out bit by bit.</p>
+
+                <h2 id="limits">Limits and costs</h2>
+                <ul>
+                    <li><b>OCR noise.</b> Some books' text layers are rough. Quotes from Morford &amp; Lenardon can contain garbled words, and words printed in Greek letters in the dictionaries come out as junk.</li>
+                    <li><b>Answers can be wrong.</b> Retrieval can miss the passage that matters, and the model can misread one. That's why every claim is cited: read the sentence.</li>
+                    <li><b>Speed.</b> An answer takes roughly 10–17 seconds, most of it the model thinking before it writes.</li>
+                    <li><b>Cost.</b> About 1¢ per question. Building the index cost under $1 in embeddings.</li>
+                </ul>
+
+                <div class="docs-foot">
+                    <a href="/db/sources">Try Source Check →</a>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/script.js"></script>
+    <script type="module" src="/docs/docs.js"></script>
+</body>
+
+</html>

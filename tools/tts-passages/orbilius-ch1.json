@@ -1,0 +1,42 @@
+{
+  "source": "https://orbilius.org/chapters/1/pronounce.php",
+  "style": "Read the following Latin passage aloud clearly at a natural, steady reading pace, like a Latin teacher reading to a class.",
+  "passages": [
+    {
+      "id": "aurelia",
+      "title": "Aurēlia (Orbilius practice prose)",
+      "text": "Aurēlia, cuī urbs placēbat, erat in Aegyptō cum familiā suā ingentī et equō suō. Trēdecim ludōs māgnōs Iōvis in amphitheātrō Alexandriae spectābat. tandem, hic equus īratus domum recurrere coepit. Eheu!",
+      "translation": "Aurelia, who liked the city, was in Egypt with her huge family and her horse. She watched thirteen great games of Jupiter in the amphitheater of Alexandria. Finally, this angry horse began to run back home. Alas!",
+      "references": ["451342556"]
+    },
+    {
+      "id": "aeneid-prose",
+      "title": "Vergil, Aeneid 1.1–4 (prose reading)",
+      "text": "Arma virumque canō, Trōiae quī prīmus ab ōris\nĪtaliam, fātō profugus, Lāviniaque vēnit\nlītora multum ille et terrīs iactātus et altō\nvī superum saevae memorem Iūnōnis ob īram.",
+      "translation": "I sing of arms and a man, who, driven by fate, first came from the shores of Troy to Italy and the shores of Lavinium, that man much tossed both on land and sea by the power of the gods because of the mindful wrath of cruel Juno.",
+      "references": ["590687380", "590687349"]
+    },
+    {
+      "id": "aeneid-verse",
+      "title": "Vergil, Aeneid 1.1–4 (poetic reading)",
+      "text": "Arma virumque canō, Trōiae quī prīmus ab ōris\nĪtaliam, fātō profugus, Lāviniaque vēnit\nlītora multum ille et terrīs iactātus et altō\nvī superum saevae memorem Iūnōnis ob īram.",
+      "translation": "I sing of arms and a man, who, driven by fate, first came from the shores of Troy to Italy and the shores of Lavinium, that man much tossed both on land and sea by the power of the gods because of the mindful wrath of cruel Juno.",
+      "extraStyle": "This is dactylic hexameter: read it as verse, letting the long and short syllables carry the rhythm, eliding vowels where the meter requires (multum ille, -que et), with a slight pause at the end of each line.",
+      "references": ["590687380", "590687349"]
+    },
+    {
+      "id": "caesar",
+      "title": "Caesar, De Bello Gallico 1.1",
+      "text": "Gallia est omnis dīvīsa in partēs trēs, quārum ūnam incolunt Belgae, aliam Aquītānī, tertiam, quī ipsōrum linguā Celtae, nostrā Gallī appellantur.",
+      "translation": "All Gaul is divided into three parts, of which the Belgae inhabit the first, the Aquitani the second, and the third by those who in their own language are called Celts, and in ours, Gauls.",
+      "references": ["590687256"]
+    },
+    {
+      "id": "cicero",
+      "title": "Cicero, In Catilinam 1.1",
+      "text": "Quō ūsque tandem abūtēre, Catilīna, patientiā nostrā? quam diū furor iste tuus nōs elūdet? quem ad finem sēsē effrēnāta iactābit audacia?",
+      "translation": "For how long, Catiline, will you abuse our patience? How long will this frenzy of yours mock us? When will you put an end to your unbridled audacity?",
+      "references": ["590687325"]
+    }
+  ]
+}

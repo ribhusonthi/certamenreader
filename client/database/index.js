@@ -6,10 +6,12 @@ import CategoryManager from '../utilities/category-manager.js';
 import { attachDropdownChecklist, getDropdownValues } from '../utilities/dropdown-checklist.js';
 import { getBonusPartLabel } from '../utilities/index.js';
 import { insertTokensIntoHTML } from '../utilities/insert-tokens-into-html.js';
+import { ROUNDS, roundLabel, roundPageUrl } from '../utilities/rounds.js';
+import { parseYear } from '../utilities/set-series.js';
 const paginationShiftLength = window.screen.width > 992 ? 10 : 5;
-const CATEGORY_BUTTONS = [['Mythology', 'primary']];
-const SUBCATEGORY_BUTTONS = [];
-const ALTERNATE_SUBCATEGORY_BUTTONS = [];
+
+// Must match the category names questions are stored with (see constants.js).
+const CATEGORIES = ['Mythology', 'Roman History', 'Latin Literature', 'Language', 'Culture'];
 const categoryManager = new CategoryManager();
 async function readQueryResponse(response) {
   if (response.status === 401) {
@@ -107,6 +109,18 @@ function highlightBonusQuery({
   }
   return bonus;
 }
+
+// A packet is a round; its label opens the whole round as one document.
+// Keep it outside any data-bs-toggle element: Bootstrap's toggle listeners run
+// in the capture phase and cancel clicks on links inside them.
+function RoundLink({
+  question
+}) {
+  return /*#__PURE__*/React.createElement("a", {
+    href: roundPageUrl(question.set.name, question.packet.number),
+    title: "Read the whole round"
+  }, roundLabel(question.packet));
+}
 function TossupCard({
   tossup,
   highlightedTossup,
@@ -115,7 +129,6 @@ function TossupCard({
   fontSize = 16
 }) {
   const _id = tossup._id;
-  const packetName = tossup.packet.name;
   function clickToCopy() {
     const textdata = stringifyTossup(tossup);
     navigator.clipboard.writeText(textdata);
@@ -192,11 +205,13 @@ function TossupCard({
   }, /*#__PURE__*/React.createElement("b", {
     className: "clickable",
     onClick: clickToCopy
-  }, tossup.set.name, " | ", tossup.category, " | ", tossup.subcategory, " ", tossup.alternate_subcategory ? ' (' + tossup.alternate_subcategory + ')' : '', " | ", tossup.difficulty), /*#__PURE__*/React.createElement("b", {
+  }, tossup.set.name, " | ", tossup.category, " | ", tossup.subcategory, " ", tossup.alternate_subcategory ? ' (' + tossup.alternate_subcategory + ')' : '', " | ", tossup.difficulty), /*#__PURE__*/React.createElement("b", null, /*#__PURE__*/React.createElement(RoundLink, {
+    question: tossup
+  }), " | ", /*#__PURE__*/React.createElement("span", {
     className: "clickable",
     "data-bs-toggle": "collapse",
     "data-bs-target": `#question-${_id}`
-  }, "Packet ", tossup.packet.number, " | Question ", tossup.number)), /*#__PURE__*/React.createElement("div", {
+  }, "Question ", tossup.number))), /*#__PURE__*/React.createElement("div", {
     className: "card-container collapse show",
     id: `question-${_id}`
   }, /*#__PURE__*/React.createElement("div", {
@@ -221,7 +236,7 @@ function TossupCard({
     "data-bs-target": "#tossup-stats-modal"
   }, /*#__PURE__*/React.createElement("small", {
     className: "text-muted"
-  }, packetName ? 'Packet ' + packetName : /*#__PURE__*/React.createElement("span", null, "\xA0")), /*#__PURE__*/React.createElement("small", {
+  }, "\xA0"), /*#__PURE__*/React.createElement("small", {
     className: "text-muted float-end"
   }, /*#__PURE__*/React.createElement("a", {
     href: "#",
@@ -239,7 +254,6 @@ function BonusCard({
   fontSize = 16
 }) {
   const _id = bonus._id;
-  const packetName = bonus.packet.name;
   const bonusLength = bonus.parts.length;
   const indices = [];
   for (let i = 0; i < bonusLength; i++) {
@@ -320,11 +334,13 @@ function BonusCard({
   }, /*#__PURE__*/React.createElement("b", {
     className: "clickable",
     onClick: clickToCopy
-  }, bonus.set.name, " | ", bonus.category, " | ", bonus.subcategory, " ", bonus.alternate_subcategory ? ' (' + bonus.alternate_subcategory + ')' : '', " | ", bonus.difficulty), /*#__PURE__*/React.createElement("b", {
+  }, bonus.set.name, " | ", bonus.category, " | ", bonus.subcategory, " ", bonus.alternate_subcategory ? ' (' + bonus.alternate_subcategory + ')' : '', " | ", bonus.difficulty), /*#__PURE__*/React.createElement("b", null, /*#__PURE__*/React.createElement(RoundLink, {
+    question: bonus
+  }), " | ", /*#__PURE__*/React.createElement("span", {
     className: "clickable",
     "data-bs-toggle": "collapse",
     "data-bs-target": `#question-${_id}`
-  }, "Packet ", bonus.packet.number, " | Question ", bonus.number)), /*#__PURE__*/React.createElement("div", {
+  }, "Question ", bonus.number))), /*#__PURE__*/React.createElement("div", {
     className: "card-container collapse show",
     id: `question-${_id}`
   }, /*#__PURE__*/React.createElement("div", {
@@ -353,7 +369,7 @@ function BonusCard({
     "data-bs-target": "#bonus-stats-modal"
   }, /*#__PURE__*/React.createElement("small", {
     className: "text-muted"
-  }, packetName ? 'Packet ' + packetName : /*#__PURE__*/React.createElement("span", null, "\xA0")), /*#__PURE__*/React.createElement("small", {
+  }, "\xA0"), /*#__PURE__*/React.createElement("small", {
     className: "text-muted float-end"
   }, /*#__PURE__*/React.createElement("a", {
     href: "#",
@@ -363,119 +379,92 @@ function BonusCard({
     "data-bs-target": "#report-question-modal"
   }, "Report Question")))));
 }
-function CategoryButton({
-  category,
-  color
-}) {
-  function handleClick() {
+
+// Category filter: an inline dropdown of the same dot chips the singleplayer
+// sidebar uses, instead of a separate modal.
+function CategoryDropdown() {
+  const [selected, setSelected] = React.useState([...categoryManager.categories]);
+  function toggle(category) {
     categoryManager.updateCategory(category);
-    categoryManager.loadCategoryModal();
+    setSelected([...categoryManager.categories]);
   }
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
-    type: "checkbox",
-    className: "btn-check",
-    autoComplete: "off",
-    id: category,
-    onClick: handleClick
-  }), /*#__PURE__*/React.createElement("label", {
-    className: `btn btn-outline-${color} w-100 rounded-0 my-1`,
-    htmlFor: category
-  }, category, /*#__PURE__*/React.createElement("br", null)));
-}
-function SubcategoryButton({
-  subcategory,
-  color,
-  hidden = false
-}) {
-  function handleClick() {
-    categoryManager.updateSubcategory(subcategory);
-    categoryManager.loadCategoryModal();
+  function clear() {
+    for (const category of [...categoryManager.categories]) categoryManager.updateCategory(category);
+    setSelected([]);
   }
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
-    type: "checkbox",
-    className: "btn-check",
-    autoComplete: "off",
-    id: subcategory,
-    onClick: handleClick
-  }), /*#__PURE__*/React.createElement("label", {
-    className: `btn btn-outline-${color} w-100 rounded-0 my-1 ${hidden && 'd-none'}`,
-    htmlFor: subcategory
-  }, subcategory, /*#__PURE__*/React.createElement("br", null)));
-}
-function AlternateSubcategoryButton({
-  subcategory,
-  color,
-  hidden = false
-}) {
-  function handleClick() {
-    categoryManager.updateAlternateSubcategory(subcategory);
-    categoryManager.loadCategoryModal();
-  }
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("input", {
-    type: "checkbox",
-    className: "btn-check",
-    autoComplete: "off",
-    id: subcategory,
-    onClick: handleClick
-  }), /*#__PURE__*/React.createElement("label", {
-    className: `btn btn-outline-${color} w-100 rounded-0 my-1 ${hidden && 'd-none'}`,
-    htmlFor: subcategory
-  }, subcategory, /*#__PURE__*/React.createElement("br", null)));
-}
-function CategoryModal() {
+  const label = selected.length === 0 ? 'Any category' : selected.length === 1 ? selected[0] : `${selected.length} categories`;
   return /*#__PURE__*/React.createElement("div", {
-    className: "modal modal-lg",
-    id: "category-modal",
-    tabIndex: "-1"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-dialog modal-dialog-scrollable"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-content"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "modal-header"
-  }, /*#__PURE__*/React.createElement("h5", {
-    className: "modal-title"
-  }, "Select Category"), /*#__PURE__*/React.createElement("button", {
+    className: "dropdown dropdown-center db-category"
+  }, /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "btn-close",
-    "data-bs-dismiss": "modal",
-    "aria-label": "Close"
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "modal-body"
+    className: "db-filter-btn dropdown-toggle",
+    id: "category-select-button",
+    "data-bs-toggle": "dropdown",
+    "data-bs-auto-close": "outside",
+    "data-bs-display": "static",
+    "aria-expanded": "false"
+  }, label), /*#__PURE__*/React.createElement("div", {
+    className: "dropdown-menu db-category-menu",
+    "aria-labelledby": "category-select-button"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "row"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "col-4",
-    id: "categories"
-  }, /*#__PURE__*/React.createElement("h5", {
-    className: "text-center"
-  }, "Category"), CATEGORY_BUTTONS.map(element => /*#__PURE__*/React.createElement(CategoryButton, {
-    key: element[0],
-    category: element[0],
-    color: element[1]
-  }))), /*#__PURE__*/React.createElement("div", {
-    className: "col-4",
-    id: "subcategories"
-  }, /*#__PURE__*/React.createElement("h5", {
-    className: "text-center"
-  }, "Round"), /*#__PURE__*/React.createElement("div", {
-    className: "text-muted text-center",
-    id: "subcategory-info-text"
-  }, "You must select Category before you can select a Subcategory."), SUBCATEGORY_BUTTONS.map(element => /*#__PURE__*/React.createElement(SubcategoryButton, {
-    key: element[0],
-    subcategory: element[0],
-    color: element[1],
-    hidden: true
-  }))), /*#__PURE__*/React.createElement("div", {
-    className: "col-4",
-    id: "alternate-subcategories"
-  }, ALTERNATE_SUBCATEGORY_BUTTONS.map(element => /*#__PURE__*/React.createElement(AlternateSubcategoryButton, {
-    key: element[0],
-    subcategory: element[0],
-    color: element[1],
-    hidden: true
-  }))))))));
+    className: "cat-grid"
+  }, CATEGORIES.map(category => /*#__PURE__*/React.createElement("button", {
+    key: category,
+    type: "button",
+    className: "cat-chip",
+    "data-cat": category,
+    "data-on": selected.includes(category) ? 'true' : 'false',
+    "aria-pressed": selected.includes(category),
+    onClick: () => {
+      toggle(category);
+    }
+  }, category))), /*#__PURE__*/React.createElement("div", {
+    className: "db-category-foot"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "ed-link",
+    onClick: clear
+  }, "Clear"))));
 }
+
+// Round filter (Round 1 … Finals across every set). Nothing ticked means every round.
+function RoundDropdown() {
+  const [selected, setSelected] = React.useState([...categoryManager.rounds]);
+  function toggle(round) {
+    categoryManager.updateRound(round);
+    setSelected([...categoryManager.rounds]);
+  }
+  const label = selected.length === 0 ? 'Any round' : selected.length === 1 ? selected[0] : `${selected.length} rounds`;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "dropdown db-filter-dropdown"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "db-filter-btn dropdown-toggle",
+    id: "round-select-button",
+    "data-bs-toggle": "dropdown",
+    "data-bs-auto-close": "outside",
+    "aria-expanded": "false"
+  }, label), /*#__PURE__*/React.createElement("ul", {
+    className: "dropdown-menu db-check-menu",
+    "aria-labelledby": "round-select-button"
+  }, ROUNDS.map(round => /*#__PURE__*/React.createElement("li", {
+    key: round
+  }, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: selected.includes(round),
+    onChange: () => {
+      toggle(round);
+    }
+  }), " ", round)))));
+}
+
+// Every year that has a set, newest first, for the From / To dropdowns.
+const SET_YEARS = [...new Set(api.getSetList().map(parseYear).filter(Boolean))].sort((a, b) => b - a);
+const LEVEL_NAMES = {
+  1: 'Novice',
+  5: 'Intermediate',
+  10: 'Advanced'
+};
 function QueryForm() {
   const [tossups, setTossups] = React.useState([]);
   const [bonuses, setBonuses] = React.useState([]);
@@ -486,14 +475,11 @@ function QueryForm() {
   const [difficulties, setDifficulties] = React.useState([]);
   const [maxReturnLength, setMaxReturnLength] = React.useState('');
   const [queryString, setQueryString] = React.useState('');
-  const [questionType, setQuestionType] = React.useState('all');
-  const [searchType, setSearchType] = React.useState('all');
   const [minYear, setMinYear] = React.useState('');
   const [maxYear, setMaxYear] = React.useState('');
   const [regex, setRegex] = React.useState(false);
   const [ignoreWordOrder, setIgnoreWordOrder] = React.useState(false);
   const [exactPhrase, setExactPhrase] = React.useState(false);
-  const [powermarkOnly, setPowermarkOnly] = React.useState(false);
   const [hideAnswerlines, setHideAnswerlines] = React.useState(false);
   const [showCardFooters, setShowCardFooters] = React.useState(true);
   const [currentlySearching, setCurrentlySearching] = React.useState(false);
@@ -533,7 +519,7 @@ function QueryForm() {
     }
     setTossupPaginationNumber(tossupPaginationNumber);
     setTossupPaginationShift(paginationShiftLength * Math.floor((tossupPaginationNumber - 1) / paginationShiftLength));
-    handleSubmit(event, false, true);
+    handleSubmit(event, true);
     window.scrollTo({
       top: document.getElementById('tossups').offsetTop - 100,
       behavior: 'smooth'
@@ -560,17 +546,20 @@ function QueryForm() {
     }
     setBonusPaginationNumber(bonusPaginationNumber);
     setBonusPaginationShift(paginationShiftLength * Math.floor((bonusPaginationNumber - 1) / paginationShiftLength));
-    handleSubmit(event, false, true);
+    handleSubmit(event, true);
     window.scrollTo({
       top: document.getElementById('bonuses').offsetTop - 100,
       behavior: 'smooth'
     });
   }
-  function handleSubmit(event, randomize = false, paginationUpdate = false) {
+
+  // Every search covers question and answer text, tossups and boni.
+  function handleSubmit(event, paginationUpdate = false) {
     const startTime = performance.now();
+    const searchType = 'all';
     event.preventDefault();
     setCurrentlySearching(true);
-    if (randomize || !paginationUpdate) {
+    if (!paginationUpdate) {
       tossupPaginationNumber = 1;
       bonusPaginationNumber = 1;
       setTossupPaginationNumber(tossupPaginationNumber);
@@ -581,10 +570,8 @@ function QueryForm() {
       ...categoryManager.export(),
       difficulties,
       maxReturnLength,
-      questionType,
-      randomize,
+      questionType: 'all',
       exactPhrase,
-      powermarkOnly,
       regex,
       ignoreWordOrder,
       searchType,
@@ -641,13 +628,8 @@ function QueryForm() {
       setBonusCount(bonusCount);
       setBonuses(bonusArray);
       setHighlightedBonuses(highlightedBonusArray);
-      if (randomize) {
-        setTossupPaginationLength(1);
-        setBonusPaginationLength(1);
-      } else {
-        setTossupPaginationLength(Math.ceil(tossupCount / workingMaxReturnLength));
-        setBonusPaginationLength(Math.ceil(bonusCount / workingMaxReturnLength));
-      }
+      setTossupPaginationLength(Math.ceil(tossupCount / workingMaxReturnLength));
+      setBonusPaginationLength(Math.ceil(bonusCount / workingMaxReturnLength));
       setTossupPaginationShift(paginationShiftLength * Math.floor((tossupPaginationNumber - 1) / paginationShiftLength));
       setBonusPaginationShift(paginationShiftLength * Math.floor((bonusPaginationNumber - 1) / paginationShiftLength));
       const endTime = performance.now();
@@ -659,8 +641,7 @@ function QueryForm() {
         bonuses,
         highlightedBonusArray,
         timeElapsed,
-        workingMaxReturnLength,
-        randomize
+        workingMaxReturnLength
       }, '', '?' + params);
     }).catch(error => {
       console.error('Error:', error);
@@ -725,8 +706,7 @@ function QueryForm() {
         bonuses,
         highlightedBonusArray,
         timeElapsed,
-        workingMaxReturnLength,
-        randomize
+        workingMaxReturnLength
       } = event.state;
       const {
         count: tossupCount,
@@ -742,13 +722,8 @@ function QueryForm() {
       setBonusCount(bonusCount);
       setBonuses(bonusArray);
       setHighlightedBonuses(highlightedBonusArray);
-      if (randomize) {
-        setTossupPaginationLength(1);
-        setBonusPaginationLength(1);
-      } else {
-        setTossupPaginationLength(Math.ceil(tossupCount / workingMaxReturnLength));
-        setBonusPaginationLength(Math.ceil(bonusCount / workingMaxReturnLength));
-      }
+      setTossupPaginationLength(Math.ceil(tossupCount / workingMaxReturnLength));
+      setBonusPaginationLength(Math.ceil(bonusCount / workingMaxReturnLength));
       setTossupPaginationShift(paginationShiftLength * Math.floor((tossupPaginationNumber - 1) / paginationShiftLength));
       setBonusPaginationShift(paginationShiftLength * Math.floor((bonusPaginationNumber - 1) / paginationShiftLength));
       setQueryTime(timeElapsed);
@@ -756,21 +731,23 @@ function QueryForm() {
 
     // The set picker now lives in #set-modal; it's populated by set-selector.js.
   }, []);
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(CategoryModal, null), /*#__PURE__*/React.createElement("form", {
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("form", {
     className: "mt-4 mb-5",
     onSubmit: event => {
       handleSubmit(event);
     }
   }, /*#__PURE__*/React.createElement("div", {
-    className: "input-group input-group-lg mb-3 shadow"
+    className: "db-toolbar"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "input-group input-group-lg shadow"
   }, /*#__PURE__*/React.createElement("label", {
     className: "visually-hidden",
     htmlFor: "query"
-  }, "Search questions"), /*#__PURE__*/React.createElement("input", {
-    type: "text",
+  }, "Search questions and answers"), /*#__PURE__*/React.createElement("input", {
+    type: "search",
     className: "form-control",
     id: "query",
-    placeholder: "Search questions\u2026",
+    placeholder: "Search questions and answers\u2026",
     value: queryString,
     onChange: event => {
       setQueryString(event.target.value);
@@ -778,65 +755,65 @@ function QueryForm() {
   }), /*#__PURE__*/React.createElement("button", {
     type: "submit",
     className: "btn btn-primary btn-lg px-4"
-  }, "Search"), /*#__PURE__*/React.createElement("button", {
-    id: "randomize",
-    className: "btn btn-success btn-lg px-4",
-    onClick: event => {
-      handleSubmit(event, true);
-    }
-  }, "Random")), /*#__PURE__*/React.createElement("div", {
-    className: "row opacity-75"
+  }, "Search")), /*#__PURE__*/React.createElement("div", {
+    className: "db-filters"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "col-6 col-xl-3 mb-2"
-  }, /*#__PURE__*/React.createElement("label", {
-    className: "db-field-label",
-    htmlFor: "dropdownMenu1"
-  }, "Difficulty"), /*#__PURE__*/React.createElement("div", {
-    className: "dropdown-checklist btn-group w-100"
+    className: "db-year-range",
+    role: "group",
+    "aria-label": "Year range"
+  }, /*#__PURE__*/React.createElement("select", {
+    className: "db-filter-btn db-filter-select",
+    id: "min-year",
+    "aria-label": "From year",
+    value: minYear,
+    onChange: event => {
+      setMinYear(event.target.value);
+    }
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "From"), SET_YEARS.filter(year => !maxYear || year <= Number(maxYear)).map(year => /*#__PURE__*/React.createElement("option", {
+    key: year,
+    value: year
+  }, year))), /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, "\u2013"), /*#__PURE__*/React.createElement("select", {
+    className: "db-filter-btn db-filter-select",
+    id: "max-year",
+    "aria-label": "To year",
+    value: maxYear,
+    onChange: event => {
+      setMaxYear(event.target.value);
+    }
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "To"), SET_YEARS.filter(year => !minYear || year >= Number(minYear)).map(year => /*#__PURE__*/React.createElement("option", {
+    key: year,
+    value: year
+  }, year)))), /*#__PURE__*/React.createElement("div", {
+    className: "dropdown db-filter-dropdown"
   }, /*#__PURE__*/React.createElement("button", {
-    className: "btn btn-default text-start w-100",
-    id: "dropdownMenu1",
-    "data-bs-toggle": "dropdown",
     type: "button",
-    "aria-expanded": "true",
-    "aria-haspopup": "true"
-  }, "Level"), /*#__PURE__*/React.createElement("button", {
-    className: "btn btn-default dropdown-toggle dropdown-toggle-split",
+    className: "db-filter-btn dropdown-toggle",
+    id: "level-select-button",
     "data-bs-toggle": "dropdown",
-    type: "button",
-    "aria-label": "Choose difficulty levels"
-  }), /*#__PURE__*/React.createElement("ul", {
-    className: "dropdown-menu checkbox-menu allow-focus",
+    "data-bs-auto-close": "outside",
+    "aria-expanded": "false"
+  }, difficulties.length === 0 ? 'Any level' : difficulties.length === 1 ? LEVEL_NAMES[difficulties[0]] : `${difficulties.length} levels`), /*#__PURE__*/React.createElement("ul", {
+    className: "dropdown-menu db-check-menu checkbox-menu",
     id: "difficulties",
-    "aria-labelledby": "dropdownMenu1"
+    "aria-labelledby": "level-select-button"
   }, /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
     type: "checkbox",
     value: "1"
-  }), " \u25CF Novice")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
+  }), " Novice")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
     type: "checkbox",
     value: "5"
-  }), " \u25CF\u25CF Intermediate")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
+  }), " Intermediate")), /*#__PURE__*/React.createElement("li", null, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
     type: "checkbox",
     value: "10"
-  }), " \u25CF\u25CF\u25CF Advanced"))))), /*#__PURE__*/React.createElement("div", {
-    className: "col-6 col-xl-3 mb-2"
-  }, /*#__PURE__*/React.createElement("label", {
-    className: "db-field-label",
-    htmlFor: "max-return-length"
-  }, "Results to show"), /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    className: "form-control",
-    id: "max-return-length",
-    placeholder: "25",
-    value: maxReturnLength,
-    onChange: event => {
-      setMaxReturnLength(event.target.value);
-    }
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "input-group col-12 col-xl-6 mb-2"
-  }, /*#__PURE__*/React.createElement("button", {
+  }), " Advanced")))), /*#__PURE__*/React.createElement("button", {
     type: "button",
-    className: "db-set-picker",
+    className: "db-filter-btn db-set-picker",
     id: "db-set-picker",
     "data-bs-toggle": "modal",
     "data-bs-target": "#set-modal"
@@ -851,83 +828,25 @@ function QueryForm() {
   }), /*#__PURE__*/React.createElement("input", {
     type: "hidden",
     id: "set-names"
-  }), /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    className: "btn btn-danger",
-    id: "category-select-button",
-    "data-bs-toggle": "modal",
-    "data-bs-target": "#category-modal"
-  }, "Category"))), /*#__PURE__*/React.createElement("div", {
-    className: "row"
+  }), /*#__PURE__*/React.createElement(RoundDropdown, null), /*#__PURE__*/React.createElement(CategoryDropdown, null))), /*#__PURE__*/React.createElement("details", {
+    className: "db-more"
+  }, /*#__PURE__*/React.createElement("summary", null, "More options"), /*#__PURE__*/React.createElement("div", {
+    className: "row mt-2"
   }, /*#__PURE__*/React.createElement("div", {
     className: "col-6 col-md-3 mb-2"
   }, /*#__PURE__*/React.createElement("label", {
     className: "db-field-label",
-    htmlFor: "search-type"
-  }, "Search in"), /*#__PURE__*/React.createElement("select", {
-    className: "form-select",
-    id: "search-type",
-    value: searchType,
-    onChange: event => {
-      setSearchType(event.target.value);
-    }
-  }, /*#__PURE__*/React.createElement("option", {
-    value: "all"
-  }, "All text"), /*#__PURE__*/React.createElement("option", {
-    value: "question"
-  }, "Question"), /*#__PURE__*/React.createElement("option", {
-    value: "answer"
-  }, "Answer"))), /*#__PURE__*/React.createElement("div", {
-    className: "col-6 col-md-3 mb-2"
-  }, /*#__PURE__*/React.createElement("label", {
-    className: "db-field-label",
-    htmlFor: "question-type"
-  }, "Question type"), /*#__PURE__*/React.createElement("select", {
-    className: "form-select",
-    id: "question-type",
-    value: questionType,
-    onChange: event => {
-      setQuestionType(event.target.value);
-    }
-  }, /*#__PURE__*/React.createElement("option", {
-    value: "all"
-  }, "All questions"), /*#__PURE__*/React.createElement("option", {
-    value: "tossup"
-  }, "Tossups"), /*#__PURE__*/React.createElement("option", {
-    value: "bonus"
-  }, "Bonuses"))), /*#__PURE__*/React.createElement("div", {
-    className: "col-6 col-md-3 mb-2"
-  }, /*#__PURE__*/React.createElement("label", {
-    className: "db-field-label",
-    htmlFor: "min-year"
-  }, "From year"), /*#__PURE__*/React.createElement("input", {
+    htmlFor: "max-return-length"
+  }, "Results per page"), /*#__PURE__*/React.createElement("input", {
     type: "number",
     className: "form-control",
-    id: "min-year",
-    placeholder: "2010",
-    value: minYear,
+    id: "max-return-length",
+    placeholder: "25",
+    value: maxReturnLength,
     onChange: event => {
-      setMinYear(event.target.value);
-    }
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "col-6 col-md-3 mb-2"
-  }, /*#__PURE__*/React.createElement("label", {
-    className: "db-field-label",
-    htmlFor: "max-year"
-  }, "To year"), /*#__PURE__*/React.createElement("input", {
-    type: "number",
-    className: "form-control",
-    id: "max-year",
-    placeholder: "2026",
-    value: maxYear,
-    onChange: event => {
-      setMaxYear(event.target.value);
+      setMaxReturnLength(event.target.value);
     }
   }))), /*#__PURE__*/React.createElement("div", {
-    className: "row"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "col-12"
-  }, /*#__PURE__*/React.createElement("div", {
     className: "form-check form-switch"
   }, /*#__PURE__*/React.createElement("input", {
     className: "form-check-input",
@@ -979,20 +898,6 @@ function QueryForm() {
     className: "form-check-input",
     type: "checkbox",
     role: "switch",
-    id: "toggle-powermark-only",
-    checked: powermarkOnly,
-    onChange: () => {
-      setPowermarkOnly(!powermarkOnly);
-    }
-  }), /*#__PURE__*/React.createElement("label", {
-    className: "form-check-label",
-    htmlFor: "toggle-powermark-only"
-  }, "Powermarked tossups only")), /*#__PURE__*/React.createElement("div", {
-    className: "form-check form-switch"
-  }, /*#__PURE__*/React.createElement("input", {
-    className: "form-check-input",
-    type: "checkbox",
-    role: "switch",
     id: "toggle-hide-answerlines",
     checked: hideAnswerlines,
     onChange: () => {
@@ -1016,7 +921,7 @@ function QueryForm() {
     className: "form-check-label",
     htmlFor: "toggle-show-card-footers"
   }, "Show card footers")), /*#__PURE__*/React.createElement("div", {
-    className: "float-end"
+    className: "mt-2"
   }, /*#__PURE__*/React.createElement("b", null, "Download this page:"), /*#__PURE__*/React.createElement("a", {
     className: "ms-2 clickable",
     onClick: () => {
@@ -1033,7 +938,7 @@ function QueryForm() {
     onClick: () => {
       downloadQuestionsAsJSON(tossups, bonuses);
     }
-  }, "JSON"))))), currentlySearching && /*#__PURE__*/React.createElement("div", {
+  }, "JSON")))), currentlySearching && /*#__PURE__*/React.createElement("div", {
     className: "d-block mx-auto mt-3 spinner-border",
     role: "status"
   }, /*#__PURE__*/React.createElement("span", {

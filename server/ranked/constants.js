@@ -4,12 +4,14 @@ const RANKED_PLACEMENT_GAMES = 5;
 const RANKED_BASE_ANSWER_SECONDS = 6;
 const RANKED_TYPING_ANSWER_SECONDS = 12;
 
+// Mode ids are persisted in rankedRatings.mode, so they stay fixed even where
+// the label and category names differ.
 const RANKED_MODES = {
   all: {
     id: 'all',
     label: 'All Categories',
-    categories: ['Language', 'Literature', 'Culture', 'History', 'Mythology'],
-    distribution: ['Language', 'Literature', 'Culture', 'History', 'Mythology', 'Language', 'Literature', 'Culture', 'History', 'Mythology']
+    categories: ['Language', 'Latin Literature', 'Culture', 'Roman History', 'Mythology'],
+    distribution: ['Language', 'Latin Literature', 'Culture', 'Roman History', 'Mythology', 'Language', 'Latin Literature', 'Culture', 'Roman History', 'Mythology']
   },
   language: {
     id: 'language',
@@ -19,9 +21,9 @@ const RANKED_MODES = {
   },
   literature: {
     id: 'literature',
-    label: 'Literature',
-    categories: ['Literature'],
-    distribution: Array(RANKED_QUESTION_COUNT).fill('Literature')
+    label: 'Latin Literature',
+    categories: ['Latin Literature'],
+    distribution: Array(RANKED_QUESTION_COUNT).fill('Latin Literature')
   },
   culture: {
     id: 'culture',
@@ -31,9 +33,9 @@ const RANKED_MODES = {
   },
   history: {
     id: 'history',
-    label: 'History',
-    categories: ['History'],
-    distribution: Array(RANKED_QUESTION_COUNT).fill('History')
+    label: 'Roman History',
+    categories: ['Roman History'],
+    distribution: Array(RANKED_QUESTION_COUNT).fill('Roman History')
   },
   mythology: {
     id: 'mythology',

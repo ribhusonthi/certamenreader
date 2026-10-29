@@ -1,0 +1,115 @@
+import { COOKIE_MAX_AGE } from '../../constants.js';
+import {
+  AccountError, createEmailAccount, logInWithPassword, resendVerification,
+  resetPassword, startPasswordReset, verifyEmailToken
+} from '../../server/accounts.js';
+import { generateToken } from '../../server/authentication.js';
+
+import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
+
+// Email + password sign-up and sign-in (Google sign-in lives in ./google.js).
+const router = Router();
+
+const HOUR = 60 * 60 * 1000;
+
+function limiter (windowMs, max, options = {}) {
+  return rateLimit({
+    windowMs,
+    max,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many attempts. Try again later.' },
+    ...options
+  });
+}
+
+// Same session shape as the Google callback.
+function startSession (req, user) {
+  req.session.username = user.username;
+  req.session.token = generateToken(user.username);
+  req.session.expires = Date.now() + COOKIE_MAX_AGE;
+}
+
+// Only same-site paths, so a crafted link can't send people elsewhere.
+function safeRedirect (path) {
+  return typeof path === 'string' && path.startsWith('/') && !path.startsWith('//') ? path : '/';
+}
+
+function fail (res, err) {
+  if (err instanceof AccountError) {
+    return res.status(400).json({ error: err.message, code: err.code });
+  }
+  console.error('email auth:', err);
+  res.status(500).json({ error: 'Something went wrong. Try again in a moment.' });
+}
+
+// Five new accounts per hour per IP, and a looser cap on attempts that fail
+// (taken usernames and the like).
+router.post('/signup', limiter(HOUR, 30), limiter(HOUR, 5, { skipFailedRequests: true }), async (req, res) => {
+  const { username, email, password, website } = req.body ?? {};
+  // Honeypot: the "website" field is hidden from people, so only bots fill it.
+  if (website) return res.json({ ok: true });
+  try {
+    await createEmailAccount({ username, email, password });
+    res.json({ ok: true });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
+router.get('/verify', limiter(HOUR, 30), async (req, res) => {
+  try {
+    const user = await verifyEmailToken(req.query.token);
+    if (!user) return res.redirect('/user/login?error=verify');
+    startSession(req, user);
+    console.log(`/auth/email: VERIFIED: ${user.username}`);
+    res.redirect('/?_loggedIn=1&verified=1');
+  } catch (err) {
+    console.error('email verify:', err);
+    res.redirect('/user/login?error=verify');
+  }
+});
+
+router.post('/login', limiter(15 * 60 * 1000, 20), async (req, res) => {
+  try {
+    const user = await logInWithPassword(req.body?.identifier, req.body?.password);
+    startSession(req, user);
+    console.log(`/auth/email: LOGIN: ${user.username}`);
+    res.json({ ok: true, redirect: safeRedirect(req.body?.redirect) });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
+// The next three answer the same way whether or not an account exists, so
+// they can't be used to find out who has one.
+router.post('/resend', limiter(HOUR, 5), async (req, res) => {
+  try {
+    await resendVerification(req.body?.identifier);
+    res.json({ ok: true });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
+router.post('/forgot', limiter(HOUR, 5), async (req, res) => {
+  try {
+    await startPasswordReset(req.body?.email);
+    res.json({ ok: true });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
+router.post('/reset', limiter(HOUR, 10), async (req, res) => {
+  try {
+    const user = await resetPassword(req.body?.token, req.body?.password);
+    startSession(req, user);
+    res.json({ ok: true });
+  } catch (err) {
+    fail(res, err);
+  }
+});
+
+export default router;

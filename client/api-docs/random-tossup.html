@@ -42,11 +42,13 @@
                             <li><a class="dropdown-item" href="/multiplayer/team">Team Mode</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/ranked">Ranked</a>
-                    </li>
-                    <li class="nav-item">
+                    <li class="nav-item dropdown nav-database">
                         <a class="nav-link" href="/db">Database</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/db">Search questions</a></li>
+                            <li><a class="dropdown-item" href="/db/sets">Browse sets</a></li>
+                            <li><a class="dropdown-item" href="/db/sources">Source check</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/leaderboards">Leaderboards</a>
@@ -220,15 +222,6 @@
                     </div>
                     <div>
                         The most recent year to search for.
-                    </div>
-                </li>
-                <li class="list-group-item">
-                    <div>
-                        <code>powermarkOnly</code><code class="text-muted">: boolean</code>
-                        <code class="text-muted float-end fw-semibold">default: "false"</code>
-                    </div>
-                    <div>
-                        Whether or not to only return powermarked questions.
                     </div>
                 </li>
                 <li class="list-group-item">

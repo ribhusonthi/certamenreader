@@ -129,8 +129,8 @@ export default class api {
       .then(data => data.bonus);
   }
 
-  static async getRandomBonus ({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, subcategories, threePartBonuses }) {
-    return await fetch('/api/random-bonus?' + new URLSearchParams({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, subcategories, threePartBonuses }))
+  static async getRandomBonus ({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, rounds = [], subcategories, threePartBonuses }) {
+    return await fetch('/api/random-bonus?' + new URLSearchParams({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, rounds, subcategories, threePartBonuses }))
       .then(response => api.readJson(response))
       .then(response => response.bonuses);
   }
@@ -145,8 +145,8 @@ export default class api {
       .then(data => data.randomName);
   }
 
-  static async getRandomTossup ({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, powermarkOnly, setNames, standardOnly, subcategories }) {
-    return await fetch('/api/random-tossup?' + new URLSearchParams({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, powermarkOnly, setNames: Array.isArray(setNames) ? JSON.stringify(setNames) : setNames, standardOnly, subcategories }))
+  static async getRandomTossup ({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, rounds = [], setNames, standardOnly, subcategories }) {
+    return await fetch('/api/random-tossup?' + new URLSearchParams({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, rounds, setNames: Array.isArray(setNames) ? JSON.stringify(setNames) : setNames, standardOnly, subcategories }))
       .then(response => api.readJson(response))
       .then(response => response.tossups);
   }

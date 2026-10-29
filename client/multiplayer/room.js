@@ -5,6 +5,7 @@ import questionStats from '../auth/question-stats.js';
 import api from '../api/index.js';
 import audio from '../audio/index.js';
 import CategoryManager from '../utilities/category-manager.js';
+import { roundLabel } from '../utilities/rounds.js';
 import { initSetSelector } from '../utilities/set-selector.js';
 import {
   arrayToRange,
@@ -15,6 +16,7 @@ import { escapeHTML, formatAnswerline } from '../utilities/strings.js';
 const defaults = {
   alternateSubcategories: [],
   categories: [],
+  rounds: [],
   subcategories: []
 };
 
@@ -35,7 +37,8 @@ if (!window.localStorage.getItem('multiplayer-tossup-query')) {
 const categoryManager = new CategoryManager(
   query.categories,
   query.subcategories,
-  query.alternateSubcategories
+  query.alternateSubcategories,
+  query.rounds
 );
 
 let changedCategories = false;
@@ -73,11 +76,11 @@ async function loadPacketPicker (setName, selectedNumbers, onChangeCallback) {
   if (packets.length === 0) {
     const numPackets = await api.getNumPackets(setName);
     if (numPackets === 0) {
-      picker.innerHTML = '<span class="text-muted small">No packets found</span>';
+      picker.innerHTML = '<span class="text-muted small">No rounds found</span>';
       return;
     }
     for (let i = 1; i <= numPackets; i++) {
-      packets.push({ name: `Packet ${i}`, number: i });
+      packets.push({ name: '', number: i });
     }
   }
 
@@ -98,9 +101,8 @@ async function loadPacketPicker (setName, selectedNumbers, onChangeCallback) {
     btn.type = 'button';
     btn.className = 'btn btn-outline-primary btn-sm packet-btn';
     btn.dataset.packetNumber = pkt.number;
-    const label = pkt.name.length > 20 ? pkt.name.replace('Preliminary ', 'Prelim ').replace('Round ', 'R') : pkt.name;
-    btn.textContent = label;
-    btn.title = pkt.name;
+    btn.textContent = roundLabel(pkt);
+    btn.title = pkt.name || roundLabel(pkt);
 
     if (selectedNumbers && selectedNumbers.includes(pkt.number)) {
       btn.classList.add('active');
@@ -159,12 +161,12 @@ if (IS_RANKED_ROOM) socketUrl.searchParams.set('rankedTicket', rankedTicket);
 const socket = new WebSocket(socketUrl);
 
 function publishCategoryUpdate () {
-  const { categories, alternateSubcategories, subcategories } =
+  const { categories, alternateSubcategories, subcategories, rounds } =
     categoryManager.export();
 
   window.localStorage.setItem(
     'multiplayer-tossup-query',
-    JSON.stringify({ categories, alternateSubcategories, subcategories })
+    JSON.stringify({ categories, alternateSubcategories, subcategories, rounds })
   );
 
   if (socket.readyState === WebSocket.OPEN) {
@@ -173,7 +175,8 @@ function publishCategoryUpdate () {
         type: 'update-categories',
         categories,
         alternateSubcategories,
-        subcategories
+        subcategories,
+        rounds
       })
     );
     changedCategories = false;
@@ -338,15 +341,6 @@ socket.onmessage = function (event) {
       document.getElementById('toggle-lock').checked = data.lock;
       break;
 
-      // case 'toggle-powermark-only':
-      //   logEvent(
-      //     data.username,
-      //     `${data.powermarkOnly ? 'enabled' : 'disabled'} powermark only`
-      //   );
-      //   document.getElementById('toggle-powermark-only').checked =
-      //     data.powermarkOnly;
-      //   break;
-
     case 'toggle-rebuzz':
       logEvent(
         data.username,
@@ -400,13 +394,14 @@ socket.onmessage = function (event) {
       categoryManager.import(
         data.categories || [],
         data.subcategories || [],
-        data.alternateSubcategories || []
+        data.alternateSubcategories || [],
+        data.rounds || []
       );
       categoryManager.loadCategoryModal();
       break;
 
     case 'update-question':
-      if (data.word !== '(*)') {
+      {
         const questionEl = document.getElementById('question');
         const chars = (data.word + ' ').split('');
         chars.forEach((ch, i) => {
@@ -466,7 +461,6 @@ const socketOnClearStats = (message) => {
     'celerity',
     'negs',
     'points',
-    'powers',
     'tens',
     'tuh',
     'zeroes'
@@ -554,7 +548,7 @@ const socketOnConnectionAcknowledgedTossup = (message) => {
   document.getElementById('set-name-info').textContent =
     tossup?.set?.name ?? '';
   document.getElementById('packet-number-info').textContent =
-    tossup?.packet?.number ?? '-';
+    tossup?.packet ? roundLabel(tossup.packet) : '-';
   document.getElementById('question-number-info').textContent =
     tossup?.number ?? '-';
 };
@@ -591,8 +585,6 @@ const socketOnConnectionAcknowledgedQuery = async (message) => {
     document.getElementById('packet-picker-container').classList.add('d-none');
   }
 
-  document.getElementById('toggle-powermark-only').checked =
-    message.powermarkOnly;
   document.getElementById('toggle-standard-only').checked =
     message.standardOnly;
 };
@@ -652,9 +644,7 @@ const socketOnGiveAnswer = async (message) => {
         !document.getElementById('toggle-rebuzz').checked && userId === USER_ID;
     }
 
-    if (score > 10) {
-      players[userId].powers++;
-    } else if (score === 10) {
+    if (score === 10) {
       players[userId].tens++;
     } else if (score < 0) {
       players[userId].negs++;
@@ -685,9 +675,7 @@ const socketOnGiveAnswer = async (message) => {
   }
 
   if (audio.soundEffects && userId === USER_ID) {
-    if (directive === 'accept' && score > 10) {
-      audio.power.play();
-    } else if (directive === 'accept' && score === 10) {
+    if (directive === 'accept' && score === 10) {
       audio.correct.play();
     } else if (directive === 'reject') {
       audio.incorrect.play();
@@ -755,7 +743,7 @@ const socketOnNext = (message) => {
   document.getElementById('question-number-info').textContent =
     tossup?.number ?? '-';
   document.getElementById('packet-number-info').textContent =
-    tossup?.packet.number ?? '-';
+    tossup?.packet ? roundLabel(tossup.packet) : '-';
 
   if (window.matchMedia('(max-width: 991.98px)').matches) {
     document.getElementById('options').classList.add('d-none');
@@ -801,7 +789,6 @@ const socketOnRankedState = (message) => {
   document.getElementById('toggle-skip').disabled = true;
   document.getElementById('toggle-lock').disabled = true;
   document.getElementById('toggle-timer').disabled = true;
-  document.getElementById('toggle-powermark-only').disabled = true;
   document.getElementById('toggle-standard-only').disabled = true;
   document.getElementById('private-chat-warning').textContent =
     'ranked rooms are private and settings are locked';
@@ -853,7 +840,7 @@ const socketOnStart = (message) => {
   document.getElementById('question-number-info').textContent =
     tossup?.number ?? '-';
   document.getElementById('packet-number-info').textContent =
-    tossup?.packet.number ?? '-';
+    tossup?.packet ? roundLabel(tossup.packet) : '-';
 };
 
 // Ping server every 45 seconds to prevent socket disconnection
@@ -1051,7 +1038,6 @@ function upsertPlayerItem (player) {
   const {
     userId,
     username,
-    powers = 0,
     tens = 0,
     negs = 0,
     tuh = 0,
@@ -1091,10 +1077,6 @@ function upsertPlayerItem (player) {
     'data-bs-content',
     `
     <ul class="list-group list-group-flush">
-        <li class="list-group-item">
-            <span>Powers</span>
-            <span id="powers-${userId}" class="float-end badge rounded-pill bg-secondary stats-${userId}">${powers}</span>
-        </li>
         <li class="list-group-item">
             <span>Tens</span>
             <span id="tens-${userId}" class="float-end badge rounded-pill bg-secondary stats-${userId}">${tens}</span>
@@ -1298,18 +1280,6 @@ document.getElementById('toggle-lock').addEventListener('click', function () {
   socket.send(JSON.stringify({ type: 'toggle-lock', lock: this.checked }));
 });
 
-document
-  .getElementById('toggle-powermark-only')
-  .addEventListener('click', function () {
-    this.blur();
-    socket.send(
-      JSON.stringify({
-        type: 'toggle-powermark-only',
-        powermarkOnly: this.checked
-      })
-    );
-  });
-
 document.getElementById('toggle-rebuzz').addEventListener('click', function () {
   this.blur();
   socket.send(JSON.stringify({ type: 'toggle-rebuzz', rebuzz: this.checked }));
@@ -1355,10 +1325,10 @@ document.querySelectorAll('#categories input').forEach((input) => {
   });
 });
 
-document.querySelectorAll('#subcategories input').forEach((input) => {
+document.querySelectorAll('#rounds input').forEach((input) => {
   input.addEventListener('click', function () {
     this.blur();
-    categoryManager.updateSubcategory(input.id);
+    categoryManager.updateRound(input.dataset.round);
     categoryManager.loadCategoryModal();
     publishCategoryUpdate();
   });

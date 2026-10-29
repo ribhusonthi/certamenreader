@@ -7,17 +7,13 @@ import CategoryManager from '../utilities/category-manager.js';
 import { attachDropdownChecklist, getDropdownValues } from '../utilities/dropdown-checklist.js';
 import { getBonusPartLabel } from '../utilities/index.js';
 import { insertTokensIntoHTML } from '../utilities/insert-tokens-into-html.js';
+import { ROUNDS, roundLabel, roundPageUrl } from '../utilities/rounds.js';
+import { parseYear } from '../utilities/set-series.js';
 
 const paginationShiftLength = window.screen.width > 992 ? 10 : 5;
 
-const CATEGORY_BUTTONS = [
-  ['Mythology', 'primary']];
-
-const SUBCATEGORY_BUTTONS = [];
-
-const ALTERNATE_SUBCATEGORY_BUTTONS = [
-
-];
+// Must match the category names questions are stored with (see constants.js).
+const CATEGORIES = ['Mythology', 'Roman History', 'Latin Literature', 'Language', 'Culture'];
 
 const categoryManager = new CategoryManager();
 
@@ -106,9 +102,19 @@ function highlightBonusQuery ({ bonus, regExp, searchType = 'all', ignoreWordOrd
   return bonus;
 }
 
+// A packet is a round; its label opens the whole round as one document.
+// Keep it outside any data-bs-toggle element: Bootstrap's toggle listeners run
+// in the capture phase and cancel clicks on links inside them.
+function RoundLink ({ question }) {
+  return (
+    <a href={roundPageUrl(question.set.name, question.packet.number)} title='Read the whole round'>
+      {roundLabel(question.packet)}
+    </a>
+  );
+}
+
 function TossupCard ({ tossup, highlightedTossup, hideAnswerline, showCardFooter, fontSize = 16 }) {
   const _id = tossup._id;
-  const packetName = tossup.packet.name;
 
   function clickToCopy () {
     const textdata = stringifyTossup(tossup);
@@ -190,8 +196,8 @@ function TossupCard ({ tossup, highlightedTossup, hideAnswerline, showCardFooter
         <b className='clickable' onClick={clickToCopy}>
           {tossup.set.name} | {tossup.category} | {tossup.subcategory} {tossup.alternate_subcategory ? ' (' + tossup.alternate_subcategory + ')' : ''} | {tossup.difficulty}
         </b>
-        <b className='clickable' data-bs-toggle='collapse' data-bs-target={`#question-${_id}`}>
-          Packet {tossup.packet.number} | Question {tossup.number}
+        <b>
+          <RoundLink question={tossup} /> | <span className='clickable' data-bs-toggle='collapse' data-bs-target={`#question-${_id}`}>Question {tossup.number}</span>
         </b>
       </div>
       <div className='card-container collapse show' id={`question-${_id}`}>
@@ -203,7 +209,7 @@ function TossupCard ({ tossup, highlightedTossup, hideAnswerline, showCardFooter
           </div>
         </div>
         <div className={`card-footer clickable ${!showCardFooter && 'd-none'}`} onClick={showTossupStats} data-bs-toggle='modal' data-bs-target='#tossup-stats-modal'>
-          <small className='text-muted'>{packetName ? 'Packet ' + packetName : <span>&nbsp;</span>}</small>
+          <small className='text-muted'>&nbsp;</small>
           <small className='text-muted float-end'>
             <a href='#' onClick={onClick} id={`report-question-${_id}`} data-bs-toggle='modal' data-bs-target='#report-question-modal'>
               Report Question
@@ -217,7 +223,6 @@ function TossupCard ({ tossup, highlightedTossup, hideAnswerline, showCardFooter
 
 function BonusCard ({ bonus, highlightedBonus, hideAnswerlines, showCardFooter, fontSize = 16 }) {
   const _id = bonus._id;
-  const packetName = bonus.packet.name;
   const bonusLength = bonus.parts.length;
   const indices = [];
 
@@ -304,8 +309,8 @@ function BonusCard ({ bonus, highlightedBonus, hideAnswerlines, showCardFooter, 
         <b className='clickable' onClick={clickToCopy}>
           {bonus.set.name} | {bonus.category} | {bonus.subcategory} {bonus.alternate_subcategory ? ' (' + bonus.alternate_subcategory + ')' : ''} | {bonus.difficulty}
         </b>
-        <b className='clickable' data-bs-toggle='collapse' data-bs-target={`#question-${_id}`}>
-          Packet {bonus.packet.number} | Question {bonus.number}
+        <b>
+          <RoundLink question={bonus} /> | <span className='clickable' data-bs-toggle='collapse' data-bs-target={`#question-${_id}`}>Question {bonus.number}</span>
         </b>
       </div>
       <div className='card-container collapse show' id={`question-${_id}`}>
@@ -329,7 +334,7 @@ function BonusCard ({ bonus, highlightedBonus, hideAnswerlines, showCardFooter, 
           )}
         </div>
         <div className={`card-footer clickable ${!showCardFooter && 'd-none'}`} onClick={showBonusStats} data-bs-toggle='modal' data-bs-target='#bonus-stats-modal'>
-          <small className='text-muted'>{packetName ? 'Packet ' + packetName : <span>&nbsp;</span>}</small>
+          <small className='text-muted'>&nbsp;</small>
           <small className='text-muted float-end'>
             <a href='#' onClick={onClick} id={`report-question-${_id}`} data-bs-toggle='modal' data-bs-target='#report-question-modal'>
               Report Question
@@ -341,81 +346,64 @@ function BonusCard ({ bonus, highlightedBonus, hideAnswerlines, showCardFooter, 
   );
 }
 
-function CategoryButton ({ category, color }) {
-  function handleClick () {
+// Category filter: an inline dropdown of the same dot chips the singleplayer
+// sidebar uses, instead of a separate modal.
+function CategoryDropdown () {
+  const [selected, setSelected] = React.useState([...categoryManager.categories]);
+
+  function toggle (category) {
     categoryManager.updateCategory(category);
-    categoryManager.loadCategoryModal();
+    setSelected([...categoryManager.categories]);
   }
 
-  return (
-    <div>
-      <input type='checkbox' className='btn-check' autoComplete='off' id={category} onClick={handleClick} />
-      <label className={`btn btn-outline-${color} w-100 rounded-0 my-1`} htmlFor={category}>{category}<br /></label>
-    </div>
-  );
-}
-
-function SubcategoryButton ({ subcategory, color, hidden = false }) {
-  function handleClick () {
-    categoryManager.updateSubcategory(subcategory);
-    categoryManager.loadCategoryModal();
+  function clear () {
+    for (const category of [...categoryManager.categories]) categoryManager.updateCategory(category);
+    setSelected([]);
   }
 
+  const label = selected.length === 0 ? 'Any category' : selected.length === 1 ? selected[0] : `${selected.length} categories`;
   return (
-    <div>
-      <input type='checkbox' className='btn-check' autoComplete='off' id={subcategory} onClick={handleClick} />
-      <label className={`btn btn-outline-${color} w-100 rounded-0 my-1 ${hidden && 'd-none'}`} htmlFor={subcategory}>{subcategory}<br /></label>
-    </div>
-  );
-}
-
-function AlternateSubcategoryButton ({ subcategory, color, hidden = false }) {
-  function handleClick () {
-    categoryManager.updateAlternateSubcategory(subcategory);
-    categoryManager.loadCategoryModal();
-  }
-
-  return (
-    <div>
-      <input type='checkbox' className='btn-check' autoComplete='off' id={subcategory} onClick={handleClick} />
-      <label className={`btn btn-outline-${color} w-100 rounded-0 my-1 ${hidden && 'd-none'}`} htmlFor={subcategory}>{subcategory}<br /></label>
-    </div>
-  );
-}
-
-function CategoryModal () {
-  return (
-    <div className='modal modal-lg' id='category-modal' tabIndex='-1'>
-      <div className='modal-dialog modal-dialog-scrollable'>
-        <div className='modal-content'>
-          <div className='modal-header'>
-            <h5 className='modal-title'>Select Category</h5>
-            <button type='button' className='btn-close' data-bs-dismiss='modal' aria-label='Close' />
-          </div>
-          <div className='modal-body'>
-            <div className='row'>
-              <div className='col-4' id='categories'>
-                <h5 className='text-center'>Category</h5>
-                {CATEGORY_BUTTONS.map((element) => <CategoryButton key={element[0]} category={element[0]} color={element[1]} />)}
-              </div>
-              <div className='col-4' id='subcategories'>
-                <h5 className='text-center'>Round</h5>
-                <div className='text-muted text-center' id='subcategory-info-text'>
-                  You must select Category before you can select a Subcategory.
-                </div>
-                {SUBCATEGORY_BUTTONS.map((element) => <SubcategoryButton key={element[0]} subcategory={element[0]} color={element[1]} hidden />)}
-              </div>
-              <div className='col-4' id='alternate-subcategories'>
-                {/* <h5 className='text-center'>Alternate <span className='d-none d-lg-inline'>Subcategory</span></h5> */}
-                {ALTERNATE_SUBCATEGORY_BUTTONS.map((element) => <AlternateSubcategoryButton key={element[0]} subcategory={element[0]} color={element[1]} hidden />)}
-              </div>
-            </div>
-          </div>
+    <div className='dropdown dropdown-center db-category'>
+      <button type='button' className='db-filter-btn dropdown-toggle' id='category-select-button' data-bs-toggle='dropdown' data-bs-auto-close='outside' data-bs-display='static' aria-expanded='false'>{label}</button>
+      <div className='dropdown-menu db-category-menu' aria-labelledby='category-select-button'>
+        <div className='cat-grid'>
+          {CATEGORIES.map(category => (
+            <button key={category} type='button' className='cat-chip' data-cat={category} data-on={selected.includes(category) ? 'true' : 'false'} aria-pressed={selected.includes(category)} onClick={() => { toggle(category); }}>{category}</button>
+          ))}
+        </div>
+        <div className='db-category-foot'>
+          <button type='button' className='ed-link' onClick={clear}>Clear</button>
         </div>
       </div>
     </div>
   );
 }
+
+// Round filter (Round 1 … Finals across every set). Nothing ticked means every round.
+function RoundDropdown () {
+  const [selected, setSelected] = React.useState([...categoryManager.rounds]);
+
+  function toggle (round) {
+    categoryManager.updateRound(round);
+    setSelected([...categoryManager.rounds]);
+  }
+
+  const label = selected.length === 0 ? 'Any round' : selected.length === 1 ? selected[0] : `${selected.length} rounds`;
+  return (
+    <div className='dropdown db-filter-dropdown'>
+      <button type='button' className='db-filter-btn dropdown-toggle' id='round-select-button' data-bs-toggle='dropdown' data-bs-auto-close='outside' aria-expanded='false'>{label}</button>
+      <ul className='dropdown-menu db-check-menu' aria-labelledby='round-select-button'>
+        {ROUNDS.map(round => (
+          <li key={round}><label><input type='checkbox' checked={selected.includes(round)} onChange={() => { toggle(round); }} /> {round}</label></li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// Every year that has a set, newest first, for the From / To dropdowns.
+const SET_YEARS = [...new Set(api.getSetList().map(parseYear).filter(Boolean))].sort((a, b) => b - a);
+const LEVEL_NAMES = { 1: 'Novice', 5: 'Intermediate', 10: 'Advanced' };
 
 function QueryForm () {
   const [tossups, setTossups] = React.useState([]);
@@ -428,15 +416,12 @@ function QueryForm () {
   const [difficulties, setDifficulties] = React.useState([]);
   const [maxReturnLength, setMaxReturnLength] = React.useState('');
   const [queryString, setQueryString] = React.useState('');
-  const [questionType, setQuestionType] = React.useState('all');
-  const [searchType, setSearchType] = React.useState('all');
   const [minYear, setMinYear] = React.useState('');
   const [maxYear, setMaxYear] = React.useState('');
 
   const [regex, setRegex] = React.useState(false);
   const [ignoreWordOrder, setIgnoreWordOrder] = React.useState(false);
   const [exactPhrase, setExactPhrase] = React.useState(false);
-  const [powermarkOnly, setPowermarkOnly] = React.useState(false);
   const [hideAnswerlines, setHideAnswerlines] = React.useState(false);
   const [showCardFooters, setShowCardFooters] = React.useState(true);
 
@@ -485,7 +470,7 @@ function QueryForm () {
 
     setTossupPaginationNumber(tossupPaginationNumber);
     setTossupPaginationShift(paginationShiftLength * Math.floor((tossupPaginationNumber - 1) / paginationShiftLength));
-    handleSubmit(event, false, true);
+    handleSubmit(event, true);
 
     window.scrollTo({
       top: document.getElementById('tossups').offsetTop - 100,
@@ -516,7 +501,7 @@ function QueryForm () {
 
     setBonusPaginationNumber(bonusPaginationNumber);
     setBonusPaginationShift(paginationShiftLength * Math.floor((bonusPaginationNumber - 1) / paginationShiftLength));
-    handleSubmit(event, false, true);
+    handleSubmit(event, true);
 
     window.scrollTo({
       top: document.getElementById('bonuses').offsetTop - 100,
@@ -524,13 +509,15 @@ function QueryForm () {
     });
   }
 
-  function handleSubmit (event, randomize = false, paginationUpdate = false) {
+  // Every search covers question and answer text, tossups and boni.
+  function handleSubmit (event, paginationUpdate = false) {
     const startTime = performance.now();
+    const searchType = 'all';
 
     event.preventDefault();
     setCurrentlySearching(true);
 
-    if (randomize || !paginationUpdate) {
+    if (!paginationUpdate) {
       tossupPaginationNumber = 1;
       bonusPaginationNumber = 1;
       setTossupPaginationNumber(tossupPaginationNumber);
@@ -542,10 +529,8 @@ function QueryForm () {
       ...categoryManager.export(),
       difficulties,
       maxReturnLength,
-      questionType,
-      randomize,
+      questionType: 'all',
       exactPhrase,
-      powermarkOnly,
       regex,
       ignoreWordOrder,
       searchType,
@@ -589,13 +574,8 @@ function QueryForm () {
         setBonuses(bonusArray);
         setHighlightedBonuses(highlightedBonusArray);
 
-        if (randomize) {
-          setTossupPaginationLength(1);
-          setBonusPaginationLength(1);
-        } else {
-          setTossupPaginationLength(Math.ceil(tossupCount / workingMaxReturnLength));
-          setBonusPaginationLength(Math.ceil(bonusCount / workingMaxReturnLength));
-        }
+        setTossupPaginationLength(Math.ceil(tossupCount / workingMaxReturnLength));
+        setBonusPaginationLength(Math.ceil(bonusCount / workingMaxReturnLength));
 
         setTossupPaginationShift(paginationShiftLength * Math.floor((tossupPaginationNumber - 1) / paginationShiftLength));
         setBonusPaginationShift(paginationShiftLength * Math.floor((bonusPaginationNumber - 1) / paginationShiftLength));
@@ -604,7 +584,7 @@ function QueryForm () {
         const timeElapsed = ((endTime - startTime) / 1000).toFixed(2);
         setQueryTime(timeElapsed);
 
-        window.history.pushState({ tossups, highlightedTossupArray, bonuses, highlightedBonusArray, timeElapsed, workingMaxReturnLength, randomize }, '', '?' + params);
+        window.history.pushState({ tossups, highlightedTossupArray, bonuses, highlightedBonusArray, timeElapsed, workingMaxReturnLength }, '', '?' + params);
       })
       .catch(error => {
         console.error('Error:', error);
@@ -665,7 +645,7 @@ function QueryForm () {
         return;
       }
 
-      const { tossups, highlightedTossupArray, bonuses, highlightedBonusArray, timeElapsed, workingMaxReturnLength, randomize } = event.state;
+      const { tossups, highlightedTossupArray, bonuses, highlightedBonusArray, timeElapsed, workingMaxReturnLength } = event.state;
       const { count: tossupCount, questionArray: tossupArray } = tossups;
       const { count: bonusCount, questionArray: bonusArray } = bonuses;
 
@@ -677,13 +657,8 @@ function QueryForm () {
       setBonuses(bonusArray);
       setHighlightedBonuses(highlightedBonusArray);
 
-      if (randomize) {
-        setTossupPaginationLength(1);
-        setBonusPaginationLength(1);
-      } else {
-        setTossupPaginationLength(Math.ceil(tossupCount / workingMaxReturnLength));
-        setBonusPaginationLength(Math.ceil(bonusCount / workingMaxReturnLength));
-      }
+      setTossupPaginationLength(Math.ceil(tossupCount / workingMaxReturnLength));
+      setBonusPaginationLength(Math.ceil(bonusCount / workingMaxReturnLength));
 
       setTossupPaginationShift(paginationShiftLength * Math.floor((tossupPaginationNumber - 1) / paginationShiftLength));
       setBonusPaginationShift(paginationShiftLength * Math.floor((bonusPaginationNumber - 1) / paginationShiftLength));
@@ -696,114 +671,81 @@ function QueryForm () {
 
   return (
     <div>
-      <CategoryModal />
       <form className='mt-4 mb-5' onSubmit={event => { handleSubmit(event); }}>
-        <div className='input-group input-group-lg mb-3 shadow'>
-          <label className='visually-hidden' htmlFor='query'>Search questions</label>
-          <input type='text' className='form-control' id='query' placeholder='Search questions…' value={queryString} onChange={event => { setQueryString(event.target.value); }} />
-          <button type='submit' className='btn btn-primary btn-lg px-4'>Search</button>
-          <button id='randomize' className='btn btn-success btn-lg px-4' onClick={event => { handleSubmit(event, true); }}>Random</button>
-        </div>
-        <div className='row opacity-75'>
-          <div className='col-6 col-xl-3 mb-2'>
-            <label className='db-field-label' htmlFor='dropdownMenu1'>Difficulty</label>
-            <div className='dropdown-checklist btn-group w-100'>
-              <button
-                className='btn btn-default text-start w-100' id='dropdownMenu1' data-bs-toggle='dropdown'
-                type='button' aria-expanded='true' aria-haspopup='true'
-              >
-                Level
+        <div className='db-toolbar'>
+          <div className='input-group input-group-lg shadow'>
+            <label className='visually-hidden' htmlFor='query'>Search questions and answers</label>
+            <input type='search' className='form-control' id='query' placeholder='Search questions and answers…' value={queryString} onChange={event => { setQueryString(event.target.value); }} />
+            <button type='submit' className='btn btn-primary btn-lg px-4'>Search</button>
+          </div>
+          <div className='db-filters'>
+            <div className='db-year-range' role='group' aria-label='Year range'>
+              <select className='db-filter-btn db-filter-select' id='min-year' aria-label='From year' value={minYear} onChange={event => { setMinYear(event.target.value); }}>
+                <option value=''>From</option>
+                {SET_YEARS.filter(year => !maxYear || year <= Number(maxYear)).map(year => <option key={year} value={year}>{year}</option>)}
+              </select>
+              <span aria-hidden='true'>–</span>
+              <select className='db-filter-btn db-filter-select' id='max-year' aria-label='To year' value={maxYear} onChange={event => { setMaxYear(event.target.value); }}>
+                <option value=''>To</option>
+                {SET_YEARS.filter(year => !minYear || year >= Number(minYear)).map(year => <option key={year} value={year}>{year}</option>)}
+              </select>
+            </div>
+            <div className='dropdown db-filter-dropdown'>
+              <button type='button' className='db-filter-btn dropdown-toggle' id='level-select-button' data-bs-toggle='dropdown' data-bs-auto-close='outside' aria-expanded='false'>
+                {difficulties.length === 0 ? 'Any level' : difficulties.length === 1 ? LEVEL_NAMES[difficulties[0]] : `${difficulties.length} levels`}
               </button>
-              <button className='btn btn-default dropdown-toggle dropdown-toggle-split' data-bs-toggle='dropdown' type='button' aria-label='Choose difficulty levels' />
-              <ul className='dropdown-menu checkbox-menu allow-focus' id='difficulties' aria-labelledby='dropdownMenu1'>
-                <li><label><input type='checkbox' value='1' /> ● Novice</label></li>
-                {/* <li><label><input type='checkbox' value='2' /> 2: Easy High School</label></li>
-                <li><label><input type='checkbox' value='3' /> 3: Regular High School</label></li>
-                <li><label><input type='checkbox' value='4' /> 4: Hard High School</label></li> */}
-                <li><label><input type='checkbox' value='5' /> ●● Intermediate</label></li>
-                {/* <li><label><input type='checkbox' value='6' /> 6: ● / Easy College</label></li>
-                <li><label><input type='checkbox' value='7' /> 7: ●● / Medium College</label></li>
-                <li><label><input type='checkbox' value='8' /> 8: ●●● / Regionals College</label></li>
-                <li><label><input type='checkbox' value='9' /> 9: ●●●● / Nationals College</label></li> */}
-                <li><label><input type='checkbox' value='10' /> ●●● Advanced</label></li>
+              <ul className='dropdown-menu db-check-menu checkbox-menu' id='difficulties' aria-labelledby='level-select-button'>
+                <li><label><input type='checkbox' value='1' /> Novice</label></li>
+                <li><label><input type='checkbox' value='5' /> Intermediate</label></li>
+                <li><label><input type='checkbox' value='10' /> Advanced</label></li>
               </ul>
             </div>
-          </div>
-          <div className='col-6 col-xl-3 mb-2'>
-            <label className='db-field-label' htmlFor='max-return-length'>Results to show</label>
-            <input type='number' className='form-control' id='max-return-length' placeholder='25' value={maxReturnLength} onChange={event => { setMaxReturnLength(event.target.value); }} />
-          </div>
-          <div className='input-group col-12 col-xl-6 mb-2'>
-            <button type='button' className='db-set-picker' id='db-set-picker' data-bs-toggle='modal' data-bs-target='#set-modal'>
+            <button type='button' className='db-filter-btn db-set-picker' id='db-set-picker' data-bs-toggle='modal' data-bs-target='#set-modal'>
               <span className='db-set-picker-label' id='db-set-picker-label'>Any set</span>
               <span className='db-set-picker-cta'>Change</span>
             </button>
             <input type='hidden' id='set-name' />
             <input type='hidden' id='set-names' />
-            <button type='button' className='btn btn-danger' id='category-select-button' data-bs-toggle='modal' data-bs-target='#category-modal'>Category</button>
+            <RoundDropdown />
+            <CategoryDropdown />
           </div>
         </div>
-        <div className='row'>
-          <div className='col-6 col-md-3 mb-2'>
-            <label className='db-field-label' htmlFor='search-type'>Search in</label>
-            <select className='form-select' id='search-type' value={searchType} onChange={event => { setSearchType(event.target.value); }}>
-              <option value='all'>All text</option>
-              <option value='question'>Question</option>
-              <option value='answer'>Answer</option>
-            </select>
-          </div>
-          <div className='col-6 col-md-3 mb-2'>
-            <label className='db-field-label' htmlFor='question-type'>Question type</label>
-            <select className='form-select' id='question-type' value={questionType} onChange={event => { setQuestionType(event.target.value); }}>
-              <option value='all'>All questions</option>
-              <option value='tossup'>Tossups</option>
-              <option value='bonus'>Bonuses</option>
-            </select>
-          </div>
-          <div className='col-6 col-md-3 mb-2'>
-            <label className='db-field-label' htmlFor='min-year'>From year</label>
-            <input type='number' className='form-control' id='min-year' placeholder='2010' value={minYear} onChange={event => { setMinYear(event.target.value); }} />
-          </div>
-          <div className='col-6 col-md-3 mb-2'>
-            <label className='db-field-label' htmlFor='max-year'>To year</label>
-            <input type='number' className='form-control' id='max-year' placeholder='2026' value={maxYear} onChange={event => { setMaxYear(event.target.value); }} />
-          </div>
-        </div>
-        <div className='row'>
-          <div className='col-12'>
-            <div className='form-check form-switch'>
-              <input className='form-check-input' type='checkbox' role='switch' id='toggle-regex' checked={regex} onChange={() => { setRegex(!regex); }} />
-              <label className='form-check-label' htmlFor='toggle-regex'>Search using regular expression</label>
-              <a href='https://www.sitepoint.com/learn-regex/'> What&apos;s this?</a>
-            </div>
-            <div className='form-check form-switch'>
-              <input className='form-check-input' type='checkbox' role='switch' id='toggle-ignore-word-order' checked={!regex && ignoreWordOrder} disabled={regex} onChange={() => { setIgnoreWordOrder(!ignoreWordOrder); }} />
-              <label className='form-check-label' htmlFor='toggle-ignore-word-order'>Ignore word order</label>
-            </div>
-            <div className='form-check form-switch'>
-              <input className='form-check-input' type='checkbox' role='switch' id='toggle-exact-phrase' checked={!regex && exactPhrase} disabled={regex} onChange={() => { setExactPhrase(!exactPhrase); }} />
-              <label className='form-check-label' htmlFor='toggle-exact-phrase'>Search for exact phrase</label>
-            </div>
-            <div className='form-check form-switch'>
-              <input className='form-check-input' type='checkbox' role='switch' id='toggle-powermark-only' checked={powermarkOnly} onChange={() => { setPowermarkOnly(!powermarkOnly); }} />
-              <label className='form-check-label' htmlFor='toggle-powermark-only'>Powermarked tossups only</label>
-            </div>
-            <div className='form-check form-switch'>
-              <input className='form-check-input' type='checkbox' role='switch' id='toggle-hide-answerlines' checked={hideAnswerlines} onChange={() => { setHideAnswerlines(!hideAnswerlines); }} />
-              <label className='form-check-label' htmlFor='toggle-hide-answerlines'>Hide answerlines</label>
-            </div>
-            <div className='form-check form-switch'>
-              <input className='form-check-input' type='checkbox' role='switch' id='toggle-show-card-footers' checked={showCardFooters} onChange={() => { setShowCardFooters(!showCardFooters); }} />
-              <label className='form-check-label' htmlFor='toggle-show-card-footers'>Show card footers</label>
-            </div>
-            <div className='float-end'>
-              <b>Download this page:</b>
-              <a className='ms-2 clickable' onClick={() => { downloadQuestionsAsText(tossups, bonuses); }}>TXT</a>
-              <a className='ms-2 clickable' onClick={() => { downloadTossupsAsCSV(tossups); downloadBonusesAsCSV(bonuses); }}>CSV</a>
-              <a className='ms-2 clickable' onClick={() => { downloadQuestionsAsJSON(tossups, bonuses); }}>JSON</a>
+        <details className='db-more'>
+          <summary>More options</summary>
+          <div className='row mt-2'>
+            <div className='col-6 col-md-3 mb-2'>
+              <label className='db-field-label' htmlFor='max-return-length'>Results per page</label>
+              <input type='number' className='form-control' id='max-return-length' placeholder='25' value={maxReturnLength} onChange={event => { setMaxReturnLength(event.target.value); }} />
             </div>
           </div>
-        </div>
+          <div className='form-check form-switch'>
+            <input className='form-check-input' type='checkbox' role='switch' id='toggle-regex' checked={regex} onChange={() => { setRegex(!regex); }} />
+            <label className='form-check-label' htmlFor='toggle-regex'>Search using regular expression</label>
+            <a href='https://www.sitepoint.com/learn-regex/'> What&apos;s this?</a>
+          </div>
+          <div className='form-check form-switch'>
+            <input className='form-check-input' type='checkbox' role='switch' id='toggle-ignore-word-order' checked={!regex && ignoreWordOrder} disabled={regex} onChange={() => { setIgnoreWordOrder(!ignoreWordOrder); }} />
+            <label className='form-check-label' htmlFor='toggle-ignore-word-order'>Ignore word order</label>
+          </div>
+          <div className='form-check form-switch'>
+            <input className='form-check-input' type='checkbox' role='switch' id='toggle-exact-phrase' checked={!regex && exactPhrase} disabled={regex} onChange={() => { setExactPhrase(!exactPhrase); }} />
+            <label className='form-check-label' htmlFor='toggle-exact-phrase'>Search for exact phrase</label>
+          </div>
+          <div className='form-check form-switch'>
+            <input className='form-check-input' type='checkbox' role='switch' id='toggle-hide-answerlines' checked={hideAnswerlines} onChange={() => { setHideAnswerlines(!hideAnswerlines); }} />
+            <label className='form-check-label' htmlFor='toggle-hide-answerlines'>Hide answerlines</label>
+          </div>
+          <div className='form-check form-switch'>
+            <input className='form-check-input' type='checkbox' role='switch' id='toggle-show-card-footers' checked={showCardFooters} onChange={() => { setShowCardFooters(!showCardFooters); }} />
+            <label className='form-check-label' htmlFor='toggle-show-card-footers'>Show card footers</label>
+          </div>
+          <div className='mt-2'>
+            <b>Download this page:</b>
+            <a className='ms-2 clickable' onClick={() => { downloadQuestionsAsText(tossups, bonuses); }}>TXT</a>
+            <a className='ms-2 clickable' onClick={() => { downloadTossupsAsCSV(tossups); downloadBonusesAsCSV(bonuses); }}>CSV</a>
+            <a className='ms-2 clickable' onClick={() => { downloadQuestionsAsJSON(tossups, bonuses); }}>JSON</a>
+          </div>
+        </details>
       </form>
 
       {currentlySearching && <div className='d-block mx-auto mt-3 spinner-border' role='status'><span className='d-none'>Loading...</span></div>}

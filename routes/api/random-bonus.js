@@ -1,4 +1,5 @@
 import getRandomBonuses from '../../database/certamenreader/get-random-bonuses.js';
+import { sanitizeRounds } from '../../client/utilities/rounds.js';
 import { getVerifiedUsername } from '../../server/authentication.js';
 
 import { Router } from 'express';
@@ -27,6 +28,8 @@ router.get('/', async (req, res) => {
     req.query.subcategories = req.query.subcategories.split(',');
     req.query.subcategories = req.query.subcategories.length ? req.query.subcategories : undefined;
   }
+
+  req.query.rounds = sanitizeRounds(req.query.rounds);
 
   req.query.bonusLength = (req.query.threePartBonuses === 'true') ? 3 : undefined;
 

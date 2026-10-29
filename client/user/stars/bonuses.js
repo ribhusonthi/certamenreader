@@ -1,6 +1,7 @@
 import star from '../../auth/star.js';
 import { getBonusPartLabel } from '../../utilities/index.js';
 import { formatAnswerline } from '../../utilities/strings.js';
+import { roundLabel } from '../../utilities/rounds.js';
 
 const bonuses = await star.getStarredBonuses();
 const bonusList = document.getElementById('bonus-list');
@@ -33,9 +34,9 @@ for (const bonus of bonuses) {
                     ${cardBody}
                 </div>
                 <div class="card-footer clickable" data-bs-toggle="modal" data-bs-target="#bonus-stats-modal">
-                    <small class="text-muted">${bonus.packet.name ? 'Packet ' + bonus.packet.name : '&nbsp;'}</small>
+                    <small class="text-muted">&nbsp;</small>
                     <small class="text-muted float-end">
-                        Packet ${bonus.packet.number} / Question ${bonus.number}
+                        ${roundLabel(bonus.packet)} / Question ${bonus.number}
                     </small>
                 </div>
             </div>

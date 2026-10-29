@@ -3,6 +3,7 @@ import isAppropriateString from '../moderation/is-appropriate-string.js';
 import { createAndReturnRoom } from './TossupRoom.js';
 import { createAndReturnTeamRoom } from './TeamTossupRoom.js';
 import { getRankedConnection } from '../ranked/matchmaking.js';
+import { RANKED_ENABLED } from '../../constants.js';
 import { getVerifiedUsernameFromCookie } from '../authentication.js';
 
 import getRandomName from '../../get-random-name.js';
@@ -34,6 +35,10 @@ export default function handleWssConnection (ws, req) {
   userId = (userId === 'unknown') ? uuid.v4() : userId;
 
   if (rankedTicket) {
+    if (!RANKED_ENABLED) {
+      ws.send(JSON.stringify({ type: 'error', error: 'Ranked play is not available right now.' }));
+      return false;
+    }
     const rankedConnection = getRankedConnection(rankedTicket, roomName);
     if (!rankedConnection) {
       ws.send(JSON.stringify({

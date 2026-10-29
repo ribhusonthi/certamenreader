@@ -48,11 +48,13 @@
                             <li><a class="dropdown-item" href="/multiplayer/team">Team Mode</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/ranked">Ranked</a>
-                    </li>
-                    <li class="nav-item">
+                    <li class="nav-item dropdown nav-database">
                         <a class="nav-link" href="/db">Database</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/db">Search questions</a></li>
+                            <li><a class="dropdown-item" href="/db/sets">Browse sets</a></li>
+                            <li><a class="dropdown-item" href="/db/sources">Source check</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/leaderboards">Leaderboards</a>
@@ -120,7 +122,15 @@
                             <span class="chip" id="set-card-packets" hidden></span>
                         </div>
                     </div>
-                    <input class="form-control my-1 d-none" id="packet-number" type="text" placeholder="e.g. 1, 3-5" aria-label="Packet numbers" inputmode="numeric">
+                    <div class="round-chips" id="rounds" title="Leave all off for every round">
+                        <span class="round-chips-label">Rounds</span>
+                        <input class="btn-check" id="round-1" data-round="Round 1" type="checkbox" autocomplete="off"><label class="round-filter-chip" for="round-1">Round 1</label>
+                        <input class="btn-check" id="round-2" data-round="Round 2" type="checkbox" autocomplete="off"><label class="round-filter-chip" for="round-2">Round 2</label>
+                        <input class="btn-check" id="round-3" data-round="Round 3" type="checkbox" autocomplete="off"><label class="round-filter-chip" for="round-3">Round 3</label>
+                        <input class="btn-check" id="round-semifinals" data-round="Semifinals" type="checkbox" autocomplete="off"><label class="round-filter-chip" for="round-semifinals">Semifinals</label>
+                        <input class="btn-check" id="round-finals" data-round="Finals" type="checkbox" autocomplete="off"><label class="round-filter-chip" for="round-finals">Finals</label>
+                    </div>
+                    <input class="form-control my-1 d-none" id="packet-number" type="text" placeholder="e.g. 1, 3-5" aria-label="Round numbers" inputmode="numeric">
                 </div>
 
                 <div class="sb-sec">
@@ -147,7 +157,7 @@
                         <button type="button" class="cat-chip" data-cat="Culture" data-checkbox-id="culture">Culture</button>
                     </div>
                     <div class="d-flex gap-2 mt-1 sb-actions">
-                        <a class="link sb-action sb-action-accent" data-bs-target="#category-modal" data-bs-toggle="modal">More Filters →</a>
+                        <!-- <a class="link sb-action sb-action-accent" data-bs-target="#category-modal" data-bs-toggle="modal">More Filters →</a> -->
                         <span style="flex:1"></span>
                         <a class="link sb-action" id="clear-stats">Clear Stats</a>
                     </div>
@@ -197,6 +207,10 @@
         </aside>
 
         <main class="reader-main" id="main-content">
+            <div class="guest-note" id="guest-note" hidden>
+                <span><b id="guest-note-count"></b></span>
+                <a href="/user/login?redirect=%2Fsingleplayer%2Ftossups">Log in to play every set</a>
+            </div>
             <div class="reader-hdr">
                 <div class="reader-hdr-meta" id="question-metadata">
                     <span id="set-name-info-hdr">No set selected</span>
@@ -225,7 +239,6 @@
                 <span class="label">Celerity</span>
                 <div class="celerity-track">
                     <div class="celerity-fill" id="celerity-fill" style="width: 0%"></div>
-                    <div class="celerity-mark" style="left: 55%" title="Power mark"></div>
                 </div>
                 <span class="value" id="celerity-value">1.00</span>
             </div>
@@ -292,13 +305,13 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <div>
-                        <span class="ed-eyebrow">Choose your practice</span>
-                        <h5 class="modal-title">Pick a <em>set</em>, or play random.</h5>
+                        <span class="ed-eyebrow">Choose your set</span>
+                        <h5 class="modal-title">Pick a <em>set</em></h5>
                     </div>
                     <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="ed-modal-lede">Leave everything blank to read random questions across the whole library. Pick one or more sets to drill a custom pool.</p>
+                    <p class="ed-modal-lede"></p>
 
                     <div class="ed-form-grid">
                         <div class="ed-form-row">
@@ -335,16 +348,37 @@
                         <button id="set-modal-clear" type="button" class="ed-link">Clear selections</button>
                     </div>
                     <div id="set-modal-list" class="ed-set-list"></div>
-                    <div class="ed-modal-current">Selected: <span id="set-modal-current">none — questions will be random</span></div>
+                    <div class="ed-modal-current">Selected: <span id="set-modal-current">none</span></div>
 
                     <div class="ed-modal-section-hdr ed-modal-packets-hdr" id="set-modal-packets-hdr" hidden>
-                        <span>Packets</span>
+                        <span>Rounds</span>
                         <button id="set-modal-packets-all" type="button" class="ed-link">Toggle All</button>
                     </div>
                     <div class="ed-modal-packets" id="set-modal-packets" hidden></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal ed-modal" id="guest-modal" tabindex="-1" aria-labelledby="guest-modal-title">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <span class="ed-eyebrow">Account needed</span>
+                        <h5 class="modal-title" id="guest-modal-title">Log in to play <em>every set</em></h5>
+                    </div>
+                    <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="ed-modal-lede mb-0" id="guest-modal-text"></p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">Not now</button>
+                    <a class="btn btn-primary" href="/user/login?redirect=%2Fsingleplayer%2Ftossups">Log in or sign up</a>
                 </div>
             </div>
         </div>
@@ -411,153 +445,6 @@
                             <input class="btn-check" id="Trash" type="checkbox" autocomplete="off">
                             <label class="btn btn-outline-secondary w-100 rounded-0 my-1" for="Trash">Trash<br></label> -->
                         </div>
-                        <div class="col-4" id="subcategories">
-                            <h5 class="text-center">Round</h5>
-                            <!-- <input class="btn-check" id="Round 1" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-primary w-100 rounded-0 my-1" for="Round 1">Round 1<br></label>
-
-                            <input class="btn-check" id="Round 2" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-primary w-100 rounded-0 my-1" for="Round 2">Round 2<br></label>
-
-                            <input class="btn-check" id="Round 3" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-primary w-100 rounded-0 my-1" for="Round 3">Round 3<br></label>
-
-                            <input class="btn-check" id="Semi-Finals" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-primary w-100 rounded-0 my-1" for="Semi-Finals">Semi-Finals<br></label>
-
-                            <input class="btn-check" id="Finals" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-primary w-100 rounded-0 my-1" for="Finals">Finals<br></label> -->
-
-                           <!-- <input class="btn-check" id="Other Literature" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-primary w-100 rounded-0 my-1" for="Other Literature">Other
-                                Literature<br></label>
-
-                            <input class="btn-check" id="American History" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-success w-100 rounded-0 my-1" for="American History">American
-                                History <br></label>
-
-                            <input class="btn-check" id="Ancient History" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-success w-100 rounded-0 my-1" for="Ancient History">Ancient
-                                History<br></label>
-
-                            <input class="btn-check" id="European History" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-success w-100 rounded-0 my-1" for="European History">European
-                                History<br></label>
-
-                            <input class="btn-check" id="World History" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-success w-100 rounded-0 my-1" for="World History">World
-                                History<br></label>
-
-                            <input class="btn-check" id="Other History" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-success w-100 rounded-0 my-1" for="Other History">Other
-                                History<br></label>
-
-                            <input class="btn-check" id="Biology" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-danger w-100 rounded-0 my-1" for="Biology">Biology<br></label>
-
-                            <input class="btn-check" id="Chemistry" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-danger w-100 rounded-0 my-1" for="Chemistry">Chemistry<br></label>
-
-                            <input class="btn-check" id="Physics" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-danger w-100 rounded-0 my-1" for="Physics">Physics<br></label>
-
-                            <input class="btn-check" id="Other Science" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-danger w-100 rounded-0 my-1" for="Other Science">Other
-                                Science<br></label>
-
-                            <input class="btn-check" id="Visual Fine Arts" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-warning w-100 rounded-0 my-1" for="Visual Fine Arts">Visual
-                                Fine Arts<br></label>
-
-                            <input class="btn-check" id="Auditory Fine Arts" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-warning w-100 rounded-0 my-1" for="Auditory Fine Arts">Auditory Fine
-                                Arts<br></label>
-
-                            <input class="btn-check" id="Other Fine Arts" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-warning w-100 rounded-0 my-1" for="Other Fine Arts">Other Fine
-                                Arts<br></label>
-                        </div>
-                        <div class="col-4" id="alternate-subcategories">
-                            <h5 class="text-center">Alternate <span class="d-none d-lg-inline">Subcategory</span></h5>
-
-                            <input class="btn-check" id="Drama" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-primary w-100 rounded-0 my-1" for="Drama">Drama<br></label>
-
-                            <input class="btn-check" id="Long Fiction" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-primary w-100 rounded-0 my-1" for="Long Fiction">Long Fiction<br></label>
-
-                            <input class="btn-check" id="Poetry" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-primary w-100 rounded-0 my-1" for="Poetry">Poetry<br></label>
-
-                            <input class="btn-check" id="Short Fiction" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-primary w-100 rounded-0 my-1" for="Short Fiction">Short Fiction<br></label>
-
-                            <input class="btn-check" id="Misc Literature" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-primary w-100 rounded-0 my-1" for="Misc Literature">Misc
-                                Literature<br></label>
-
-                            <input class="btn-check" id="Math" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-danger w-100 rounded-0 my-1" for="Math">Math<br></label>
-
-                            <input class="btn-check" id="Astronomy" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-danger w-100 rounded-0 my-1" for="Astronomy">Astronomy<br></label>
-
-                            <input class="btn-check" id="Computer Science" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-danger w-100 rounded-0 my-1" for="Computer Science">Computer
-                                Science<br></label>
-
-                            <input class="btn-check" id="Earth Science" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-danger w-100 rounded-0 my-1" for="Earth Science">Earth Science<br></label>
-
-                            <input class="btn-check" id="Engineering" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-danger w-100 rounded-0 my-1" for="Engineering">Engineering<br></label>
-
-                            <input class="btn-check" id="Misc Science" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-danger w-100 rounded-0 my-1" for="Misc Science">Misc Science<br></label>
-
-                            <input class="btn-check" id="Architecture" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-warning w-100 rounded-0 my-1" for="Architecture">Architecture<br></label>
-
-                            <input class="btn-check" id="Dance" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-warning w-100 rounded-0 my-1" for="Dance">Dance<br></label>
-
-                            <input class="btn-check" id="Film" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-warning w-100 rounded-0 my-1" for="Film">Film<br></label>
-
-                            <input class="btn-check" id="Jazz" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-warning w-100 rounded-0 my-1" for="Jazz">Jazz<br></label>
-
-                            <input class="btn-check" id="Opera" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-warning w-100 rounded-0 my-1" for="Opera">Opera<br></label>
-
-                            <input class="btn-check" id="Photography" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-warning w-100 rounded-0 my-1" for="Photography">Photography<br></label>
-
-                            <input class="btn-check" id="Misc Arts" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-warning w-100 rounded-0 my-1" for="Misc Arts">Misc Arts<br></label>
-
-                            <input class="btn-check" id="Anthropology" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-secondary w-100 rounded-0 my-1" for="Anthropology">Anthropology<br></label>
-
-                            <input class="btn-check" id="Economics" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-secondary w-100 rounded-0 my-1" for="Economics">Economics<br></label>
-
-                            <input class="btn-check" id="Linguistics" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-secondary w-100 rounded-0 my-1" for="Linguistics">Linguistics<br></label>
-
-                            <input class="btn-check" id="Psychology" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-secondary w-100 rounded-0 my-1" for="Psychology">Psychology<br></label>
-
-                            <input class="btn-check" id="Sociology" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-secondary w-100 rounded-0 my-1" for="Sociology">Sociology<br></label>
-
-                            <input class="btn-check" id="Other Social Science" type="checkbox" autocomplete="off">
-                            <label class="btn btn-outline-secondary w-100 rounded-0 my-1" for="Other Social Science">Other Social
-                                Science<br></label>
-                        </div>
-                    </div>
-                </div>-->
-            </div>
         </div>
     </div>
     </div>

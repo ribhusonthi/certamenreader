@@ -1,5 +1,6 @@
 import { attachDropdownChecklist, getDropdownValues } from '../../utilities/dropdown-checklist.js';
 import { formatAnswerline } from '../../utilities/strings.js';
+import { roundLabel, roundPageUrl } from '../../utilities/rounds.js';
 
 function fetchTossupStats ({ difficulties = '', setName = '', includeMultiplayer = true, includeSingleplayer = true, startDate = '', endDate = '' } = {}) {
   fetch('/auth/user-stats/tossup?' + new URLSearchParams({ difficulties, setName, includeMultiplayer, includeSingleplayer, startDate, endDate }))
@@ -21,7 +22,7 @@ function fetchTossupStats ({ difficulties = '', setName = '', includeMultiplayer
                     <div class="card mb-2">
                         <div class="card-header">
                             <b>${tossup.set.name} | ${tossup.category} | ${tossup.subcategory} ${tossup.alternate_subcategory ? ' (' + tossup.alternate_subcategory + ')' : ''} | ${tossup.difficulty}</b>
-                            <b class="float-end">Packet ${tossup.packet.number} | Question ${tossup.number}</b>
+                            <b class="float-end"><a href="${roundPageUrl(tossup.set.name, tossup.packet.number)}" title="Read the whole round">${roundLabel(tossup.packet)}</a> | Question ${tossup.number}</b>
                         </div>
                         <div class="card-container" id="question-${tossup._id}">
                             <div class="card-body">
@@ -30,7 +31,7 @@ function fetchTossupStats ({ difficulties = '', setName = '', includeMultiplayer
                                 <div><b>ANSWER:</b> ${formatAnswerline(tossup.answer)}</div>
                             </div>
                             <div class="card-footer">
-                                <small class="text-muted">${tossup.packet.name ? 'Packet ' + tossup.packet.name : '&nbsp;'}</small>
+                                <small class="text-muted">&nbsp;</small>
                                 <small class="text-muted float-end">
                                     <a href="#" onClick={onClick} id="report-question-${tossup._id}" data-bs-toggle="modal" data-bs-target="#report-question-modal">
                                         Report Question

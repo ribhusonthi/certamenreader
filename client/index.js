@@ -1,11 +1,11 @@
 import account from './accounts.js';
-import { DIFF_LABEL, parseTournament, parseYear, parseDifficultyValue } from './utilities/set-series.js';
-import { READER_TOGGLES, getToggle, setToggle, onSettingsChange } from './utilities/reader-settings.js';
+import { roundPageUrl } from './utilities/rounds.js';
+import { escapeHTML as escapeHtml } from './utilities/strings.js';
 
 // ── Dashboard header ──────────────────────────────────────────────────────
 // account.getUsername() does an unguarded fetch, so a network failure there
 // would reject at the top level of this module and take every block below it
-// with it — sets, settings and the whole dashboard. The greeting is the least
+// with it — the whole dashboard. The greeting is the least
 // important thing on the page; it must not be able to blank the rest.
 let username = null;
 try {
@@ -18,125 +18,15 @@ if (welcomeEl && username) {
   welcomeEl.textContent = `, ${username}`;
 }
 
-// ── Sets section: group "Harvard Advanced 2015" etc. by tournament ───────
-// Parsers are shared with the database page so both ends of the /db?series=
-// link agree on what counts as a series.
-
-const NEW_SET_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
-
-const homeSetsEl = document.getElementById('home-sets');
-if (homeSetsEl) {
-  try {
-    const { setList = [], setMeta = {} } = await fetch('/api/set-list').then(r => r.json());
-
-    const now = Date.now();
-    const isNew = name => {
-      const ts = Date.parse(setMeta?.[name]?.createdAt || '');
-      return Number.isFinite(ts) && (now - ts) < NEW_SET_WINDOW_MS;
-    };
-
-    const byTournament = new Map();
-    for (const name of setList) {
-      const t = parseTournament(name);
-      const y = parseYear(name);
-      const d = parseDifficultyValue(name);
-      if (!byTournament.has(t)) byTournament.set(t, { years: new Set(), diffs: new Set(), hasNew: false });
-      const entry = byTournament.get(t);
-      if (y != null) entry.years.add(y);
-      if (d != null) entry.diffs.add(d);
-      if (isNew(name)) entry.hasNew = true;
-    }
-
-    const rows = [...byTournament.entries()]
-      .map(([name, { years, diffs, hasNew }]) => ({
-        name,
-        years: [...years].sort((a, b) => a - b),
-        diffs: [...diffs].sort((a, b) => a - b),
-        hasNew
-      }))
-      .sort((a, b) => {
-        // Tournaments with a recent addition float to the top.
-        if (a.hasNew !== b.hasNew) return a.hasNew ? -1 : 1;
-        return a.name.localeCompare(b.name);
-      });
-
-    if (rows.length === 0) {
-      homeSetsEl.innerHTML = '<div class="home-sets-empty">No sets available yet.</div>';
-    } else {
-      homeSetsEl.innerHTML = rows.map(r => {
-        const yMin = r.years[0];
-        const yMax = r.years[r.years.length - 1];
-        const yearRange = yMin == null
-          ? '—'
-          : yMin === yMax
-            ? String(yMin)
-            : `${yMin}–${yMax}`;
-        const newChip = r.hasNew ? '<span class="home-set-row-diff" data-new="true">New</span>' : '';
-        const diffChips = r.diffs.length
-          ? r.diffs.map(d => `<span class="home-set-row-diff" data-d="${d}">${DIFF_LABEL[d] || d}</span>`).join('')
-          : '<span class="home-set-row-diff">—</span>';
-        return `
-          <a class="home-set-row" href="/db?series=${encodeURIComponent(r.name)}">
-            <div class="home-set-row-main">
-              <div class="home-set-row-name">${r.name}</div>
-              <div class="home-set-row-years">${yearRange}</div>
-            </div>
-            <div class="home-set-row-diffs">${newChip}${diffChips}</div>
-          </a>`;
-      }).join('');
-    }
-  } catch (err) {
-    homeSetsEl.innerHTML = '<div class="home-sets-empty">Could not load sets.</div>';
-  }
-}
-
-// ── Settings card: quick toggles ─────────────────────────────────────────
-// These used to be static markup showing fixed values. They now read and
-// write the same localStorage the reader uses, so flipping one here takes
-// effect next time you read. "Edit" still goes to the full settings page.
-const homeSettingsEl = document.getElementById('home-settings');
-if (homeSettingsEl) {
-  const render = () => {
-    const typeToAnswer = getToggle(READER_TOGGLES.find(t => t.key === 'typeToAnswer'));
-    homeSettingsEl.innerHTML = READER_TOGGLES.map((t, i) => {
-      const on = getToggle(t);
-      // Rebuzzing is meaningless when you aren't typing an answer, which is
-      // why the reader disables it in that state. Mirror that here rather
-      // than offering a control that silently does nothing.
-      const disabled = t.requires && !typeToAnswer;
-      return `
-        <button type="button" class="home-setting-row" data-i="${i}"
-                role="switch" aria-checked="${on}" ${disabled ? 'disabled aria-disabled="true"' : ''}
-                title="${disabled ? 'Requires “Type to answer”' : t.hint}">
-          <span>${t.label}</span>
-          <span class="home-setting-switch" aria-hidden="true"></span>
-        </button>`;
-    }).join('');
-  };
-
-  homeSettingsEl.addEventListener('click', (event) => {
-    const btn = event.target.closest('.home-setting-row');
-    if (!btn || btn.disabled) return;
-    const toggle = READER_TOGGLES[Number(btn.dataset.i)];
-    setToggle(toggle, !getToggle(toggle));
-    render();
-  });
-
-  // Keep in step with changes made on the settings page or in another tab.
-  onSettingsChange(render);
-  render();
-}
-
 // ── Dashboard: stat tiles, category breakdown, leaderboard ───────────────
 // Everything below reads real endpoints. Each block fails independently —
 // a dead leaderboard must not blank the stat tiles — so each one carries its
 // own try/catch and leaves an em-dash or an empty state behind on failure.
 
-// Two category spellings exist in this codebase: constants.js CATEGORIES and
-// the reader's CERTAMEN_CATEGORIES use the short forms ('History',
-// 'Literature'), while server/parser.js, the leaderboard whitelist and the
-// .cat-chip styles use the long ones ('Roman History', 'Latin Literature').
-// Stored data can therefore carry either, so accept both.
+// Categories are stored with the long names ('Roman History', 'Latin
+// Literature'), but an old admin dropdown wrote the short forms ('History',
+// 'Literature') onto a few questions, so stored data can carry either.
+// Accept both.
 const CATEGORY_VAR = {
   Mythology: '--c-mythology',
   History: '--c-roman-history',
@@ -321,7 +211,7 @@ if (document.getElementById('dash-tiles')) {
             <a class="dash-session" href="/user/stats/tossups">
               <span class="dash-session-main">
                 <span class="dash-session-name">${relativeDay(d._id)}</span>
-                <span class="dash-session-meta">${q} · ${d.powers ?? 0} powers · ${d.negs ?? 0} negs</span>
+                <span class="dash-session-meta">${q} · ${d.tens ?? 0} correct · ${d.negs ?? 0} negs</span>
               </span>
               <span class="dash-session-metric"><span class="v">${acc}%</span><span class="l">Acc</span></span>
               <span class="dash-session-metric"><span class="v">${cel}%</span><span class="l">Cel</span></span>
@@ -334,48 +224,41 @@ if (document.getElementById('dash-tiles')) {
   }
 }
 
-// Leaderboard top 5, plus this user's own performance-point total.
-const leaderboardEl = document.getElementById('dash-leaderboard');
-if (leaderboardEl) {
-  try {
-    const { leaderboard = [] } = await fetch('/auth/leaderboard?limit=100').then(r => {
-      if (!r.ok) throw new Error(`leaderboard ${r.status}`);
-      return r.json();
-    });
-
-    const mine = leaderboard.find(row => row.username === username);
-    if (mine) {
-      setText('tile-pp', Math.round(mine.weightedPP).toLocaleString());
-      setText('tile-pp-sub', `#${mine.rank} of ${leaderboard.length} ranked`);
-    } else {
-      setText('tile-pp-sub', 'unranked — win some buzzes');
-    }
-
-    const top = leaderboard.slice(0, 5);
-    leaderboardEl.innerHTML = top.length === 0
-      ? '<div class="empty-state"><span>No ranked players yet.</span></div>'
-      : top.map(row => `
-        <a class="dash-lb" href="/user/profile/${encodeURIComponent(row.username)}"
-           ${row.username === username ? 'data-me="true"' : ''}>
-          <span class="dash-lb-rank" ${row.rank <= 3 ? 'data-top="true"' : ''}>${row.rank}</span>
-          <span class="dash-lb-main">
-            <span class="dash-lb-name">${row.username}</span>
-            <span class="dash-lb-sub">${row.buzzes} buzzes</span>
-          </span>
-          <span class="dash-lb-pp">${Math.round(row.weightedPP).toLocaleString()}</span>
-        </a>`).join('');
-  } catch (err) {
-    leaderboardEl.innerHTML = '<div class="empty-state"><span>Could not load the leaderboard.</span></div>';
-  }
-}
-
-// Room count on the Quick start card, when the multiplayer API answers.
+// This user's performance-point total and rank, for the PP tile.
 try {
-  const rooms = await fetch('/api/multiplayer/room-list').then(r => (r.ok ? r.json() : null));
-  const count = rooms?.roomList?.length;
-  if (Number.isFinite(count)) {
-    setText('qa-rooms', count === 1 ? '1 room open now' : `${count} rooms open now`);
+  const { leaderboard = [] } = await fetch('/auth/leaderboard?limit=100').then(r => {
+    if (!r.ok) throw new Error(`leaderboard ${r.status}`);
+    return r.json();
+  });
+  const mine = leaderboard.find(row => row.username === username);
+  if (mine) {
+    setText('tile-pp', Math.round(mine.weightedPP).toLocaleString());
+    setText('tile-pp-sub', `#${mine.rank} of ${leaderboard.length} ranked`);
+  } else {
+    setText('tile-pp-sub', 'Unranked');
   }
 } catch (err) {
-  /* Leave the static copy in place. */
+  /* Leave the em-dash. */
+}
+
+// Starred questions: the first few starred tossups (the API sorts them by set),
+// plus counts for both kinds, linking to the full lists.
+const starsEl = document.getElementById('home-stars');
+if (starsEl) {
+  const STARS_SHOWN = 5;
+  const getStars = kind => fetch(`/auth/stars/${kind}`).then(r => (r.ok ? r.json() : []));
+  try {
+    const [starredTossups, starredBonuses] = await Promise.all([getStars('tossups'), getStars('bonuses')]);
+    setText('stars-tossups-count', starredTossups.length);
+    setText('stars-bonuses-count', starredBonuses.length);
+    starsEl.innerHTML = starredTossups.length === 0
+      ? '<div class="empty-state"><span>No starred questions yet. Press <kbd>T</kbd> while reading to star one.</span></div>'
+      : starredTossups.slice(0, STARS_SHOWN).map(t => `
+        <a class="home-star" href="${roundPageUrl(t.set?.name, t.packet?.number)}">
+          <span class="home-star-answer">${escapeHtml(t.answer_sanitized || '')}</span>
+          <span class="home-star-meta">${escapeHtml(t.set?.name || '')} · ${escapeHtml(t.category || '')}</span>
+        </a>`).join('');
+  } catch (err) {
+    starsEl.innerHTML = '<div class="empty-state"><span>Could not load your starred questions.</span></div>';
+  }
 }

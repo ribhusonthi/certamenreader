@@ -1,4 +1,5 @@
 import getRandomTossups from '../../database/certamenreader/get-random-tossups.js';
+import { sanitizeRounds } from '../../client/utilities/rounds.js';
 import { getVerifiedUsername } from '../../server/authentication.js';
 
 import { Router } from 'express';
@@ -41,13 +42,14 @@ router.get('/', async (req, res) => {
     req.query.subcategories = req.query.subcategories.length ? req.query.subcategories : undefined;
   }
 
+  req.query.rounds = sanitizeRounds(req.query.rounds);
+
   req.query.minYear = isNaN(req.query.minYear) ? undefined : parseInt(req.query.minYear);
   req.query.maxYear = isNaN(req.query.maxYear) ? undefined : parseInt(req.query.maxYear);
   req.query.number = isNaN(req.query.number) ? undefined : parseInt(req.query.number);
 
   req.query.setName = req.query.setName || undefined;
   req.query.setNames = parseStringList(req.query.setNames);
-  req.query.powermarkOnly = (req.query.powermarkOnly === 'true');
   req.query.standardOnly = (req.query.standardOnly === 'true');
 
   // Always derive the requester from the session — never from the query

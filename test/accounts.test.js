@@ -99,8 +99,8 @@ mocha.describe('account auth cache', () => {
     await new Promise(resolve => setTimeout(resolve, 0));
 
     const accountNav = document.getElementById('account-nav');
-    assert.include(accountNav.textContent, 'Account');
     assert.include(accountNav.textContent, 'Log in');
+    assert.include(accountNav.textContent, 'Sign up');
     assert.isNull(JSON.parse(window.sessionStorage.getItem('account-username')).username);
   });
 });

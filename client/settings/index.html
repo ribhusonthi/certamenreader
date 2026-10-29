@@ -43,11 +43,13 @@
                             <li><a class="dropdown-item" href="/multiplayer/team">Team Mode</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/ranked">Ranked</a>
-                    </li>
-                    <li class="nav-item">
+                    <li class="nav-item dropdown nav-database">
                         <a class="nav-link" href="/db">Database</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/db">Search questions</a></li>
+                            <li><a class="dropdown-item" href="/db/sets">Browse sets</a></li>
+                            <li><a class="dropdown-item" href="/db/sources">Source check</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/leaderboards">Leaderboards</a>
@@ -55,9 +57,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/about">About</a>
                     </li>
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a class="nav-link active" href="/settings" aria-current="page">Settings</a>
-                    </li>
+                    </li> -->
                 </ul>
                 <div class="d-flex">
                     <ul class="navbar-nav mb-2 mb-lg-0">
@@ -73,10 +75,29 @@
         <header class="c-page-head">
             <span class="c-page-head__eyebrow">Settings</span>
             <h1>Site preferences</h1>
-            <p>Everything in one place — appearance, how the reader behaves, sound, and Anki syncing.</p>
+            <p>Your settings.</p>
         </header>
 
         <div class="settings-grid">
+            <section class="c-card">
+                <h2 class="c-head">School</h2>
+                <p class="c-field__hint" style="margin: -0.2rem 0 0.9rem;">
+                    Shown next to your name in team mode rooms (if you want to display it). Admins manage the school
+                    list; if yours is missing, ask one to add it.
+                </p>
+                <div class="position-relative">
+                    <input type="text" class="form-control" id="school-input"
+                        placeholder="Search for your school…" autocomplete="off">
+                    <div id="school-suggestions" class="list-group position-absolute w-100 d-none"
+                        style="z-index: 20; max-height: 14rem; overflow-y: auto;"></div>
+                </div>
+                <div class="mt-2 d-flex gap-2 align-items-center flex-wrap">
+                    <span id="school-current" class="text-muted">No school set.</span>
+                    <button class="btn btn-sm btn-outline-secondary d-none" id="school-clear" type="button">Clear</button>
+                    <span class="ms-auto small text-success d-none" id="school-saved">Saved</span>
+                </div>
+            </section>
+
             <section class="c-card">
                 <h2 class="c-head">Appearance</h2>
 
@@ -149,6 +170,7 @@
     <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
     <script type="module" src="/script.js"></script>
     <script type="module" src="/settings/index.js"></script>
+    <script type="module" src="/settings/school.js"></script>
 
     <script>
       // Keep the editorial toggle switches in sync with the underlying checkboxes

@@ -27,32 +27,34 @@ function getPageSecurely (htmlFile) {
   };
 }
 
-function hasReturningUserCookie (req) {
-  const raw = req.headers.cookie;
-  if (!raw) return false;
-  return raw.split(';').some(part => part.trim().startsWith('cr_returning='));
-}
-
+// One page for every way in: log in or create an account, by email and
+// password or with Google. (It used to bounce returning users straight into
+// Google, which no longer works now that there's more than one way to sign in.)
 router.get('/login', async (req, res) => {
   if (req.session && checkToken(req.session.username, req.session.token)) {
-    res.redirect('/user/my-profile');
+    res.redirect('/');
     return;
   }
-
-  // Returning user with an expired session: skip the hidden landing page and
-  // bounce straight through Google. Don't auto-redirect when an error is being
-  // surfaced (e.g. ?error=unauthorized) to avoid an OAuth loop.
-  if (!req.query.error && hasReturningUserCookie(req)) {
-    const redirect = req.query.redirect;
-    const target = redirect ? `/auth/google?redirect=${encodeURIComponent(redirect)}` : '/auth/google';
-    res.redirect(target);
-    return;
-  }
-
   res.sendFile('login.html', { root: './client/user' });
 });
 
-router.get('/my-profile', getPageSecurely('my-profile.html'));
+router.get('/signup', (req, res) => {
+  const params = new URLSearchParams({ mode: 'signup' });
+  if (typeof req.query.redirect === 'string') params.set('redirect', req.query.redirect);
+  res.redirect('/user/login?' + params);
+});
+
+// Landing page for the link in a password-reset email.
+router.get('/reset-password', (req, res) => {
+  res.sendFile('reset-password.html', { root: './client/user' });
+});
+
+// The profile is the signed-in home page now. Keep the old URL (and any query,
+// e.g. ?discord=linked) working.
+router.get('/my-profile', (req, res) => {
+  const query = req.originalUrl.indexOf('?');
+  res.redirect('/' + (query === -1 ? '' : req.originalUrl.slice(query)));
+});
 router.get('/setup-username', getPageSecurely('setup-username.html'));
 
 // Public profile pages (any logged-in user can view) — the page JS reads the

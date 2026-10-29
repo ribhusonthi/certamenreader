@@ -20,7 +20,9 @@ if (window.localStorage.getItem('high-contrast-question-text') === 'true') {
 }
 
 const SET_LIST = api.getSetList();
-document.getElementById('set-list').innerHTML = SET_LIST.map(setName => `<option>${setName}</option>`).join('');
+// The editorial set picker replaced the old #set-list datalist on most pages.
+const setListEl = document.getElementById('set-list');
+if (setListEl) setListEl.innerHTML = SET_LIST.map(setName => `<option>${setName}</option>`).join('');
 
 // eslint-disable-next-line no-unused-vars
 function fillSetName (event) {

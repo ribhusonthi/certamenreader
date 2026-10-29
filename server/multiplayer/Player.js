@@ -6,7 +6,6 @@ class Player {
     this.username = '';
     this.isOnline = true;
 
-    this.powers = 0;
     this.tens = 0;
     this.zeroes = 0;
     this.negs = 0;
@@ -25,7 +24,6 @@ class Player {
   }
 
   clearStats () {
-    this.powers = 0;
     this.tens = 0;
     this.zeroes = 0;
     this.negs = 0;
@@ -48,9 +46,7 @@ class Player {
     this.celerity.all.total += celerity;
     this.celerity.all.average = this.celerity.all.total / this.tuh;
 
-    if (points > 10) {
-      this.powers++;
-    } else if (points === 10) {
+    if (points === 10) {
       this.tens++;
     } else if (points === 0) {
       this.zeroes++;
@@ -60,7 +56,7 @@ class Player {
 
     if (points > 0) {
       this.celerity.correct.total += celerity;
-      this.celerity.correct.average = this.celerity.correct.total / (this.powers + this.tens);
+      this.celerity.correct.average = this.celerity.correct.total / this.tens;
     }
   }
 

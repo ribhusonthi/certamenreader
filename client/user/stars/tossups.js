@@ -2,6 +2,7 @@ import star from '../../auth/star.js';
 import api from '../../api/index.js';
 import { getBonusPartLabel } from '../../utilities/index.js';
 import { formatAnswerline } from '../../utilities/strings.js';
+import { roundLabel, roundPageUrl } from '../../utilities/rounds.js';
 
 const tossups = await star.getStarredTossups();
 const tossupList = document.getElementById('tossup-list');
@@ -30,9 +31,9 @@ for (const tossup of tossups) {
                     </div>
                 </div>
                 <div class="card-footer">
-                    <small class="text-muted">${tossup.packet.name ? 'Packet ' + tossup.packet.name : '&nbsp;'}</small>
+                    <small class="text-muted"><a href="${roundPageUrl(tossup.set.name, tossup.packet.number)}">Read the whole round →</a></small>
                     <small class="text-muted float-end">
-                        Packet ${tossup.packet.number} / Question ${tossup.number}
+                        ${roundLabel(tossup.packet)} / Question ${tossup.number}
                     </small>
                 </div>
             </div>

@@ -1,3 +1,8 @@
+// Ranked play is switched off for now: its pages redirect home, its API answers
+// 404 and match sockets are refused. The code stays; set RANKED_ENABLED=true to
+// bring it back (and restore the navbar links).
+const RANKED_ENABLED = process.env.RANKED_ENABLED === 'true';
+
 const DEFAULT_QUERY_RETURN_LENGTH = 25;
 const MAX_QUERY_RETURN_LENGTH = 10000;
 
@@ -6,7 +11,8 @@ const DEFAULT_MAX_YEAR = 2025;
 
 const DIFFICULTIES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-const CATEGORIES = ['Language', 'Literature', 'Culture', 'History', 'Mythology'];
+// Must match what server/parser.js tags questions with.
+const CATEGORIES = ['Mythology', 'Roman History', 'Latin Literature', 'Language', 'Culture'];
 const SUBCATEGORY_TO_CATEGORY = {
   'American Literature': 'Literature',
   'British Literature': 'Literature',
@@ -88,5 +94,6 @@ export {
   WEBSOCKET_MAX_PAYLOAD,
   ADJECTIVES,
   ANIMALS,
-  CERTAMENREADER_EMAIL_ADDRESS
+  CERTAMENREADER_EMAIL_ADDRESS,
+  RANKED_ENABLED
 };

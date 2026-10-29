@@ -2,6 +2,7 @@ import { tossups } from './collections.js';
 import { questionPrivacyFilter } from './set-privacy.js';
 
 import { DIFFICULTIES, DEFAULT_MIN_YEAR, DEFAULT_MAX_YEAR } from '../../constants.js';
+import { roundsFilter } from '../../client/utilities/rounds.js';
 
 // eslint-disable-next-line no-unused-vars
 import * as types from '../../types.js';
@@ -13,10 +14,10 @@ import * as types from '../../types.js';
  * @param {string[]} [object.categories] - an array of allowed categories. Pass a 0-length array, null, or undefined to select any category.
  * @param {string[]} [object.subcategories] - an array of allowed subcategories. Pass a 0-length array, null, or undefined to select any subcategory.
  * @param {string[]} [object.alternateSubcategories] - an array of allowed alternate subcategories. Pass a 0-length array, null, or undefined to select any alternate subcategory.
+ * @param {string[]} [object.rounds] - an array of allowed rounds (see ROUNDS). Pass a 0-length array, null, or undefined to select any round.
  * @param {number} [object.number=1] - how many random tossups to return. Default: 1.
  * @param {number} [object.minYear=2010]
  * @param {number} [object.maxYear=2025]
- * @param {boolean} [object.powermarkOnly=false]
  * @param {boolean} [object.standardOnly=false]
  * @param {string | null} [object.username=null] - verified requester; private uploads are only sampled for their owner.
  * @returns {Promise<types.Tossup[]>}
@@ -26,12 +27,12 @@ async function getRandomTossups ({
   categories,
   subcategories,
   alternateSubcategories = [],
+  rounds,
   setName,
   setNames,
   number = 1,
   minYear = DEFAULT_MIN_YEAR,
   maxYear = DEFAULT_MAX_YEAR,
-  powermarkOnly = false,
   standardOnly = false,
   username = null
 } = {}) {
@@ -59,8 +60,9 @@ async function getRandomTossups ({
     aggregation[0].$match.subcategory = { $in: subcategories };
   }
 
-  if (powermarkOnly) {
-    aggregation[0].$match.question = { $regex: '\\(\\*\\)' };
+  const roundCondition = roundsFilter(rounds);
+  if (roundCondition) {
+    aggregation[0].$match['packet.name'] = roundCondition;
   }
 
   if (Array.isArray(setNames) && setNames.length) {

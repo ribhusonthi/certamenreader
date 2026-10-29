@@ -12,6 +12,7 @@ import getNumPackets from '../../database/certamenreader/get-num-packets.js';
 import { isPrivateSetOwner } from '../../database/certamenreader/set-privacy.js';
 
 import { insertTokensIntoHTML } from '../../client/utilities/insert-tokens-into-html.js';
+import { sanitizeRounds } from '../../client/utilities/rounds.js';
 
 import checkAnswer from '../../lib/answer-checker.js';
 
@@ -42,10 +43,9 @@ function normalizeSetNames (value) {
 /**
  * @returns {Number} The number of points scored on a tossup.
  */
-function scoreTossup ({ isCorrect, inPower, endOfQuestion, isPace = false }) {
-  const powerValue = isPace ? 20 : 15;
+function scoreTossup ({ isCorrect, endOfQuestion, isPace = false }) {
   const negValue = isPace ? 0 : -5;
-  return isCorrect ? (inPower ? powerValue : 10) : endOfQuestion ? 0 : negValue;
+  return isCorrect ? 10 : endOfQuestion ? 0 : negValue;
 }
 
 export default class TossupRoom {
@@ -108,8 +108,8 @@ export default class TossupRoom {
       alternateSubcategories,
       categories,
       subcategories,
+      rounds: [],
       reverse: true, // used for `database.getSet`
-      powermarkOnly: false,
       standardOnly: false
     };
 
@@ -477,16 +477,6 @@ export default class TossupRoom {
         });
         break;
 
-      case 'toggle-powermark-only':
-        this.query.powermarkOnly = message.powermarkOnly;
-        this.sendSocketMessage({
-          type: 'toggle-powermark-only',
-          powermarkOnly: message.powermarkOnly,
-          username: this.players[userId].username
-        });
-        this.adjustQuery(['powermarkOnly'], [message.powermarkOnly]);
-        break;
-
       case 'toggle-rebuzz':
         this.settings.rebuzz = message.rebuzz;
         this.sendSocketMessage({
@@ -588,19 +578,24 @@ export default class TossupRoom {
         //   break;
         // }
 
+        // Rounds feed a $regex, so only known round names get through.
+        message.rounds = sanitizeRounds(message.rounds);
+
         this.sendSocketMessage({
           type: 'update-categories',
           categories: message.categories,
           subcategories: message.subcategories,
           alternateSubcategories: message.alternateSubcategories,
+          rounds: message.rounds,
           username: this.players[userId].username
         });
         this.adjustQuery(
-          ['categories', 'subcategories', 'alternateSubcategories'],
+          ['categories', 'subcategories', 'alternateSubcategories', 'rounds'],
           [
             message.categories,
             message.subcategories,
-            message.alternateSubcategories
+            message.alternateSubcategories,
+            message.rounds
           ]
         );
         break;
@@ -763,7 +758,6 @@ export default class TossupRoom {
       this.questionSplit.slice(this.wordIndex).join(' ').length /
       this.tossup.question.length;
     const endOfQuestion = this.wordIndex === this.questionSplit.length;
-    const inPower = this.questionSplit.indexOf('(*)') >= this.wordIndex;
     // Whitespace-only answers must never be matched against the answerline —
     // the matcher treats an empty token list as a vacuous match and would
     // otherwise accept " " as correct.
@@ -773,7 +767,6 @@ export default class TossupRoom {
       : { directive: 'reject', directedPrompt: undefined };
     const points = scoreTossup({
       isCorrect: directive === 'accept',
-      inPower,
       endOfQuestion
     });
 
@@ -917,8 +910,6 @@ export default class TossupRoom {
       time += 2;
     } else if (word.endsWith(',') || word.slice(-2) === ',\u201d') {
       time += 0.75;
-    } else if (word === '(*)') {
-      time = 0;
     }
 
     time = time * 0.9 * (125 - this.settings.readingSpeed);

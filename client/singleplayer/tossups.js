@@ -5,10 +5,11 @@ import audio from '../audio/index.js';
 import { createTossupCard } from '../utilities/index.js';
 import CategoryManager from '../utilities/category-manager.js';
 import { insertTokensIntoHTML } from '../utilities/insert-tokens-into-html.js';
+import { roundLabel, roundPageUrl } from '../utilities/rounds.js';
 import { initSetSelector } from '../utilities/set-selector.js';
 import { formatAnswerline } from '../utilities/strings.js';
 
-const CERTAMEN_CATEGORIES = ['Language', 'Literature', 'Culture', 'History', 'Mythology'];
+const CERTAMEN_CATEGORIES = ['Mythology', 'Roman History', 'Latin Literature', 'Language', 'Culture'];
 let userIsAdmin = false;
 
 function categoryClassName (category) {
@@ -115,7 +116,7 @@ const DIFFICULTY_LABELS = {
   10: 'Advanced'
 };
 
-/** Populate the reader header: set · packet · round · #num, plus category + level badges. */
+/** Populate the reader header: set · round · #num, plus category + level badges. */
 function updateReaderHeader (tossup) {
   const setSpan = document.getElementById('set-name-info-hdr');
   const pktSpan = document.getElementById('packet-info-hdr');
@@ -130,17 +131,31 @@ function updateReaderHeader (tossup) {
   const setName = tossup?.set?.name || query.setName || 'No set selected';
   if (setSpan) setSpan.textContent = setName;
 
-  // Packet number (falls back to active packet filter)
-  const packetNumber = tossup?.packet?.number ?? query.packetNumbers?.[0];
-  const showPacket = packetNumber != null && packetNumber !== '';
-  if (pktSpan) { pktSpan.textContent = `Packet ${packetNumber}`; pktSpan.hidden = !showPacket; }
-  if (pktDot) pktDot.hidden = !showPacket;
-
-  // Round name — many sets label packets as "Round One" etc. via packet.name
-  const roundName = tossup?.packet?.name;
-  const showRound = !!(roundName && roundName !== `Packet ${packetNumber}`);
-  if (roundSpan) { roundSpan.textContent = roundName || ''; roundSpan.hidden = !showRound; }
-  if (roundDot) roundDot.hidden = !showRound;
+  // A packet is a round. Its label links to the whole round as a document
+  // (new tab, so the reader keeps its place). Falls back to the active
+  // packet filter before the first question loads.
+  const packet = tossup?.packet ?? (query.packetNumbers?.[0] ? { number: query.packetNumbers[0] } : null);
+  if (pktSpan) {
+    pktSpan.replaceChildren();
+    if (packet) {
+      const label = roundLabel(packet);
+      const setForLink = tossup?.set?.name;
+      if (setForLink && packet.number) {
+        const link = document.createElement('a');
+        link.href = roundPageUrl(setForLink, packet.number);
+        link.target = '_blank';
+        link.title = 'Read the whole round';
+        link.textContent = label;
+        pktSpan.appendChild(link);
+      } else {
+        pktSpan.textContent = label;
+      }
+    }
+    pktSpan.hidden = !packet;
+  }
+  if (pktDot) pktDot.hidden = !packet;
+  if (roundSpan) roundSpan.hidden = true;
+  if (roundDot) roundDot.hidden = true;
 
   // Question number (tossup number within the packet)
   const tossupNum = tossup?.questionNumber ?? tossup?.number;
@@ -207,7 +222,7 @@ const defaults = {
   minYear: 2010,
   maxYear: 2025,
   packetNumbers: [],
-  powermarkOnly: false,
+  rounds: [],
   setName: '',
   setNames: [],
   standardOnly: false,
@@ -230,12 +245,48 @@ if (!Array.isArray(query.setNames)) {
   query.setNames = query.setName ? [query.setName] : [];
 }
 query.setNames = [...new Set(query.setNames.map(s => String(s || '').trim()).filter(Boolean))];
+
+// Signed-out visitors get 10 fixed sample questions (with their bonuses), served
+// by /api/guest-tossups; after the tenth, or on choosing any set, they're asked
+// to sign in. The count persists across reloads. The server allows nothing else.
+const GUEST_LIMIT = 10;
+const GUEST_PLAYED_KEY = 'guest-tossups-played';
+const isGuest = !(await account.getUsername().catch(() => null));
+let guestTossups = null;
+if (isGuest) {
+  query.setNames = [];
+  updateGuestNote();
+}
+
+function guestPlayed () {
+  return Number(window.localStorage.getItem(GUEST_PLAYED_KEY)) || 0;
+}
+
+function updateGuestNote () {
+  const note = document.getElementById('guest-note');
+  note.hidden = false;
+  const played = Math.min(guestPlayed(), GUEST_LIMIT);
+  document.getElementById('guest-note-count').textContent = played === 0
+    ? `${GUEST_LIMIT} free sample questions`
+    : `Sample question ${played} of ${GUEST_LIMIT}`;
+}
+
+async function nextGuestTossup () {
+  guestTossups ??= await fetch('/api/guest-tossups')
+    .then(r => r.json()).then(d => d.tossups || []).catch(() => []);
+  const played = guestPlayed();
+  if (played >= Math.min(GUEST_LIMIT, guestTossups.length)) return null;
+  window.localStorage.setItem(GUEST_PLAYED_KEY, String(played + 1));
+  updateGuestNote();
+  return guestTossups[played];
+}
+
 query.setName = query.setNames.length === 1 ? query.setNames[0] : '';
 
-const categoryManager = new CategoryManager(query.categories, query.subcategories, query.alternateSubcategories);
+const categoryManager = new CategoryManager(query.categories, query.subcategories, query.alternateSubcategories, query.rounds);
 
 function persistCategoryQuery () {
-  ({ categories: query.categories, subcategories: query.subcategories, alternateSubcategories: query.alternateSubcategories } = categoryManager.export());
+  ({ categories: query.categories, subcategories: query.subcategories, alternateSubcategories: query.alternateSubcategories, rounds: query.rounds } = categoryManager.export());
   randomTossups = [];
   if (!useSetMode) loadRandomTossups(query);
   window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
@@ -504,7 +555,8 @@ async function advanceQuestion () {
     }
 
     if (!tossups[0]) {
-      window.alert('No questions found');
+      if (isGuest) promptGuestSignIn();
+      else window.alert('No questions found');
       return false;
     }
 
@@ -535,9 +587,6 @@ function buzz () {
   if (audio.soundEffects) audio.buzz.play();
 
   buzzpointIndex = document.getElementById('question').innerText.length;
-  if (!tossupTextSplit.includes('(*)') && tossupText.includes('(*)')) {
-    buzzpointIndex += 3;
-  }
 
   // Include buzzpoint
   const buzSpan = document.createElement('span');
@@ -602,13 +651,9 @@ async function giveAnswer (givenAnswer) {
 
   switch (directive) {
     case 'accept': {
-      const points = updateScore(true);
+      updateScore(true);
       if (audio.soundEffects) {
-        if (points > 10) {
-          audio.power.play();
-        } else {
-          audio.correct.play();
-        }
+        audio.correct.play();
       }
       logBuzzResult(givenAnswer, 'accept');
       revealQuestion();
@@ -637,10 +682,11 @@ async function giveAnswer (givenAnswer) {
   }
 }
 
-async function loadRandomTossups ({ alternateSubcategories, categories, difficulties, maxYear, minYear, number = 1, powermarkOnly, setNames, standardOnly, subcategories } = {}) {
+async function loadRandomTossups ({ alternateSubcategories, categories, difficulties, maxYear, minYear, number = 1, rounds, setNames, standardOnly, subcategories } = {}) {
+  if (isGuest) return; // guests play the fixed sample instead
   const requestId = ++randomTossupsRequestId;
   randomTossups = [];
-  const tossupBatch = await api.getRandomTossup({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, powermarkOnly, setNames, standardOnly, subcategories });
+  const tossupBatch = await api.getRandomTossup({ alternateSubcategories, categories, difficulties, maxYear, minYear, number, rounds, setNames, standardOnly, subcategories });
   if (requestId === randomTossupsRequestId) {
     randomTossups = tossupBatch;
   }
@@ -650,16 +696,17 @@ async function loadRandomTossups ({ alternateSubcategories, categories, difficul
  * Get a random tossup.
  * @returns
  */
-async function getRandomTossup ({ alternateSubcategories, categories, difficulties, minYear, maxYear, powermarkOnly, setNames, subcategories, standardOnly } = {}) {
+async function getRandomTossup ({ alternateSubcategories, categories, difficulties, minYear, maxYear, rounds, setNames, subcategories, standardOnly } = {}) {
+  if (isGuest) return await nextGuestTossup();
   if (randomTossups.length === 0) {
-    await loadRandomTossups({ alternateSubcategories, categories, difficulties, maxYear, minYear, number: 20, powermarkOnly, setNames, subcategories, standardOnly });
+    await loadRandomTossups({ alternateSubcategories, categories, difficulties, maxYear, minYear, number: 20, rounds, setNames, subcategories, standardOnly });
   }
 
   const randomQuestion = randomTossups.pop();
 
   // Begin loading the next batch of questions (asynchronously)
   if (randomTossups.length === 0) {
-    loadRandomTossups({ alternateSubcategories, categories, difficulties, maxYear, minYear, number: 20, powermarkOnly, setNames, subcategories, standardOnly });
+    loadRandomTossups({ alternateSubcategories, categories, difficulties, maxYear, minYear, number: 20, rounds, setNames, subcategories, standardOnly });
   }
 
   return randomQuestion;
@@ -752,11 +799,6 @@ function readQuestion () {
   if (!currentlyBuzzing && tossupTextSplit.length > 0) {
     const word = tossupTextSplit.shift();
     updateCelerity();
-    if (word === '(*)') {
-      timeoutID = window.setTimeout(readQuestion, 0);
-      return;
-    }
-
     const chars = (word + ' ').split('');
     const questionEl = document.getElementById('question');
     const base = letterDelayMs();
@@ -1298,10 +1340,10 @@ document.querySelectorAll('#categories input').forEach(input => {
   });
 });
 
-document.querySelectorAll('#subcategories input').forEach(input => {
+document.querySelectorAll('#rounds input').forEach(input => {
   input.addEventListener('click', function () {
     this.blur();
-    categoryManager.updateSubcategory(input.id);
+    categoryManager.updateRound(input.dataset.round);
     categoryManager.loadCategoryModal();
     persistCategoryQuery();
   });
@@ -1471,13 +1513,6 @@ document.getElementById('report-question-modal').addEventListener('hidden.bs.mod
   document.getElementById('report-question-description').value = '';
 });
 
-// document.getElementById('toggle-powermark-only').addEventListener('click', function () {
-//   this.blur();
-//   query.powermarkOnly = this.checked;
-//   loadRandomTossups(query);
-//   window.localStorage.setItem('singleplayer-tossup-query', JSON.stringify(query));
-// });
-
 document.getElementById('toggle-show-history').addEventListener('click', function () {
   this.blur();
   settings.showHistory = this.checked;
@@ -1599,10 +1634,27 @@ document.addEventListener('keydown', (event) => {
 
 categoryManager.loadCategoryModal();
 
+// The sign-in prompt: after the sample questions run out, or (with `names`) when
+// a guest picks a set. Swaps out the set picker, since Bootstrap can't stack modals.
+function promptGuestSignIn (names) {
+  document.getElementById('guest-modal-text').textContent = names
+    ? `${names.length === 1 ? names[0] : `These ${names.length} sets`} and every other set need a free account. Without one you can keep playing the ${GUEST_LIMIT} sample questions.`
+    : `You've played all ${GUEST_LIMIT} sample questions. Make a free account to keep going with every set in the library.`;
+  const setModalEl = document.getElementById('set-modal');
+  const guestModal = window.bootstrap.Modal.getOrCreateInstance(document.getElementById('guest-modal'));
+  if (setModalEl.classList.contains('show')) {
+    setModalEl.addEventListener('hidden.bs.modal', () => guestModal.show(), { once: true });
+    window.bootstrap.Modal.getOrCreateInstance(setModalEl).hide();
+  } else {
+    guestModal.show();
+  }
+}
+
 initSetSelector({
   sets: api.getSetList(),
   isNew: api.isSetNew,
   isPrivate: api.isSetPrivate,
+  isLocked: () => isGuest,
   state: {
     setName: query.setName || '',
     setNames: selectedSetNames(),
@@ -1615,6 +1667,9 @@ initSetSelector({
   on: {
     onSetNamesChange: async (setNames) => {
       await applySetNames(setNames);
+    },
+    onLockedSet: (names) => {
+      promptGuestSignIn(names);
     },
     onPacketsChange: (numbers) => {
       applyPacketSelection(numbers);

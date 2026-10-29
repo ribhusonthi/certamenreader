@@ -1,4 +1,5 @@
 import { users } from './collections.js';
+import { emailKey } from '../../server/email-address.js';
 
 /**
  * Creates a new user in the database via Google OAuth.
@@ -14,6 +15,7 @@ async function createUser (googleId, email, name, photo) {
     username: email,
     usernameSet: false,
     email,
+    emailKey: emailKey(email),
     name,
     photo,
     verifiedEmail: true,

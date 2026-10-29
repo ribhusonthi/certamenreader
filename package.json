@@ -8,12 +8,18 @@
         "build": "npm run compile-react && npm run sass",
         "compile-react": "babel client --extensions .jsx --out-dir client",
         "start": "node index.js",
+        "start:in": "LOCAL_DEV_BYPASS_AUTH=true node index.js",
+        "start:out": "LOCAL_DEV_BYPASS_AUTH=false node index.js",
         "sass": "sass scss/light.scss client/bootstrap/light.css && sass scss/dark.scss client/bootstrap/dark.css",
         "lint": "npx semistandard --fix",
         "test:all": "npm test",
-        "seed:demo": "node tools/seed-demo.js"
+        "seed:demo": "node tools/seed-demo.js",
+        "start:remote": "USE_REMOTE_DB=true node index.js",
+        "db:local": "docker start certamen-mongo 2>/dev/null || docker run -d --name certamen-mongo -p 127.0.0.1:27017:27017 -v certamen-mongo:/data/db mongo:7",
+        "db:pull": "node tools/pull-db.js"
     },
     "dependencies": {
+        "@google/genai": "^2.31.0",
         "bootstrap": "5.2.3",
         "compression": "^1.8.1",
         "cookie-session": "^2.0.0",

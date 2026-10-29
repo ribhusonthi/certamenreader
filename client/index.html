@@ -44,11 +44,13 @@
                             <li><a class="dropdown-item" href="/multiplayer/team">Team Mode</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/ranked">Ranked</a>
-                    </li>
-                    <li class="nav-item">
+                    <li class="nav-item dropdown nav-database">
                         <a class="nav-link" href="/db">Database</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/db">Search questions</a></li>
+                            <li><a class="dropdown-item" href="/db/sets">Browse sets</a></li>
+                            <li><a class="dropdown-item" href="/db/sources">Source check</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/leaderboards">Leaderboards</a>
@@ -70,30 +72,23 @@
     <main id="main-content" class="land">
         <section class="land-hero">
             <div class="land-copy">
-                <span class="land-badge"><span class="land-badge-dot" aria-hidden="true"></span>Now in beta — free to use</span>
-
                 <h1 class="land-title">
-                    Practice Certamen.<br>
-                    <em>Read faster.</em><br>
-                    Win more.
+                    Practice Certamen<br>
+                    <em>Learn more</em><br>
+                    Have fun!
                 </h1>
 
-                <p class="land-lede">
-                    CertamenReader streams Latin quiz-bowl questions word by word.
-                    Buzz in at the right moment, type your answer, and train the
-                    instinct that wins tournaments.
-                </p>
 
-                <!-- The site is locked behind auth (see isAuthExempt in index.js),
-                     so both CTAs route through the login page. The global
-                     middleware appends ?redirect=, so signing in lands the user
-                     where they were headed rather than back here. -->
+                <!-- This page is only shown to signed-out visitors. Singleplayer is
+                     open to them with 10 sample questions (server/guest-access.js);
+                     everything else needs an account. -->
                 <div class="land-cta">
                     <a class="land-btn land-btn-primary" href="/singleplayer/tossups">
                         Start practicing
                     </a>
-                    <a class="land-btn land-btn-ghost" href="/db">Browse questions</a>
+                    <a class="land-btn land-btn-ghost" href="/user/login">Sign up / Log in</a>
                 </div>
+                <p class="land-cta-note">To access the full website, please create an account.</p>
 
                 <dl class="land-stats">
                     <div class="land-stat">
@@ -106,7 +101,7 @@
                     </div>
                     <div class="land-stat">
                         <dd class="land-stat-v" id="land-tournaments">—</dd>
-                        <dt class="land-stat-l">Tournaments</dt>
+                        <dt class="land-stat-l">Sets</dt>
                     </div>
                 </dl>
             </div>
@@ -117,7 +112,7 @@
             <aside class="land-demo" aria-hidden="true">
                 <div class="land-demo-hdr">
                     <span class="land-demo-cat">Mythology</span>
-                    <span class="land-demo-meta">2024 NJCL · Packet 3 · Q7</span>
+                    <span class="land-demo-meta">2024 NJCL · Round 3 · Q7</span>
                     <span class="land-demo-wpm">▶ 340 wpm</span>
                 </div>
                 <div class="land-demo-body">
@@ -132,6 +127,14 @@
                     <div class="land-demo-buzz">Buzz in</div>
                 </div>
             </aside>
+        </section>
+
+        <section class="land-testimonials" aria-labelledby="land-testimonials-title">
+            <span class="ed-eyebrow" id="land-testimonials-title">Testimonials</span>
+            <figure class="land-quote">
+                <blockquote>“This website changed my life.”</blockquote>
+                <figcaption>— William Zhao, 2025 NJCL Certamen Champion and MVP</figcaption>
+            </figure>
         </section>
     </main>
 

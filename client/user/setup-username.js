@@ -29,7 +29,7 @@ form.addEventListener('submit', async (event) => {
     }
 
     account.setUsername(data.username, data.expires);
-    window.location.href = '/user/my-profile';
+    window.location.href = '/';
   } finally {
     submit.disabled = false;
     submit.textContent = 'Set username';

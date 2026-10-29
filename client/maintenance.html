@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Down for maintenance · Certamen Reader</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link type="image/x-icon" href="/favicon.ico" rel="icon">
+
+    <script>(function(){var t=localStorage.getItem('color-theme');if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.dataset.colorTheme=t;var l=document.createElement('link');l.id='custom-css';l.rel='stylesheet';l.href='/bootstrap/'+t+'.css';document.head.appendChild(l)})()</script>
+    <noscript><link id="custom-css" rel="stylesheet" href="/bootstrap/light.css"></noscript>
+</head>
+
+<body class="auth-page">
+    <main class="auth-shell" id="main-content">
+        <span class="auth-brand brand-editorial">
+            <span class="brand-mark"><img src="/buzzer-icon.png" alt="" width="373" height="669" decoding="async"></span><span class="brand-word">Certamen<b>Reader</b></span>
+        </span>
+        <section class="auth-card c-card">
+            <h1 class="auth-title">Down for maintenance</h1>
+            <p class="auth-sub">Certamen Reader is being updated. It should be back in a few minutes; this page will reload by itself when it is.</p>
+        </section>
+    </main>
+
+    <script>
+        // Check every 20 seconds and come back once maintenance is over.
+        setInterval(async () => {
+            try {
+                const status = await fetch('/api/status', { cache: 'no-store' }).then(r => r.json());
+                if (!status.maintenance) window.location.reload();
+            } catch { /* still down */ }
+        }, 20000);
+    </script>
+</body>
+
+</html>

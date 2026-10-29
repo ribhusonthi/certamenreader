@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Certamen Reader</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Read a whole certamen round as one document.">
+
+    <link href="/apple-touch-icon.png" rel="apple-touch-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
+    <link type="image/x-icon" href="/favicon.ico" rel="icon">
+
+    <!-- Load only the active theme's stylesheet. light.css and dark.css are
+         ~348 KB each and near-identical, so linking both doubled the CSS
+         payload to render one of them. Injected synchronously here so it
+         still blocks paint — no flash of unstyled content. -->
+    <script>(function(){var t=localStorage.getItem('color-theme');if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.dataset.colorTheme=t;var l=document.createElement('link');l.id='custom-css';l.rel='stylesheet';l.href='/bootstrap/'+t+'.css';document.head.appendChild(l)})()</script>
+    <noscript><link id="custom-css" rel="stylesheet" href="/bootstrap/light.css"></noscript>
+    <script type="module" src="/apply-theme.js"></script>
+</head>
+
+<body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <nav class="navbar navbar-dark navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
+        <div class="container-fluid">
+            <a class="navbar-brand brand-editorial ms-1 py-0" id="logo" href="/">
+                <span class="brand-mark"><img src="/buzzer-icon.png" alt="" width="373" height="669" decoding="async"></span><span class="brand-word">Certamen<b>Reader</b></span>
+            </a>
+            <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/singleplayer">Singleplayer</a>
+                    </li>
+                    <li class="nav-item dropdown nav-multiplayer">
+                        <a class="nav-link" href="/multiplayer">Multiplayer</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/multiplayer">Solo</a></li>
+                            <li><a class="dropdown-item" href="/multiplayer/team">Team Mode</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown nav-database">
+                        <a class="nav-link active" href="/db" aria-current="page">Database</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/db">Search questions</a></li>
+                            <li><a class="dropdown-item" href="/db/sets">Browse sets</a></li>
+                            <li><a class="dropdown-item" href="/db/sources">Source check</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/leaderboards">Leaderboards</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                    <!-- <li class="nav-item">
+                        <a class="nav-link" href="/frequency-list">Frequency List</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/api-docs">API</a>
+                    </li> -->
+                </ul>
+                <div class="d-flex">
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/login" id="login-link">Log in</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main id="main-content" class="db-page round-doc">
+        <nav class="round-doc-crumbs" aria-label="Breadcrumb">
+            <a href="/db">Database</a>
+            <span aria-hidden="true">/</span>
+            <span id="round-crumb-set"></span>
+        </nav>
+        <header class="round-doc-hdr">
+            <span class="ed-eyebrow">Round</span>
+            <h1 id="round-title">Loading…</h1>
+            <p id="round-sub"></p>
+        </header>
+
+        <div class="round-doc-rounds" id="round-list" aria-label="Rounds in this set"></div>
+
+        <div class="round-doc-toolbar" role="toolbar" aria-label="Round view options">
+            <button class="round-doc-btn" id="toggle-answers" type="button" aria-pressed="false">Hide answers</button>
+            <button class="round-doc-btn" id="reveal-all" type="button" hidden>Reveal all</button>
+            <button class="round-doc-btn" id="toggle-boni" type="button" aria-pressed="false">Hide boni</button>
+            <span class="round-doc-toolbar-gap"></span>
+            <button class="round-doc-btn" id="print-round" type="button">Print</button>
+            <div class="round-doc-cats" id="round-cats" aria-label="Filter by category"></div>
+        </div>
+
+        <ol class="round-doc-index" id="round-index" aria-label="Jump to question"></ol>
+
+        <div id="round-items" aria-live="polite"></div>
+
+        <nav class="round-doc-pager" aria-label="Other rounds">
+            <a id="prev-round" hidden></a>
+            <a id="next-round" hidden></a>
+        </nav>
+    </main>
+
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="clipboard-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Question copied to clipboard.</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/script.js"></script>
+    <script type="module" src="/database/round.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Certamen Reader</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Check a certamen fact against the textbooks, with every claim cited to a page.">
+
+    <link href="/apple-touch-icon.png" rel="apple-touch-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon-precomposed">
+    <link type="image/x-icon" href="/favicon.ico" rel="icon">
+
+    <!-- Load only the active theme's stylesheet. light.css and dark.css are
+         ~348 KB each and near-identical, so linking both doubled the CSS
+         payload to render one of them. Injected synchronously here so it
+         still blocks paint — no flash of unstyled content. -->
+    <script>(function(){var t=localStorage.getItem('color-theme');if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.dataset.colorTheme=t;var l=document.createElement('link');l.id='custom-css';l.rel='stylesheet';l.href='/bootstrap/'+t+'.css';document.head.appendChild(l)})()</script>
+    <noscript><link id="custom-css" rel="stylesheet" href="/bootstrap/light.css"></noscript>
+    <script type="module" src="/apply-theme.js"></script>
+</head>
+
+<body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <nav class="navbar navbar-dark navbar-expand-lg bg-custom" id="navbar" style="z-index: 10">
+        <div class="container-fluid">
+            <a class="navbar-brand brand-editorial ms-1 py-0" id="logo" href="/">
+                <span class="brand-mark"><img src="/buzzer-icon.png" alt="" width="373" height="669" decoding="async"></span><span class="brand-word">Certamen<b>Reader</b></span>
+            </a>
+            <button class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/singleplayer">Singleplayer</a>
+                    </li>
+                    <li class="nav-item dropdown nav-multiplayer">
+                        <a class="nav-link" href="/multiplayer">Multiplayer</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/multiplayer">Solo</a></li>
+                            <li><a class="dropdown-item" href="/multiplayer/team">Team Mode</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown nav-database">
+                        <a class="nav-link active" href="/db" aria-current="page">Database</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/db">Search questions</a></li>
+                            <li><a class="dropdown-item" href="/db/sets">Browse sets</a></li>
+                            <li><a class="dropdown-item" href="/db/sources">Source check</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/leaderboards">Leaderboards</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/login" id="login-link">Log in</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main id="main-content" class="db-page src-page">
+        <header class="db-hdr">
+            <div>
+                <span class="ed-eyebrow">Database</span>
+                <h1>Check the <em>sources</em></h1>
+            </div>
+            <button class="c-head__action src-reset" id="src-reset" type="button">New conversation</button>
+        </header>
+
+        <section class="src-chat c-card c-card--flush" aria-label="Source check conversation">
+            <div class="src-thread" id="src-thread" aria-live="polite"></div>
+            <form class="src-composer" id="src-form">
+                <label class="visually-hidden" for="src-input">Question</label>
+                <textarea class="form-control" id="src-input" rows="1" maxlength="2000"
+                    placeholder="Ask a question or paste a tossup to find sources"></textarea>
+                <button class="btn btn-primary" id="src-send" type="submit">Ask</button>
+            </form>
+        </section>
+        <p class="src-disclaimer">Source Check can make mistakes. Check important information.</p>
+    </main>
+
+    <div class="src-pop" id="src-pop" role="dialog" aria-label="Citation" hidden></div>
+
+    <script type="module" src="/bootstrap/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/script.js"></script>
+    <script type="module" src="/database/sources.js"></script>
+</body>
+
+</html>

@@ -42,11 +42,13 @@
                             <li><a class="dropdown-item" href="/multiplayer/team">Team Mode</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/ranked">Ranked</a>
-                    </li>
-                    <li class="nav-item">
+                    <li class="nav-item dropdown nav-database">
                         <a class="nav-link" href="/db">Database</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/db">Search questions</a></li>
+                            <li><a class="dropdown-item" href="/db/sets">Browse sets</a></li>
+                            <li><a class="dropdown-item" href="/db/sources">Source check</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/leaderboards">Leaderboards</a>
@@ -69,8 +71,7 @@
         <div class="mp-hdr">
             <div>
                 <span class="ed-eyebrow">Multiplayer</span>
-                <h1>Play a <em>room</em></h1>
-                <p>Play Certamen real-time against other players. Join a public room or create your own — share the URL to invite friends.</p>
+                <h1>Play in a <em>room</em></h1>
             </div>
             <form id="form" class="mp-create-form">
                 <div class="mp-create-field">

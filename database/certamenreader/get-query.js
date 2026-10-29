@@ -3,6 +3,7 @@ import { questionPrivacyFilter } from './set-privacy.js';
 
 import { OKCYAN, ENDC, OKGREEN } from '../../bcolors.js';
 import { DEFAULT_QUERY_RETURN_LENGTH, MAX_QUERY_RETURN_LENGTH } from '../../constants.js';
+import { roundsFilter, sanitizeRounds } from '../../client/utilities/rounds.js';
 // eslint-disable-next-line no-unused-vars
 import * as types from '../../types.js';
 
@@ -51,12 +52,12 @@ function validateOptions ({
   categories,
   subcategories,
   alternateSubcategories,
+  rounds,
   maxReturnLength = DEFAULT_QUERY_RETURN_LENGTH,
   randomize = false,
   regex = false,
   ignoreWordOrder = false,
   exactPhrase = false,
-  powermarkOnly = false,
   tossupPagination = 1,
   bonusPagination = 1,
   minYear,
@@ -116,7 +117,9 @@ function validateOptions ({
     setNames = undefined;
   }
 
-  return { queryString, difficulties, setName, setNames, searchType, questionType, categories, subcategories, alternateSubcategories, maxReturnLength, randomize, regex, exactPhrase, powermarkOnly, tossupPagination, bonusPagination, minYear, maxYear, verbose, words, username };
+  rounds = sanitizeRounds(rounds);
+
+  return { queryString, difficulties, setName, setNames, searchType, questionType, categories, subcategories, alternateSubcategories, rounds, maxReturnLength, randomize, regex, exactPhrase, tossupPagination, bonusPagination, minYear, maxYear, verbose, words, username };
 }
 
 /**
@@ -131,12 +134,12 @@ function validateOptions ({
  * @param {string[]} [options.categories] - An array of categories to filter by.
  * @param {string[]} [options.subcategories] - An array of subcategories to filter by.
  * @param {string[]} [options.alternateSubcategories] - An array of alternate subcategories to filter by.
+ * @param {string[]} [options.rounds] - An array of rounds to filter by (see ROUNDS).
  * @param {number} [options.maxReturnLength] - The maximum number of questions to return.
  * @param {boolean} [options.randomize=false] - Whether to randomize the order of the returned questions.
  * @param {boolean} [options.regex=false] - Whether to treat the search query as a regular expression.
  * @param {boolean} [options.ignoreWordOrder=false] - Whether to ignore the word order in the search query. This allows the words to appear anywhere in the text, not necessarily next to each other.
  * @param {boolean} [options.exactPhrase=false] - Whether to search for an exact phrase match.
- * @param {boolean} [options.powermarkOnly=false] - Whether to only search for powermarked questions.
  * @param {number} [options.tossupPagination=1] - The page number of the tossup pagination.
  * @returns {Promise<{tossups: {count: Number, questionArray: types.Tossup[]}, bonuses: {count: Number, questionArray: types.Bonus[]}}>} The retrieved questions.
  */
@@ -256,7 +259,7 @@ async function getBonusQuery (options) {
   }
 }
 
-function buildQueryAggregation ({ query, difficulties, categories, subcategories, alternateSubcategories, setName, setNames, maxReturnLength, randomize, minYear, maxYear, isEmpty, powermarkOnly, username }) {
+function buildQueryAggregation ({ query, difficulties, categories, subcategories, alternateSubcategories, rounds, setName, setNames, maxReturnLength, randomize, minYear, maxYear, isEmpty, username }) {
   if (isEmpty) {
     delete query.$or;
   }
@@ -281,6 +284,11 @@ function buildQueryAggregation ({ query, difficulties, categories, subcategories
     query.alternate_subcategory = { $in: alternateSubcategories };
   }
 
+  const roundCondition = roundsFilter(rounds);
+  if (roundCondition) {
+    query['packet.name'] = roundCondition;
+  }
+
   if (setNames?.length) {
     query['set.name'] = { $in: setNames };
   } else if (setName) {
@@ -291,10 +299,6 @@ function buildQueryAggregation ({ query, difficulties, categories, subcategories
     query['set.year'] = { $gte: minYear, $lte: maxYear };
   } else if (minYear) { query['set.year'] = { $gte: minYear }; } else if (maxYear) {
     query['set.year'] = { $lte: maxYear };
-  }
-
-  if (powermarkOnly) {
-    query.question_sanitized = { $regex: '\\(\\*\\)' };
   }
 
   const aggregation = [

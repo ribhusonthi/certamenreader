@@ -1,5 +1,6 @@
 import { DEFAULT_QUERY_RETURN_LENGTH, MAX_QUERY_RETURN_LENGTH } from '../../constants.js';
 import getQuery from '../../database/certamenreader/get-query.js';
+import { sanitizeRounds } from '../../client/utilities/rounds.js';
 import { getVerifiedUsername } from '../../server/authentication.js';
 
 import { Router } from 'express';
@@ -29,7 +30,6 @@ router.get('/', async (req, res) => {
 
   req.query.exactPhrase = (req.query.exactPhrase === 'true');
   req.query.ignoreWordOrder = (req.query.ignoreWordOrder === 'true');
-  req.query.powermarkOnly = (req.query.powermarkOnly === 'true');
   req.query.randomize = (req.query.randomize === 'true');
   req.query.regex = (req.query.regex === 'true');
 
@@ -50,6 +50,8 @@ router.get('/', async (req, res) => {
   if (req.query.subcategories) {
     req.query.subcategories = req.query.subcategories.split(',');
   }
+
+  req.query.rounds = sanitizeRounds(req.query.rounds);
 
   req.query.setNames = parseStringList(req.query.setNames);
 

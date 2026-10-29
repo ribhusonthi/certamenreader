@@ -6,6 +6,8 @@ import indexRouter from './routes/index.js';
 import handleWssConnection from './server/multiplayer/handle-wss-connection.js';
 
 import { checkToken, generateToken, sessionKeys } from './server/authentication.js';
+import { allowGuestRequest } from './server/guest-access.js';
+import { maintenanceMiddleware } from './server/maintenance.js';
 import passport from 'passport';
 
 import compression from 'compression';
@@ -66,6 +68,9 @@ app.use(compression());
 
 app.use(express.json());
 
+// Planned downtime (MAINTENANCE_AT / MAINTENANCE_MODE); see server/maintenance.js.
+app.use(maintenanceMiddleware);
+
 app.use(cookieSession({
   name: 'session',
   keys: sessionKeys,
@@ -98,6 +103,8 @@ function isAuthExempt (path) {
   return (
     path === '/' ||
     path === '/user/login' ||
+    path === '/user/signup' ||
+    path === '/user/reset-password' ||
     path === '/waltoncertamen' ||
     // Internal design review — reviewers on a local dev build have no account.
     path === '/review' ||
@@ -146,8 +153,13 @@ app.use((req, res, next) => {
     return next();
   }
 
+  // Signed-out visitors: public pages, plus singleplayer's sample questions.
+  if (allowGuestRequest(req)) {
+    return next();
+  }
+
   if (req.path.startsWith('/api/')) {
-    res.status(401).json({ error: 'Authentication required.' });
+    res.status(401).json({ error: 'Authentication required.', signIn: true });
     return;
   }
 

@@ -44,11 +44,13 @@
                             <li><a class="dropdown-item" href="/multiplayer/team">Team Mode</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/ranked">Ranked</a>
-                    </li>
-                    <li class="nav-item">
+                    <li class="nav-item dropdown nav-database">
                         <a class="nav-link" href="/db">Database</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/db">Search questions</a></li>
+                            <li><a class="dropdown-item" href="/db/sets">Browse sets</a></li>
+                            <li><a class="dropdown-item" href="/db/sources">Source check</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/leaderboards">Leaderboards</a>
@@ -72,7 +74,6 @@
         <header class="dash-head">
             <div>
                 <h1 class="dash-title">Welcome back<span id="dash-username"></span>.</h1>
-                <p class="dash-sub" id="dash-sub">Your reading at a glance.</p>
             </div>
             <div class="dash-head-cta">
                 <a class="btn btn-primary" href="/singleplayer/tossups">Continue reading</a>
@@ -127,7 +128,7 @@
         </section>
 
         <div class="dash-cols">
-            <!-- Left column -->
+            <!-- Left column: your stats -->
             <div class="dash-col">
                 <section class="dash-card">
                     <div class="dash-card-hdr"><span>Recent activity</span><a href="/user/stats/tossups">Full history →</a></div>
@@ -147,70 +148,28 @@
                     </div>
                 </section>
 
-                <section class="dash-card">
-                    <div class="dash-card-hdr"><span>Sets</span><a href="/db">Browse all →</a></div>
-                    <div class="home-sets" id="home-sets">
-                        <div class="home-sets-empty">Loading sets…</div>
+                <section class="dash-card dash-card-pad">
+                    <div class="dash-card-hdr dash-card-hdr-flush"><span>Detailed stats</span></div>
+                    <div class="home-stat-links">
+                        <a class="dash-qa" href="/user/stats/tossups"><span class="t">Tossup stats</span><span class="s">By category</span></a>
+                        <a class="dash-qa" href="/user/stats/bonuses"><span class="t">Bonus stats</span><span class="s">By category</span></a>
+                        <a class="dash-qa" href="/user/stats/tossup-graph"><span class="t">Tossup graph</span><span class="s">Progress over time</span></a>
+                        <a class="dash-qa" href="/user/stats/bonus-graph"><span class="t">Bonus graph</span><span class="s">Progress over time</span></a>
                     </div>
                 </section>
             </div>
 
-            <!-- Right column -->
+            <!-- Right column: saved questions -->
             <div class="dash-col">
-                <section class="dash-card dash-card-pad">
-                    <div class="dash-card-hdr dash-card-hdr-flush"><span>Quick start</span></div>
-                    <a class="dash-qa dash-qa-primary" href="/singleplayer/tossups">
-                        <span class="t">Singleplayer</span>
-                        <span class="s">Read a packet on your own</span>
-                    </a>
-                    <a class="dash-qa" href="/multiplayer">
-                        <span class="t">Join a room</span>
-                        <span class="s" id="qa-rooms">Play against other people</span>
-                    </a>
-                    <a class="dash-qa" href="/ranked">
-                        <span class="t">Find a ranked match</span>
-                        <span class="s">Climb the leaderboard</span>
-                    </a>
-                </section>
-
                 <section class="dash-card">
-                    <div class="dash-card-hdr"><span>Leaderboard top 5</span><a href="/leaderboards">Full →</a></div>
-                    <div id="dash-leaderboard">
+                    <div class="dash-card-hdr"><span>Starred questions</span><a href="/user/stars/tossups">All tossups →</a></div>
+                    <div id="home-stars">
                         <div class="empty-state"><span>Loading…</span></div>
                     </div>
-                </section>
-
-                <section class="dash-card dash-card-pad">
-                    <div class="dash-card-hdr dash-card-hdr-flush"><span>Categories</span></div>
-                    <div class="cat-grid">
-                        <button type="button" class="cat-chip" data-cat="Mythology" data-on="true">Mythology</button>
-                        <button type="button" class="cat-chip" data-cat="Roman History" data-on="true">Roman History</button>
-                        <button type="button" class="cat-chip" data-cat="Latin Literature" data-on="true">Latin Literature</button>
-                        <button type="button" class="cat-chip" data-cat="Language" data-on="true">Language</button>
-                        <button type="button" class="cat-chip" data-cat="Culture" data-on="true">Culture</button>
+                    <div class="home-stars-foot">
+                        <a href="/user/stars/tossups">Starred tossups <b id="stars-tossups-count"></b></a>
+                        <a href="/user/stars/bonuses">Starred bonuses <b id="stars-bonuses-count"></b></a>
                     </div>
-                </section>
-
-                <section class="dash-card dash-card-pad">
-                    <div class="dash-card-hdr dash-card-hdr-flush"><span>Settings</span><a href="/settings">Edit →</a></div>
-                    <!-- Rendered from client/utilities/reader-settings.js so these
-                         reflect (and change) your real settings. -->
-                    <div class="home-settings-grid" id="home-settings"></div>
-                    <div class="dash-card-hdr dash-card-hdr-flush" style="margin-top: 1.1rem;"><span>Shortcuts</span></div>
-                    <div class="home-shortcuts">
-                        <div class="home-shortcut"><span>Buzz</span><kbd>Space</kbd></div>
-                        <div class="home-shortcut"><span>Next tossup</span><kbd>N</kbd></div>
-                        <div class="home-shortcut"><span>Pause</span><kbd>P</kbd></div>
-                        <div class="home-shortcut"><span>Star</span><kbd>T</kbd></div>
-                        <div class="home-shortcut"><span>Show last</span><kbd>K</kbd></div>
-                        <div class="home-shortcut"><span>Copy id</span><kbd>Y</kbd></div>
-                    </div>
-                </section>
-
-                <section class="dash-cta">
-                    <div class="dash-cta-t">Contribute questions</div>
-                    <p class="dash-cta-d">Upload a packet PDF or DOCX and help grow the database.</p>
-                    <a class="btn btn-primary" href="/upload">Upload now</a>
                 </section>
             </div>
         </div>

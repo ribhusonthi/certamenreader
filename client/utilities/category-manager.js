@@ -1,3 +1,5 @@
+import { packetMatchesRounds, sanitizeRounds } from './rounds.js';
+
 const SUBCATEGORIES = {
   Mythology: [],
   'Roman History': [],
@@ -11,23 +13,25 @@ export default class CategoryManager {
      * @param {string[]} categories
      * @param {string[]} subcategories
      * @param {string[]} alternateSubcategories
+     * @param {string[]} rounds - independent of categories: any mix of the two is allowed.
      */
-  constructor (categories = [], subcategories = [], alternateSubcategories = []) {
-    this.import(categories, subcategories, alternateSubcategories);
+  constructor (categories = [], subcategories = [], alternateSubcategories = [], rounds = []) {
+    this.import(categories, subcategories, alternateSubcategories, rounds);
   }
 
   export () {
     return {
       categories: this.categories,
       subcategories: this.subcategories,
-      alternateSubcategories: this.alternateSubcategories
+      alternateSubcategories: this.alternateSubcategories,
+      rounds: this.rounds
     };
   }
 
-  import (categories = [], subcategories = [], alternateSubcategories = []) {
+  import (categories = [], subcategories = [], alternateSubcategories = [], rounds = []) {
     if (categories.length > 0 && subcategories.length === 0) {
       categories.forEach(category => {
-        SUBCATEGORIES[category].forEach(subcategory => {
+        SUBCATEGORIES[category]?.forEach(subcategory => {
           subcategories.push(subcategory);
         });
       });
@@ -36,20 +40,22 @@ export default class CategoryManager {
     this.categories = categories;
     this.subcategories = subcategories;
     this.alternateSubcategories = alternateSubcategories;
+    this.rounds = sanitizeRounds(rounds);
   }
 
   /**
      * @param {JSON} question
-     * @returns {boolean} Whether or not the question is part of the valid category and subcategory combination.
+     * @returns {boolean} Whether or not the question is part of the valid category, subcategory and round combination.
      */
   isValidCategory (question) {
-    if (this.categories.length === 0 && this.subcategories.length === 0) {
+    if (this.categories.length === 0 && this.subcategories.length === 0 && this.rounds.length === 0) {
       return true;
     }
 
     const categoryMatch = this.categories.length === 0 || this.categories.includes(question.category);
     const subcategoryMatch = this.subcategories.length === 0 || this.subcategories.includes(question.subcategory);
-    return categoryMatch && subcategoryMatch;
+    const roundMatch = packetMatchesRounds(question.packet?.name, this.rounds);
+    return categoryMatch && subcategoryMatch && roundMatch;
   }
 
   /**
@@ -62,17 +68,9 @@ export default class CategoryManager {
     document.querySelectorAll('#subcategories label').forEach(element => { element.classList.add('d-none'); });
     document.querySelectorAll('#alternate-subcategories input').forEach(element => { element.checked = false; });
     document.querySelectorAll('#alternate-subcategories label').forEach(element => { element.classList.add('d-none'); });
-
-    if (this.categories.length === 0 && this.subcategories.length === 0) {
-      document.getElementById('subcategory-info-text')?.remove();
-      const subcategoryInfoText = document.createElement('div');
-      subcategoryInfoText.className = 'text-muted text-center';
-      subcategoryInfoText.textContent = 'You must select categories before you can select subcategories.';
-      subcategoryInfoText.id = 'subcategory-info-text';
-      document.getElementById('subcategories').appendChild(subcategoryInfoText);
-    } else if (document.getElementById('subcategory-info-text')) {
-      document.getElementById('subcategory-info-text').remove();
-    }
+    document.querySelectorAll('#rounds input').forEach(element => {
+      element.checked = this.rounds.includes(element.dataset.round);
+    });
 
     for (const category of this.categories) {
       const input = document.querySelector(`#categories [data-category="${category}"]`);
@@ -113,6 +111,21 @@ export default class CategoryManager {
       this.categories.push(category);
       this.subcategories = this.subcategories.concat(SUBCATEGORIES[category]);
       // this.alternateSubcategories = this.alternateSubcategories.concat(ALTERNATE_SUBCATEGORIES[category]);
+      return true;
+    }
+  }
+
+  /**
+     * Adds the given round if it is not selected. Otherwise, the round is removed.
+     * @param {string} round
+     * @returns {boolean} true if the round was added, false if the round was removed
+     */
+  updateRound (round) {
+    if (this.rounds.includes(round)) {
+      this.rounds = this.rounds.filter(a => a !== round);
+      return false;
+    } else {
+      this.rounds = sanitizeRounds([...this.rounds, round]);
       return true;
     }
   }

@@ -1,4 +1,6 @@
+import announcementsRouter from './announcements.js';
 import discordRouter from './discord.js';
+import emailRouter from './email.js';
 import ankiTokenRouter from './anki-token.js';
 import getProfileRouter from './get-profile.js';
 import getUsernameRouter from './get-username.js';
@@ -23,7 +25,9 @@ router.use(rateLimit({
   legacyHeaders: false
 }));
 
+router.use('/announcements', announcementsRouter);
 router.use('/discord', discordRouter);
+router.use('/email', emailRouter);
 router.use('/anki-token', ankiTokenRouter);
 router.use('/get-profile', getProfileRouter);
 router.use('/get-username', getUsernameRouter);

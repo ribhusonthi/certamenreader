@@ -21,6 +21,8 @@
 //   #set-card-difficulty      sidebar level / random chip
 //   #set-card-packets         sidebar packet-count chip
 
+import { roundLabel } from './rounds.js';
+
 const DIFFICULTY_LABELS = { 1: 'Novice', 5: 'Intermediate', 10: 'Advanced' };
 
 function parseTournament (setName) {
@@ -57,13 +59,18 @@ function parseDifficultyValue (setName) {
  *                                        should be tagged "new" in the modal list.
  * @param {Function} [opts.isPrivate]     (setName) => boolean. Returns true when a set
  *                                        is the signed-in user's own private upload.
+ * @param {Function} [opts.isLocked]      (setName) => boolean. Returns true when a set
+ *                                        needs an account (signed-out visitors). Locked
+ *                                        sets are dimmed and can't be selected; choosing
+ *                                        one calls on.onLockedSet(names) instead.
  * @param {Object}   opts.on              Callbacks fired immediately when a control changes.
  *                                        { onSetChange(setName, setNames), onSetNamesChange(setNames),
  *                                          onPacketsChange(numbers),
  *                                          onDifficultiesChange(list),
- *                                          onYearRangeChange(minYear, maxYear) }
+ *                                          onYearRangeChange(minYear, maxYear),
+ *                                          onLockedSet(names) }
  */
-export function initSetSelector ({ sets, state, on, fetchPackets, isNew, isPrivate }) {
+export function initSetSelector ({ sets, state, on, fetchPackets, isNew, isPrivate, isLocked }) {
   const modal = document.getElementById('set-modal');
   if (!modal) return { setState () {}, refreshOpener () {} };
 
@@ -107,7 +114,11 @@ export function initSetSelector ({ sets, state, on, fetchPackets, isNew, isPriva
     state.setName = state.setNames.length === 1 ? state.setNames[0] : '';
   }
 
-  function selectionSummary (noneText = 'none — questions will be random') {
+  // Each page's markup carries its own "nothing selected" wording (singleplayer:
+  // questions will be random; database: search across all sets).
+  const noneSelectedText = currentEl?.textContent.trim() || 'none — questions will be random';
+
+  function selectionSummary (noneText = noneSelectedText) {
     const names = selectedSetNames();
     if (names.length === 0) return noneText;
     if (names.length === 1) return names[0];
@@ -191,57 +202,122 @@ export function initSetSelector ({ sets, state, on, fetchPackets, isNew, isPriva
       return true;
     });
 
-    filtered.sort((a, b) => {
-      const ta = parseTournament(a);
-      const tb = parseTournament(b);
-      if (ta !== tb) return ta.localeCompare(tb);
-      const ya = parseYear(a) ?? 0;
-      const yb = parseYear(b) ?? 0;
-      return yb - ya;
-    });
-
     setListEl.innerHTML = '';
     if (filtered.length === 0) {
       setListEl.innerHTML = '<div class="ed-set-empty">No sets match these filters.</div>';
       return;
     }
+
+    // Group by tournament, then year, with one chip per level — so a
+    // tournament's sets sit together instead of as one row per set.
+    const groups = new Map();
     for (const name of filtered) {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'ed-set-row';
-      const dv = parseDifficultyValue(name);
-      const yr = parseYear(name);
       const tournament = parseTournament(name);
-      const newTag = isNew?.(name) ? '<span class="ed-mini-chip" data-new="true">New</span>' : '';
-      const privateTag = isPrivate?.(name) ? '<span class="ed-mini-chip" data-private="true">Private</span>' : '';
-      btn.innerHTML = `
-        <span class="ed-set-row-main">
-          <span class="ed-set-row-title">${escapeHtml(tournament)}</span>
-          <span class="ed-set-row-meta">${privateTag}${newTag}${dv ? `<span class="ed-mini-chip" data-d="${dv}">${DIFFICULTY_LABELS[dv]}</span>` : ''}${yr != null ? `<span class="ed-mini-chip">${yr}</span>` : ''}</span>
-        </span>
-        <span class="ed-set-row-full">${escapeHtml(name)}</span>
-      `;
-      if (selectedSetNames().includes(name)) btn.setAttribute('data-active', 'true');
-      btn.addEventListener('click', () => {
-        const next = selectedSetNames();
-        const index = next.indexOf(name);
-        if (index >= 0) next.splice(index, 1);
-        else next.push(name);
-        setSelectedSetNames(next);
-        state.packetNumbers = [];
-        setListEl.querySelectorAll('.ed-set-row').forEach(el => {
-          const fullName = el.querySelector('.ed-set-row-full')?.textContent;
-          if (selectedSetNames().includes(fullName)) el.setAttribute('data-active', 'true');
-          else el.removeAttribute('data-active');
-        });
-        refreshOpener();
-        refreshCurrent();
-        refreshSidebar();
-        emitSetChange();
-        loadPackets();
-      });
-      setListEl.appendChild(btn);
+      const year = parseYear(name);
+      if (!groups.has(tournament)) groups.set(tournament, new Map());
+      const years = groups.get(tournament);
+      if (!years.has(year)) years.set(year, []);
+      years.get(year).push(name);
     }
+    const LEVEL_ORDER = { 1: 0, 5: 1, 10: 2 };
+    const levelWord = name => {
+      const parts = String(name).trim().split(/\s+/);
+      return parts.length >= 3 ? parts[parts.length - 2] : name;
+    };
+
+    for (const tournament of [...groups.keys()].sort((a, b) => a.localeCompare(b))) {
+      const years = groups.get(tournament);
+      const total = [...years.values()].reduce((n, list) => n + list.length, 0);
+      const group = document.createElement('div');
+      group.className = 'ed-set-group';
+      group.innerHTML = `
+        <div class="ed-set-group-hdr">
+          <span class="ed-set-row-title">${escapeHtml(tournament)}</span>
+          <span class="ed-set-group-count">${total} set${total === 1 ? '' : 's'}</span>
+        </div>`;
+      const yearKeys = [...years.keys()].sort((a, b) => (b ?? -Infinity) - (a ?? -Infinity));
+      for (const year of yearKeys) {
+        const names = years.get(year).sort((a, b) =>
+          (LEVEL_ORDER[parseDifficultyValue(a)] ?? 3) - (LEVEL_ORDER[parseDifficultyValue(b)] ?? 3) || a.localeCompare(b));
+        const row = document.createElement('div');
+        row.className = 'ed-set-year-row';
+
+        const yearBtn = document.createElement('button');
+        yearBtn.type = 'button';
+        yearBtn.className = 'ed-set-year';
+        yearBtn.textContent = year ?? '—';
+        yearBtn.title = `Select every level from ${tournament}${year != null ? ' ' + year : ''}`;
+        yearBtn.dataset.sets = JSON.stringify(names);
+        yearBtn.addEventListener('click', () => {
+          const current = selectedSetNames();
+          const allOn = names.every(n => current.includes(n));
+          toggleSets(names, !allOn);
+        });
+        row.appendChild(yearBtn);
+
+        const levels = document.createElement('div');
+        levels.className = 'ed-set-levels';
+        for (const name of names) {
+          const dv = parseDifficultyValue(name);
+          const chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = 'ed-level-chip';
+          chip.dataset.set = name;
+          if (dv) chip.dataset.d = dv;
+          chip.title = name;
+          const newTag = isNew?.(name) ? '<span class="ed-mini-chip" data-new="true">New</span>' : '';
+          const privateTag = isPrivate?.(name) ? '<span class="ed-mini-chip" data-private="true">Private</span>' : '';
+          if (isLocked?.(name)) {
+            chip.dataset.locked = 'true';
+            chip.title = `${name} (log in to play)`;
+          }
+          chip.innerHTML = `${escapeHtml(levelWord(name))}${privateTag}${newTag}`;
+          chip.addEventListener('click', () => {
+            toggleSets([name], !selectedSetNames().includes(name));
+          });
+          levels.appendChild(chip);
+        }
+        row.appendChild(levels);
+        group.appendChild(row);
+      }
+      setListEl.appendChild(group);
+    }
+    syncActive();
+  }
+
+  // Selection changes from the grouped list (single chips or a whole year).
+  function syncActive () {
+    const current = selectedSetNames();
+    setListEl.querySelectorAll('.ed-level-chip').forEach(el => {
+      if (current.includes(el.dataset.set)) el.setAttribute('data-active', 'true');
+      else el.removeAttribute('data-active');
+    });
+    setListEl.querySelectorAll('.ed-set-year').forEach(el => {
+      const names = JSON.parse(el.dataset.sets || '[]');
+      if (names.length && names.every(n => current.includes(n))) el.setAttribute('data-active', 'true');
+      else el.removeAttribute('data-active');
+    });
+  }
+
+  function toggleSets (names, selected) {
+    if (selected && isLocked) {
+      const locked = names.filter(n => isLocked(n));
+      if (locked.length > 0) {
+        on.onLockedSet?.(locked);
+        names = names.filter(n => !isLocked(n));
+        if (names.length === 0) return;
+      }
+    }
+    const next = selectedSetNames().filter(n => !names.includes(n));
+    if (selected) next.push(...names);
+    setSelectedSetNames(next);
+    state.packetNumbers = [];
+    syncActive();
+    refreshOpener();
+    refreshCurrent();
+    refreshSidebar();
+    emitSetChange();
+    loadPackets();
   }
 
   // ── Packets ───────────────────────────────────────────────────────────────
@@ -270,7 +346,7 @@ export function initSetSelector ({ sets, state, on, fetchPackets, isNew, isPriva
   function renderPackets () {
     if (!packetsEl) return;
     if (cachedPackets.length === 0) {
-      packetsEl.innerHTML = '<div class="ed-set-empty">No packets found for this set.</div>';
+      packetsEl.innerHTML = '<div class="ed-set-empty">No rounds found for this set.</div>';
       return;
     }
     packetsEl.innerHTML = '';
@@ -279,7 +355,8 @@ export function initSetSelector ({ sets, state, on, fetchPackets, isNew, isPriva
       const chip = document.createElement('button');
       chip.type = 'button';
       chip.className = 'packet-chip';
-      chip.textContent = pkt.name || `Packet ${pkt.number}`;
+      chip.textContent = roundLabel(pkt);
+      if (pkt.name) chip.title = pkt.name;
       chip.dataset.packetNumber = pkt.number;
       chip.setAttribute('data-on', selected.has(pkt.number) ? 'true' : 'false');
       chip.addEventListener('click', () => {
@@ -349,7 +426,7 @@ export function initSetSelector ({ sets, state, on, fetchPackets, isNew, isPriva
     if (sidebarPacketsEl) {
       const n = (state.packetNumbers || []).length;
       if (selectedSetNames().length === 1 && n > 0) {
-        sidebarPacketsEl.textContent = `${n} packet${n === 1 ? '' : 's'}`;
+        sidebarPacketsEl.textContent = `${n} round${n === 1 ? '' : 's'}`;
         sidebarPacketsEl.hidden = false;
       } else {
         sidebarPacketsEl.hidden = true;
@@ -399,7 +476,7 @@ export function initSetSelector ({ sets, state, on, fetchPackets, isNew, isPriva
   clearSetBtn?.addEventListener('click', () => {
     setSelectedSetNames([]);
     state.packetNumbers = [];
-    setListEl.querySelectorAll('.ed-set-row').forEach(el => el.removeAttribute('data-active'));
+    syncActive();
     refreshOpener();
     refreshCurrent();
     refreshSidebar();

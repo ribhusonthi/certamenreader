@@ -1,10 +1,11 @@
 import { getBonusPartLabel } from '../utilities/index.js';
+import { roundLabel } from '../utilities/rounds.js';
 
 function stringifyBonus (bonus, includeMetadata = false) {
   let textdata = '';
 
   if (includeMetadata) {
-    textdata += `${bonus.set.name} Packet ${bonus.packet.number}\n`;
+    textdata += `${bonus.set.name} ${roundLabel(bonus.packet)}\n`;
     textdata += `Question ID: ${bonus._id}\n`;
   }
 
@@ -21,7 +22,7 @@ function stringifyTossup (tossup, includeMetadata = false) {
   let textdata = '';
 
   if (includeMetadata) {
-    textdata += `${tossup.set.name} Packet ${tossup.packet.number}\n`;
+    textdata += `${tossup.set.name} ${roundLabel(tossup.packet)}\n`;
     textdata += `Question ID: ${tossup._id}\n`;
   }
 

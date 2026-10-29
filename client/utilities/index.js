@@ -1,8 +1,9 @@
 import star from '../auth/star.js';
 import api from '../api/index.js';
 import { formatAnswerline, removeParentheses } from './strings.js';
+import { roundLabel, roundPageUrl } from './rounds.js';
 
-const CERTAMEN_CATEGORIES = ['Language', 'Literature', 'Culture', 'History', 'Mythology'];
+const CERTAMEN_CATEGORIES = ['Mythology', 'Roman History', 'Latin Literature', 'Language', 'Culture'];
 
 // Constants and functions useful for certamen packet reading.
 
@@ -89,7 +90,7 @@ const createBonusCard = (function () {
                 </div>
                 <div class="card-footer">
                     <small class="text-muted">${set.name} / ${category} / ${subcategory} ${alternateSubcategory ? '(' + alternateSubcategory + ')' : ''}</small>
-                    <small class="text-muted float-end">Packet ${packet.number} / Question ${number}</small>
+                    <small class="text-muted float-end"><a href="${roundPageUrl(set.name, packet.number)}" target="_blank" title="Read the whole round">${roundLabel(packet)}</a> / Question ${number}</small>
                 </div>
             </div>
         `;
@@ -329,7 +330,7 @@ const createTossupCard = (function () {
                 </div>
                 <div class="card-footer">
                     <small class="text-muted">${set.name} / ${category} / ${subcategory} ${alternateSubcategory ? '(' + alternateSubcategory + ')' : ''}</small>
-                    <small class="text-muted float-end">Packet ${packet.number} / Question ${number}</small>
+                    <small class="text-muted float-end"><a href="${roundPageUrl(set.name, packet.number)}" target="_blank" title="Read the whole round">${roundLabel(packet)}</a> / Question ${number}</small>
                 </div>
             </div>
         `;
