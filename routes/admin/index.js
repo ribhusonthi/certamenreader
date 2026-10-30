@@ -1,7 +1,7 @@
 import isAdmin from '../../database/account-info/is-admin.js';
 import { checkToken } from '../../server/authentication.js';
 import { certamenreader } from '../../database/databases.js';
-import { tossups as tossupsCollection, sets as setsCollection, packets as packetsCollection } from '../../database/certamenreader/collections.js';
+import { tossups as tossupsCollection, bonuses as bonusesCollection, sets as setsCollection, packets as packetsCollection } from '../../database/certamenreader/collections.js';
 
 import usersRouter from './users.js';
 import schoolsRouter from './schools.js';
@@ -60,16 +60,16 @@ router.delete('/api/uploads/:uploadId', async (req, res) => {
     return res.sendStatus(404);
   }
 
-  // Delete all tossups for this set
-  await tossupsCollection.deleteMany({ 'set.name': uploadDoc.setName });
-
-  // Delete all packets for this set
-  await packetsCollection.deleteMany({ 'set.name': uploadDoc.setName });
-
-  // Delete the set
-  try {
-    await setsCollection.deleteOne({ _id: new ObjectId(uploadDoc.setId) });
-  } catch { /* set may already be gone */ }
+  // Delete the uploaded set's questions by the set's id, never its name: an
+  // official set can share the name (deleting a "Princeton Advanced 2026"
+  // upload by name wiped the official set's tossups and packets).
+  if (ObjectId.isValid(uploadDoc.setId)) {
+    const setId = new ObjectId(uploadDoc.setId);
+    await tossupsCollection.deleteMany({ 'set._id': setId });
+    await bonusesCollection.deleteMany({ 'set._id': setId });
+    await packetsCollection.deleteMany({ 'set._id': setId });
+    await setsCollection.deleteOne({ _id: setId });
+  }
 
   // Delete the upload record
   await uploads.deleteOne({ _id: new ObjectId(uploadId) });
