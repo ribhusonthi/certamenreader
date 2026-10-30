@@ -81,6 +81,21 @@
         </header>
 
         <div class="settings-grid">
+            <section class="c-card d-none" id="username-card">
+                <h2 class="c-head">Username</h2>
+                <p class="c-field__hint" style="margin: -0.2rem 0 0.9rem;">
+                    You can change your username once every 3 months. Your old username becomes available to
+                    others, and you'll be signed out on your other devices.
+                </p>
+                <label class="c-field__label" for="username-input">Your username is <strong id="username-current"></strong></label>
+                <div class="d-flex flex-wrap gap-2">
+                    <input class="form-control flex-grow-1 w-auto" id="username-input" type="text" maxlength="24"
+                        autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="New username">
+                    <button class="btn btn-primary" id="username-save" type="button" disabled>Change</button>
+                </div>
+                <div class="small mt-2" id="username-message" role="status"></div>
+            </section>
+
             <section class="c-card">
                 <h2 class="c-head">School</h2>
                 <p class="c-field__hint" style="margin: -0.2rem 0 0.9rem;">
@@ -166,6 +181,31 @@
                     </div>
                 </div>
             </section>
+
+            <section class="c-card c-card--danger d-none" id="delete-account-card">
+                <h2 class="c-head">Delete account</h2>
+                <p class="c-field__hint">
+                    You'll be signed out everywhere, and your profile and leaderboard entry are hidden right away.
+                    After 30 days your account, stats, stars and uploaded packets are permanently deleted.
+                    Sign back in before then to cancel.
+                </p>
+                <div id="delete-account-start">
+                    <button class="btn btn-outline-danger" id="delete-account-open" type="button">Delete account…</button>
+                </div>
+                <div class="d-none" id="delete-account-confirm">
+                    <label class="c-field__label" for="delete-account-username">Type <strong id="delete-account-name"></strong> to confirm</label>
+                    <input class="form-control" id="delete-account-username" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        <button class="btn btn-danger" id="delete-account-submit" type="button" disabled>Delete my account</button>
+                        <button class="btn btn-outline-secondary" id="delete-account-cancel" type="button">Cancel</button>
+                    </div>
+                    <div class="small text-danger mt-2" id="delete-account-error" role="alert"></div>
+                </div>
+                <div class="d-none" id="delete-account-done" role="status">
+                    <p class="mb-2">Your account is deactivated and will be permanently deleted on <strong id="delete-account-date"></strong>.</p>
+                    <p class="c-field__hint mb-0">Changed your mind? Sign in before then and everything will be back. <a href="/">Go to the home page</a></p>
+                </div>
+            </section>
         </div>
     </main>
 
@@ -173,6 +213,8 @@
     <script type="module" src="/script.js"></script>
     <script type="module" src="/settings/index.js"></script>
     <script type="module" src="/settings/school.js"></script>
+    <script type="module" src="/settings/delete-account.js"></script>
+    <script type="module" src="/settings/username.js"></script>
 
     <script>
       // Keep the editorial toggle switches in sync with the underlying checkboxes

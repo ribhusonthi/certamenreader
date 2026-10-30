@@ -1,4 +1,5 @@
 import { COOKIE_MAX_AGE } from '../../constants.js';
+import { reactivateAccount } from '../../database/account-info/account-deletion.js';
 import { generateToken } from '../../server/authentication.js';
 
 import passport from 'passport';
@@ -22,6 +23,8 @@ router.get('/callback', passport.authenticate('google', {
   const username = user.username || user.email;
   const expires = Date.now() + COOKIE_MAX_AGE;
 
+  // Signing in cancels a pending account deletion.
+  await reactivateAccount(user);
   req.session.username = username;
   req.session.token = generateToken(username);
   req.session.expires = expires;

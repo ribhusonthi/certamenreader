@@ -1,3 +1,4 @@
+import { nextUsernameChangeAt } from '../../database/account-info/change-username.js';
 import getUser from '../../database/account-info/get-user.js';
 import isAdmin from '../../database/account-info/is-admin.js';
 import { schools } from '../../database/account-info/collections.js';
@@ -33,7 +34,7 @@ router.get('/', async (req, res) => {
       { projection: { name: 1, state: 1 } }
     );
   }
-  res.json({ user: { ...user, admin, school, needsUsername: user?.usernameSet !== true } });
+  res.json({ user: { ...user, admin, school, needsUsername: user?.usernameSet !== true, nextUsernameChangeAt: nextUsernameChangeAt(user) } });
 });
 
 export default router;

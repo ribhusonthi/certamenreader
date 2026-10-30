@@ -12,7 +12,7 @@ import {
  */
 async function getUserProfile (username, { topN = 15 } = {}) {
   const user = await users.findOne(
-    { username, usernameSet: true },
+    { username, usernameSet: true, deactivatedAt: { $exists: false } },
     { projection: { _id: 1, username: 1, name: 1, createdAt: 1, admin: 1 } }
   );
   if (!user) return null;

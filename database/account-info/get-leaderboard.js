@@ -53,7 +53,8 @@ async function getLeaderboard ({ limit = 100, category } = {}) {
   ]).toArray();
 
   const rows = grouped
-    .filter(r => r.user?.username && r.user?.usernameSet === true && !r.user.username.includes('@'))
+    // Accounts waiting to be deleted drop off the leaderboard straight away.
+    .filter(r => r.user?.username && r.user?.usernameSet === true && !r.user.username.includes('@') && !r.user.deactivatedAt)
     .map(r => {
       const weightedPP = weightedTopSum(r.topPPs);
       const bonusPP = activityBonus(r.buzzes);

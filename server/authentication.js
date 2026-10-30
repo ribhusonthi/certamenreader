@@ -1,3 +1,4 @@
+import { isTokenRevoked } from '../database/account-info/session-revocation.js';
 import getUserByGoogleId from '../database/account-info/get-user-by-google-id.js';
 import createUser from '../database/account-info/create-user.js';
 import { users } from '../database/account-info/collections.js';
@@ -34,7 +35,7 @@ function checkToken (username, token) {
     if (err) {
       return false;
     }
-    return decoded.username === username;
+    return decoded.username === username && !isTokenRevoked(username, decoded.iat);
   });
 }
 

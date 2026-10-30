@@ -5,6 +5,7 @@ import { WEBSOCKET_MAX_PAYLOAD, COOKIE_MAX_AGE } from './constants.js';
 import indexRouter from './routes/index.js';
 import handleWssConnection from './server/multiplayer/handle-wss-connection.js';
 
+import { startAccountDeletionSweep } from './database/account-info/account-deletion.js';
 import { checkToken, generateToken, sessionKeys } from './server/authentication.js';
 import { allowGuestRequest } from './server/guest-access.js';
 import { maintenanceMiddleware } from './server/maintenance.js';
@@ -173,4 +174,5 @@ app.use(indexRouter);
 // listen on ipv4 instead of ipv6
 server.listen({ port, host: '0.0.0.0' }, () => {
   console.log(`listening at port=${port}`);
+  startAccountDeletionSweep();
 });

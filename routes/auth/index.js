@@ -1,4 +1,5 @@
 import announcementsRouter from './announcements.js';
+import deleteAccountRouter from './delete-account.js';
 import discordRouter from './discord.js';
 import emailRouter from './email.js';
 import ankiTokenRouter from './anki-token.js';
@@ -26,6 +27,7 @@ router.use(rateLimit({
 }));
 
 router.use('/announcements', announcementsRouter);
+router.use('/delete-account', deleteAccountRouter);
 router.use('/discord', discordRouter);
 router.use('/email', emailRouter);
 router.use('/anki-token', ankiTokenRouter);

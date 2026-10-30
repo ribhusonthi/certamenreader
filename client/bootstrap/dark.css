@@ -9631,6 +9631,14 @@ a.list-group-item:hover {
   box-shadow: none;
 }
 
+.c-card--danger {
+  border-color: color-mix(in oklab, var(--incorrect) 45%, var(--border));
+}
+
+.c-card--danger .c-head, .c-card--danger .home-card-hdr, .c-card--danger .sb-sec-hdr {
+  border-bottom-color: color-mix(in oklab, var(--incorrect) 30%, var(--border));
+}
+
 .c-head, .home-card-hdr, .sb-sec-hdr {
   display: flex;
   align-items: baseline;

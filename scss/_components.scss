@@ -28,6 +28,10 @@
 }
 .c-card--flush { padding: 0; }
 .c-card--sunken { background: var(--bg-sunken); box-shadow: none; }
+// Destructive actions (Delete account): a red edge so it isn't mistaken for a
+// preference.
+.c-card--danger { border-color: color-mix(in oklab, var(--incorrect) 45%, var(--border)); }
+.c-card--danger .c-head { border-bottom-color: color-mix(in oklab, var(--incorrect) 30%, var(--border)); }
 
 // ── Section header ─────────────────────────────────────────────────────
 // Title + optional action, with the rule beneath. Used at the top of every

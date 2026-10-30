@@ -3,6 +3,7 @@ import {
   AccountError, createEmailAccount, logInWithPassword, resendVerification,
   resetPassword, startPasswordReset, verifyEmailToken
 } from '../../server/accounts.js';
+import { reactivateAccount } from '../../database/account-info/account-deletion.js';
 import { generateToken } from '../../server/authentication.js';
 
 import { Router } from 'express';
@@ -24,8 +25,10 @@ function limiter (windowMs, max, options = {}) {
   });
 }
 
-// Same session shape as the Google callback.
-function startSession (req, user) {
+// Same session shape as the Google callback. Signing in cancels a pending
+// account deletion.
+async function startSession (req, user) {
+  await reactivateAccount(user);
   req.session.username = user.username;
   req.session.token = generateToken(user.username);
   req.session.expires = Date.now() + COOKIE_MAX_AGE;
@@ -62,7 +65,7 @@ router.get('/verify', limiter(HOUR, 30), async (req, res) => {
   try {
     const user = await verifyEmailToken(req.query.token);
     if (!user) return res.redirect('/user/login?error=verify');
-    startSession(req, user);
+    await startSession(req, user);
     console.log(`/auth/email: VERIFIED: ${user.username}`);
     res.redirect('/?_loggedIn=1&verified=1');
   } catch (err) {
@@ -74,7 +77,7 @@ router.get('/verify', limiter(HOUR, 30), async (req, res) => {
 router.post('/login', limiter(15 * 60 * 1000, 20), async (req, res) => {
   try {
     const user = await logInWithPassword(req.body?.identifier, req.body?.password);
-    startSession(req, user);
+    await startSession(req, user);
     console.log(`/auth/email: LOGIN: ${user.username}`);
     res.json({ ok: true, redirect: safeRedirect(req.body?.redirect) });
   } catch (err) {
@@ -105,7 +108,7 @@ router.post('/forgot', limiter(HOUR, 5), async (req, res) => {
 router.post('/reset', limiter(HOUR, 10), async (req, res) => {
   try {
     const user = await resetPassword(req.body?.token, req.body?.password);
-    startSession(req, user);
+    await startSession(req, user);
     res.json({ ok: true });
   } catch (err) {
     fail(res, err);
