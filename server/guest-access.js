@@ -25,6 +25,7 @@ export const GUEST_QUESTIONS = [
 
 const GUEST_PAGES = new Set([
   '/about',
+  '/about/privacy',
   '/leaderboards',
   '/docs',
   '/docs/source-check',
