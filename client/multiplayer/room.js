@@ -1039,7 +1039,6 @@ function upsertPlayerItem (player) {
     userId,
     username,
     tens = 0,
-    negs = 0,
     tuh = 0,
     points = 0,
     celerity = 0,
@@ -1080,10 +1079,6 @@ function upsertPlayerItem (player) {
         <li class="list-group-item">
             <span>Tens</span>
             <span id="tens-${userId}" class="float-end badge rounded-pill bg-secondary stats-${userId}">${tens}</span>
-        </li>
-        <li class="list-group-item">
-            <span>Negs</span>
-            <span id="negs-${userId}" class="float-end badge rounded-pill bg-secondary stats-${userId}">${negs}</span>
         </li>
         <li class="list-group-item">
             <span>TUH</span>

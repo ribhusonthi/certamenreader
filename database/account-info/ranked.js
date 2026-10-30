@@ -35,7 +35,7 @@ async function estimateInitialRating (username, mode) {
         _id: null,
         buzzes: { $sum: 1 },
         correct: { $sum: { $cond: ['$isCorrect', 1, 0] } },
-        avgPoints: { $avg: '$pointValue' }
+        avgPoints: { $avg: { $max: ['$pointValue', 0] } }
       }
     }
   ]).toArray();

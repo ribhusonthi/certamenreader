@@ -169,16 +169,8 @@ function TossupCard({
                         <span>${stats.count}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        15s
-                        <span>${stats['15s']}</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
                         10s
                         <span>${stats['10s']}</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        -5s
-                        <span>${stats['-5s']}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         Average celerity
@@ -297,21 +289,14 @@ function BonusCard({
                         BH
                         <span>${stats.count}</span>
                     </li>
+                    ${['1st', '2nd', '3rd'].slice(0, stats.partCount ?? 3).map((label, i) => `
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        1st part
-                        <span>${(10 * stats.part1).toFixed(2)} pts</span>
-                    </li>
+                        ${label} part
+                        <span>${(5 * stats[`part${i + 1}`]).toFixed(2)} pts</span>
+                    </li>`).join('')}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        2nd part
-                        <span>${(10 * stats.part2).toFixed(2)} pts</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        3rd part
-                        <span>${(10 * stats.part3).toFixed(2)} pts</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        30s/20s/10s/0s
-                        <span>${stats['30s']}/${stats['20s']}/${stats['10s']}/${stats['0s']}</span>
+                        Parts correct
+                        <span>${stats.partsCorrect}/${stats.count * (stats.partCount ?? 0)}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         Total points

@@ -139,25 +139,21 @@ async function handleViewStats (event) {
   if (tossupStats && tossupStats.length > 0) {
     html += `<div class="table-responsive"><table class="table table-sm table-striped">
       <thead><tr>
-        <th>Category</th><th>15s</th><th>10s</th><th>-5s</th><th>Total</th><th>PPTu</th>
+        <th>Category</th><th>10s</th><th>Total</th><th>PPTu</th>
       </tr></thead><tbody>`;
-    let total15 = 0; let total10 = 0; let totalNeg = 0; let totalCount = 0; let totalPoints = 0;
+    let total10 = 0; let totalCount = 0; let totalPoints = 0;
     for (const s of tossupStats) {
-      total15 += s['15s']; total10 += s['10s']; totalNeg += s['-5s']; totalCount += s.count; totalPoints += s.totalPoints;
+      total10 += s['10s']; totalCount += s.count; totalPoints += s.totalPoints;
       html += `<tr>
         <td>${escapeHtml(s._id)}</td>
-        <td>${s['15s']}</td>
         <td>${s['10s']}</td>
-        <td>${s['-5s']}</td>
         <td>${s.count}</td>
         <td>${s.pptu.toFixed(2)}</td>
       </tr>`;
     }
     html += `<tr class="fw-bold">
       <td>Total</td>
-      <td>${total15}</td>
       <td>${total10}</td>
-      <td>${totalNeg}</td>
       <td>${totalCount}</td>
       <td>${totalCount > 0 ? (totalPoints / totalCount).toFixed(2) : '0.00'}</td>
     </tr>`;
@@ -171,27 +167,23 @@ async function handleViewStats (event) {
   if (bonusStats && bonusStats.length > 0) {
     html += `<div class="table-responsive"><table class="table table-sm table-striped">
       <thead><tr>
-        <th>Category</th><th>30s</th><th>20s</th><th>10s</th><th>0s</th><th>Total</th><th>PPB</th>
+        <th>Category</th><th>Parts</th><th>Correct</th><th>Total</th><th>PPB</th>
       </tr></thead><tbody>`;
-    let total30 = 0; let total20 = 0; let total10 = 0; let total0 = 0; let totalCount = 0; let totalPoints = 0;
+    let totalParts = 0; let totalPartsCorrect = 0; let totalCount = 0; let totalPoints = 0;
     for (const s of bonusStats) {
-      total30 += s['30s']; total20 += s['20s']; total10 += s['10s']; total0 += s['0s']; totalCount += s.count; totalPoints += s.totalPoints;
+      totalParts += s.parts; totalPartsCorrect += s.partsCorrect; totalCount += s.count; totalPoints += s.totalPoints;
       html += `<tr>
         <td>${escapeHtml(s._id)}</td>
-        <td>${s['30s']}</td>
-        <td>${s['20s']}</td>
-        <td>${s['10s']}</td>
-        <td>${s['0s']}</td>
+        <td>${s.parts}</td>
+        <td>${s.partsCorrect}</td>
         <td>${s.count}</td>
         <td>${s.ppb.toFixed(2)}</td>
       </tr>`;
     }
     html += `<tr class="fw-bold">
       <td>Total</td>
-      <td>${total30}</td>
-      <td>${total20}</td>
-      <td>${total10}</td>
-      <td>${total0}</td>
+      <td>${totalParts}</td>
+      <td>${totalPartsCorrect}</td>
       <td>${totalCount}</td>
       <td>${totalCount > 0 ? (totalPoints / totalCount).toFixed(2) : '0.00'}</td>
     </tr>`;

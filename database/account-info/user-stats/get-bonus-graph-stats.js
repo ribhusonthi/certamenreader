@@ -7,13 +7,11 @@ async function getBonusGraphStats ({ user_id: userId, difficulties, setName, inc
   const stats = await bonusData.aggregate([
     { $addFields: { createdAt: { $toDate: '$_id' } } },
     { $match: matchDocument },
-    { $addFields: { pointValue: { $sum: '$pointsPerPart' } } },
     {
       $addFields: {
-        is30: { $eq: ['$pointValue', 30] },
-        is20: { $eq: ['$pointValue', 20] },
-        is10: { $eq: ['$pointValue', 10] },
-        is0: { $eq: ['$pointValue', 0] },
+        pointValue: { $sum: '$pointsPerPart' },
+        parts: { $size: '$pointsPerPart' },
+        partsCorrect: { $size: { $filter: { input: '$pointsPerPart', cond: { $gt: ['$$this', 0] } } } },
         createdAt: {
           $dateTrunc: {
             date: '$createdAt',
@@ -28,10 +26,8 @@ async function getBonusGraphStats ({ user_id: userId, difficulties, setName, inc
       $group: {
         _id: '$createdAt',
         count: { $sum: 1 },
-        '30s': { $sum: { $cond: ['$is30', 1, 0] } },
-        '20s': { $sum: { $cond: ['$is20', 1, 0] } },
-        '10s': { $sum: { $cond: ['$is10', 1, 0] } },
-        '0s': { $sum: { $cond: ['$is0', 1, 0] } },
+        parts: { $sum: '$parts' },
+        partsCorrect: { $sum: '$partsCorrect' },
         totalPoints: { $sum: '$pointValue' },
         ppb: { $avg: '$pointValue' }
       }

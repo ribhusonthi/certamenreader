@@ -211,7 +211,7 @@ if (document.getElementById('dash-tiles')) {
             <a class="dash-session" href="/user/stats/tossups">
               <span class="dash-session-main">
                 <span class="dash-session-name">${relativeDay(d._id)}</span>
-                <span class="dash-session-meta">${q} · ${d.tens ?? 0} correct · ${d.negs ?? 0} negs</span>
+                <span class="dash-session-meta">${q} · ${d.tens ?? 0} correct</span>
               </span>
               <span class="dash-session-metric"><span class="v">${acc}%</span><span class="l">Acc</span></span>
               <span class="dash-session-metric"><span class="v">${cel}%</span><span class="l">Cel</span></span>

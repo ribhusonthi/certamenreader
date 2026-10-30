@@ -19,22 +19,18 @@ function showBonusGraphStats ({ cumulative = false, difficulties = '', filterLow
         questionCountChart.data = {
           labels: stats.map(stat => stat._id),
           datasets: [
-            { data: accumulate(stats.map(stat => stat.count)), label: 'Total', borderColor: '#3e95cd', fill: false },
-            { data: accumulate(stats.map(stat => stat['30s'])), label: '30s', borderColor: '#8e5ea2', fill: false },
-            { data: accumulate(stats.map(stat => stat['20s'])), label: '20s', borderColor: '#3cba9f', fill: false },
-            { data: accumulate(stats.map(stat => stat['10s'])), label: '10s', borderColor: '#e8c3b9', fill: false },
-            { data: accumulate(stats.map(stat => stat['0s'])), label: '0s', borderColor: '#c45850', fill: false }
+            { data: accumulate(stats.map(stat => stat.count)), label: 'Bonuses', borderColor: '#3e95cd', fill: false },
+            { data: accumulate(stats.map(stat => stat.parts)), label: 'Parts heard', borderColor: '#8e5ea2', fill: false },
+            { data: accumulate(stats.map(stat => stat.partsCorrect)), label: 'Parts correct', borderColor: '#3cba9f', fill: false }
           ]
         };
       } else {
         questionCountChart.data = {
           labels: stats.map(stat => stat._id),
           datasets: [
-            { data: stats.map(stat => stat.count), label: 'Total', borderColor: '#3e95cd', fill: false },
-            { data: stats.map(stat => stat['30s']), label: '30s', borderColor: '#8e5ea2', fill: false },
-            { data: stats.map(stat => stat['20s']), label: '20s', borderColor: '#3cba9f', fill: false },
-            { data: stats.map(stat => stat['10s']), label: '10s', borderColor: '#e8c3b9', fill: false },
-            { data: stats.map(stat => stat['0s']), label: '0s', borderColor: '#c45850', fill: false }
+            { data: stats.map(stat => stat.count), label: 'Bonuses', borderColor: '#3e95cd', fill: false },
+            { data: stats.map(stat => stat.parts), label: 'Parts heard', borderColor: '#8e5ea2', fill: false },
+            { data: stats.map(stat => stat.partsCorrect), label: 'Parts correct', borderColor: '#3cba9f', fill: false }
           ]
         };
       }
@@ -49,10 +45,7 @@ function showBonusGraphStats ({ cumulative = false, difficulties = '', filterLow
       resultPerBonus.data = {
         labels: stats.map(stat => stat._id),
         datasets: [
-          { data: stats.map(stat => 100 * stat['30s'] / stat.count), label: '30 %', borderColor: '#8e5ea2', fill: false },
-          { data: stats.map(stat => 100 * stat['20s'] / stat.count), label: '20 %', borderColor: '#3cba9f', fill: false },
-          { data: stats.map(stat => 100 * stat['10s'] / stat.count), label: '10 %', borderColor: '#e8c3b9', fill: false },
-          { data: stats.map(stat => 100 * stat['0s'] / stat.count), label: '0 %', borderColor: '#c45850', fill: false }
+          { data: stats.map(stat => stat.parts > 0 ? 100 * stat.partsCorrect / stat.parts : 0), label: 'Parts correct %', borderColor: '#3cba9f', fill: false }
         ]
       };
 
@@ -115,7 +108,7 @@ const ppbChart = new Chart('ppb', {
       },
       y: {
         min: 0,
-        max: 30
+        suggestedMax: 10
       }
     }
   }

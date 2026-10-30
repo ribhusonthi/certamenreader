@@ -58,9 +58,7 @@ function fetchTossupStats ({ difficulties = '', setName = '', includeMultiplayer
                         <tr>
                             <th scope="row">${stat._id}</th>
                             <td>${stat.count}</td>
-                            <td>${stat['15s']}</td>
                             <td>${stat['10s']}</td>
-                            <td>${stat['-5s']}</td>
                             <td>${averageCelerity.toFixed(3)}</td>
                             <td>${stat.totalPoints}</td>
                             <td>${stat.pptu.toFixed(2)}</td>
@@ -87,9 +85,7 @@ function fetchTossupStats ({ difficulties = '', setName = '', includeMultiplayer
                 <tr>
                     <th scope="col">Total</th>
                     <th scope="col">${totalStats.count ?? 0}</th>
-                    <th scope="col">${totalStats['15s'] ?? 0}</th>
                     <th scope="col">${totalStats['10s'] ?? 0}</th>
-                    <th scope="col">${totalStats['-5s'] ?? 0}</th>
                     <th scope="col">${totalStats.averageCelerity.toFixed(3)}</th>
                     <th scope="col">${totalStats.totalPoints ?? 0}</th>
                     <th scope="col">${totalStats.pptu.toFixed(2)}</th>

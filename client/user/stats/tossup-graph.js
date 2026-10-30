@@ -21,8 +21,7 @@ function showTossupGraphStats ({ cumulative = false, difficulties = '', filterLo
           datasets: [
             { data: accumulate(stats.map(stat => stat.count)), label: 'Total', borderColor: '#3e95cd', fill: false },
             { data: accumulate(stats.map(stat => stat.tens)), label: 'Tens', borderColor: '#3cba9f', fill: false },
-            { data: accumulate(stats.map(stat => stat.deads)), label: 'Dead', borderColor: '#e8c3b9', fill: false },
-            { data: accumulate(stats.map(stat => stat.negs)), label: 'Negs', borderColor: '#c45850', fill: false }
+            { data: accumulate(stats.map(stat => stat.deads + stat.negs)), label: 'Missed', borderColor: '#c45850', fill: false }
           ]
         };
       } else {
@@ -31,8 +30,7 @@ function showTossupGraphStats ({ cumulative = false, difficulties = '', filterLo
           datasets: [
             { data: stats.map(stat => stat.count), label: 'Total', borderColor: '#3e95cd', fill: false },
             { data: stats.map(stat => stat.tens), label: 'Tens', borderColor: '#3cba9f', fill: false },
-            { data: stats.map(stat => stat.deads), label: 'Dead', borderColor: '#e8c3b9', fill: false },
-            { data: stats.map(stat => stat.negs), label: 'Negs', borderColor: '#c45850', fill: false }
+            { data: stats.map(stat => stat.deads + stat.negs), label: 'Missed', borderColor: '#c45850', fill: false }
           ]
         };
       }
@@ -48,7 +46,7 @@ function showTossupGraphStats ({ cumulative = false, difficulties = '', filterLo
         labels: stats.map(stat => stat._id),
         datasets: [
           { data: stats.map(stat => 100 * stat.tens / stat.count), label: 'Correct Percentage', borderColor: '#3e95cd', fill: false },
-          { data: stats.map(stat => 100 * (stat.deads + stat.negs) / stat.count), label: 'Neg or Dead Percentage', borderColor: '#8e5ea2', fill: false }
+          { data: stats.map(stat => 100 * (stat.deads + stat.negs) / stat.count), label: 'Missed Percentage', borderColor: '#8e5ea2', fill: false }
         ]
       };
 

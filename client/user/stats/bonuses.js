@@ -1,5 +1,11 @@
 import { attachDropdownChecklist, getDropdownValues } from '../../utilities/dropdown-checklist.js';
 
+// Each bonus part is worth 5, so the share of parts answered is the
+// certamen counterpart to quizbowl's 30/20/10/0 breakdown.
+function partPercent ({ parts = 0, partsCorrect = 0 }) {
+  return parts > 0 ? (100 * partsCorrect / parts).toFixed(1) : '0.0';
+}
+
 function fetchBonusStats ({ difficulties = '', setName = '', includeMultiplayer = true, includeSingleplayer = true, startDate = '', endDate = '' } = {}) {
   fetch('/auth/user-stats/bonus?' + new URLSearchParams({ difficulties, setName, includeMultiplayer, includeSingleplayer, startDate, endDate }))
     .then(response => {
@@ -22,10 +28,9 @@ function fetchBonusStats ({ difficulties = '', setName = '', includeMultiplayer 
                         <tr>
                             <th scope="row">${stat._id}</th>
                             <td>${stat.count}</td>
-                            <td>${stat['30s']}</td>
-                            <td>${stat['20s']}</td>
-                            <td>${stat['10s']}</td>
-                            <td>${stat['0s']}</td>
+                            <td>${stat.parts}</td>
+                            <td>${stat.partsCorrect}</td>
+                            <td>${partPercent(stat)}</td>
                             <td>${stat.totalPoints}</td>
                             <td>${stat.ppb.toFixed(2)}</td>
                         </tr>
@@ -50,10 +55,9 @@ function fetchBonusStats ({ difficulties = '', setName = '', includeMultiplayer 
                 <tr>
                     <th scope="col">Total</th>
                     <th scope="col">${totalStats.count ?? 0}</th>
-                    <th scope="col">${totalStats['30s'] ?? 0}</th>
-                    <th scope="col">${totalStats['20s'] ?? 0}</th>
-                    <th scope="col">${totalStats['10s'] ?? 0}</th>
-                    <th scope="col">${totalStats['0s'] ?? 0}</th>
+                    <th scope="col">${totalStats.parts ?? 0}</th>
+                    <th scope="col">${totalStats.partsCorrect ?? 0}</th>
+                    <th scope="col">${partPercent(totalStats)}</th>
                     <th scope="col">${totalStats.totalPoints ?? 0}</th>
                     <th scope="col">${totalStats.ppb.toFixed(2)}</th>
                 </tr>

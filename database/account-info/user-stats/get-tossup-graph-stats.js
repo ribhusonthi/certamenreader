@@ -12,7 +12,7 @@ async function getTossupGraphStats ({ user_id: userId, difficulties, setName, in
         result: {
           $switch: {
             branches: [
-              { case: { $eq: ['$pointValue', 10] }, then: 'ten' },
+              { case: { $gte: ['$pointValue', 10] }, then: 'ten' },
               { case: { $eq: ['$pointValue', 0] }, then: 'dead' },
               { case: { $eq: ['$pointValue', -5] }, then: 'neg' }
             ],
@@ -32,13 +32,13 @@ async function getTossupGraphStats ({ user_id: userId, difficulties, setName, in
     {
       $group: {
         _id: '$createdAt',
-        pptu: { $avg: '$pointValue' },
+        pptu: { $avg: { $max: ['$pointValue', 0] } },
         count: { $sum: 1 },
         correct: { $sum: { $cond: ['$isCorrect', 1, 0] } },
         tens: { $sum: { $cond: [{ $eq: ['$result', 'ten'] }, 1, 0] } },
         deads: { $sum: { $cond: [{ $eq: ['$result', 'dead'] }, 1, 0] } },
         negs: { $sum: { $cond: [{ $eq: ['$result', 'neg'] }, 1, 0] } },
-        totalPoints: { $sum: '$pointValue' },
+        totalPoints: { $sum: { $max: ['$pointValue', 0] } },
         totalCorrectCelerity: { $sum: { $cond: ['$isCorrect', '$celerity', 0] } },
         averageCelerity: { $avg: '$celerity' }
       }

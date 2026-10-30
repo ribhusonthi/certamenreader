@@ -22,20 +22,15 @@ async function getSingleBonusStats (bonusId) {
         convertedPart1: { $ne: [{ $arrayElemAt: ['$pointsPerPart', 0] }, 0] },
         convertedPart2: { $ne: [{ $arrayElemAt: ['$pointsPerPart', 1] }, 0] },
         convertedPart3: { $ne: [{ $arrayElemAt: ['$pointsPerPart', 2] }, 0] },
-        is30: { $eq: ['$pointValue', 30] },
-        is20: { $eq: ['$pointValue', 20] },
-        is10: { $eq: ['$pointValue', 10] },
-        is0: { $eq: ['$pointValue', 0] }
+        partsCorrect: { $size: { $filter: { input: '$pointsPerPart', cond: { $gt: ['$$this', 0] } } } }
       }
     },
     {
       $group: {
         _id: bonusId,
         count: { $sum: 1 },
-        '30s': { $sum: { $cond: ['$is30', 1, 0] } },
-        '20s': { $sum: { $cond: ['$is20', 1, 0] } },
-        '10s': { $sum: { $cond: ['$is10', 1, 0] } },
-        '0s': { $sum: { $cond: ['$is0', 1, 0] } },
+        partCount: { $first: bonus.parts.length },
+        partsCorrect: { $sum: '$partsCorrect' },
         part1: { $avg: { $cond: ['$convertedPart1', 1, 0] } },
         part2: { $avg: { $cond: ['$convertedPart2', 1, 0] } },
         part3: { $avg: { $cond: ['$convertedPart3', 1, 0] } },

@@ -27,7 +27,7 @@ const SETTINGS_DEFAULTS = {
 // `store` says which localStorage object the flag lives in — "Standard formats
 // only" is a query filter, not a setting, which is easy to get wrong.
 const READER_TOGGLES = [
-  { key: 'tossupTimer', store: 'settings', label: 'Tossup timer', hint: 'Count down each tossup and neg you if the clock runs out.' },
+  { key: 'tossupTimer', store: 'settings', label: 'Tossup timer', hint: 'Count down each tossup and mark it missed if the clock runs out.' },
   { key: 'standardOnly', store: 'query', label: 'Standard formats only', hint: 'Skip questions that do not follow the standard NJCL format.' },
   { key: 'showHistory', store: 'settings', label: 'Show question history', hint: 'Keep a running list of the tossups you have seen this session.' },
   { key: 'typeToAnswer', store: 'settings', label: 'Type to answer', hint: 'Type your answer after buzzing instead of self-grading.' },
