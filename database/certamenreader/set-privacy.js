@@ -54,4 +54,17 @@ async function isPrivateSetOwner (setName, username = null) {
   return Boolean(set) && set.private === true && set.owner === username;
 }
 
-export { questionPrivacyFilter, canAccessSet, isPrivateSetOwner };
+/**
+ * The owner of a private uploaded set, or null for a public or missing set.
+ * @param {string} setName
+ * @returns {Promise<string | null>}
+ */
+async function privateSetOwner (setName) {
+  if (!setName) {
+    return null;
+  }
+  const set = await sets.findOne({ name: setName }, { projection: { private: 1, owner: 1 } });
+  return set?.private === true ? set.owner ?? null : null;
+}
+
+export { questionPrivacyFilter, canAccessSet, isPrivateSetOwner, privateSetOwner };

@@ -9,7 +9,7 @@ import getRandomTossups from '../../database/certamenreader/get-random-tossups.j
 import getSet from '../../database/certamenreader/get-set.js';
 import getSetList from '../../database/certamenreader/get-set-list.js';
 import getNumPackets from '../../database/certamenreader/get-num-packets.js';
-import { isPrivateSetOwner } from '../../database/certamenreader/set-privacy.js';
+import { isPrivateSetOwner, privateSetOwner } from '../../database/certamenreader/set-privacy.js';
 
 import { insertTokensIntoHTML } from '../../client/utilities/insert-tokens-into-html.js';
 import { sanitizeRounds } from '../../client/utilities/rounds.js';
@@ -216,14 +216,17 @@ export default class TossupRoom {
       })
     );
 
+    // A question from a private upload is only shown to its owner.
+    const hidden = this.tossup?.set?.private === true && this.tossup.set.owner !== verifiedUsername;
     socket.send(
       JSON.stringify({
         type: 'connection-acknowledged-tossup',
-        tossup: this.tossup
+        tossup: hidden ? {} : this.tossup
       })
     );
+    this.closePrivateSetIfShared();
 
-    if (this.questionProgress === QuestionProgressEnum.READING) {
+    if (!hidden && this.questionProgress === QuestionProgressEnum.READING) {
       socket.send(
         JSON.stringify({
           type: 'update-question',
@@ -233,6 +236,7 @@ export default class TossupRoom {
     }
 
     if (
+      !hidden &&
       this.questionProgress === QuestionProgressEnum.ANSWER_REVEALED &&
       this.tossup?.answer
     ) {
@@ -440,6 +444,10 @@ export default class TossupRoom {
         for (const name of message.setNames) {
           if (this.setList?.includes(name)) continue;
           if (!(await isPrivateSetOwner(name, this.verifiedUsernames[userId]))) {
+            return;
+          }
+          // A private upload is only shown to its owner, so it can't be played while anyone else is here.
+          if (!this.onlyUserOnline(this.verifiedUsernames[userId])) {
             return;
           }
         }
@@ -657,6 +665,7 @@ export default class TossupRoom {
 
   async advanceQuestion () {
     this.queryingQuestion = true;
+    await this.closePrivateSetIfShared();
 
     if (this.query.setName && this.query.setName.length > 0) {
       if (this.setCache.length === 0) {
@@ -948,10 +957,36 @@ export default class TossupRoom {
   }
 
   sendSocketMessage (message) {
+    // Text and answers of a question from a private upload go only to its owner.
+    const ownerOnly = this.tossup?.set?.private === true &&
+      ['word', 'question', 'answer', 'tossup', 'acceptedAnswers'].some(key => key in message);
+    const owner = this.tossup?.set?.owner;
     message = JSON.stringify(message);
-    for (const socket of Object.values(this.sockets)) {
+    for (const [userId, socket] of Object.entries(this.sockets)) {
+      if (ownerOnly && this.verifiedUsernames[userId] !== owner) continue;
       socket.send(message);
     }
+  }
+
+  // Whether every player connected to the room is signed in as this user.
+  onlyUserOnline (username) {
+    return Boolean(username) && Object.keys(this.sockets).every(id => this.verifiedUsernames[id] === username);
+  }
+
+  // Private uploads are only shown to their owner: when anyone else is in the
+  // room, go back to all sets.
+  async closePrivateSetIfShared () {
+    const names = this.query.setNames?.length ? this.query.setNames : [this.query.setName].filter(Boolean);
+    for (const name of names) {
+      if (this.setList?.includes(name)) continue;
+      const owner = await privateSetOwner(name);
+      if (owner && !this.onlyUserOnline(owner)) {
+        this.adjustQuery(['setName', 'setNames', 'packetNumbers'], ['', [], []]);
+        this.sendSocketMessage({ type: 'set-name', username: 'Room', value: '', setNames: [] });
+        return true;
+      }
+    }
+    return false;
   }
 
   sendPrivateMessage (userId, message) {

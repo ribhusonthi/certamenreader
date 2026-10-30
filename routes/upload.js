@@ -96,8 +96,12 @@ router.post('/api/upload', upload.single('file'), async (req, res) => {
     // selection), so an upload reusing an existing name would pollute or
     // impersonate that set. Reject up front — including the uploader's own
     // earlier sets; re-uploads need a new name.
+    // Compared without case or extra spaces, so "princeton  advanced 2026" is
+    // the same name as "Princeton Advanced 2026".
+    const wanted = setName.trim().replace(/\s+/g, ' ');
+    const escaped = wanted.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/ /g, '\\s+');
     const existingSet = await setsCollection.findOne(
-      { name: setName.trim() },
+      { name: { $regex: `^\\s*${escaped}\\s*$`, $options: 'i' } },
       { projection: { _id: 1 } }
     );
     if (existingSet) {
@@ -118,7 +122,7 @@ router.post('/api/upload', upload.single('file'), async (req, res) => {
 
     // Parse questions
     const { tossups, bonuses, set } = parseQuestionText(text, {
-      name: setName.trim(),
+      name: wanted,
       year: parseInt(year, 10),
       difficulty: difficulty || 'intermediate'
     });
