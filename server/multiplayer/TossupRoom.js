@@ -245,7 +245,9 @@ export default class TossupRoom {
             [this.buzzpointIndices],
             [' (#) ']
           ),
-          answer: this.tossup.answer
+          answer: this.tossup.answer,
+          acceptedAnswers: this.tossup.acceptedAnswers,
+          matchedAnswerIndex: this.tossup.matchedAnswerIndex
         })
       );
     }
@@ -762,9 +764,16 @@ export default class TossupRoom {
     // the matcher treats an empty token list as a vacuous match and would
     // otherwise accept " " as correct.
     const hasContent = typeof givenAnswer === 'string' && givenAnswer.trim() !== '';
-    const { directive, directedPrompt } = hasContent
-      ? checkAnswer(this.tossup.answer, givenAnswer)
+    const { directive, directedPrompt, matchedIndex } = hasContent
+      ? checkAnswer(this.tossup.answer, givenAnswer, {
+        category: this.tossup.category,
+        acceptedAnswers: this.tossup.acceptedAnswers,
+        promptAnswers: this.tossup.promptAnswers,
+        rejectAnswers: this.tossup.rejectAnswers
+      })
       : { directive: 'reject', directedPrompt: undefined };
+    // Which listed answer was matched, so the reveal can show the others.
+    if (directive === 'accept') this.tossup.matchedAnswerIndex = matchedIndex;
     const points = scoreTossup({
       isCorrect: directive === 'accept',
       endOfQuestion
@@ -932,7 +941,9 @@ export default class TossupRoom {
         [this.buzzpointIndices],
         [' (#) ']
       ),
-      answer: this.tossup.answer
+      answer: this.tossup.answer,
+      acceptedAnswers: this.tossup.acceptedAnswers,
+      matchedAnswerIndex: this.tossup.matchedAnswerIndex
     });
   }
 

@@ -7,7 +7,7 @@
 import { stringifyBonus, stringifyTossup } from './stringify.js';
 
 import { getBonusPartLabel } from '../utilities/index.js';
-import { escapeHTML } from '../utilities/strings.js';
+import { escapeHTML, formatAnswerline } from '../utilities/strings.js';
 import { roundLabel, roundPageUrl } from '../utilities/rounds.js';
 
 const params = new URLSearchParams(window.location.search);
@@ -83,14 +83,40 @@ function groupItems (tossups, bonuses) {
 }
 
 /**
- * Answers are shown as stored, matching the database cards. In hidden mode
- * each one is blurred until clicked.
+ * An answer with its optional words greyed out. When the question's answers
+ * are split into a list, the first is shown and a click lists the others
+ * (and any prompts). In hidden mode each answer is blurred until clicked.
  */
-function answerHTML (answer) {
-  return `
+function answerHTML (answer, acceptedAnswers, promptAnswers) {
+  const listed = list => (Array.isArray(list) ? list : []).filter(a => typeof a === 'string' && a.trim());
+  const accepted = listed(acceptedAnswers);
+  const prompts = listed(promptAnswers);
+  const others = accepted.length > 1 ? accepted.slice(1) : [];
+  const directives = String(answer ?? '').match(/\[[^\]]+\]/g) ?? [];
+  const shown = others.length ? formatAnswerline([accepted[0], ...directives].join(' ')) : formatAnswerline(answer ?? '');
+  if (!others.length && !prompts.length) {
+    return `
     <div class="round-answer" role="button" tabindex="-1" aria-label="Show answer">
-      <b>ANSWER:</b> <span class="round-answer-text">${answer ?? ''}</span>
+      <b>ANSWER:</b> <span class="round-answer-text">${shown}</span>
     </div>`;
+  }
+  const line = (label, items) => items.length
+    ? `<div><span class="round-answer-label">${label}</span> ${items.map(formatAnswerline).join('<span class="round-answer-sep"> · </span>')}</div>`
+    : '';
+  return `
+    <div class="round-answer has-more" role="button" tabindex="-1" aria-label="Show answer" aria-expanded="false">
+      <b>ANSWER:</b> <span class="round-answer-text">${shown}
+        <span class="round-answer-more">${others.length ? `+${others.length} more` : 'prompts'}</span></span>
+      <div class="round-answer-others" hidden>${line('Also accept', others)}${line('Prompt on', prompts)}</div>
+    </div>`;
+}
+
+// Show or hide an answer's other accepted answers.
+function toggleOthers (answer) {
+  const others = answer.querySelector('.round-answer-others');
+  if (!others) return;
+  others.hidden = !others.hidden;
+  answer.setAttribute('aria-expanded', String(!others.hidden));
 }
 
 function bonusHTML (bonus, number) {
@@ -98,7 +124,7 @@ function bonusHTML (bonus, number) {
     <div class="round-bonus-part">
       <span class="round-bonus-label">B${i + 1} ${getBonusPartLabel(bonus, i)}</span>
       <span>${part}</span>
-      ${answerHTML(bonus.answers[i])}
+      ${answerHTML(bonus.answers[i], bonus.acceptedAnswers?.[i], bonus.promptAnswers?.[i])}
     </div>`).join('');
 
   return `
@@ -120,7 +146,7 @@ function itemHTML ({ tossup, boni, number }, index) {
     ? `
       <div class="round-tossup">
         <p class="round-question">${tossup.question}</p>
-        ${answerHTML(tossup.answer)}
+        ${answerHTML(tossup.answer, tossup.acceptedAnswers, tossup.promptAnswers)}
       </div>`
     : '<p class="round-missing">No tossup stored for this number.</p>';
 
@@ -145,7 +171,12 @@ function applyAnswerMode () {
   revealAllBtn.hidden = !prefs.hideAnswers;
   itemsEl.querySelectorAll('.round-answer').forEach(el => {
     el.classList.remove('revealed');
-    el.tabIndex = prefs.hideAnswers ? 0 : -1;
+    el.tabIndex = prefs.hideAnswers || el.classList.contains('has-more') ? 0 : -1;
+    const others = el.querySelector('.round-answer-others');
+    if (others) {
+      others.hidden = true;
+      el.setAttribute('aria-expanded', 'false');
+    }
   });
 }
 
@@ -287,8 +318,10 @@ async function main () {
 
   itemsEl.addEventListener('click', event => {
     const answer = event.target.closest('.round-answer');
-    if (answer && prefs.hideAnswers) {
-      answer.classList.add('revealed');
+    if (answer) {
+      // A hidden answer's first click reveals it; after that a click lists its other answers.
+      if (prefs.hideAnswers && !answer.classList.contains('revealed')) answer.classList.add('revealed');
+      else toggleOthers(answer);
       return;
     }
 
@@ -304,9 +337,10 @@ async function main () {
 
   itemsEl.addEventListener('keydown', event => {
     const answer = event.target.closest('.round-answer');
-    if (answer && prefs.hideAnswers && (event.key === 'Enter' || event.key === ' ')) {
+    if (answer && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault();
-      answer.classList.add('revealed');
+      if (prefs.hideAnswers && !answer.classList.contains('revealed')) answer.classList.add('revealed');
+      else toggleOthers(answer);
     }
   });
 

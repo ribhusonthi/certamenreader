@@ -1,6 +1,6 @@
 import star from '../auth/star.js';
 import api from '../api/index.js';
-import { formatAnswerline, removeParentheses } from './strings.js';
+import { formatAnswerline, formatAnswerList, removeParentheses } from './strings.js';
 import { roundLabel, roundPageUrl } from './rounds.js';
 
 const CERTAMEN_CATEGORIES = ['Mythology', 'Roman History', 'Latin Literature', 'Language', 'Culture'];
@@ -48,7 +48,7 @@ const createBonusCard = (function () {
 
     questionCounter++;
 
-    const { leadin, parts, answers, category, subcategory, alternate_subcategory: alternateSubcategory, set, packet, number, _id } = bonus;
+    const { leadin, parts, answers, acceptedAnswers, category, subcategory, alternate_subcategory: alternateSubcategory, set, packet, number, _id } = bonus;
 
     const bonusLength = bonus.parts.length;
 
@@ -66,7 +66,7 @@ const createBonusCard = (function () {
                 ${getBonusPartLabel(bonus, i)} ${parts[i]}
                 ${i + 1 === bonusLength ? `<a class="user-select-none" href="#" id="report-question-${_id}" data-bs-toggle="modal" data-bs-target="#report-question-modal">Report Question</a>` : ''}
             </p>
-            <div>ANSWER: ${formatAnswerline(answers[i])}</div>`;
+            <div>ANSWER: ${formatAnswerList(answers[i], acceptedAnswers?.[i])}</div>`;
     }
 
     // append a card containing the question to the history element
@@ -305,7 +305,7 @@ const createTossupCard = (function () {
 
     questionCounter++;
 
-    const { question, answer, category, subcategory, alternate_subcategory: alternateSubcategory, set, packet, number, _id } = tossup;
+    const { question, answer, acceptedAnswers, category, subcategory, alternate_subcategory: alternateSubcategory, set, packet, number, _id } = tossup;
 
     // append a card containing the question to the history element
     const card = document.createElement('div');
@@ -326,7 +326,7 @@ const createTossupCard = (function () {
                     <span class="card-question-text">${question}</span>
                     <a class="user-select-none" href="#" id="report-question-${_id}" data-bs-toggle="modal" data-bs-target="#report-question-modal">Report Question</a>
                     <hr></hr>
-                    <div class="card-answer-text">ANSWER: ${formatAnswerline(answer)}</div>
+                    <div class="card-answer-text">ANSWER: ${formatAnswerList(answer, acceptedAnswers)}</div>
                 </div>
                 <div class="card-footer">
                     <small class="text-muted">${set.name} / ${category} / ${subcategory} ${alternateSubcategory ? '(' + alternateSubcategory + ')' : ''}</small>

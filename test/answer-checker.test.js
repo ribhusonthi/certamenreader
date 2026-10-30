@@ -187,4 +187,83 @@ mocha.describe('answer-checker', () => {
       assert.equal(res.directive, 'prompt');
     });
   });
+
+  mocha.describe('Language questions — every word required', () => {
+    const lang = { category: 'Language' };
+    const sentence = 'Māter verētur/timet/metuit nē fīlius dē/ex arbore ceciderit.';
+    const directive = (line, given, options = lang) => checkAnswer(line, given, options).directive;
+
+    mocha.it('does not accept one word of a multi-word answer', () => {
+      assert.notEqual(directive('Ablative Of Separation', 'ablative'), 'accept');
+      assert.notEqual(directive('Vestrārum Celerium Bovum', 'vestrarum'), 'accept');
+      assert.notEqual(directive('Septem Duodecimae', 'septem'), 'accept');
+      assert.notEqual(directive(sentence, 'mater'), 'accept');
+    });
+    mocha.it('prompts on part of a short answer', () => {
+      assert.equal(directive('Ablative Of Separation', 'ablative'), 'prompt');
+    });
+    mocha.it('accepts the whole answer, words in any order', () => {
+      assert.equal(directive('Ablative Of Separation', 'ablative of separation'), 'accept');
+      assert.equal(directive('Vestrārum Celerium Bovum', 'celerium vestrarum bovum'), 'accept');
+    });
+    mocha.it('reads a glued slash as a choice between neighbouring words', () => {
+      assert.equal(directive(sentence, 'mater timet ne filius ex arbore ceciderit'), 'accept');
+      assert.equal(directive(sentence, 'mater veretur ne filius de arbore ceciderit'), 'accept');
+    });
+    mocha.it('lets clauses move but keeps each clause together', () => {
+      assert.equal(directive(sentence, 'ne filius de arbore ceciderit mater metuit'), 'accept');
+      assert.notEqual(directive(sentence, 'mater filius ne timet arbore ex ceciderit'), 'accept');
+    });
+    mocha.it('lets English to/the be left out', () => {
+      assert.equal(directive('To Hate', 'hate'), 'accept');
+      assert.equal(directive('Haereō, To Stick', 'haereo to stick'), 'accept');
+    });
+    mocha.it('accepts every part of a // list typed together', () => {
+      assert.equal(directive('Constantine / Constantinus Ii // Constantius Ii // Constans',
+        'constantine ii constantius ii constans'), 'accept');
+    });
+    mocha.it('leaves other categories on the lenient path', () => {
+      accepts('Marcus Tullius Cicero', 'cicero');
+      assert.equal(directive('Marcus Tullius Cicero', 'cicero', { category: 'Latin Literature' }), 'accept');
+    });
+  });
+
+  mocha.describe('split answer lists', () => {
+    const lang = { category: 'Language' };
+    const check = (line, given, options) => checkAnswer(line, given, options);
+
+    mocha.it('accepts any listed answer and says which one matched', () => {
+      const options = { acceptedAnswers: ['Hide', 'Skin'] };
+      assert.deepEqual(
+        [check('Hide, Skin', 'skin', options).directive, check('Hide, Skin', 'skin', options).matchedIndex],
+        ['accept', 1]);
+      assert.equal(check('Hide, Skin', 'hide', options).matchedIndex, 0);
+    });
+    mocha.it('reads each listed answer whole, so a comma does not split it', () => {
+      // "Lanx, Platter" asks for the noun and its meaning.
+      const options = { ...lang, acceptedAnswers: ['Lanx, Platter/Plate/Dish'] };
+      assert.notEqual(check('Lanx, Platter / Plate / Dish', 'lanx', options).directive, 'accept');
+      assert.equal(check('Lanx, Platter / Plate / Dish', 'lanx dish', options).directive, 'accept');
+    });
+    mocha.it('prompts on a prompt answer or part of a Language answer', () => {
+      const options = { acceptedAnswers: ['Ides of March', 'March 15'], promptAnswers: ['March'] };
+      assert.equal(check('Ides of March / March 15 [prompt on March]', 'march', options).directive, 'prompt');
+      assert.equal(check('Ablative of Separation', 'ablative', { ...lang, acceptedAnswers: ['Ablative of Separation'] }).directive, 'prompt');
+    });
+    mocha.it('rejects an answer the question says not to accept', () => {
+      const options = { acceptedAnswers: ['Octavian', 'Augustus'], rejectAnswers: ['Octavia'] };
+      assert.equal(checkAnswer('Octavian / Augustus [do not accept Octavia]', 'octavia', options).directive, 'reject');
+      assert.equal(checkAnswer('Octavian / Augustus [do not accept Octavia]', 'augustus', options).matchedIndex, 1);
+    });
+    mocha.it('rejects an answer that is not listed', () => {
+      const options = { acceptedAnswers: ['Romulus'] };
+      const res = check('Romulus', 'remus', options);
+      assert.equal(res.directive, 'reject');
+      assert.equal(res.matchedIndex, undefined);
+      rejects('Marius', 'Marcus');
+    });
+    mocha.it('keeps working for questions without a list', () => {
+      accepts('Marcus Tullius Cicero', 'cicero');
+    });
+  });
 });

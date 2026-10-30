@@ -171,6 +171,44 @@
                         The answer to check.
                     </div>
                 </li>
+                <li class="list-group-item">
+                    <div>
+                        <code>category</code><code class="text-muted">: string</code>
+                        <code class="text-muted float-end">optional</code>
+                    </div>
+                    <div>
+                        The question's category. For <code>Language</code>, every word of the answer is required
+                        (in any order within a clause), and part of it is prompted instead of accepted.
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div>
+                        <code>acceptedAnswers</code><code class="text-muted">: string (JSON array)</code>
+                        <code class="text-muted float-end">optional</code>
+                    </div>
+                    <div>
+                        The question's acceptable answers, when they are split into a list. Each is checked as one complete
+                        answer; the answerline is then only used for its <code>[prompt on …]</code> directives.
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div>
+                        <code>promptAnswers</code><code class="text-muted">: string (JSON array)</code>
+                        <code class="text-muted float-end">optional</code>
+                    </div>
+                    <div>
+                        Answers that earn a prompt rather than credit.
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div>
+                        <code>rejectAnswers</code><code class="text-muted">: string (JSON array)</code>
+                        <code class="text-muted float-end">optional</code>
+                    </div>
+                    <div>
+                        Answers the question says not to accept.
+                    </div>
+                </li>
             </ul>
 
             <a href="#returns" class="text-body">
@@ -188,6 +226,14 @@
                 <li class="list-group-item">
                     <div>
                         <code>directedPrompt</code><code class="text-muted">: string | null</code>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div>
+                        <code>matchedIndex</code><code class="text-muted">: number | undefined</code>
+                    </div>
+                    <div>
+                        When <code>acceptedAnswers</code> was given and the answer was accepted, which of them it matched.
                     </div>
                 </li>
             </ul>

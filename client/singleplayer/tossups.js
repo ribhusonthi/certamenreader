@@ -7,7 +7,7 @@ import CategoryManager from '../utilities/category-manager.js';
 import { insertTokensIntoHTML } from '../utilities/insert-tokens-into-html.js';
 import { roundLabel, roundPageUrl } from '../utilities/rounds.js';
 import { initSetSelector } from '../utilities/set-selector.js';
-import { formatAnswerline } from '../utilities/strings.js';
+import { formatAnswerline, formatAnswerList } from '../utilities/strings.js';
 
 const CERTAMEN_CATEGORIES = ['Mythology', 'Roman History', 'Latin Literature', 'Language', 'Culture'];
 let userIsAdmin = false;
@@ -639,7 +639,15 @@ async function giveAnswer (givenAnswer) {
 
   previous.givenAnswer = typeof givenAnswer === 'string' ? givenAnswer : '';
 
-  let { directive, directedPrompt } = await api.checkAnswer(tossups[questionNumber - 1].answer, givenAnswer);
+  const tossup = tossups[questionNumber - 1];
+  let { directive, directedPrompt, matchedIndex } = await api.checkAnswer(tossup.answer, givenAnswer,
+    {
+      category: tossup.category,
+      acceptedAnswers: tossup.acceptedAnswers,
+      promptAnswers: tossup.promptAnswers,
+      rejectAnswers: tossup.rejectAnswers
+    });
+  tossup.matchedAnswerIndex = matchedIndex;
 
   // Fuzzy fallback: if rejected but ~90% similar to the main answer, accept
   if (directive === 'reject' && givenAnswer.trim()) {
@@ -843,7 +851,7 @@ function readQuestion () {
 async function revealQuestion () {
   const t = tossups[questionNumber - 1];
   document.getElementById('question').innerHTML = insertTokensIntoHTML(t.question, t.question_sanitized, [[buzzpointIndex]], [' (#) ']);
-  document.getElementById('answer').innerHTML = 'ANSWER: ' + formatAnswerline(t.answer);
+  document.getElementById('answer').innerHTML = 'ANSWER: ' + formatAnswerList(t.answer, t.acceptedAnswers, t.matchedAnswerIndex);
 
   document.getElementById('buzz').disabled = true;
   document.getElementById('buzz').textContent = 'Buzz';
@@ -955,7 +963,13 @@ async function giveBonusAnswer (givenAnswer) {
   if (!currentBonus) return;
 
   const correctAnswer = currentBonus.answers[currentBonusPart];
-  let { directive } = await api.checkAnswer(correctAnswer, givenAnswer);
+  let { directive, matchedIndex } = await api.checkAnswer(correctAnswer, givenAnswer, {
+    category: currentBonus.category,
+    acceptedAnswers: currentBonus.acceptedAnswers?.[currentBonusPart],
+    promptAnswers: currentBonus.promptAnswers?.[currentBonusPart],
+    rejectAnswers: currentBonus.rejectAnswers?.[currentBonusPart]
+  });
+  (currentBonus.matchedAnswerIndex ??= [])[currentBonusPart] = matchedIndex;
 
   // Fuzzy fallback
   if (directive === 'reject' && givenAnswer.trim()) {
@@ -981,12 +995,17 @@ async function giveBonusAnswer (givenAnswer) {
   revealBonusAnswer(directive === 'accept');
 }
 
+function bonusPartAnswer (answer) {
+  return formatAnswerList(answer, currentBonus.acceptedAnswers?.[currentBonusPart],
+    currentBonus.matchedAnswerIndex?.[currentBonusPart]);
+}
+
 function revealBonusAnswer (wasCorrect) {
   if (!currentBonus) return;
 
   const answer = currentBonus.answers[currentBonusPart];
   const answerEl = document.getElementById('bonus-answer');
-  answerEl.innerHTML = `ANSWER: <strong>${formatAnswerline(answer)}</strong>`;
+  answerEl.innerHTML = `ANSWER: <strong>${bonusPartAnswer(answer)}</strong>`;
   if (wasCorrect !== undefined) {
     answerEl.innerHTML += wasCorrect
       ? ' <span class="badge bg-success">Correct</span>'
@@ -1018,7 +1037,7 @@ function markBonusPart (wasCorrect) {
   }
   const answerEl = document.getElementById('bonus-answer');
   const answer = currentBonus.answers[currentBonusPart];
-  answerEl.innerHTML = `ANSWER: <strong>${formatAnswerline(answer)}</strong>` + (wasCorrect
+  answerEl.innerHTML = `ANSWER: <strong>${bonusPartAnswer(answer)}</strong>` + (wasCorrect
     ? ' <span class="badge bg-success">Correct</span>'
     : ' <span class="badge bg-danger">Incorrect</span>');
 

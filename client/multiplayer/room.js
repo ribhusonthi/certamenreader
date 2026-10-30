@@ -12,7 +12,7 @@ import {
   createTossupCard,
   rangeToArray
 } from '../utilities/index.js';
-import { escapeHTML, formatAnswerline } from '../utilities/strings.js';
+import { escapeHTML, formatAnswerList } from '../utilities/strings.js';
 const defaults = {
   alternateSubcategories: [],
   categories: [],
@@ -322,7 +322,7 @@ socket.onmessage = function (event) {
       // can hand the un-formatted form to createTossupCard.
       const answerEl = document.getElementById('answer');
       answerEl.dataset.rawAnswer = data.answer;
-      answerEl.innerHTML = 'ANSWER: ' + formatAnswerline(data.answer);
+      answerEl.innerHTML = 'ANSWER: ' + formatAnswerList(data.answer, data.acceptedAnswers, data.matchedAnswerIndex);
       document.getElementById('pause').disabled = true;
       showNextButton();
       break;

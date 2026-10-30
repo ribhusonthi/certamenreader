@@ -48,9 +48,29 @@ function formatAnswerline (answerline) {
   return s;
 }
 
+/**
+ * The answer to show after a question. When the question's answers are split
+ * into a list, show the one the player matched (or the first) and then the
+ * rest as "Other acceptable answers", keeping any [directives] printed on the
+ * answerline.
+ * @param {string} answerline
+ * @param {string[]} [acceptedAnswers]
+ * @param {number} [matchedIndex] which listed answer the player's answer matched
+ */
+function formatAnswerList (answerline, acceptedAnswers, matchedIndex) {
+  const answers = (Array.isArray(acceptedAnswers) ? acceptedAnswers : []).filter(a => typeof a === 'string' && a.trim());
+  if (answers.length <= 1) return formatAnswerline(answerline);
+  const shown = Number.isInteger(matchedIndex) && answers[matchedIndex] ? matchedIndex : 0;
+  const others = answers.filter((_, i) => i !== shown);
+  const directives = String(answerline ?? '').match(/\[[^\]]+\]/g) ?? [];
+  return formatAnswerline(answers[shown] + directives.join(' ')) +
+    `<div class="small text-muted fw-normal">Other acceptable answers: ${others.map(formatAnswerline).join('; ')}</div>`;
+}
+
 export {
   escapeHTML,
   formatAnswerline,
+  formatAnswerList,
   removeParentheses,
   titleCase
 };

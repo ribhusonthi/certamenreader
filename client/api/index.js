@@ -47,12 +47,17 @@ export default class api {
         * directedPrompt: String | null
     * }>}
     */
-  static async checkAnswer (answerline, givenAnswer) {
+  static async checkAnswer (answerline, givenAnswer, { category, acceptedAnswers, promptAnswers, rejectAnswers } = {}) {
     if (typeof givenAnswer !== 'string' || givenAnswer.trim() === '') {
       return { directive: 'reject', directedPrompt: null };
     }
 
-    return await fetch('/api/check-answer?' + new URLSearchParams({ answerline, givenAnswer }))
+    const params = new URLSearchParams({ answerline, givenAnswer });
+    if (typeof category === 'string') params.set('category', category);
+    if (Array.isArray(acceptedAnswers)) params.set('acceptedAnswers', JSON.stringify(acceptedAnswers));
+    if (Array.isArray(promptAnswers)) params.set('promptAnswers', JSON.stringify(promptAnswers));
+    if (Array.isArray(rejectAnswers)) params.set('rejectAnswers', JSON.stringify(rejectAnswers));
+    return await fetch('/api/check-answer?' + params)
       .then(response => api.readJson(response));
   }
 
