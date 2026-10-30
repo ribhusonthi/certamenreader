@@ -93,12 +93,23 @@ let tossupText = '';
 let tossupTextSplit = [];
 let tossupTotalWords = 0;
 
+// Both the packet and random paths load a tossup through here so the
+// celerity bar always knows the new question's length.
+function setTossupText (text) {
+  tossupText = text;
+  tossupTextSplit = tossupText.split(' ').filter(word => word !== '');
+  tossupTotalWords = tossupTextSplit.length;
+  updateCelerity();
+}
+
 function updateCelerity () {
   const fill = document.getElementById('celerity-fill');
   const value = document.getElementById('celerity-value');
   if (!fill || !value || !tossupTotalWords) return;
-  const read = tossupTotalWords - tossupTextSplit.length;
-  const progress = Math.max(0, Math.min(1, read / tossupTotalWords));
+  // Same characters-remaining measure updateScore records, so the value
+  // shown at the buzz is the celerity that gets saved.
+  const remaining = tossupTextSplit.join(' ').length / tossupText.length;
+  const progress = Math.max(0, Math.min(1, 1 - remaining));
   fill.style.width = (progress * 100).toFixed(1) + '%';
   value.textContent = (1 - progress).toFixed(2);
 }
@@ -539,10 +550,7 @@ async function advanceQuestion () {
     } while (!categoryManager.isValidCategory(tossups[questionNumber - 1]));
 
     if (Object.keys(tossups[0]).length > 0) {
-      tossupText = tossups[questionNumber - 1].question_sanitized;
-      tossupTextSplit = tossupText.split(' ').filter(word => word !== '');
-      tossupTotalWords = tossupTextSplit.length;
-      updateCelerity();
+      setTossupText(tossups[questionNumber - 1].question_sanitized);
       // document.getElementById('question-number-info').textContent = questionNumber;
     }
   } else {
@@ -566,8 +574,7 @@ async function advanceQuestion () {
     // modal). Downstream code reads tossup.set.name / tossup.packet.number
     // directly when it needs them.
 
-    tossupText = tossups[0].question_sanitized;
-    tossupTextSplit = tossupText.split(' ').filter(word => word !== '');
+    setTossupText(tossups[0].question_sanitized);
     // document.getElementById('question-number-info').textContent = tossups[0].number;
     questionNumber = 1;
   }
