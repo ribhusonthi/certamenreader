@@ -10757,6 +10757,18 @@ h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6, .navbar-brand {
   box-shadow: 0 0 0 3px var(--accent-soft), 0 4px 24px var(--accent-glow);
 }
 
+/* The 460px floor is wider than a phone, so the field and Submit hung off
+   both edges. Below that width the form takes the whole row instead. */
+@media (max-width: 575.98px) {
+  .buzz-bar-fixed #answer-form {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  .buzz-bar-fixed #answer-input-group {
+    min-width: 0;
+    max-width: none;
+  }
+}
 .buzz-bar-fixed .buzz-answer-input,
 .buzz-bar-fixed #answer-input,
 .buzz-bar-fixed #answer-input-group input.form-control {
@@ -13104,9 +13116,12 @@ body:not(.account-nav-ready) #login-link {
 /* ============================================================
    Upload wizard
    ============================================================ */
+/* minmax(0, …) lets a column shrink below its widest child; plain fr tracks
+   can't, so the format sample's long <pre> lines widened the page past a
+   phone screen. */
 .up {
   display: grid;
-  grid-template-columns: 1.15fr 1fr;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
   gap: 1.5rem;
   padding: 2rem 2.25rem 3rem;
   max-width: 1180px;
@@ -13428,9 +13443,17 @@ body:not(.account-nav-ready) #login-link {
 
 @media (max-width: 900px) {
   .up {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .up-visibility {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 575.98px) {
+  .up {
+    padding: 1.25rem 1rem 2.5rem;
+  }
+  .up-row-2col {
     grid-template-columns: 1fr;
   }
 }
@@ -16826,6 +16849,31 @@ a.ed-level-chip {
   color: var(--ink-dim);
 }
 
+/* The stats tables are 8 columns wide; on a phone the last three were hidden
+   off the card's edge with nothing to say the table scrolls. Tighter cells
+   fit most of it, and the label column stays put while the rest scrolls. */
+@media (max-width: 575.98px) {
+  .container-xl.mt-3.mb-5.pb-5 {
+    padding: 1.25rem 1rem 3rem !important;
+  }
+  .container-xl.mt-3.mb-5.pb-5 > .table-responsive,
+  .container-xl.mt-3.mb-5.pb-5 > .tab-content {
+    padding: 0.5rem;
+  }
+  .container-xl.mt-3.mb-5.pb-5 .table-responsive > .table {
+    font-size: 0.82rem;
+  }
+  .container-xl.mt-3.mb-5.pb-5 .table-responsive > .table > :not(caption) > * > * {
+    padding: 0.45rem 0.4rem;
+  }
+  .container-xl.mt-3.mb-5.pb-5 .table-responsive > .table > :not(caption) > * > :first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--bg-card);
+    box-shadow: inset 0 0 0 9999px var(--bs-table-accent-bg), 1px 0 0 var(--border-soft);
+  }
+}
 @media (max-width: 900px) {
   .settings-grid {
     grid-template-columns: 1fr;
