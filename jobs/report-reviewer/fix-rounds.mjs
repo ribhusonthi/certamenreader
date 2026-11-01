@@ -31,6 +31,7 @@
 
 import { MongoClient, ObjectId } from 'mongodb';
 import { GoogleGenAI } from '@google/genai';
+import { PROJECT } from './gcp-project.mjs';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { dirname, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
@@ -167,7 +168,7 @@ async function geminiSections (file, raw, starts) {
   const key = `${file}:${starts.join(',')}`;
   if (cache[key]) return cache[key];
   if (cost() >= MAX_COST) return null;
-  ai ??= new GoogleGenAI({ vertexai: true, project: process.env.GOOGLE_CLOUD_PROJECT ?? '<your-project-id>', location: 'global', httpOptions: { timeout: 90000 } });
+  ai ??= new GoogleGenAI({ vertexai: true, project: PROJECT, location: 'global', httpOptions: { timeout: 90000 } });
   const contents = `${OUTLINE_PROMPT}\n\nRun start lines: ${starts.map(l => 'L' + l).join(', ')}\n\nOUTLINE:\n${outline(raw)}`;
   for (let attempt = 0; attempt < 4; attempt++) {
     try {

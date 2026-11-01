@@ -26,6 +26,7 @@
 
 import { MongoClient, ObjectId } from 'mongodb';
 import { GoogleGenAI } from '@google/genai';
+import { PROJECT } from './gcp-project.mjs';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { createHash } from 'crypto';
 import { dirname, join, resolve } from 'path';
@@ -115,7 +116,7 @@ const WIDE_CAP = Number(argValue('--max-cost') ?? 5);
 let wideAi = null;
 
 async function callJson (prompt, schema, maxOut = 8000) {
-  wideAi ??= new GoogleGenAI({ vertexai: true, project: process.env.GOOGLE_CLOUD_PROJECT ?? '<your-project-id>', location: 'global', httpOptions: { timeout: 90000 } });
+  wideAi ??= new GoogleGenAI({ vertexai: true, project: PROJECT, location: 'global', httpOptions: { timeout: 90000 } });
   for (let attempt = 0; attempt < 4; attempt++) {
     if (wideCost() + splitCost() >= WIDE_CAP) return null;
     try {
@@ -518,7 +519,7 @@ async function plan () {
   if (allNeed.length - need.length) console.log(`${allNeed.length - need.length} split(s) from cache`);
   if (need.length) {
     console.log(`splitting ${need.length} source item(s) with Gemini…`);
-    const ai = new GoogleGenAI({ vertexai: true, project: process.env.GOOGLE_CLOUD_PROJECT ?? '<your-project-id>', location: 'global', httpOptions: { timeout: 90000 } });
+    const ai = new GoogleGenAI({ vertexai: true, project: PROJECT, location: 'global', httpOptions: { timeout: 90000 } });
     const indexed = need.map((r, i) => ({ index: i, text: r.block, r }));
     const out = await splitItems(ai, indexed);
     for (const { index, r } of indexed) {

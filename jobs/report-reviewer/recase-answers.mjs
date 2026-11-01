@@ -21,6 +21,7 @@
 
 import { MongoClient, ObjectId } from 'mongodb';
 import { GoogleGenAI } from '@google/genai';
+import { PROJECT } from './gcp-project.mjs';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
@@ -147,7 +148,7 @@ async function run (write) {
   if (!['127.0.0.1', 'localhost', '::1'].includes(host)) throw new Error(`refusing to write to ${host}: local database only`);
   const client = await MongoClient.connect(LOCAL_MONGO);
   const db = client.db('certamenreader');
-  const ai = new GoogleGenAI({ vertexai: true, project: process.env.GOOGLE_CLOUD_PROJECT ?? '<your-project-id>', location: 'global', httpOptions: { timeout: 300000 } });
+  const ai = new GoogleGenAI({ vertexai: true, project: PROJECT, location: 'global', httpOptions: { timeout: 300000 } });
   const stamp = new Date().toISOString().replace(/\D/g, '').slice(0, 14);
   try {
     const work = []; let copiedOnly = 0;

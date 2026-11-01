@@ -39,6 +39,7 @@
 
 import { MongoClient, ObjectId } from 'mongodb';
 import { GoogleGenAI } from '@google/genai';
+import { PROJECT } from './gcp-project.mjs';
 import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
 import { dirname, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
@@ -48,7 +49,6 @@ const OUT_DIR = join(__dirname, 'out');
 const SOURCE_DIR = argValue('--source-dir') ??
   resolve(__dirname, '../../../certamenquestionparser/data/tournaments/txt');
 
-const PROJECT = process.env.GOOGLE_CLOUD_PROJECT ?? process.env.GCLOUD_PROJECT ?? '<your-project-id>';
 const MODEL = argValue('--model') ?? process.env.GEMINI_MODEL ?? 'gemini-3.8-flash';
 const LOCATION = argValue('--location') ?? process.env.VERTEX_LOCATION ?? 'global';
 const CANON = ['Mythology', 'Roman History', 'Latin Literature', 'Language', 'Culture'];

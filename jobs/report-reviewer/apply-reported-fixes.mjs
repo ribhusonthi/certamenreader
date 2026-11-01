@@ -34,6 +34,7 @@
 
 import { MongoClient, ObjectId } from 'mongodb';
 import { GoogleGenAI } from '@google/genai';
+import { PROJECT } from './gcp-project.mjs';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { dirname, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
@@ -58,7 +59,6 @@ function loadMongoUri () {
 }
 
 const MONGO_URI = loadMongoUri();
-const PROJECT = process.env.GOOGLE_CLOUD_PROJECT ?? process.env.GCLOUD_PROJECT ?? '<your-project-id>';
 const argModel = argValue('--model');
 const argLocation = argValue('--location');
 const MODEL = argModel ?? process.env.GEMINI_MODEL ?? 'gemini-2.5-flash';

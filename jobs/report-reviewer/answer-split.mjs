@@ -23,6 +23,7 @@
 
 import { MongoClient } from 'mongodb';
 import { GoogleGenAI } from '@google/genai';
+import { PROJECT } from './gcp-project.mjs';
 import { writeFileSync, mkdirSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
@@ -93,7 +94,6 @@ export function unprintedWords (answerline, entries) {
 
 // ---- sample run ------------------------------------------------------------
 
-const PROJECT = process.env.GOOGLE_CLOUD_PROJECT ?? '<your-project-id>';
 const MODEL = process.env.GEMINI_MODEL ?? 'gemini-3.8-flash';
 const PRICE_IN = 0.75;
 const PRICE_OUT = 3.75; // $ per 1M tokens, thinking billed as output

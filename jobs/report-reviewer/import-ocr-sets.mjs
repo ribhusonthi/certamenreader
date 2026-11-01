@@ -32,6 +32,7 @@
 
 import { MongoClient } from 'mongodb';
 import { GoogleGenAI } from '@google/genai';
+import { PROJECT } from './gcp-project.mjs';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { dirname, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
@@ -43,7 +44,6 @@ const OUT_DIR = join(__dirname, 'out');
 const SOURCE_DIR = resolve(__dirname, '../../../certamenquestionparser/data/tournaments/gemini-txt');
 const LOCAL_MONGO = process.env.LOCAL_MONGO_URI ?? 'mongodb://127.0.0.1:27017';
 
-const PROJECT = process.env.GOOGLE_CLOUD_PROJECT ?? '<your-project-id>';
 const MODEL = process.env.GEMINI_MODEL ?? 'gemini-3.8-flash';
 const DIFFICULTY = { novice: 1, intermediate: 5, advanced: 10 };
 const CONCURRENCY = 6;
