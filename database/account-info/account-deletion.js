@@ -1,5 +1,5 @@
 import {
-  ankiReviewData, bonusData, bonusStars, discordLinkTokens, idToUsername, rankedMatches, rankedRatings,
+  ankiReviewData, bonusData, bonusStars, idToUsername, rankedMatches, rankedRatings,
   tossupData, tossupStars, users, usernameToId
 } from './collections.js';
 import { accountInfo, certamenreader } from '../databases.js';
@@ -67,7 +67,6 @@ async function purgeAccount (user) {
   }
   await rankedRatings.deleteMany({ username });
   await rankedMatches.deleteMany({ players: username });
-  await discordLinkTokens.deleteMany({ username });
 
   // Uploaded sets are private to their owner, so they go too. Questions are
   // removed by set id, never set name, so a public set with the same name is

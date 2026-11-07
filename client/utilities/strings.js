@@ -67,10 +67,42 @@ function formatAnswerList (answerline, acceptedAnswers, matchedIndex) {
     `<div class="small text-muted fw-normal">Other acceptable answers: ${others.map(formatAnswerline).join('; ')}</div>`;
 }
 
+// Stored question HTML, reduced to bare formatting tags so it can't run script.
+// Use it wherever question text goes into innerHTML on a page with elevated
+// rights (the admin pages): uploaded questions are user-written. The markup is
+// parsed inside a <template>, which never runs scripts or loads images.
+const SAFE_TAGS = new Set(['B', 'STRONG', 'I', 'EM', 'U', 'SUB', 'SUP', 'BR', 'SMALL', 'SPAN']);
+const DROP_TAGS = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEMPLATE', 'IFRAME', 'OBJECT', 'EMBED', 'svg', 'math']);
+const ELEMENT_NODE = 1;
+const TEXT_NODE = 3;
+
+function sanitizeHTML (html) {
+  const template = document.createElement('template');
+  template.innerHTML = String(html ?? '');
+  const clean = (parent) => {
+    for (const node of [...parent.childNodes]) {
+      if (node.nodeType === TEXT_NODE) continue;
+      if (node.nodeType !== ELEMENT_NODE || DROP_TAGS.has(node.tagName)) {
+        node.remove();
+        continue;
+      }
+      clean(node);
+      if (SAFE_TAGS.has(node.tagName)) {
+        for (const attr of [...node.attributes]) node.removeAttribute(attr.name);
+      } else {
+        node.replaceWith(...node.childNodes); // keep the text, drop the tag
+      }
+    }
+  };
+  clean(template.content);
+  return template.innerHTML;
+}
+
 export {
   escapeHTML,
   formatAnswerline,
   formatAnswerList,
   removeParentheses,
+  sanitizeHTML,
   titleCase
 };

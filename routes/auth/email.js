@@ -5,6 +5,7 @@ import {
 } from '../../server/accounts.js';
 import { reactivateAccount } from '../../database/account-info/account-deletion.js';
 import { generateToken } from '../../server/authentication.js';
+import { emailKey } from '../../server/email-address.js';
 
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
@@ -74,7 +75,19 @@ router.get('/verify', limiter(HOUR, 30), async (req, res) => {
   }
 });
 
-router.post('/login', limiter(15 * 60 * 1000, 20), async (req, res) => {
+// The per-IP cap doesn't stop guesses spread over many IPs, so failed
+// sign-ins are also capped per account (every spelling of an email address
+// counts as one account). Successful sign-ins don't count.
+function accountKey (req) {
+  const id = String(req.body?.identifier ?? '').trim().toLowerCase();
+  return 'account:' + ((id.includes('@') && emailKey(id)) || id);
+}
+
+router.post('/login', limiter(15 * 60 * 1000, 20), limiter(15 * 60 * 1000, 10, {
+  keyGenerator: accountKey,
+  skipSuccessfulRequests: true,
+  message: { error: 'Too many failed sign-ins for this account. Try again in 15 minutes, or reset your password.' }
+}), async (req, res) => {
   try {
     const user = await logInWithPassword(req.body?.identifier, req.body?.password);
     await startSession(req, user);

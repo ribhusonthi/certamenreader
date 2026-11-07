@@ -1,9 +1,7 @@
 import adminRouter from './admin/index.js';
-import ankiRouter from './anki/index.js';
 import bonusByIdRouter from './bonus-by-id.js';
 import bonusForTossupRouter from './bonus-for-tossup.js';
 import checkAnswerRouter from './check-answer.js';
-import discordRouter from './discord.js';
 import frequencyListRouter from './frequency-list.js';
 import guestTossupsRouter from './guest-tossups.js';
 import multiplayerRouter from './multiplayer.js';
@@ -50,11 +48,9 @@ router.use((req, _res, next) => {
 });
 
 router.use('/admin', adminRouter);
-router.use('/anki', ankiRouter);
 router.use('/bonus-by-id', bonusByIdRouter);
 router.use('/bonus-for-tossup', bonusForTossupRouter);
 router.use('/check-answer', checkAnswerRouter);
-router.use('/discord', discordRouter);
 router.use('/frequency-list', frequencyListRouter);
 router.use('/guest-tossups', guestTossupsRouter);
 router.use('/multiplayer', multiplayerRouter);

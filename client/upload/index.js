@@ -10,7 +10,7 @@ document.getElementById('year').value = new Date().getFullYear();
 
   const showFile = (f) => {
     if (f) {
-      selected.innerHTML = `<b style="color: var(--accent);">${f.name}</b> · ${(f.size / 1024).toFixed(1)} KB`;
+      selected.innerHTML = `<b style="color: var(--accent);">${escapeHtml(f.name)}</b> · ${(f.size / 1024).toFixed(1)} KB`;
       drop.setAttribute('data-dragging', 'false');
     } else {
       selected.textContent = '';

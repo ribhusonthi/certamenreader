@@ -49,8 +49,8 @@ router.get('/reset-password', (req, res) => {
   res.sendFile('reset-password.html', { root: './client/user' });
 });
 
-// The profile is the signed-in home page now. Keep the old URL (and any query,
-// e.g. ?discord=linked) working.
+// The profile is the signed-in home page now. Keep the old URL (and any query)
+// working.
 router.get('/my-profile', (req, res) => {
   const query = req.originalUrl.indexOf('?');
   res.redirect('/' + (query === -1 ? '' : req.originalUrl.slice(query)));

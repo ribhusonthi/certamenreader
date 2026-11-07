@@ -1,5 +1,7 @@
 /* global alert, bootstrap, confirm */
 
+import { sanitizeHTML } from '../utilities/strings.js';
+
 let allUsers = [];
 
 function renderUsers (users) {
@@ -654,18 +656,20 @@ function reasonBadge (reason) {
   return `<span class="badge ${tone}">${escapeHtml(reason || 'unknown')}</span>`;
 }
 
+// Question text can come from user uploads, so it is sanitized before it goes
+// into this admin page.
 function reportQuestionText (r) {
-  if (r.type === 'tossup' && r.question) return r.question;
+  if (r.type === 'tossup' && r.question) return sanitizeHTML(r.question);
   if (r.type === 'bonus' && r.parts?.length) {
-    return r.parts.map((p, i) => `<b>[${i + 1}]</b> ${p}`).join('<br>');
+    return r.parts.map((p, i) => `<b>[${i + 1}]</b> ${sanitizeHTML(p)}`).join('<br>');
   }
   return '<span class="text-muted">(question deleted)</span>';
 }
 
 function reportAnswerText (r) {
-  if (r.type === 'tossup' && r.answer) return r.answer;
+  if (r.type === 'tossup' && r.answer) return sanitizeHTML(r.answer);
   if (r.type === 'bonus' && r.answers?.length) {
-    return r.answers.map((a, i) => `<b>[${i + 1}]</b> ${a}`).join('<br>');
+    return r.answers.map((a, i) => `<b>[${i + 1}]</b> ${sanitizeHTML(a)}`).join('<br>');
   }
   return '';
 }

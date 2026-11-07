@@ -111,19 +111,10 @@ function isAuthExempt (path) {
     path === '/review' ||
     path === '/api/set-list' ||
     path.startsWith('/auth/') ||
-    path.startsWith('/api/anki') ||
     path === '/login' ||
     path === '/login/' ||
     /\.(js|jsx|css|map|png|ico|svg|woff2?|ttf|eot)$/.test(path)
   );
-}
-
-// Allow the Discord bot (or any trusted service) to bypass cookie auth by
-// sending a shared secret header. This is required for the bot to call
-// /api/random-tossup, /api/check-answer, /api/discord/*, etc.
-function hasBotSecret (req) {
-  const botSecret = req.get('X-Bot-Secret');
-  return botSecret && process.env.BOT_SECRET && botSecret === process.env.BOT_SECRET;
 }
 
 app.use((req, res, next) => {
@@ -143,10 +134,6 @@ app.use((req, res, next) => {
   }
 
   if (isAuthExempt(req.path)) {
-    return next();
-  }
-
-  if (hasBotSecret(req)) {
     return next();
   }
 

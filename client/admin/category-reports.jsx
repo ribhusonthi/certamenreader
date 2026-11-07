@@ -1,4 +1,5 @@
 import { getBonusPartLabel } from '../utilities/index.js';
+import { sanitizeHTML } from '../utilities/strings.js';
 
 const ALTERNATE_SUBCATEGORIES = {
   Literature: ['Drama', 'Long Fiction', 'Poetry', 'Short Fiction', 'Misc Literature'],
@@ -72,9 +73,9 @@ function TossupCard ({ tossup }) {
       </div>
       <div className='card-container collapse show' id={`question-${_id}`}>
         <div className='card-body'>
-          <span dangerouslySetInnerHTML={{ __html: tossup.question }} />
+          <span dangerouslySetInnerHTML={{ __html: sanitizeHTML(tossup.question) }} />
           <hr className='my-3' />
-          <div><b>ANSWER:</b> <span dangerouslySetInnerHTML={{ __html: tossup?.answer }} /></div>
+          <div><b>ANSWER:</b> <span dangerouslySetInnerHTML={{ __html: sanitizeHTML(tossup?.answer) }} /></div>
         </div>
         <div className='card-footer clickable' onClick={onClick} id={`fix-category-${_id}`} data-bs-toggle='modal' data-bs-target='#fix-category-modal'>
           <small className='text-muted'>{packetName ? 'Packet ' + packetName : <span>&nbsp;</span>}</small>
@@ -128,7 +129,7 @@ function BonusCard ({ bonus }) {
               </p>
               <div>
                 <b>ANSWER: </b>
-                <span dangerouslySetInnerHTML={{ __html: bonus?.answers[i] }} />
+                <span dangerouslySetInnerHTML={{ __html: sanitizeHTML(bonus?.answers[i]) }} />
               </div>
             </div>
           )}

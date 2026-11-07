@@ -1,4 +1,5 @@
 import { getBonusPartLabel } from '../utilities/index.js';
+import { sanitizeHTML } from '../utilities/strings.js';
 const ALTERNATE_SUBCATEGORIES = {
   Literature: ['Drama', 'Long Fiction', 'Poetry', 'Short Fiction', 'Misc Literature'],
   History: [],
@@ -68,13 +69,13 @@ function TossupCard({
     className: "card-body"
   }, /*#__PURE__*/React.createElement("span", {
     dangerouslySetInnerHTML: {
-      __html: tossup.question
+      __html: sanitizeHTML(tossup.question)
     }
   }), /*#__PURE__*/React.createElement("hr", {
     className: "my-3"
   }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, "ANSWER:"), " ", /*#__PURE__*/React.createElement("span", {
     dangerouslySetInnerHTML: {
-      __html: tossup?.answer
+      __html: sanitizeHTML(tossup?.answer)
     }
   }))), /*#__PURE__*/React.createElement("div", {
     className: "card-footer clickable",
@@ -122,7 +123,7 @@ function BonusCard({
     key: `${bonus._id}-${i}`
   }, /*#__PURE__*/React.createElement("hr", null), /*#__PURE__*/React.createElement("p", null, /*#__PURE__*/React.createElement("span", null, getBonusPartLabel(i), " "), /*#__PURE__*/React.createElement("span", null, bonus.parts[i])), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, "ANSWER: "), /*#__PURE__*/React.createElement("span", {
     dangerouslySetInnerHTML: {
-      __html: bonus?.answers[i]
+      __html: sanitizeHTML(bonus?.answers[i])
     }
   }))))), /*#__PURE__*/React.createElement("div", {
     className: "card-footer clickable",

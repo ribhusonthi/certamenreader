@@ -1,5 +1,6 @@
 import { checkToken } from '../server/authentication.js';
 import { parseQuestionText } from '../server/parser.js';
+import { safeHTML, plainText } from '../server/safe-html.js';
 import { certamenreader } from '../database/databases.js';
 import { tossups as tossupsCollection, bonuses as bonusesCollection, sets as setsCollection, packets as packetsCollection } from '../database/certamenreader/collections.js';
 import { users } from '../database/account-info/collections.js';
@@ -59,7 +60,8 @@ async function extractText (buffer, originalname) {
 
   if (ext === 'pdf') {
     const uint8 = new Uint8Array(buffer);
-    const doc = await getDocument({ data: uint8 }).promise;
+    // Fonts in an uploaded PDF are untrusted; never let pdf.js compile them with eval.
+    const doc = await getDocument({ data: uint8, isEvalSupported: false }).promise;
     const pages = [];
     for (let i = 1; i <= doc.numPages; i++) {
       const page = await doc.getPage(i);
@@ -77,6 +79,33 @@ async function extractText (buffer, originalname) {
   throw new Error('Unsupported file type: ' + ext);
 }
 
+// Uploaded text is untrusted but is stored as question HTML, so strip any
+// markup that could run script wherever the question is rendered.
+function sanitizeParsed ({ tossups, bonuses, set }) {
+  const packet = p => ({ ...p, name: plainText(p.name) });
+  return {
+    set,
+    tossups: tossups.map(t => ({
+      ...t,
+      question: safeHTML(t.question),
+      answer: safeHTML(t.answer),
+      question_sanitized: plainText(t.question_sanitized),
+      answer_sanitized: plainText(t.answer_sanitized),
+      packet: packet(t.packet)
+    })),
+    bonuses: bonuses.map(b => ({
+      ...b,
+      leadin: safeHTML(b.leadin),
+      parts: b.parts.map(safeHTML),
+      answers: b.answers.map(safeHTML),
+      answers_sanitized: (b.answers_sanitized ?? []).map(plainText),
+      packet: packet(b.packet)
+    }))
+  };
+}
+
+const MAX_SET_NAME = 120;
+
 // Upload and parse endpoint
 router.post('/api/upload', upload.single('file'), async (req, res) => {
   try {
@@ -85,8 +114,14 @@ router.post('/api/upload', upload.single('file'), async (req, res) => {
     }
 
     const { setName, year, difficulty } = req.body;
-    if (!setName || !setName.trim()) {
+    if (typeof setName !== 'string' || !setName.trim()) {
       return res.status(400).json({ error: 'Set name is required.' });
+    }
+    if (setName.length > MAX_SET_NAME || /[<>]/.test(setName)) {
+      return res.status(400).json({ error: `Set names can be at most ${MAX_SET_NAME} characters and can't contain < or >.` });
+    }
+    if (difficulty !== undefined && typeof difficulty !== 'string') {
+      return res.status(400).json({ error: 'Invalid difficulty.' });
     }
     if (!year || isNaN(parseInt(year, 10))) {
       return res.status(400).json({ error: 'A valid year is required.' });
@@ -121,11 +156,11 @@ router.post('/api/upload', upload.single('file'), async (req, res) => {
     }
 
     // Parse questions
-    const { tossups, bonuses, set } = parseQuestionText(text, {
+    const { tossups, bonuses, set } = sanitizeParsed(parseQuestionText(text, {
       name: wanted,
       year: parseInt(year, 10),
       difficulty: difficulty || 'intermediate'
-    });
+    }));
 
     if (tossups.length === 0) {
       return res.status(400).json({
@@ -287,11 +322,11 @@ router.post('/api/preview', upload.single('file'), async (req, res) => {
       return res.status(400).json({ error: 'File appears to be empty or unreadable.' });
     }
 
-    const { tossups, bonuses: previewBonuses } = parseQuestionText(text, {
-      name: req.body.setName || 'Preview',
+    const { tossups, bonuses: previewBonuses } = sanitizeParsed(parseQuestionText(text, {
+      name: typeof req.body.setName === 'string' ? req.body.setName : 'Preview',
       year: parseInt(req.body.year, 10) || new Date().getFullYear(),
-      difficulty: req.body.difficulty || 'intermediate'
-    });
+      difficulty: typeof req.body.difficulty === 'string' ? req.body.difficulty : 'intermediate'
+    }));
 
     res.json({
       questionCount: tossups.length,
