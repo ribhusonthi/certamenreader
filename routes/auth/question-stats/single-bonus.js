@@ -1,12 +1,16 @@
 import getSingleBonusStats from '../../../database/account-info/question-stats/get-single-bonus-stats.js';
 
 import { Router } from 'express';
-import { ObjectId } from 'mongodb';
+import { parseObjectId } from '../../../server/validate.js';
 
 const router = Router();
 
 router.get('/', async (req, res) => {
-  const stats = await getSingleBonusStats(new ObjectId(req.query.bonus_id));
+  const id = parseObjectId(req.query.bonus_id);
+  if (!id) {
+    return res.sendStatus(400);
+  }
+  const stats = await getSingleBonusStats(id);
   res.json({ stats });
 });
 

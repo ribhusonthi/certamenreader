@@ -5,6 +5,7 @@ import { users } from '../database/account-info/collections.js';
 import hasValidCharacters from './moderation/has-valid-characters.js';
 import isAppropriateString from './moderation/is-appropriate-string.js';
 import { emailKey } from './email-address.js';
+import { COOKIE_MAX_AGE } from '../constants.js';
 
 import jsonwebtoken from 'jsonwebtoken';
 import passport from 'passport';
@@ -24,6 +25,29 @@ const secret = process.env.SECRET ? process.env.SECRET : 'secret';
  */
 const sessionKeys = [process.env.SECRET_KEY_1 ?? 'secretKey1', process.env.SECRET_KEY_2 ?? 'secretKey2'];
 
+// A session token is honored for a week after it was issued. Requests swap an
+// ageing token for a fresh one (refreshToken, called from index.js), so
+// someone who keeps using the site stays signed in, while a copied cookie
+// stops working a week after it was last used.
+const TOKEN_MAX_AGE_SECONDS = Math.floor(COOKIE_MAX_AGE / 1000);
+const TOKEN_REFRESH_AFTER_MS = 24 * 60 * 60 * 1000;
+// Tokens issued before expiry existed carry no `exp`. They keep working until
+// this date so that adding expiry signs nobody out; any request before then
+// swaps them for an expiring one.
+const LEGACY_TOKENS_UNTIL = Date.parse('2026-12-15T00:00:00Z');
+
+/** @returns the token's payload if it is valid for this username, else null. */
+function decodeToken (username, token) {
+  try {
+    const decoded = verify(token, secret); // also rejects a token past its `exp`
+    if (decoded.username !== username || isTokenRevoked(username, decoded.iat)) return null;
+    if (decoded.exp === undefined && Date.now() > LEGACY_TOKENS_UNTIL) return null;
+    return decoded;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Checks that the token is valid and stores the correct username.
  * @param {String} username
@@ -31,12 +55,7 @@ const sessionKeys = [process.env.SECRET_KEY_1 ?? 'secretKey1', process.env.SECRE
  * @returns {Boolean}
  */
 function checkToken (username, token) {
-  return verify(token, secret, (err, decoded) => {
-    if (err) {
-      return false;
-    }
-    return decoded.username === username && !isTokenRevoked(username, decoded.iat);
-  });
+  return decodeToken(username, token) !== null;
 }
 
 /**
@@ -45,7 +64,18 @@ function checkToken (username, token) {
  * @returns A JWT token.
  */
 function generateToken (username) {
-  return sign({ username }, secret);
+  return sign({ username }, secret, { expiresIn: TOKEN_MAX_AGE_SECONDS });
+}
+
+/**
+ * @returns a fresh token when this one is valid but a day old (or has no
+ * expiry yet); otherwise the same token, valid or not.
+ */
+function refreshToken (username, token) {
+  const decoded = decodeToken(username, token);
+  if (!decoded) return token;
+  const ageMs = Date.now() - decoded.iat * 1000;
+  return decoded.exp === undefined || ageMs > TOKEN_REFRESH_AFTER_MS ? generateToken(username) : token;
 }
 
 function validateUsername (username) {
@@ -176,6 +206,7 @@ export {
   baseURL,
   checkToken,
   generateToken,
+  refreshToken,
   validateUsername,
   getVerifiedUsername,
   getVerifiedUsernameFromCookie,

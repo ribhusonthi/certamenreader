@@ -12,7 +12,7 @@ import * as types from '../../types.js';
  * @returns {Promise<types.Bonus | null>}
  */
 async function getBonusForTossup ({ setName, packetNumber, tossupNumber }) {
-  if (!setName || isNaN(packetNumber) || isNaN(tossupNumber)) {
+  if (!setName || typeof setName !== 'string' || isNaN(packetNumber) || isNaN(tossupNumber)) {
     return null;
   }
 

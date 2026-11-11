@@ -5,6 +5,8 @@ import { getVerifiedUsername } from '../../server/authentication.js';
 import { Router } from 'express';
 const router = Router();
 
+const MAX_RANDOM_QUESTIONS = 100;
+
 router.get('/', async (req, res) => {
   if (req.query.difficulties) {
     req.query.difficulties = req.query.difficulties
@@ -35,7 +37,8 @@ router.get('/', async (req, res) => {
 
   req.query.minYear = isNaN(req.query.minYear) ? undefined : parseInt(req.query.minYear);
   req.query.maxYear = isNaN(req.query.maxYear) ? undefined : parseInt(req.query.maxYear);
-  req.query.number = isNaN(req.query.number) ? undefined : parseInt(req.query.number);
+  // Capped: an uncapped number let one request sample the whole database.
+  req.query.number = isNaN(req.query.number) ? undefined : Math.min(Math.max(parseInt(req.query.number), 1), MAX_RANDOM_QUESTIONS);
 
   req.query.standardOnly = (req.query.standardOnly === 'true');
 

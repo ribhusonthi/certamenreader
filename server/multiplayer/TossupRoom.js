@@ -136,6 +136,20 @@ export default class TossupRoom {
     });
   }
 
+  /**
+   * Runs a websocket handler so that an error in it, thrown or from a rejected
+   * promise, is logged instead of stopping the server for every room.
+   */
+  safely (handler) {
+    const failed = (err) => console.error(`room ${this.name}: message handler failed`, err);
+    try {
+      const result = handler();
+      if (result && typeof result.catch === 'function') result.catch(failed);
+    } catch (err) {
+      failed(err);
+    }
+  }
+
   connection (socket, userId, username, verifiedUsername = null) {
     const isNew = !(userId in this.players);
     if (isNew) {
@@ -155,33 +169,43 @@ export default class TossupRoom {
         .join('; ')};${ENDC}`
     );
     socket.on('message', (message) => {
-      if (rateLimiter(socket) && !this.rateLimitExceeded.has(username)) {
-        console.log(
-          `Rate limit exceeded for ${OKBLUE}${username}${ENDC} in room ${HEADER}${this.name}${ENDC}`
-        );
-        this.rateLimitExceeded.add(username);
+      // Over the limit: drop the message. (The check used to stop dropping
+      // after the first one, which switched the limit off for that player.)
+      if (rateLimiter(socket)) {
+        if (!this.rateLimitExceeded.has(username)) {
+          console.log(
+            `Rate limit exceeded for ${OKBLUE}${username}${ENDC} in room ${HEADER}${this.name}${ENDC}`
+          );
+          this.rateLimitExceeded.add(username);
+        }
         return;
       }
 
       try {
         message = JSON.parse(message);
       } catch (error) {
-        console.log(`Error parsing message: ${message}`);
         return;
       }
-      this.message(userId, message);
+      // Only a JSON object with a type is a message. Anything else (the text
+      // "null", a number, a list) used to throw and stop the whole server.
+      if (message === null || typeof message !== 'object' || Array.isArray(message) || typeof message.type !== 'string') {
+        return;
+      }
+      this.safely(() => this.message(userId, message));
     });
 
     socket.on('close', () => {
-      if (this.buzzedIn === userId) {
-        this.giveAnswer(userId, '');
-        this.buzzedIn = null;
-      }
+      this.safely(() => {
+        if (this.buzzedIn === userId) {
+          this.giveAnswer(userId, '');
+          this.buzzedIn = null;
+        }
 
-      this.message(userId, {
-        type: 'leave',
-        userId,
-        username
+        return this.message(userId, {
+          type: 'leave',
+          userId,
+          username
+        });
       });
     });
 

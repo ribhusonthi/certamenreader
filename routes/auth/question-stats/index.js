@@ -6,6 +6,7 @@ import singleTossupRouter from './single-tossup.js';
 import { checkToken } from '../../../server/authentication.js';
 
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 
 const router = Router();
 
@@ -25,8 +26,18 @@ router.use((req, res, next) => {
   next();
 });
 
-router.use('/record-bonus', recordBonusRouter);
-router.use('/record-tossup', recordTossupRouter);
+// Recording a play is what feeds stats and the leaderboard. Nobody reads two
+// questions a second, so a script submitting results in bulk is cut off.
+const recordLimit = rateLimit({
+  windowMs: 60 * 1000,
+  max: 120,
+  keyGenerator: req => `record:${req.session.username}`,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+router.use('/record-bonus', recordLimit, recordBonusRouter);
+router.use('/record-tossup', recordLimit, recordTossupRouter);
 router.use('/single-bonus', singleBonusRouter);
 router.use('/single-tossup', singleTossupRouter);
 

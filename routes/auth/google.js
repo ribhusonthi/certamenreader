@@ -1,6 +1,7 @@
 import { COOKIE_MAX_AGE } from '../../constants.js';
 import { reactivateAccount } from '../../database/account-info/account-deletion.js';
 import { generateToken } from '../../server/authentication.js';
+import { safeRedirect } from '../../server/validate.js';
 
 import passport from 'passport';
 import { Router } from 'express';
@@ -11,7 +12,7 @@ router.get('/', (req, res, next) => {
   passport.authenticate('google', {
     scope: ['profile', 'email'],
     session: false,
-    state: req.query.redirect || undefined
+    state: typeof req.query.redirect === 'string' ? req.query.redirect : undefined
   })(req, res, next);
 });
 
@@ -32,9 +33,8 @@ router.get('/callback', passport.authenticate('google', {
   console.log(`/api/auth: GOOGLE LOGIN: User ${username} (${user.name}) successfully logged in.`);
 
   // Redirect back to the page the user originally tried to visit, if any.
-  // Only allow relative paths to prevent open redirect attacks.
-  const state = req.query.state;
-  const base = user.usernameSet === true ? ((state && state.startsWith('/')) ? state : '/') : '/user/setup-username';
+  // Only a path on this site: "//host" and "/\host" would leave it.
+  const base = user.usernameSet === true ? safeRedirect(req.query.state) : '/user/setup-username';
   const redirectTo = base + (base.includes('?') ? '&' : '?') + '_loggedIn=1';
   res.redirect(redirectTo);
 });

@@ -8,6 +8,7 @@ import { ObjectId } from 'mongodb';
  * @returns {Promise<ObjectId | null>}
  */
 async function getSetId (name) {
+  if (typeof name !== 'string') return null;
   const set = await sets.findOne({ name });
   return set ? set._id : null;
 }

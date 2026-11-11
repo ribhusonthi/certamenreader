@@ -10,6 +10,10 @@ import * as types from '../../types.js';
 /**
  * Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#escaping
  */
+// A search may contain a user-written regular expression, and a badly written
+// (or hostile) one can keep the database busy for minutes. Give up after this long.
+const SEARCH_OPTIONS = { maxTimeMS: 10000 };
+
 function escapeRegExp (string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
@@ -208,8 +212,8 @@ async function getTossupQuery (options) {
 
   try {
     const [questionArray, count] = await Promise.all([
-      tossups.aggregate(aggregation).skip((tossupPagination - 1) * maxReturnLength).limit(maxReturnLength).toArray(),
-      tossups.countDocuments(query)
+      tossups.aggregate(aggregation, SEARCH_OPTIONS).skip((tossupPagination - 1) * maxReturnLength).limit(maxReturnLength).toArray(),
+      tossups.countDocuments(query, SEARCH_OPTIONS)
     ]);
     return { count, questionArray };
   } catch (MongoServerError) {
@@ -249,8 +253,8 @@ async function getBonusQuery (options) {
 
   try {
     const [questionArray, count] = await Promise.all([
-      bonuses.aggregate(aggregation).skip((bonusPagination - 1) * maxReturnLength).limit(maxReturnLength).toArray(),
-      bonuses.countDocuments(query)
+      bonuses.aggregate(aggregation, SEARCH_OPTIONS).skip((bonusPagination - 1) * maxReturnLength).limit(maxReturnLength).toArray(),
+      bonuses.countDocuments(query, SEARCH_OPTIONS)
     ]);
     return { count, questionArray };
   } catch (MongoServerError) {
@@ -289,9 +293,10 @@ function buildQueryAggregation ({ query, difficulties, categories, subcategories
     query['packet.name'] = roundCondition;
   }
 
-  if (setNames?.length) {
+  setNames = Array.isArray(setNames) ? setNames.filter(name => typeof name === 'string') : [];
+  if (setNames.length) {
     query['set.name'] = { $in: setNames };
-  } else if (setName) {
+  } else if (setName && typeof setName === 'string') {
     query['set.name'] = setName;
   }
 

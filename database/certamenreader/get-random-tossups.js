@@ -65,9 +65,10 @@ async function getRandomTossups ({
     aggregation[0].$match['packet.name'] = roundCondition;
   }
 
-  if (Array.isArray(setNames) && setNames.length) {
+  setNames = Array.isArray(setNames) ? setNames.filter(name => typeof name === 'string') : [];
+  if (setNames.length) {
     aggregation[0].$match['set.name'] = { $in: setNames };
-  } else if (setName) {
+  } else if (setName && typeof setName === 'string') {
     aggregation[0].$match['set.name'] = setName;
   }
 

@@ -4,8 +4,10 @@ import {
   resetPassword, startPasswordReset, verifyEmailToken
 } from '../../server/accounts.js';
 import { reactivateAccount } from '../../database/account-info/account-deletion.js';
+import { revokeUsername } from '../../database/account-info/session-revocation.js';
 import { generateToken } from '../../server/authentication.js';
 import { emailKey } from '../../server/email-address.js';
+import { safeRedirect } from '../../server/validate.js';
 
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
@@ -33,11 +35,6 @@ async function startSession (req, user) {
   req.session.username = user.username;
   req.session.token = generateToken(user.username);
   req.session.expires = Date.now() + COOKIE_MAX_AGE;
-}
-
-// Only same-site paths, so a crafted link can't send people elsewhere.
-function safeRedirect (path) {
-  return typeof path === 'string' && path.startsWith('/') && !path.startsWith('//') ? path : '/';
 }
 
 function fail (res, err) {
@@ -121,6 +118,10 @@ router.post('/forgot', limiter(HOUR, 5), async (req, res) => {
 router.post('/reset', limiter(HOUR, 10), async (req, res) => {
   try {
     const user = await resetPassword(req.body?.token, req.body?.password);
+    // A reset is what someone does when their password got out, so every
+    // session signed in before it stops working. The cutoff sits just before
+    // this second so the session started on the next line survives.
+    await revokeUsername(user.username, new Date(Math.floor(Date.now() / 1000) * 1000 - 1));
     await startSession(req, user);
     res.json({ ok: true });
   } catch (err) {

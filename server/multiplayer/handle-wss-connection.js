@@ -4,12 +4,19 @@ import { createAndReturnRoom } from './TossupRoom.js';
 import { createAndReturnTeamRoom } from './TeamTossupRoom.js';
 import { getRankedConnection } from '../ranked/matchmaking.js';
 import { RANKED_ENABLED } from '../../constants.js';
-import { getVerifiedUsernameFromCookie } from '../authentication.js';
+import { getVerifiedUsernameFromCookie, sessionKeys } from '../authentication.js';
 
 import getRandomName from '../../get-random-name.js';
 
+import crypto from 'crypto';
 import url from 'url';
-import * as uuid from 'uuid';
+
+// A player's id in a room comes from their signed-in account, never from the
+// URL: a client-chosen id let anyone take over another player's seat and
+// score. Keyed, so it can't be worked out from a username.
+function playerIdFor (verifiedUsername) {
+  return crypto.createHmac('sha256', sessionKeys[0]).update(verifiedUsername.toLowerCase()).digest('hex').slice(0, 32);
+}
 
 /**
  * Handle WebSocket connection
@@ -24,7 +31,6 @@ export default function handleWssConnection (ws, req) {
   const mode = parsedUrl.searchParams.get('mode');
   const teamCount = parseInt(parsedUrl.searchParams.get('teamCount') ?? '2', 10);
   const schoolId = parsedUrl.searchParams.get('schoolId') || null;
-  let userId = parsedUrl.searchParams.get('userId') ?? 'unknown';
   let username = parsedUrl.searchParams.get('username') ?? getRandomName();
 
   // The query-string username is display-only and client-controlled. For
@@ -32,7 +38,15 @@ export default function handleWssConnection (ws, req) {
   // session cookie on the upgrade request instead.
   const verifiedUsername = getVerifiedUsernameFromCookie(req.headers.cookie);
 
-  userId = (userId === 'unknown') ? uuid.v4() : userId;
+  // The rest of the site needs a signed-in session; websocket upgrades skip
+  // that check, so it is made here.
+  if (!verifiedUsername) {
+    ws.send(JSON.stringify({ type: 'error', error: 'Sign in to play multiplayer.' }));
+    ws.close();
+    return false;
+  }
+
+  const userId = playerIdFor(verifiedUsername);
 
   if (rankedTicket) {
     if (!RANKED_ENABLED) {

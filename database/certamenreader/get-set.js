@@ -17,7 +17,7 @@ import * as types from '../../types.js';
  * @returns {Promise<types.Tossup[] | types.Bonus[]>}
  */
 async function getSet ({ setName, packetNumbers, categories, subcategories, rounds, questionType = 'tossup', reverse = false }) {
-  if (!setName) return [];
+  if (!setName || typeof setName !== 'string') return [];
 
   if (!questionType) questionType = 'tossup';
 
@@ -36,7 +36,7 @@ async function getSet ({ setName, packetNumbers, categories, subcategories, roun
 
   const options = {
     sort: { 'packet.number': reverse ? -1 : 1, number: reverse ? -1 : 1 },
-    project: { reports: 0 }
+    projection: { reports: 0 }
   };
 
   if (questionType === 'tossup') {

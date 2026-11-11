@@ -28,6 +28,11 @@ async function canAccessSet (setName, username = null) {
   if (!setName) {
     return true;
   }
+  // Anything but a string (an object would be read by MongoDB as a query
+  // operator) is not a set name.
+  if (typeof setName !== 'string') {
+    return false;
+  }
 
   const set = await sets.findOne({ name: setName }, { projection: { private: 1, owner: 1 } });
   if (!set || set.private !== true) {
@@ -46,7 +51,7 @@ async function canAccessSet (setName, username = null) {
  * @returns {Promise<boolean>}
  */
 async function isPrivateSetOwner (setName, username = null) {
-  if (!setName || !username) {
+  if (!setName || typeof setName !== 'string' || !username) {
     return false;
   }
 
@@ -60,7 +65,7 @@ async function isPrivateSetOwner (setName, username = null) {
  * @returns {Promise<string | null>}
  */
 async function privateSetOwner (setName) {
-  if (!setName) {
+  if (!setName || typeof setName !== 'string') {
     return null;
   }
   const set = await sets.findOne({ name: setName }, { projection: { private: 1, owner: 1 } });

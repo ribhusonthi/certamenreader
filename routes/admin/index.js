@@ -52,10 +52,13 @@ router.get('/api/uploads', async (_req, res) => {
 
 // Delete an uploaded set and its questions
 router.delete('/api/uploads/:uploadId', async (req, res) => {
-  const { uploadId } = req.params;
   const { ObjectId } = await import('mongodb');
+  if (!ObjectId.isValid(req.params.uploadId)) {
+    return res.sendStatus(400);
+  }
+  const uploadId = new ObjectId(req.params.uploadId);
 
-  const uploadDoc = await uploads.findOne({ _id: new ObjectId(uploadId) });
+  const uploadDoc = await uploads.findOne({ _id: uploadId });
   if (!uploadDoc) {
     return res.sendStatus(404);
   }
@@ -72,7 +75,7 @@ router.delete('/api/uploads/:uploadId', async (req, res) => {
   }
 
   // Delete the upload record
-  await uploads.deleteOne({ _id: new ObjectId(uploadId) });
+  await uploads.deleteOne({ _id: uploadId });
 
   res.sendStatus(200);
 });

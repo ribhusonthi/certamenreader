@@ -1,4 +1,4 @@
-import * as uuid from 'uuid';
+import crypto from 'crypto';
 
 import RankedRoom from './RankedRoom.js';
 import { getOrCreateRating, getRankedLeaderboard, getRankedProfile, serializeRating } from '../../database/account-info/ranked.js';
@@ -115,7 +115,7 @@ async function joinRankedQueue ({ username, mode }) {
   removeQueuedUsername(username);
 
   const rating = await getOrCreateRating(username, rankedMode.id);
-  const ticket = uuid.v4();
+  const ticket = crypto.randomUUID();
   const entry = {
     ticket,
     username,

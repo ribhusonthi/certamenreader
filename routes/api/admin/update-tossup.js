@@ -1,7 +1,7 @@
 import updateTossup from '../../../database/certamenreader/update-tossup.js';
 
 import { Router } from 'express';
-import { ObjectId } from 'mongodb';
+import { parseObjectId } from '../../../server/validate.js';
 
 const router = Router();
 
@@ -15,8 +15,9 @@ router.put('/', async (req, res) => {
     answer_sanitized: answerSanitized
   } = req.body;
 
-  if (!_id) {
-    return res.status(400).json({ error: 'Missing _id' });
+  const id = parseObjectId(_id);
+  if (!id) {
+    return res.status(400).json({ error: 'Missing or invalid _id' });
   }
 
   const fields = {};
@@ -26,7 +27,7 @@ router.put('/', async (req, res) => {
   if (answer !== undefined) fields.answer = answer;
   if (answerSanitized !== undefined) fields.answer_sanitized = answerSanitized;
 
-  const result = await updateTossup(new ObjectId(_id), fields);
+  const result = await updateTossup(id, fields);
 
   if (result) {
     res.sendStatus(200);

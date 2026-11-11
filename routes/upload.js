@@ -7,6 +7,7 @@ import { users } from '../database/account-info/collections.js';
 
 import { Router } from 'express';
 import multer from 'multer';
+import rateLimit from 'express-rate-limit';
 import mammoth from 'mammoth';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 
@@ -44,6 +45,21 @@ router.use(async (req, res, next) => {
   req.username = username;
   next();
 });
+
+// Reading a 10 MB PDF takes real CPU and memory on a server that everyone
+// shares, so uploads and previews are limited per account.
+function hourlyLimit (max, what) {
+  return rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max,
+    keyGenerator: req => `${what}:${req.username}`,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: `You have reached the hourly limit for ${what}s. Try again later.` }
+  });
+}
+const uploadLimit = hourlyLimit(10, 'upload');
+const previewLimit = hourlyLimit(60, 'preview');
 
 // Serve upload page
 router.get('/', (_req, res) => {
@@ -107,7 +123,7 @@ function sanitizeParsed ({ tossups, bonuses, set }) {
 const MAX_SET_NAME = 120;
 
 // Upload and parse endpoint
-router.post('/api/upload', upload.single('file'), async (req, res) => {
+router.post('/api/upload', uploadLimit, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded.' });
@@ -305,7 +321,7 @@ router.post('/api/upload', upload.single('file'), async (req, res) => {
 });
 
 // Preview endpoint: parse without saving
-router.post('/api/preview', upload.single('file'), async (req, res) => {
+router.post('/api/preview', previewLimit, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded.' });

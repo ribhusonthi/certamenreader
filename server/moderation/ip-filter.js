@@ -14,13 +14,16 @@ const clientIp = (req, _res) => req.ip;
 
 const ipFilterMiddleware = IpFilter(ips, { mode: 'deny', log: false, detectIp: clientIp });
 
-const ipFilterError = (err, req, res, _next) => {
+const ipFilterError = (err, req, res, next) => {
   if (err instanceof IpDeniedError) {
     console.log(`Blocked IP: ${req.ip}`);
     res.status(403);
     res.end();
   } else {
-    res.status(err.status || 500);
+    // Not ours (for example a request body that isn't valid JSON). Pass it on
+    // to the error handler in index.js; setting a status without answering
+    // left the request hanging until the client gave up.
+    next(err);
   }
 };
 

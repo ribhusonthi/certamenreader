@@ -1,12 +1,16 @@
 import getSingleTossupStats from '../../../database/account-info/question-stats/get-single-tossup-stats.js';
 
 import { Router } from 'express';
-import { ObjectId } from 'mongodb';
+import { parseObjectId } from '../../../server/validate.js';
 
 const router = Router();
 
 router.get('/', async (req, res) => {
-  const stats = await getSingleTossupStats(new ObjectId(req.query.tossup_id));
+  const id = parseObjectId(req.query.tossup_id);
+  if (!id) {
+    return res.sendStatus(400);
+  }
+  const stats = await getSingleTossupStats(id);
   res.json({ stats });
 });
 

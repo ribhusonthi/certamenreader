@@ -337,6 +337,7 @@ document.getElementById('search-uploads').addEventListener('input', (e) => {
 // ── Buzzpoints Tab ──────────────────────────────────────────────────────────────
 
 function highlightBuzzpoint (questionText, buzzpointIndex) {
+  questionText = String(questionText ?? '');
   if (typeof buzzpointIndex !== 'number' || buzzpointIndex < 0) return escapeHtml(questionText);
   const before = questionText.substring(0, buzzpointIndex);
   const after = questionText.substring(buzzpointIndex);
@@ -366,14 +367,14 @@ function renderBuzzpoints (buzzpoints) {
       <div class="d-flex justify-content-between align-items-start mb-1">
         <div>
           <span class="question-cat-badge cat-${cat.toLowerCase().replace(/[^a-z]/g, '-')}">${escapeHtml(cat)}${escapeHtml(subcat)}</span>
-          <span class="badge bg-secondary ms-1">${points > 10 ? 'P' : points}pts</span>
+          <span class="badge bg-secondary ms-1">${points > 10 ? 'P' : escapeHtml(String(points))}pts</span>
           <span class="badge bg-info ms-1">${mode}</span>
           <span class="badge bg-outline-secondary ms-1" style="font-weight:normal">${pctThrough}% through</span>
         </div>
         <small class="text-muted">${escapeHtml(setName)}${date ? ' - ' + date : ''}</small>
       </div>
       <div class="mb-1" style="font-size:0.9rem;line-height:1.6">${highlightBuzzpoint(bp.questionText || '', bp.buzzpointIndex)}</div>
-      <div><strong>Answer:</strong> ${bp.answerText || 'N/A'}</div>
+      <div><strong>Answer:</strong> ${bp.answerText ? sanitizeHTML(bp.answerText) : 'N/A'}</div>
     </div>`;
   }
 
@@ -432,7 +433,7 @@ function renderBoni (records) {
         : '<span class="badge bg-danger">Missed</span>';
       partsHtml += `<div class="mb-1" style="font-size:0.9rem;line-height:1.5">
         <div><strong>B${i + 1}</strong> ${badge} ${escapeHtml(parts[i] || '')}</div>
-        <div class="text-muted ps-3"><em>Answer:</em> ${answers[i] || ''}</div>
+        <div class="text-muted ps-3"><em>Answer:</em> ${sanitizeHTML(answers[i] || '')}</div>
       </div>`;
     }
 

@@ -9,10 +9,10 @@ const router = Router();
 function parseStringList (value) {
   if (!value) return undefined;
   if (value === 'undefined' || value === 'null') return undefined;
-  if (Array.isArray(value)) return value.filter(Boolean);
+  if (Array.isArray(value)) return value.filter(item => item && typeof item === 'string');
   try {
     const parsed = JSON.parse(value);
-    if (Array.isArray(parsed)) return parsed.filter(Boolean);
+    if (Array.isArray(parsed)) return parsed.filter(item => item && typeof item === 'string');
   } catch {
     // Fall back to comma-separated legacy values.
   }

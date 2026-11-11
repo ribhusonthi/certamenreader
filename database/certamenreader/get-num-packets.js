@@ -5,7 +5,7 @@ import { packets } from './collections.js';
  * @returns {Promise<Number>} the number of packets in the set.
  */
 async function getNumPackets (setName) {
-  if (!setName) {
+  if (!setName || typeof setName !== 'string') {
     return 0;
   }
 
