@@ -1,6 +1,6 @@
 import { inappropriateNames, inappropriateSubstrings } from './banned-usernames.js';
 
-function normalizeForFilter (string) {
+export function normalizeForFilter (string) {
   return string
     .toLowerCase()
     .replace(/[1!|]/g, 'i')

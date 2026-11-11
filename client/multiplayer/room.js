@@ -317,6 +317,7 @@ socket.onmessage = function (event) {
       break;
 
     case 'reveal-answer': {
+      resetTypewriter();
       document.getElementById('question').innerHTML = data.question;
       // Stash the raw answer so the history card round-trip (socketOnNext)
       // can hand the un-formatted form to createTossupCard.
@@ -383,7 +384,6 @@ socket.onmessage = function (event) {
         `made the room ${data.public ? 'public' : 'private'}`
       );
       document.getElementById('toggle-visibility').checked = data.public;
-      document.getElementById('chat').checked = data.public;
       document.getElementById('toggle-lock').disabled = data.public;
       document.getElementById('toggle-timer').disabled = data.public;
       document.getElementById('toggle-timer').checked = true;
@@ -401,18 +401,7 @@ socket.onmessage = function (event) {
       break;
 
     case 'update-question':
-      {
-        const questionEl = document.getElementById('question');
-        const chars = (data.word + ' ').split('');
-        chars.forEach((ch, i) => {
-          setTimeout(() => {
-            const letterSpan = document.createElement('span');
-            letterSpan.className = 'letter-token';
-            letterSpan.textContent = ch;
-            questionEl.appendChild(letterSpan);
-          }, i * 18);
-        });
-      }
+      typeText(data.word + ' ');
       break;
 
     case 'year-range':
@@ -476,7 +465,6 @@ const socketOnConnectionAcknowledged = async (message) => {
   USER_ID = message.userId;
   window.localStorage.setItem('USER_ID', USER_ID);
 
-  document.getElementById('chat').enabled = message.public;
   document.getElementById('toggle-rebuzz').checked = message.rebuzz;
   document.getElementById('toggle-skip').checked = message.skip;
   document.getElementById('toggle-timer').checked = message.timer;
@@ -695,26 +683,22 @@ const socketOnJoin = (message) => {
     upsertPlayerItem(message.user);
     sortPlayerListGroup();
     players[userId] = message.user;
-  } else {
+  } else if (players[message.userId]) {
     players[message.userId].isOnline = true;
-    document
-      .getElementById('points-' + message.userId)
-      .classList.add('bg-success');
-    document
-      .getElementById('points-' + message.userId)
-      .classList.remove('bg-secondary');
+    const pointsEl = document.getElementById('points-' + message.userId);
+    pointsEl?.classList.add('bg-success');
+    pointsEl?.classList.remove('bg-secondary');
   }
+  renderScoreboard();
 };
 
 const socketOnLeave = (message) => {
   logEvent(message.username, 'left the game');
-  players[message.userId].isOnline = false;
-  document
-    .getElementById('points-' + message.userId)
-    .classList.remove('bg-success');
-  document
-    .getElementById('points-' + message.userId)
-    .classList.add('bg-secondary');
+  if (players[message.userId]) players[message.userId].isOnline = false;
+  const pointsEl = document.getElementById('points-' + message.userId);
+  pointsEl?.classList.remove('bg-success');
+  pointsEl?.classList.add('bg-secondary');
+  renderScoreboard();
 };
 
 const socketOnLostBuzzerRace = (message) => {
@@ -749,6 +733,7 @@ const socketOnNext = (message) => {
     document.getElementById('options').classList.add('d-none');
   }
   showSkipButton();
+  resetTypewriter();
   document.getElementById('question').innerHTML = '';
   document.getElementById('answer').textContent = '';
   document.getElementById('buzz').textContent = 'Buzz';
@@ -823,6 +808,7 @@ const socketOnRankedMatchComplete = (message) => {
 const socketOnStart = (message) => {
   logEvent(message.username, 'started the game');
 
+  resetTypewriter();
   document.getElementById('question').innerHTML = '';
   document.getElementById('answer').textContent = '';
   document.getElementById('buzz').textContent = 'Buzz';
@@ -849,19 +835,20 @@ const PING_INTERVAL_ID = setInterval(() => {
 }, 45000);
 
 function logChat (username, message, isLive = false, userId = null) {
+  const live = document.getElementById('live-chat-' + userId);
+
   if (!isLive && message === '') {
-    document.getElementById('live-chat-' + userId).parentElement.remove();
+    live?.parentElement.remove(); // cancelled before sending
     return;
   }
 
-  if (!isLive && message) {
-    document.getElementById('live-chat-' + userId).className = '';
-    document.getElementById('live-chat-' + userId).id = '';
-    return;
-  }
-
-  if (document.getElementById('live-chat-' + userId)) {
-    document.getElementById('live-chat-' + userId).textContent = message;
+  if (live) {
+    // The server filters chat, so the text it sends is what is shown.
+    live.textContent = message;
+    if (!isLive) {
+      live.className = '';
+      live.id = '';
+    }
     return;
   }
 
@@ -869,8 +856,10 @@ function logChat (username, message, isLive = false, userId = null) {
   b.textContent = username;
 
   const span = document.createElement('span');
-  span.classList.add('text-muted');
-  span.id = 'live-chat-' + userId;
+  if (isLive) {
+    span.classList.add('text-muted');
+    span.id = 'live-chat-' + userId;
+  }
   span.textContent = message;
 
   const li = document.createElement('li');
@@ -1024,6 +1013,68 @@ function sortPlayerListGroup (descending = true) {
     .forEach((item) => {
       listGroup.appendChild(item);
     });
+  renderScoreboard();
+}
+
+/**
+ * Who is in the room and their scores, above the question. The sidebar list
+ * has the details, but the sidebar is hidden during play on narrow screens,
+ * so this strip is what most phone players see.
+ */
+function renderScoreboard () {
+  const board = document.getElementById('scoreboard');
+  if (!board) return;
+  const online = Object.values(players)
+    .filter(player => player.isOnline)
+    .sort((a, b) => (b.points - a.points) || String(a.username).localeCompare(String(b.username)));
+
+  const label = document.createElement('span');
+  label.className = 'text-muted';
+  label.textContent = `${online.length} ${online.length === 1 ? 'player' : 'players'} here`;
+
+  const chips = online.map(player => {
+    const chip = document.createElement('span');
+    chip.className = `badge rounded-pill ${player.userId === USER_ID ? 'bg-primary' : 'bg-secondary'}`;
+    chip.setAttribute('role', 'listitem');
+    chip.textContent = `${player.username}${player.userId === USER_ID ? ' (you)' : ''}: ${player.points}`;
+    return chip;
+  });
+  board.replaceChildren(label, ...chips);
+}
+
+// Letters of the question are typed one at a time from a single queue, so they
+// always land in order. (Each word used to get its own timers, so a word that
+// arrived while the previous one was still being typed got mixed into it, and
+// leftover letters spilled into the next question after a skip.) The queue is
+// emptied whenever the question changes or is revealed.
+const typewriter = { queue: [], timer: null };
+
+function typeText (text) {
+  typewriter.queue.push(...text);
+  if (typewriter.timer === null) typeNextLetters();
+}
+
+function typeNextLetters () {
+  if (typewriter.queue.length === 0) {
+    typewriter.timer = null;
+    return;
+  }
+  // Keep up when words arrive faster than one letter per tick.
+  const count = Math.max(1, Math.ceil(typewriter.queue.length / 12));
+  const questionEl = document.getElementById('question');
+  for (const ch of typewriter.queue.splice(0, count)) {
+    const letterSpan = document.createElement('span');
+    letterSpan.className = 'letter-token';
+    letterSpan.textContent = ch;
+    questionEl.appendChild(letterSpan);
+  }
+  typewriter.timer = setTimeout(typeNextLetters, 18);
+}
+
+function resetTypewriter () {
+  clearTimeout(typewriter.timer);
+  typewriter.timer = null;
+  typewriter.queue = [];
 }
 
 function updateTimerDisplay (time) {

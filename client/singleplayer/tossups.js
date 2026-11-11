@@ -88,6 +88,17 @@ let randomTossups = [];
 let randomTossupsRequestId = 0;
 let timeoutID = -1;
 
+// Only one reading loop may type into the question. Each new question or
+// reveal bumps readGeneration, and a loop from an older generation stops at
+// its next step. (Two loops used to run at once after quick skips, typing
+// letters from different words into each other.)
+let readGeneration = 0;
+// The word being typed, so a pause or a wrong buzz resumes mid-word
+// instead of dropping the rest of it: { word, chars, index }.
+let typing = null;
+// A skip is loading the next question; further skips wait for it.
+let nextInFlight = false;
+
 let tossups = [{}];
 let tossupText = '';
 let tossupTextSplit = [];
@@ -728,9 +739,21 @@ async function getRandomTossup ({ alternateSubcategories, categories, difficulti
 }
 
 async function next () {
+  if (nextInFlight) return;
+  nextInFlight = true;
+  try {
+    await loadNextQuestion();
+  } finally {
+    nextInFlight = false;
+  }
+}
+
+async function loadNextQuestion () {
   // Stop reading the current question:
   stopTossupTimer();
   clearTimeout(timeoutID);
+  readGeneration++;
+  typing = null;
   currentlyBuzzing = false;
 
   if (!previous.recorded && await account.getUsername() && document.getElementById('answer').innerHTML) {
@@ -811,51 +834,65 @@ function letterDelayMs () {
  * settings.readingSpeed.
  */
 function readQuestion () {
-  if (!currentlyBuzzing && tossupTextSplit.length > 0) {
+  clearTimeout(timeoutID); // never two reading loops at once
+  if (currentlyBuzzing) {
+    document.getElementById('pause').disabled = true;
+    return;
+  }
+  if (!typing || typing.index >= typing.chars.length) {
+    if (tossupTextSplit.length === 0) {
+      typing = null;
+      document.getElementById('pause').disabled = true;
+      return;
+    }
     const word = tossupTextSplit.shift();
     updateCelerity();
-    const chars = (word + ' ').split('');
-    const questionEl = document.getElementById('question');
-    const base = letterDelayMs();
+    typing = { word, chars: (word + ' ').split(''), index: 0 };
+  }
 
-    let charIndex = 0;
-    function renderNextLetter () {
-      if (currentlyBuzzing) return;
+  const current = typing;
+  const generation = readGeneration;
+  const questionEl = document.getElementById('question');
+  const base = letterDelayMs();
 
-      if (charIndex >= chars.length) {
-        // Word finished. Pause longer on sentence-ending punctuation.
-        let extra = 0;
-        const last = word.slice(-1);
-        const last2 = word.slice(-2);
-        if (
-          (last === '.' && word.charCodeAt(word.length - 2) > 96 && word.charCodeAt(word.length - 2) < 123) ||
-          last2 === '.\u201d' || last2 === '!\u201d' || last2 === '?\u201d' ||
-          last === '!' || last === '?'
-        ) {
-          extra = base * 6; // sentence break
-        } else if (last === ',' || last2 === ',\u201d' || last === ';' || last === ':') {
-          extra = base * 2.5; // clause break
-        }
-        timeoutID = window.setTimeout(readQuestion, extra);
-        return;
+  function renderNextLetter () {
+    if (currentlyBuzzing || generation !== readGeneration || typing !== current) return;
+
+    if (current.index >= current.chars.length) {
+      // Word finished. Pause longer on sentence-ending punctuation.
+      const word = current.word;
+      let extra = 0;
+      const last = word.slice(-1);
+      const last2 = word.slice(-2);
+      if (
+        (last === '.' && word.charCodeAt(word.length - 2) > 96 && word.charCodeAt(word.length - 2) < 123) ||
+        last2 === '.\u201d' || last2 === '!\u201d' || last2 === '?\u201d' ||
+        last === '!' || last === '?'
+      ) {
+        extra = base * 6; // sentence break
+      } else if (last === ',' || last2 === ',\u201d' || last === ';' || last === ':') {
+        extra = base * 2.5; // clause break
       }
-
-      const span = document.createElement('span');
-      span.className = 'letter-token';
-      span.textContent = chars[charIndex];
-      questionEl.appendChild(span);
-      charIndex++;
-
-      timeoutID = window.setTimeout(renderNextLetter, base);
+      timeoutID = window.setTimeout(readQuestion, extra);
+      return;
     }
 
-    renderNextLetter();
-  } else {
-    document.getElementById('pause').disabled = true;
+    const span = document.createElement('span');
+    span.className = 'letter-token';
+    span.textContent = current.chars[current.index];
+    questionEl.appendChild(span);
+    current.index++;
+
+    timeoutID = window.setTimeout(renderNextLetter, base);
   }
+
+  renderNextLetter();
 }
 
 async function revealQuestion () {
+  clearTimeout(timeoutID);
+  readGeneration++;
+  typing = null;
   const t = tossups[questionNumber - 1];
   document.getElementById('question').innerHTML = insertTokensIntoHTML(t.question, t.question_sanitized, [[buzzpointIndex]], [' (#) ']);
   document.getElementById('answer').innerHTML = 'ANSWER: ' + formatAnswerList(t.answer, t.acceptedAnswers, t.matchedAnswerIndex);
@@ -1432,6 +1469,7 @@ document.getElementById('clear-stats').addEventListener('click', function () {
 
 document.getElementById('next').addEventListener('click', async function () {
   this.blur();
+  if (nextInFlight) return; // the next question is still loading
   if (!started) {
     const selectedNames = selectedSetNames();
     useSetMode = selectedNames.length === 1;

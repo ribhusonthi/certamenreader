@@ -19,10 +19,45 @@ import checkAnswer from '../../lib/answer-checker.js';
 import createDOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
 import isAppropriateString from '../moderation/is-appropriate-string.js';
+import censorChat from '../moderation/censor-chat.js';
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
 
 const rateLimiter = new RateLimit(50, 1000);
+
+const MAX_CHAT_LENGTH = 256;
+
+/**
+ * Everything one player has open in a room. Player ids come from the
+ * signed-in account, so the same account in two tabs or on two devices is one
+ * player; every one of its sockets gets every update, and the player only
+ * leaves when the last one closes.
+ */
+class PlayerSockets {
+  constructor () {
+    this.open = new Set();
+  }
+
+  add (socket) {
+    this.open.add(socket);
+  }
+
+  /** @returns how many sockets are still open */
+  remove (socket) {
+    this.open.delete(socket);
+    return this.open.size;
+  }
+
+  send (message) {
+    for (const socket of this.open) {
+      if (socket.readyState === 1) socket.send(message);
+    }
+  }
+
+  get size () {
+    return this.open.size;
+  }
+}
 
 const QuestionProgressEnum = Object.freeze({
   NOT_STARTED: 0,
@@ -65,6 +100,7 @@ export default class TossupRoom {
      * @type {Object.<string, Player>}
      */
     this.players = {};
+    /** @type {Object.<string, PlayerSockets>} players online, by userId */
     this.sockets = {};
     /**
      * @type {Object.<string, string | null>}
@@ -75,6 +111,9 @@ export default class TossupRoom {
     this.verifiedUsernames = {};
 
     this.timeoutID = null;
+    // Bumped whenever reading stops for good (a new question, a reveal), so a
+    // stray timer from an earlier question can never read on.
+    this.readGeneration = 0;
     /**
      * @type {string | null}
      * The userId of the player who buzzed in.
@@ -196,6 +235,9 @@ export default class TossupRoom {
 
     socket.on('close', () => {
       this.safely(() => {
+        const stillOpen = this.sockets[userId]?.remove(socket) ?? 0;
+        if (stillOpen > 0) return; // still in the room in another tab
+
         if (this.buzzedIn === userId) {
           this.giveAnswer(userId, '');
           this.buzzedIn = null;
@@ -209,7 +251,7 @@ export default class TossupRoom {
       });
     });
 
-    this.sockets[userId] = socket;
+    (this.sockets[userId] ??= new PlayerSockets()).add(socket);
 
     socket.send(
       JSON.stringify({
@@ -327,29 +369,18 @@ export default class TossupRoom {
         break;
       }
 
+      // Chat is open in every room. Banned words are starred out before the
+      // message goes to anyone, including while it is being typed.
       case 'chat':
-        // prevent chat messages if room is public, since they can still be sent with API
-        if (this.settings.public || typeof message.message !== 'string') {
-          return;
-        }
-
-        this.sendSocketMessage({
-          type: 'chat',
-          username: this.players[userId].username,
-          message: message.message,
-          userId
-        });
-        break;
-
       case 'chat-live-update':
-        if (this.settings.public || typeof message.message !== 'string') {
+        if (typeof message.message !== 'string') {
           return;
         }
 
         this.sendSocketMessage({
-          type: 'chat-live-update',
+          type,
           username: this.players[userId].username,
-          message: message.message,
+          message: censorChat(message.message.slice(0, MAX_CHAT_LENGTH)),
           userId
         });
         break;
@@ -408,6 +439,11 @@ export default class TossupRoom {
         break;
 
       case 'leave':
+        // Sent by the socket close handler once a player's last socket closes;
+        // a 'leave' sent by a client that is still connected is ignored.
+        if (this.sockets[userId]?.size) {
+          return;
+        }
         // this.deletePlayer(userId);  dont remove this comment
         this.players[userId].isOnline = false;
         delete this.sockets[userId];
@@ -727,6 +763,10 @@ export default class TossupRoom {
   }
 
   buzz (userId) {
+    // Only while a question is being read. A buzz before Start (or after the
+    // answer was shown) used to leave buzzedIn set with nothing to answer,
+    // which locked the room: Start, Next and Skip were all ignored after it.
+    if (this.questionProgress !== QuestionProgressEnum.READING || Object.keys(this.tossup).length === 0) return;
     if (!this.settings.rebuzz && this.buzzes.includes(userId)) return;
 
     if (this.buzzedIn) {
@@ -786,6 +826,7 @@ export default class TossupRoom {
     });
 
     if (Object.keys(this.tossup).length === 0) {
+      this.buzzedIn = null; // nothing to answer; never leave the room locked
       return;
     }
 
@@ -873,7 +914,13 @@ export default class TossupRoom {
       !this.settings.skip
     ) { return; }
 
+    // Stop everything still running for the old question: its reading loop
+    // and its countdown. A countdown left running would fire partway through
+    // the next question and reveal it while words were still arriving.
     clearTimeout(this.timeoutID);
+    clearInterval(this.timerInterval);
+    this.timerInterval = null;
+    this.readGeneration++;
 
     this.buzzedIn = null;
     this.buzzes = [];
@@ -902,6 +949,9 @@ export default class TossupRoom {
 
   pause (userId) {
     if (this.buzzedIn) return;
+    // Only a question being read can be paused; resuming anything else would
+    // start reading a revealed (or no) question again.
+    if (this.questionProgress !== QuestionProgressEnum.READING) return;
 
     this.paused = !this.paused;
 
@@ -957,13 +1007,19 @@ export default class TossupRoom {
     time = time * 0.9 * (125 - this.settings.readingSpeed);
     const delay = time - Date.now() + expectedReadTime;
 
+    const generation = this.readGeneration;
+    clearTimeout(this.timeoutID); // one reading loop at a time
     this.timeoutID = setTimeout(() => {
+      if (generation !== this.readGeneration) return;
       this.readQuestion(time + expectedReadTime);
     }, delay);
   }
 
   revealQuestion () {
     if (Object.keys(this.tossup).length === 0) return;
+
+    clearTimeout(this.timeoutID);
+    this.readGeneration++;
 
     this.questionProgress = QuestionProgressEnum.ANSWER_REVEALED;
     this.sendSocketMessage({
@@ -1015,7 +1071,7 @@ export default class TossupRoom {
 
   sendPrivateMessage (userId, message) {
     message = JSON.stringify(message);
-    this.sockets[userId].send(message);
+    this.sockets[userId]?.send(message);
   }
 
   /**
