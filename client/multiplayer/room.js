@@ -465,6 +465,16 @@ const socketOnConnectionAcknowledged = async (message) => {
   USER_ID = message.userId;
   window.localStorage.setItem('USER_ID', USER_ID);
 
+  // Players first, so the player list and scoreboard appear even if a
+  // settings control below is missing from the page.
+  Object.keys(message.players).forEach((userId) => {
+    message.players[userId].celerity =
+      message.players[userId].celerity.correct.average;
+    players[userId] = message.players[userId];
+    upsertPlayerItem(players[userId]);
+  });
+  sortPlayerListGroup();
+
   document.getElementById('toggle-rebuzz').checked = message.rebuzz;
   document.getElementById('toggle-skip').checked = message.skip;
   document.getElementById('toggle-timer').checked = message.timer;
@@ -511,18 +521,17 @@ const socketOnConnectionAcknowledged = async (message) => {
   }
 
   if (message.isPermanent) {
-    document.getElementById('category-select-button').disabled = true;
+    // Permanent rooms keep their categories (the server ignores changes), so
+    // the category chips are greyed out. The old category button no longer
+    // exists; disabling it threw here and left permanent rooms with no
+    // player list or scoreboard.
+    for (const id of ['category-chips', 'category-toggle-all']) {
+      document.getElementById(id)?.classList.add('pe-none', 'opacity-50');
+    }
     document.getElementById('toggle-visibility').disabled = true;
     document.getElementById('private-chat-warning').innerHTML =
       'This is a permanent room. Some settings have been restricted.';
   }
-
-  Object.keys(message.players).forEach((userId) => {
-    message.players[userId].celerity =
-      message.players[userId].celerity.correct.average;
-    players[userId] = message.players[userId];
-    upsertPlayerItem(players[userId]);
-  });
 
   if (!message.canBuzz) {
     document.getElementById('buzz').disabled = true;
