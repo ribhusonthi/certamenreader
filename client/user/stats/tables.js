@@ -1,79 +1,57 @@
-/**
- * Sorts a table by the values in a specified column.
- * @param {Number} n a zero-indexed column number to sort
- * @param {Boolean} isFloat whether the column values represent numeric values
- * @param {*} tableId
- */
-// eslint-disable-next-line no-unused-vars
-function sortTable (n, isFloat = false, tableId = 'table') {
-  let rows; let switching; let i; let x; let y; let shouldSwitch; let dir; let switchcount = 0;
-  const table = document.getElementById(tableId);
-  switching = true;
-  // Set the sorting direction to ascending for text;
-  // Numerals are always sorted in the opposite order from text
-  dir = 'asc';
-  /* Make a loop that will continue until
-    no switching has been done: */
-  while (switching) {
-    // Start by saying: no switching is done:
-    switching = false;
-    rows = table.rows;
-    // Loop through all table rows (except the
-    // first, which contains table headers,
-    // and the last, which contains table footers):
-    for (i = 1; i < (rows.length - 2); i++) {
-      // Start by saying there should be no switching:
-      shouldSwitch = false;
-      /* Get the two elements you want to compare,
-            one from current row and one from the next: */
-      x = rows[i].children[n];
-      y = rows[i + 1].children[n];
-      /* Check if the two rows should switch place,
-            based on the direction, asc or desc: */
-      if (dir === 'asc') {
-        if (isFloat) {
-          if (parseFloat(x.innerHTML) < parseFloat(y.innerHTML)) {
-            // If so, mark as a switch and break the loop:
-            shouldSwitch = true;
-            break;
-          }
-        } else {
-          if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-            // If so, mark as a switch and break the loop:
-            shouldSwitch = true;
-            break;
-          }
-        }
-      } else if (dir === 'desc') {
-        if (isFloat) {
-          if (parseFloat(x.innerHTML) > parseFloat(y.innerHTML)) {
-            // If so, mark as a switch and break the loop:
-            shouldSwitch = true;
-            break;
-          }
-        } else {
-          if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-            // If so, mark as a switch and break the loop:
-            shouldSwitch = true;
-            break;
-          }
-        }
-      }
-    }
-    if (shouldSwitch) {
-      /* If a switch has been marked, make the switch
-            and mark that a switch has been done: */
-      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-      switching = true;
-      // Each time a switch is done, increase this count by 1:
-      switchcount++;
-    } else {
-      /* If no switching has been done AND the direction is "asc",
-            set the direction to "desc" and run the while loop again. */
-      if (switchcount === 0 && dir === 'asc') {
-        dir = 'desc';
-        switching = true;
-      }
-    }
-  }
+// Sortable stats tables. Clicking a column heading (or pressing Enter or Space
+// on it) sorts the table body by that column; doing it again reverses the
+// order. Headings opt in with data-sort="text" or data-sort="number".
+//
+// The headings used to call a global sortTable() from onclick attributes, but
+// this file loads as a module, so the function was never global and clicking
+// a heading did nothing.
+
+function cellValue (row, column, numeric) {
+  const text = row.cells[column]?.textContent.trim() ?? '';
+  if (!numeric) return text.toLowerCase();
+  const number = parseFloat(text);
+  return Number.isNaN(number) ? null : number;
 }
+
+// Text sorts A to Z first; numbers sort largest first, the more useful order
+// for stats. Cells with no number go last.
+function compare (a, b, numeric) {
+  if (!numeric) return a.localeCompare(b);
+  if (a === null || b === null) return (a === null) - (b === null);
+  return b - a;
+}
+
+function sortTable (heading) {
+  const body = heading.closest('table')?.tBodies[0];
+  if (!body) return;
+
+  const column = heading.cellIndex;
+  const numeric = heading.dataset.sort === 'number';
+  const rows = [...body.rows].map(row => ({ row, value: cellValue(row, column, numeric) }));
+  const sorted = [...rows].sort((x, y) => compare(x.value, y.value, numeric));
+
+  // Already in that order: reverse it.
+  const reversed = sorted.every((entry, i) => entry === rows[i]);
+  if (reversed) sorted.reverse();
+  body.append(...sorted.map(entry => entry.row));
+
+  for (const cell of heading.parentElement.cells) cell.removeAttribute('aria-sort');
+  const firstOrder = numeric ? 'descending' : 'ascending';
+  const otherOrder = numeric ? 'ascending' : 'descending';
+  heading.setAttribute('aria-sort', reversed ? otherOrder : firstOrder);
+}
+
+const sortableHeading = target => target.closest?.('thead th[data-sort]');
+
+document.addEventListener('click', event => {
+  const heading = sortableHeading(event.target);
+  if (heading) sortTable(heading);
+});
+
+document.addEventListener('keydown', event => {
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+  const heading = sortableHeading(event.target);
+  if (!heading) return;
+  event.preventDefault();
+  sortTable(heading);
+});
