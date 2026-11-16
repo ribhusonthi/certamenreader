@@ -200,6 +200,18 @@
                 </li>
                 <li class="list-group-item">
                     <div>
+                        <code>strictAnswer</code><code class="text-muted">: boolean</code>
+                        <code class="text-muted float-end fw-semibold">default: false</code>
+                    </div>
+                    <div>
+                        Only return questions whose answer is exactly <code>queryString</code>, or lists it as an alternate
+                        (separated by <code>/</code>, <code>,</code>, <code>;</code>, brackets or "or"). Words in parentheses are optional.
+                        For example, <code>claudian</code> matches <code>(CLAUDIUS) CLAUDIAN</code> but not <code>CLAUDIAN AQUEDUCT</code>.
+                        Overrides <code>searchType</code>, <code>regex</code>, <code>exactPhrase</code> and <code>ignoreWordOrder</code>.
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div>
                         <code>ignoreWordOrder</code><code class="text-muted">: boolean</code>
                         <code class="text-muted float-end fw-semibold">default: false</code>
                     </div>

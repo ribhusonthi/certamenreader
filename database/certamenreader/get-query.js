@@ -18,6 +18,22 @@ function escapeRegExp (string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
+/**
+ * Builds a regex that matches an answerline only when the search is the whole
+ * answer, or one of the alternates listed in it. Alternates are split on
+ * "/", ",", ";", brackets and "or", may start with "accept", and may carry
+ * optional parenthesized words: "claudian" matches "CLAUDIAN",
+ * "(CLAUDIUS) CLAUDIAN" and "STILICHO / CLAUDIAN [ACCEPT CLAUDIANUS]",
+ * but not "CLAUDIAN AQUEDUCT".
+ * @param {string} escaped - the search, already regex-escaped
+ */
+function strictAnswerPattern (escaped) {
+  const core = escaped.replace(/ +/g, '\\s+');
+  const start = '(?:^|[/,;\\[\\]]|\\bOR\\s)\\s*(?:(?:ALSO\\s+)?ACCEPT:?\\s+)?(?:\\([^)]*\\)\\s*)?';
+  const end = '(?:\\s*\\([^)]*\\))?\\s*(?:$|[/,;\\[\\]]|\\sOR\\b)';
+  return `${start}${core}${end}`;
+}
+
 function unformatString (string) {
   return string
     .normalize('NFD')
@@ -62,6 +78,7 @@ function validateOptions ({
   regex = false,
   ignoreWordOrder = false,
   exactPhrase = false,
+  strictAnswer = false,
   tossupPagination = 1,
   bonusPagination = 1,
   minYear,
@@ -87,6 +104,13 @@ function validateOptions ({
     throw new Error('Invalid question type specified.');
   }
 
+  if (strictAnswer) {
+    regex = false;
+    exactPhrase = false;
+    ignoreWordOrder = false;
+    searchType = 'answer';
+  }
+
   if (regex) {
     exactPhrase = false;
     ignoreWordOrder = false;
@@ -105,6 +129,12 @@ function validateOptions ({
   if (exactPhrase && !regex) {
     queryString = `\\b${queryString}\\b`;
     words = words.map(word => `\\b${word}\\b`);
+  }
+
+  if (strictAnswer && queryString !== '') {
+    words = [strictAnswerPattern(queryString)];
+    // What the client highlights in the results.
+    queryString = `\\b${queryString.replace(/ +/g, '\\s+')}\\b`;
   }
 
   if (!searchType) {

@@ -465,6 +465,7 @@ function QueryForm() {
   const [regex, setRegex] = React.useState(false);
   const [ignoreWordOrder, setIgnoreWordOrder] = React.useState(false);
   const [exactPhrase, setExactPhrase] = React.useState(false);
+  const [strictAnswer, setStrictAnswer] = React.useState(false);
   const [hideAnswerlines, setHideAnswerlines] = React.useState(false);
   const [showCardFooters, setShowCardFooters] = React.useState(true);
   const [currentlySearching, setCurrentlySearching] = React.useState(false);
@@ -538,10 +539,11 @@ function QueryForm() {
     });
   }
 
-  // Every search covers question and answer text, tossups and boni.
+  // Every search covers question and answer text, tossups and boni, unless
+  // "answerlines only" is on: then it matches whole answers only.
   function handleSubmit(event, paginationUpdate = false) {
     const startTime = performance.now();
-    const searchType = 'all';
+    const searchType = strictAnswer ? 'answer' : 'all';
     event.preventDefault();
     setCurrentlySearching(true);
     if (!paginationUpdate) {
@@ -559,6 +561,7 @@ function QueryForm() {
       exactPhrase,
       regex,
       ignoreWordOrder,
+      strictAnswer,
       searchType,
       setName: document.getElementById('set-name').value,
       setNames: document.getElementById('set-names').value,
@@ -837,8 +840,23 @@ function QueryForm() {
     className: "form-check-input",
     type: "checkbox",
     role: "switch",
+    id: "toggle-strict-answer",
+    checked: strictAnswer,
+    onChange: () => {
+      setStrictAnswer(!strictAnswer);
+    }
+  }), /*#__PURE__*/React.createElement("label", {
+    className: "form-check-label",
+    htmlFor: "toggle-strict-answer"
+  }, "Search answerlines only (exact answer)")), /*#__PURE__*/React.createElement("div", {
+    className: "form-check form-switch"
+  }, /*#__PURE__*/React.createElement("input", {
+    className: "form-check-input",
+    type: "checkbox",
+    role: "switch",
     id: "toggle-regex",
-    checked: regex,
+    checked: !strictAnswer && regex,
+    disabled: strictAnswer,
     onChange: () => {
       setRegex(!regex);
     }
@@ -854,8 +872,8 @@ function QueryForm() {
     type: "checkbox",
     role: "switch",
     id: "toggle-ignore-word-order",
-    checked: !regex && ignoreWordOrder,
-    disabled: regex,
+    checked: !strictAnswer && !regex && ignoreWordOrder,
+    disabled: strictAnswer || regex,
     onChange: () => {
       setIgnoreWordOrder(!ignoreWordOrder);
     }
@@ -869,8 +887,8 @@ function QueryForm() {
     type: "checkbox",
     role: "switch",
     id: "toggle-exact-phrase",
-    checked: !regex && exactPhrase,
-    disabled: regex,
+    checked: !strictAnswer && !regex && exactPhrase,
+    disabled: strictAnswer || regex,
     onChange: () => {
       setExactPhrase(!exactPhrase);
     }

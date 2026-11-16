@@ -407,6 +407,7 @@ function QueryForm () {
   const [regex, setRegex] = React.useState(false);
   const [ignoreWordOrder, setIgnoreWordOrder] = React.useState(false);
   const [exactPhrase, setExactPhrase] = React.useState(false);
+  const [strictAnswer, setStrictAnswer] = React.useState(false);
   const [hideAnswerlines, setHideAnswerlines] = React.useState(false);
   const [showCardFooters, setShowCardFooters] = React.useState(true);
 
@@ -494,10 +495,11 @@ function QueryForm () {
     });
   }
 
-  // Every search covers question and answer text, tossups and boni.
+  // Every search covers question and answer text, tossups and boni, unless
+  // "answerlines only" is on: then it matches whole answers only.
   function handleSubmit (event, paginationUpdate = false) {
     const startTime = performance.now();
-    const searchType = 'all';
+    const searchType = strictAnswer ? 'answer' : 'all';
 
     event.preventDefault();
     setCurrentlySearching(true);
@@ -518,6 +520,7 @@ function QueryForm () {
       exactPhrase,
       regex,
       ignoreWordOrder,
+      strictAnswer,
       searchType,
       setName: document.getElementById('set-name').value,
       setNames: document.getElementById('set-names').value,
@@ -704,16 +707,20 @@ function QueryForm () {
             </div>
           </div>
           <div className='form-check form-switch'>
-            <input className='form-check-input' type='checkbox' role='switch' id='toggle-regex' checked={regex} onChange={() => { setRegex(!regex); }} />
+            <input className='form-check-input' type='checkbox' role='switch' id='toggle-strict-answer' checked={strictAnswer} onChange={() => { setStrictAnswer(!strictAnswer); }} />
+            <label className='form-check-label' htmlFor='toggle-strict-answer'>Search answerlines only (exact answer)</label>
+          </div>
+          <div className='form-check form-switch'>
+            <input className='form-check-input' type='checkbox' role='switch' id='toggle-regex' checked={!strictAnswer && regex} disabled={strictAnswer} onChange={() => { setRegex(!regex); }} />
             <label className='form-check-label' htmlFor='toggle-regex'>Search using regular expression</label>
             <a href='https://www.sitepoint.com/learn-regex/'> What&apos;s this?</a>
           </div>
           <div className='form-check form-switch'>
-            <input className='form-check-input' type='checkbox' role='switch' id='toggle-ignore-word-order' checked={!regex && ignoreWordOrder} disabled={regex} onChange={() => { setIgnoreWordOrder(!ignoreWordOrder); }} />
+            <input className='form-check-input' type='checkbox' role='switch' id='toggle-ignore-word-order' checked={!strictAnswer && !regex && ignoreWordOrder} disabled={strictAnswer || regex} onChange={() => { setIgnoreWordOrder(!ignoreWordOrder); }} />
             <label className='form-check-label' htmlFor='toggle-ignore-word-order'>Ignore word order</label>
           </div>
           <div className='form-check form-switch'>
-            <input className='form-check-input' type='checkbox' role='switch' id='toggle-exact-phrase' checked={!regex && exactPhrase} disabled={regex} onChange={() => { setExactPhrase(!exactPhrase); }} />
+            <input className='form-check-input' type='checkbox' role='switch' id='toggle-exact-phrase' checked={!strictAnswer && !regex && exactPhrase} disabled={strictAnswer || regex} onChange={() => { setExactPhrase(!exactPhrase); }} />
             <label className='form-check-label' htmlFor='toggle-exact-phrase'>Search for exact phrase</label>
           </div>
           <div className='form-check form-switch'>
