@@ -270,6 +270,10 @@
                                 <button class="nav-link" id="stats-buzzpoints-tab" data-bs-toggle="tab"
                                     data-bs-target="#stats-buzzpoints-panel" type="button" role="tab">Buzzpoints</button>
                             </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="stats-typed-tab" data-bs-toggle="tab"
+                                    data-bs-target="#stats-typed-panel" type="button" role="tab">Typed answers</button>
+                            </li>
                         </ul>
                         <div class="tab-content">
                             <div class="tab-pane fade show active" id="stats-overview-panel" role="tabpanel">
@@ -289,6 +293,16 @@
                                     <div id="boni-list">
                                         <p class="text-center text-muted">Click "View Boni" to load.</p>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="stats-typed-panel" role="tabpanel">
+                                <div class="btn-group btn-group-sm mb-3" role="group" aria-label="Filter typed answers">
+                                    <button type="button" class="btn btn-outline-primary active" data-typed-filter="all">All</button>
+                                    <button type="button" class="btn btn-outline-primary" data-typed-filter="wrong">Marked wrong</button>
+                                    <button type="button" class="btn btn-outline-primary" data-typed-filter="right">Marked right</button>
+                                </div>
+                                <div id="typed-body">
+                                    <p class="text-center text-muted">Switch to this tab to load typed answers.</p>
                                 </div>
                             </div>
                         </div>

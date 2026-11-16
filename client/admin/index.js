@@ -96,6 +96,9 @@ async function handleAdminToggle (event) {
 let currentStatsUsername = '';
 let buzzpointsLoaded = false;
 let boniLoaded = false;
+let typedLoaded = false;
+let typedRecords = [];
+let typedFilter = 'all';
 
 async function handleViewStats (event) {
   const btn = event.target;
@@ -105,6 +108,9 @@ async function handleViewStats (event) {
   currentStatsUsername = username;
   buzzpointsLoaded = false;
   boniLoaded = false;
+  typedLoaded = false;
+  typedRecords = [];
+  document.getElementById('typed-body').innerHTML = '<p class="text-center text-muted">Switch to this tab to load typed answers.</p>';
   const boniBody = document.getElementById('boni-body');
   if (boniBody) boniBody.classList.add('d-none');
   const viewBoniBtn = document.getElementById('view-boni-btn');
@@ -375,6 +381,7 @@ function renderBuzzpoints (buzzpoints) {
       </div>
       <div class="mb-1" style="font-size:0.9rem;line-height:1.6">${highlightBuzzpoint(bp.questionText || '', bp.buzzpointIndex)}</div>
       <div><strong>Answer:</strong> ${bp.answerText ? sanitizeHTML(bp.answerText) : 'N/A'}</div>
+      ${bp.givenAnswer ? `<div><strong>Typed:</strong> “${escapeHtml(bp.givenAnswer)}”</div>` : ''}
     </div>`;
   }
 
@@ -402,6 +409,85 @@ async function loadBuzzpoints () {
 document.getElementById('stats-buzzpoints-tab').addEventListener('shown.bs.tab', () => {
   loadBuzzpoints();
 });
+
+// ── Typed Answers Tab ───────────────────────────────────────────────────────────
+
+function renderTypedAnswers () {
+  const body = document.getElementById('typed-body');
+  if (typedRecords.length === 0) {
+    body.innerHTML = '<p class="text-center text-muted">No typed answers recorded yet.</p>';
+    return;
+  }
+
+  const shown = typedRecords.filter(r =>
+    typedFilter === 'all' || (typedFilter === 'right') === (r.isCorrect === true));
+  const wrongCount = typedRecords.filter(r => r.isCorrect !== true).length;
+
+  let html = `<p class="text-muted mb-2">${typedRecords.length} typed answer${typedRecords.length !== 1 ? 's' : ''} (newest first), ${wrongCount} marked wrong.</p>`;
+  if (shown.length === 0) {
+    body.innerHTML = html + '<p class="text-center text-muted">None match this filter.</p>';
+    return;
+  }
+
+  html += '<div class="list-group">';
+  for (const r of shown) {
+    const cat = r.category || 'Unknown';
+    const subcat = r.subcategory ? ` / ${r.subcategory}` : '';
+    const where = [r.setName, r.packetName, r.questionNumber != null ? `Q${r.questionNumber}` : '']
+      .filter(Boolean).join(' · ');
+    const date = r.recordedAt ? new Date(r.recordedAt).toLocaleString() : '';
+    const verdict = r.isCorrect === true
+      ? '<span class="badge bg-success">Marked right</span>'
+      : '<span class="badge bg-danger">Marked wrong</span>';
+
+    html += `<div class="list-group-item">
+      <div class="d-flex justify-content-between align-items-start mb-1 gap-2 flex-wrap">
+        <div>
+          ${verdict}
+          <span class="question-cat-badge cat-${cat.toLowerCase().replace(/[^a-z]/g, '-')} ms-1">${escapeHtml(cat)}${escapeHtml(subcat)}</span>
+          <span class="badge bg-info ms-1">${r.multiplayer ? 'MP' : 'SP'}</span>
+        </div>
+        <small class="text-muted">${escapeHtml(where)}${date ? ' - ' + escapeHtml(date) : ''}</small>
+      </div>
+      <div><strong>Typed:</strong> “${escapeHtml(r.givenAnswer)}”</div>
+      <div class="text-muted"><strong>Answer:</strong> ${r.answerText ? sanitizeHTML(r.answerText) : 'N/A'}</div>
+    </div>`;
+  }
+  html += '</div>';
+  body.innerHTML = html;
+}
+
+async function loadTypedAnswers () {
+  if (typedLoaded || !currentStatsUsername) return;
+  typedLoaded = true;
+
+  const body = document.getElementById('typed-body');
+  body.innerHTML = '<p class="text-center">Loading typed answers...</p>';
+
+  try {
+    const response = await fetch(`/admin/api/users/${encodeURIComponent(currentStatsUsername)}/typed-answers`);
+    if (!response.ok) throw new Error('Failed');
+    ({ records: typedRecords } = await response.json());
+    renderTypedAnswers();
+  } catch {
+    typedLoaded = false;
+    body.innerHTML = '<p class="text-center text-danger">Failed to load typed answers.</p>';
+  }
+}
+
+document.getElementById('stats-typed-tab').addEventListener('shown.bs.tab', () => {
+  loadTypedAnswers();
+});
+
+for (const btn of document.querySelectorAll('[data-typed-filter]')) {
+  btn.addEventListener('click', () => {
+    typedFilter = btn.dataset.typedFilter;
+    for (const other of document.querySelectorAll('[data-typed-filter]')) {
+      other.classList.toggle('active', other === btn);
+    }
+    if (typedLoaded) renderTypedAnswers();
+  });
+}
 
 function renderBoni (records) {
   const list = document.getElementById('boni-list');

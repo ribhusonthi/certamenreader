@@ -3,6 +3,7 @@ import setAdmin from '../../database/account-info/set-admin.js';
 import getCategoryStats from '../../database/account-info/user-stats/get-category-stats.js';
 import getUserId from '../../database/account-info/get-user-id.js';
 import { bonusData, tossupData } from '../../database/account-info/collections.js';
+import { tossups } from '../../database/certamenreader/collections.js';
 
 import { Router } from 'express';
 
@@ -64,6 +65,34 @@ router.get('/:username/buzzpoints', async (req, res) => {
   }).sort({ recordedAt: -1 }).limit(200).toArray();
 
   res.json({ buzzpoints });
+});
+
+// Get the answers a user typed on tossups, right and wrong, newest first.
+// Wrong buzzes don't carry the answerline on the record, so it is read from
+// the tossup itself.
+router.get('/:username/typed-answers', async (req, res) => {
+  const username = decodeURIComponent(req.params.username);
+  const userId = await getUserId(username);
+  if (!userId) {
+    res.sendStatus(404);
+    return;
+  }
+
+  const records = await tossupData.find(
+    { user_id: userId, givenAnswer: { $exists: true } },
+    { projection: { questionText: 0 } }
+  ).sort({ recordedAt: -1 }).limit(300).toArray();
+
+  const ids = records.filter(r => !r.answerText && r.tossup_id).map(r => r.tossup_id);
+  if (ids.length) {
+    const found = await tossups.find({ _id: { $in: ids } }, { projection: { answer: 1 } }).toArray();
+    const answerById = new Map(found.map(t => [String(t._id), t.answer]));
+    for (const r of records) {
+      if (!r.answerText) r.answerText = answerById.get(String(r.tossup_id)) ?? '';
+    }
+  }
+
+  res.json({ records });
 });
 
 // Get detailed bonus records for a specific user (for "view boni" admin UI)
